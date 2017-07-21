@@ -59,7 +59,6 @@ module.exports = function(env, clientConfig) {
   }
 
   function isFirstStart() {
-    return true;
     return firstStart;
   }
 
