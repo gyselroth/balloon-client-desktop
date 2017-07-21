@@ -46,7 +46,11 @@ app.on('ready', function () {
   logger.info('App ready');
         
   ipcMain.once('tray-online-state-changed', function(event, state) {
-    tray.create();
+
+    if(!startup.isFirstStart()) { 
+      tray.create();
+    }
+
     logger.info('Main: initial online state', {state});
     clientConfig.set('onLineState', state);
     startup.checkConfig().then(() => {
@@ -81,6 +85,7 @@ app.on('ready', function () {
       if(startup.isFirstStart()) {
         auth.login().then(() => {
           startup.welcomeWizard().then(() => {
+            tray.create();
             startUp();
           });
         });
