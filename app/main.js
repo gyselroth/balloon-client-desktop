@@ -14,6 +14,7 @@ const SettingsCtrl = require('./ui/settings/controller.js');
 const SyncCtrl = require('./lib/sync/controller.js');
 const StartupCtrl = require('./ui/startup/controller.js');
 const AuthCtrl = require('./lib/auth/controller.js');
+const AutoUpdateCtrl = require('./lib/auto-update/controller.js');
 const ErrorReportCtrl = require('./lib/error-report/controller.js');
 
 const logger = require('./lib/logger.js');
@@ -22,11 +23,13 @@ const configManager = require('./lib/config-manager/controller.js')(clientConfig
 
 
 
-var tray, sync, settings, errorReport;
+var tray, sync, settings, errorReport, autoUpdate;
 
 var standardLogger = new loggerFactory(clientConfig.getAll());
 var startup = StartupCtrl(env, clientConfig);
 var auth = AuthCtrl(env, clientConfig);
+
+clientConfig.set('updateAvailable', false);
 
 logger.setLogger(standardLogger);
 
@@ -44,8 +47,10 @@ if(shouldQuit === true) {
 
 app.on('ready', function () {
   logger.info('App ready');
-        
+
   ipcMain.once('tray-online-state-changed', function(event, state) {
+    autoUpdate.checkForUpdate();
+
     tray.create();
     logger.info('Main: initial online state', {state});
     clientConfig.set('onLineState', state);
@@ -77,7 +82,7 @@ app.on('ready', function () {
           }
         });
       }
-            
+
       if(startup.isFirstStart()) {
         auth.login().then(() => {
           startup.welcomeWizard().then(() => {
@@ -95,6 +100,7 @@ app.on('ready', function () {
 
   tray = TrayCtrl(env);
   settings = SettingsCtrl(env);
+  autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
   errorReport = ErrorReportCtrl(env, clientConfig, sync);
 });
 
@@ -127,6 +133,18 @@ ipcMain.on('tray-online-state-changed', function(event, state) {
     if(sync && sync.isPaused() === false) startSync();
     tray.toggleState('offline', false);
   }
+});
+
+
+/** Auto update **/
+ipcMain.on('install-update', function() {
+  logger.info('Main: install-update triggered');
+  autoUpdate.quitAndInstall();
+});
+
+ipcMain.on('check-for-update', function() {
+  logger.info('Main: check-for-update triggered');
+  autoUpdate.checkForUpdate();
 });
 
 /** Sync **/

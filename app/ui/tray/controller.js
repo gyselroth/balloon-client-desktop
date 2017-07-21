@@ -16,28 +16,31 @@ const Icons = {
     'offline': 'taskbar_error_black.png',
     'loggedout': 'taskbar_error_black.png',
     'pause': 'taskbar_pause_black.png',
-    'sync': 'taskbar_sync_black.png'
+    'sync': 'taskbar_sync_black.png',
+    'update': 'taskbar_error_black.png'
   },
   icoBlack: {
     'default': 'taskbar_black.ico',
     'check': 'taskbar_check_black.ico',
     'offline': 'taskbar_error_black.ico',
     'pause': 'taskbar_pause_black.ico',
-    'sync': 'taskbar_sync_black.ico'
+    'sync': 'taskbar_sync_black.ico',
+    'update': 'taskbar_error_black.ico'
   },
   icoWhite: {
     'default': 'taskbar.ico',
     'offline': 'taskbar_error.ico',
     'loggedout': 'taskbar_error.ico',
     'pause': 'taskbar_pause.ico',
-    'sync': 'taskbar_sync.ico'
+    'sync': 'taskbar_sync.ico',
+    'update': 'taskbar_error.ico'
   },
   default: {
     'default': 'tray-icon.png'
   }
 }
 
-const StatePriorities = ['offline', 'loggedout', 'pause', 'sync', 'default'];
+const StatePriorities = ['offline', 'loggedout', 'pause', 'sync', 'update', 'default'];
 
 const currentStates = {
   default: true,
@@ -45,7 +48,8 @@ const currentStates = {
   offline: false,
   loggedout: false,
   pause: false,
-  sync: false
+  sync: false,
+  update: false
 }
 
 const trayWindowWidth = 306;
@@ -150,10 +154,10 @@ module.exports = function(env) {
 
     const position = getWindowPosition();
 
+    trayWindow.webContents.send('update-window');
     trayWindow.setPosition(position.x, position.y, false);
     trayWindow.show();
     trayWindow.focus();
-    trayWindow.webContents.send('show-quota');
   }
 
   function getWindowPosition() {

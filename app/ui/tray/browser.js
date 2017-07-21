@@ -17,9 +17,12 @@ handlebars.registerHelper('i18n', function(key) {
 $('document').ready(function() {
   $('body').addClass(process.platform);
   compileTemplate();
-    
-  ipcRenderer.on('show-quota' , function() {
-    showQuota();
+
+  ipcRenderer.on('update-window', updateWindow);
+
+  $('#item-installupdate').bind('click', function() {
+    ipcRenderer.send('tray-hide');
+    ipcRenderer.send('install-update');
   });
 
   $('#item-gotofolder').bind('click', function() {
@@ -87,6 +90,8 @@ $('document').ready(function() {
       $togglePauseSync.toggleClass('paused');
     });
   }
+
+  updateWindow();
 });
 
 function showQuota() {
@@ -114,13 +119,13 @@ function showQuota() {
 
 function getReadableFileSizeString(bytes) {
   if(bytes === null) {
-    return '0B';    
+    return '0B';
   }
 
   if(bytes < 1024) {
-    return bytes+'B';    
+    return bytes+'B';
   }
-    
+
   var i = -1;
   var units = ['kB', 'MB', 'GB', ' TB', 'PB', 'EB', 'ZB', 'YB'];
   do {
@@ -139,6 +144,15 @@ function compileTemplate() {
   var context = {};
 
   $placeholder.html(template(context));
+}
+
+function toggleInstallUpdate() {
+  $('#item-installupdate').toggle(clientConfig.get('updateAvailable'));
+}
+
+function updateWindow() {
+  showQuota();
+  toggleInstallUpdate();
 }
 
 /*

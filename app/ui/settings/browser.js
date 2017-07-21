@@ -21,8 +21,21 @@ $(document).ready(function() {
 
   compileTemplates();
 
+  ipcRenderer.on('update-window', updateWindow);
+
+  var $checkForUpdate = $('#check-for-update');
+  var $installUpdate = $('#install-update');
   var $errorReportErrorMessage = $('#error-report-failure');
   var $errorReport = $('#settings-report');
+
+  $checkForUpdate.bind('click', function() {
+    ipcRenderer.send('check-for-update');
+  });
+
+  $installUpdate.bind('click', function() {
+    ipcRenderer.send('install-update');
+  });
+
 
   $errorReport.bind('click', function() {
     if($errorReport.is(':visible')) {
@@ -56,6 +69,16 @@ $(document).ready(function() {
     }
   }
 
+  function toggleInstallUpdate() {
+    $installUpdate.toggle(clientConfig.get('updateAvailable'));
+    $checkForUpdate.toggle(!clientConfig.get('updateAvailable'));
+  }
+
+  function updateWindow() {
+    toggleInstallUpdate();
+    updateLoginState();
+  }
+
   $logout.bind('click', function() {
     if($logout.is(':visible')) {
       $logout.hide();
@@ -77,7 +100,7 @@ $(document).ready(function() {
     });
   });
 
-  updateLoginState();
+  updateWindow();
 });
 
 function compileTemplates() {

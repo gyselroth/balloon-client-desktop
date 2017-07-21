@@ -61,6 +61,10 @@ module.exports = function(env) {
       logger.info('Settings: opened');
     });
 
+    settingsWindow.on('focus', (event) => {
+      settingsWindow.webContents.send('update-window');
+    });
+
     if(env.name === 'development') {
       settingsWindow.openDevTools();
     }
