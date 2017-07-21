@@ -1,0 +1,672 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+    cursor: default;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+
+body {
+    line-height: 1;
+    font-family:  Segoe UI, Dejavu Sans, Helvetica Neue, Arial, sans-serif;
+    letter-spacing: -1px;
+    background-color: #fcfcfc;
+}
+
+body.startPage {
+    background-color: #4E53AA;
+    color: #fff;
+}
+
+ol, ul {
+    list-style: none;
+}
+
+blockquote, q {
+    quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+
+/* remember to define visible focus styles!
+:focus {
+	outline: ?????;
+} */
+
+/* remember to highlight inserts somehow! */
+ins {
+    text-decoration: none;
+}
+
+del {
+    text-decoration: line-through;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+h1 {
+    font-size: 26px;
+    margin-bottom: 30px;
+    font-weight: 300;
+}
+
+h2 {
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 10px;
+}
+
+h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    font-weight: 300;
+}
+
+p {
+    font-size: 16px;
+    font-weight: 300;
+    color: #666;
+    line-height: 25px;
+}
+
+/*-----Header-----*/
+
+#header {
+    position: relative;
+    height: 33px;
+    background-color: #E0E0E0;
+}
+
+.taskbar #header {
+    height: auto;
+    padding: 0;
+}
+
+.startPage #header {
+    background-color: transparent;
+}
+
+#header p {
+    position: absolute;
+    left: 12px;
+    top: 4px;
+}
+
+.taskbar #header p {
+    position: static;
+}
+
+.closeBtn {
+    width: 14px;
+    height: 14px;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+}
+
+/*-----Content-----*/
+
+.startPage #content {
+    text-align: center;
+}
+
+.startPage #content p {
+    margin-bottom: 25px;
+    max-width: 100%;
+}
+
+.taskbar #contentWrapper {
+    min-height: 0;
+    padding: 0;
+}
+
+#contentWrapper {
+    padding: 15px;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+.startPage #contentWrapper {
+    padding-top: 65px;
+}
+
+.folder {
+    width: 100%;
+    background-color: #fff;
+    height: 200px;
+    margin-top: 15px;
+}
+
+/*-----Setting Boxes-----*/
+
+#setting button {
+  float: right;
+}
+
+.settings {
+    background-color: #fff;
+    border: solid 1px #DDD;
+    padding: 10px 0;
+    margin-bottom: 10px;
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+}
+
+.settings > div {
+    float: left;
+}
+
+.settings:last-child {
+    margin-bottom: 0;
+}
+
+.settingTxt {
+    width: 55%;
+}
+
+.settings .icon {
+    width: 60px;
+    text-align: center;
+}
+
+.settings .icon svg {
+    width: 40px;
+}
+
+.settings .edit {
+    clear: both;
+    margin: 5px 0 0 60px;
+    font-size: 13px;
+    text-decoration: underline;
+    color: #999;
+}
+
+.settings .edit svg {
+    width: 40px;
+}
+
+.settings .info {
+    font-size: 16px;
+    color: #000;
+    font-weight: 400;
+}
+
+#settings-account .edit > div {
+    display: none;
+}
+
+/*-----Formular----*/
+
+form {
+    margin-top: 43px;
+}
+
+.formfield {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    margin-bottom: 20px;
+}
+
+.formfield label,
+.formfield input,
+.formfield select {
+
+    display: inline-block;
+}
+
+.formfield label {
+    width: 25%;
+}
+
+.formfield input,
+.formfield select {
+    width: 74%;
+}
+
+input,
+select,
+select > option,
+.select-node div:first-child,
+#startup-adavanced-selective {
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 25px;
+    padding: 8px;
+    box-sizing: border-box;
+    border: solid 1px #CCC;
+    height: 28px;
+    border-radius: 0;
+    appearance: none;
+}
+
+input[type="radio"], input[type="checkbox"] {
+    height: inherit;
+}
+
+.select-node input {
+    display: none;
+    clear: both;
+}
+
+.select-node div {
+    display: inline-block;
+}
+
+.select-node div:first-child {
+    width: 250px;
+    padding: 0 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.arrow-down {
+  margin-bottom: 10px;
+    width: 0; 
+    height: 0; 
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #000;
+}
+/*-----Footer-----*/
+
+#footer {
+    height: 80px;
+    background-color: #F0F0F0;
+    text-align: right;
+    padding: 0 40px;
+}
+
+/*-----Startup.....*/
+#startup .view  {
+    display: none;
+    text-align: center;
+}
+
+#startup-view-server input {
+    height: 40px;
+}
+
+#startup-adavanced-selective {
+    width: 250px !important;
+    background: transparent;
+    color: #000;
+    padding: 0;
+}
+
+#startup-savedir {
+    margin-bottom: 30px;
+    display: inline-block;
+}
+
+#startup-logo {
+    background-image: url('../../img/balloon.svg');
+    background-repeat: no-repeat;
+    background-size: 200px;
+    background-position: center;
+    width: 100px;
+    height: 200px;
+    margin: 0 auto 10px auto;
+}
+
+#startup-view-advanced {
+  margin-top: 30px;
+}
+
+#startup-view-advanced .startup-open-folder {
+    margin: 50px auto 0 auto;
+    display: table-cell;
+}
+
+#startup p {
+    padding-bottom: 5px;
+}
+
+#startup-view-server {
+    display: block;
+}
+
+#startup-advanced {
+    position: absolute;
+    bottom: 10px;
+}
+
+#startup-advanced {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    font-size: 13px;
+    color: #999;
+}
+
+#selective-sync div {
+    height: 310px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: solid #CCC 1px;
+    padding: 5px;
+}
+
+#selective-sync span {
+    font-size: 14px;
+}
+
+#selective-sync li {
+    text-overflow: ellipsis;
+    max-width: 280px;
+    margin: 8px 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+#selective-sync button {
+    float: right;
+    margin-left: 3px;
+}
+
+/*-----Taskbar-----*/
+html.win32,
+.win32 .taskbar {
+  height: 100%;
+  overflow: hidden;
+}
+
+.win32 .taskbar {
+  border: 1px solid rgba(0,0,0,0.3)
+}
+
+.task {
+    padding: 2px 0;
+    float: right;
+}
+
+.taskbar-action {
+    float: right;
+}
+
+#production-menu, #development-menu {
+    float: right;
+    display: none;
+}
+
+.task:hover {
+    background-color: #EEE;
+}
+
+.taskbar #content {
+    width: 300px;
+    height: 155px;
+    border: solid 1px #ccdfff;
+    padding: 2px;
+}
+
+.taskbar {
+  font-size: 11px;
+}
+
+.taskbar #quota {
+    width: 90%;
+    margin: 10px;
+}
+
+.taskbar #quota .bar {
+    width: 90%;
+    height: 20px;
+    background-color: #EEE;
+}
+
+.quota-text {
+    margin-top: 4px;
+}
+
+.taskbar-text {
+    float: left;
+    padding: 2px;
+    line-height: 24px;
+    color: #999;
+}
+
+#quota .used {
+    background-color: #ccdfff;
+    width: 0%;
+    height: 20px;
+}
+
+.quota-high {
+    background-color: #FF0000 !important;
+}
+
+#taskbar-top {
+    height: 30px;
+    border-bottom: solid 1px #DDD;
+    padding: 1px;
+}
+
+#taskbar-bottom {
+    height: 30px;
+    border-top: solid 1px #DDD;
+    padding: 1px;
+}
+
+#taskbar-center {
+    height: 80px;
+    clear: both;
+}
+
+#header .task {
+    padding: 9px 0;
+    transition: background-color .3s ease-in-out;
+}
+
+.task.disabled {
+    color: #EBEBEB !important;
+    cursor: default !important;
+}
+
+.taskicon, .tasktxt {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.taskicon {
+    width: 26px;
+    text-align: center;
+    padding-top: 2px;
+}
+
+.taskicon svg {
+    width: 20px;
+    height: 20px;
+    margin: auto;
+}
+
+.tasktxt {
+    width: 85%;
+}
+
+hr {
+    margin: 0;
+    color: #EBEBEB;
+    background-color: #EBEBEB;
+    height: 2px;
+    border: none;
+}
+
+/*-----Buttons-----*/
+button:hover, input[type="button"]:hover, input[type="submit"]:hover {
+    cursor: pointer;
+    background: #0361ab;
+}
+button, input[type="button"], input[type="submit"] {
+    background: #000;
+    border-width: 0 0 0 0;
+    color: #FFF;
+    margin-top: 15px;
+    text-shadow: none;
+    width: auto !important;
+    padding: 4px 10px;
+    font-size: 15px;
+    -webkit-appearance: none !important;
+    -webkit-border-radius: 3px;
+}
+/*-----SVG Icons-----*/
+
+.closeBtn .cls-1 {
+    fill: #c2c2c2;
+    stroke: #000;
+    opacity: 0;
+}
+
+.closeBtn .cls-1,
+.closeBtn .cls-2 {
+    stroke-miterlimit: 10;
+}
+
+.closeBtn .cls-2 {
+    fill: none;
+    stroke: #000;
+}
+
+.startPage .closeBtn .cls-2 {
+    fill: none;
+    stroke: #fff;
+}
+
+.startPageImg {
+    width: 290px;
+}
+
+.startPageImg .cls-1,
+.startPageImg .cls-2,
+.startPageImg .cls-5 {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2px;
+    opacity: 1;
+}
+
+.startPageImg .cls-1 {
+    stroke-linejoin: round;
+}
+
+.startPageImg .cls-2,
+.startPageImg .cls-5 {
+    stroke-miterlimit: 10;
+}
+
+.startPageImg .cls-3 {
+    opacity: 0;
+}
+
+.startPageImg .cls-4 {
+    fill: #fff;
+}
+
+.startPageImg .cls-5 {
+    stroke-dasharray: 4;
+}
+
+.icon .cls-1 {
+    fill: #fff;
+}
+
+.icon .cls-2 {
+    fill: none;
+    stroke: #333;
+    stroke-miterlimit: 10;
+    stroke-width: 2px;
+}
+
+.edit .cls-1 {
+    opacity: 0;
+}
+
+.edit .cls-2 {
+    fill: #fff;
+}
+
+.edit .cls-3 {
+    fill: none;
+    stroke: #424242;
+    stroke-miterlimit: 10;
+    stroke-width: 2px;
+}
+
+.help .cls-1 {
+    opacity: 0;
+}
+
+.help .cls-2 {
+    fill: #fff;
+}
+
+.help .cls-3 {
+    fill: none;
+    stroke: #424242;
+    stroke-miterlimit: 10;
+    stroke-width: 2px;
+}
+
+.taskicon svg {
+    width: 23px;
+}
+
+.taskicon .a {
+    fill: #333;
+}
+
+#item-sync-toggle .active {
+  display: inline-block;
+}
+
+#item-sync-toggle .inactive {
+  display: none;
+}
+
+#item-sync-toggle.paused .active {
+  display: none;
+}
+
+#item-sync-toggle.paused .inactive {
+  display: inline-block;
+}
+
+.error-message {
+  display: none;
+  color: #ff0000;
+}
+
+button:disabled,
+button[disabled] {
+  color: #ccc;
+  cursor: initial;
+}

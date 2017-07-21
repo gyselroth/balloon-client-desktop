@@ -1,0 +1,84 @@
+{
+  "name": "@gyselroth/balloon-desktop",
+  "productName": "Balloon",
+  "description": "Balloon Desktop Client",
+  "version": "0.0.17",
+  "author": "gyselroth GmbH  <info@gysleroth.com>",
+  "copyright": "© 2016, gyselroth GmbH",
+  "homepage": "https://www.gyselroth.com",
+  "license": "GPLv3",
+  "main": "app/main.js",
+  "build": {
+    "appId": "com.gyselroth.balloon-desktop",
+    "files": [
+      "app/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": "resources/**/*",
+    "linux": {
+      "artifactName": "${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
+    },
+    "mac": {
+      "artifactName": "${os}/${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
+    },
+    "nsis": {
+      "artifactName": "${productName}-Setup-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
+    }
+  },
+  "bugs": {
+    "url": "https://github.com/gyselroth/balloon-client-desktop/issues"
+  },
+  "scripts": {
+    "postinstall": "install-app-deps",
+    "build": "gulp build",
+    "prepack": "gulp build --env=production",
+    "pack": "build --dir",
+    "prerelease": "gulp build --env=production",
+    "release": "BLN_ARTIFACT_APPENDIX='' build --win --ia32 --x64 --mac dmg zip",
+    "release-linux": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm tar.xz",
+    "prepackdev": "gulp build --env=development",
+    "packdev": "build --dir",
+    "prereleasedev": "gulp build --env=development",
+    "releasedev": "BLN_ARTIFACT_APPENDIX='-dev' build --win --ia32 --x64 --mac dmg",
+    "releasedev-linux": "npm run prereleasedev && BLN_ARTIFACT_APPENDIX='-dev' build --linux deb rpm tar.xz",
+    "start": "gulp start",
+    "startprod": "gulp start --env=production"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "electron": "^1.7.3",
+    "electron-builder": "^15.5.0",
+    "electron-mocha": "^3.2.1",
+    "gulp": "^3.9.1",
+    "gulp-batch": "^1.0.5",
+    "gulp-less": "^3.3.0",
+    "gulp-plumber": "^1.1.0",
+    "gulp-util": "^3.0.7",
+    "gulp-watch": "^4.3.11",
+    "istanbul": "^0.4.5",
+    "minimist": "^1.2.0",
+    "mocha": "^3.2.0",
+    "rollup": "^0.36.4",
+    "rollup-plugin-istanbul": "^1.1.0",
+    "source-map-support": "^0.4.6",
+    "spectron": "^3.4.0"
+  },
+  "dependencies": {
+    "archiver": "^1.3.0",
+    "async": "^2.1.4",
+    "auto-launch": "^5.0.1",
+    "@gyselroth/balloon-node-sync": "0.0.17",
+    "electron-settings": "^3.1.1",
+    "graceful-fs": "^4.1.11",
+    "handlebars": "^4.0.6",
+    "jquery": "^3.2.1",
+    "mkdirp": "^0.5.1",
+    "querystring": "^0.2.0",
+    "request": "^2.79.0",
+    "rimraf": "^2.6.1",
+    "underscore": "^1.8.3",
+    "uuid4": "^1.0.0",
+    "winston": "^2.3.1"
+  }
+}

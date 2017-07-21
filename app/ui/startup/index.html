@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Balloon Desktop</title>
+    <link href="../css/main.css" rel="stylesheet" type="text/css">
+    <script>$ = require("jquery");</script>
+    <script src="browser.js"></script>
+</head>
+<body id="startup">
+    <script id="template-content" type="text/x-handlebars-template">
+    <div id="startup-logo"></div>
+
+    <div id="startup-view">
+        <div id="startup-view-server" class="view">
+            <div id="content">
+                <h1>{{i18n 'startup.server.title'}}</h1>
+                <p>{{i18n 'startup.server.message'}}</p>
+                <div id="blnUrl-error-offline">{{i18n 'error.blnUrl.offline'}}</div>
+                <div id="blnUrl-config">
+                    <div class="formfield">
+                        <input id="blnUrl" type="text" placeholder="https://yourserver.com" required>
+                    </div>
+                    <div id="blnUrl-error-invalid" class="error-message">{{i18n 'error.blnUrl.invalid'}}</div>
+                    <div id="blnUrl-error-notreachable" class="error-message">{{i18n 'error.blnUrl.notreachable'}}</div>
+                </div>
+            </div>
+            <button id="startup-server-continue">{{i18n 'button.continue'}}</button>
+        </div>
+        
+        <div id="startup-view-auth" class="view">
+            <input type="text" name="username"/>
+            <input type="password" name="password"/>
+            <div id="startup-auth-continue">{{i18n 'button.continue'}}</div>
+        </div>
+
+        <div id="startup-view-welcome" class="view">
+            <h1>{{i18n 'startup.welcome.title'}}</h1>
+            <p>{{i18n 'startup.welcome.message'}}</p>
+            <button class="startup-open-folder">{{i18n 'startup.welcome.openFolder'}}</button>
+            <div id="startup-advanced">{{i18n 'startup.welcome.advanced'}}</div>
+        </div>
+
+        <div id="startup-view-advanced" class="view">
+            <h1>{{i18n 'startup.welcome.advanced'}}</h1>
+            <h2>{{i18n 'startup.advanced.saveDir.title'}}</h2>
+            <p>{{i18n 'startup.advanced.saveDir.message'}}</p>
+            <label class="select-node" id="startup-savedir">
+              <div></div>
+              <div class="arrow-down"></div>
+            </label>
+            <h2>{{i18n 'settings.selective.title'}}</h2>
+            <p>{{i18n 'settings.selective.choosePath'}}</p>
+            <button id="startup-adavanced-selective">{{i18n 'settings.selective.setup'}}</button>
+            <button class="startup-open-folder">{{i18n 'startup.welcome.openFolder'}}</button>
+        </div>
+    </div>
+    </script>
+    <div id="contentWrapper"></div>
+</body>
+</html>
