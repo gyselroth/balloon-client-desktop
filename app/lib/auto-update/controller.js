@@ -33,8 +33,12 @@ module.exports = function(env, clientConfig, tray) {
     checkRunning = false;
   });
 
+  function shouldCheckForUpdates() {
+    return !process.defaultApp && env.name === 'production';
+  }
+
   function checkForUpdate() {
-    if(!process.defaultApp && env.name === 'production' && !checkRunning) {
+    if(!checkRunning && shouldCheckForUpdates()) {
       checkRunning = true;
       autoUpdater.checkForUpdates();
     }
@@ -43,6 +47,18 @@ module.exports = function(env, clientConfig, tray) {
   function quitAndInstall() {
     autoUpdater.quitAndInstall();
   }
+
+  function setUpdateCheckInterval() {
+    if(shouldCheckForUpdates() === false) return;
+
+    var intervalD = env.updateCheckInterval || 7;
+    var intervalMs = intervalD * 24 * 60 * 60 * 1000;
+
+    logger.info('Autoupdate: setting update check interval', {intervalMs, intervalD});
+    setInterval(checkForUpdate, intervalMs);
+  }
+
+  setUpdateCheckInterval();
 
   return {
     checkForUpdate,

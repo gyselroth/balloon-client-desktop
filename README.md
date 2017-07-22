@@ -25,6 +25,7 @@ The following configuraiton options are available
   * `clientId` String (required) - Your client Id
   * `authorizationUrl` String (required) - The url to your oauth server. (eg: `https://oauth.example-balloon.io/`)
   * `revokeUrl` String (required) - The url on which an access token can be revoked on logout. %token% will be replaced in url. (https://oauth.example-balloon.io/revoke?access_token=%token%)
+* `updateCheckInterval` Integer (optional) - Interval in days the client should check for updates. A first check is always done on app start. Default: `7`
 
 ## Recommended setup for development
 
