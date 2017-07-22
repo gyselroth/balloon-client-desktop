@@ -1,5 +1,5 @@
 {
-  "name": "@gyselroth/balloon-desktop",
+  "name": "balloon-desktop",
   "productName": "Balloon",
   "description": "Balloon Desktop Client",
   "version": "0.0.17",
@@ -24,24 +24,39 @@
     },
     "nsis": {
       "artifactName": "${productName}-Setup-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "gyselroth",
+        "repo": "balloon-client-desktop"
+      }
+    ]
   },
   "bugs": {
     "url": "https://github.com/gyselroth/balloon-client-desktop/issues"
   },
   "scripts": {
     "postinstall": "install-app-deps",
-    "build": "gulp build",
+
     "prepack": "gulp build --env=production",
     "pack": "build --dir",
+
+    "prebuild": "gulp build --env=production",
+    "build": "BLN_ARTIFACT_APPENDIX='' build --win --ia32 --x64 --mac dmg -p never",
+    "build-linux": "npm run prebuild && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm tar.xz",
+
     "prerelease": "gulp build --env=production",
-    "release": "BLN_ARTIFACT_APPENDIX='' build --win --ia32 --x64 --mac dmg zip",
+    "release": "BLN_ARTIFACT_APPENDIX='' build --win --ia32 --x64 --mac dmg zip -p always",
     "release-linux": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm tar.xz",
+
     "prepackdev": "gulp build --env=development",
     "packdev": "build --dir",
-    "prereleasedev": "gulp build --env=development",
-    "releasedev": "BLN_ARTIFACT_APPENDIX='-dev' build --win --ia32 --x64 --mac dmg",
-    "releasedev-linux": "npm run prereleasedev && BLN_ARTIFACT_APPENDIX='-dev' build --linux deb rpm tar.xz",
+
+    "prebuilddev": "gulp build --env=development",
+    "builddev": "BLN_ARTIFACT_APPENDIX='-dev' build --win --ia32 --x64 --mac dmg -p never",
+    "builddev-linux": "npm run prereleasedev && BLN_ARTIFACT_APPENDIX='-dev' build --linux deb rpm tar.xz",
+
     "start": "gulp start",
     "startprod": "gulp start --env=production"
   },
