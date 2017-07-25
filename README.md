@@ -3,7 +3,7 @@
 ## Configuration
 Add your configuration in `config/env_[CONTEXT].json`
 
-The following configuraiton options are available
+The following configuration options are available
 
 
 * `name` String (optional) - the name of the context. `production` or `development`. Default: `production`
