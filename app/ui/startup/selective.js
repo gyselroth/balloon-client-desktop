@@ -19,7 +19,7 @@ handlebars.registerHelper('i18n', function(key) {
   return new handlebars.SafeString(translation);
 });
 
-$("document").ready(function() {    
+$("document").ready(function() {
   $("html").addClass(process.platform);
   compileTemplates();
 
@@ -27,18 +27,14 @@ $("document").ready(function() {
   const clientConfig = require('../../lib/config.js');
   const syncFactory = require('@gyselroth/balloon-node-sync');
 
-  var configuredIgnore = [];
-  ipcRenderer.send('selective-window-loaded'); 
-  ipcRenderer.on('selective-ignore-path', function (event, path) {
-    configuredIgnore = path;
-  });
+  var configuredIgnore = clientConfig.get('ignoreNodes');
 
   var sync = syncFactory(clientConfig.getAll(), logger);
   sync.blnApi.getChildren(null, (err, data) => {
     var $list = $('#selective-sync').find('ul');
     $(data).each((id, node) => {
-      var html = '<input type="checkbox" name="selected" value="/'+node.name+'"';
-      if($.inArray('/'+node.name, configuredIgnore) === -1) {
+      var html = '<input type="checkbox" name="selected" value="'+node.id+'"';
+      if($.inArray(node.id, configuredIgnore) === -1) {
         html += ' checked';
       }
 
@@ -47,14 +43,14 @@ $("document").ready(function() {
   });
 
   $('#selective-apply').bind('click', function() {
-    var path = [];
+    var ids = [];
     $("#selective-sync").find("input:checkbox:not(:checked)").each(function(){
-      path.push($(this).val());
+      ids.push($(this).val());
     });
 
-    ipcRenderer.send('selective-apply', path);
+    ipcRenderer.send('selective-apply', ids);
   });
-  
+
   $('#selective-cancel').bind('click', function() {
     ipcRenderer.send('selective-cancel');
   });
