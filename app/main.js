@@ -59,8 +59,12 @@ app.on('ready', function () {
     clientConfig.set('onLineState', state);
     startup.checkConfig().then(() => {
       logger.info('startup checkconfig successfull');
+      
 
-      function startUp() {
+      if(startup.isFirstStart()) {
+        tray.create();
+      }
+
         //tray.create();
         sync = SyncCtrl(env, tray);
 
@@ -84,18 +88,6 @@ app.on('ready', function () {
             startSync();
           }
         });
-      }
-
-      if(startup.isFirstStart()) {
-        auth.login().then(() => {
-          startup.welcomeWizard().then(() => {
-            tray.create();
-            startUp();
-          });
-        });
-      } else {
-        startUp();
-      }
     }).catch(err => {
       logger.error('startup checkconfig', err);
       app.quit();
@@ -293,7 +285,7 @@ if (process.platform === 'darwin' && app.dock && env.name === 'production') {
 }
 
 function startSync() {
-  if(auth.hasAccessToken() === false || auth.accessTokenExpired()) {
+  if(!auth.isLoggedIn()) {
     tray.toggleState('loggedout', true);
 
     if(clientConfig.get('disableAutoAuth') !== true && clientConfig.get('onLineState') === true) {

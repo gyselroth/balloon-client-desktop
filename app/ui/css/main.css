@@ -311,6 +311,25 @@ input[type="radio"], input[type="checkbox"] {
     text-align: center;
 }
 
+#startup-auth-oidc {
+  margin-top: 10px;
+}
+
+#startup-auth-oidc > img {
+  margin: 5px auto;
+  display: block;
+  max-width: 300px;
+}
+
+#startup-auth-basic {
+  display: none;
+}
+
+#startup-view-auth input {
+    display: block;
+    margin: 6px auto;
+}
+
 #startup-view-server input {
     height: 40px;
 }

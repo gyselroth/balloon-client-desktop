@@ -32,7 +32,7 @@ module.exports = function(env, clientConfig) {
   var selectiveWindow;
   var auth = AuthCtrl(env, clientConfig);
   var configManager = configManagerCtrl(clientConfig);
-  var firstStart = !auth.hasAccessToken();
+  var firstStart = !auth.hasIdentity();
 
   function enableAutoLaunch() {
     return new Promise(function(resolve, reject) {
@@ -64,7 +64,7 @@ module.exports = function(env, clientConfig) {
 
   function checkConfig() {
     return Promise.all([
-      customConfig(),
+      hasServer(),
       makeSureBalloonDirExists(),
       enableAutoLaunch(),
       authenticate(),   
@@ -78,9 +78,9 @@ module.exports = function(env, clientConfig) {
     ]);
   }
 
-  function customConfig() {
+  function hasServer() {
     if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl')) {
-      return openSettings();
+      return enterServer();
     } else {
       return Promise.resolve();
     }
@@ -122,20 +122,69 @@ module.exports = function(env, clientConfig) {
       });
     });
   }
-
+  
   function authenticate() {
-    if(
-      clientConfig.get('disableAutoAuth') !== true
-      &&
-      clientConfig.get('onLineState') === true
-      &&
-      (auth.hasAccessToken() === false || auth.accessTokenExpired())
-    ) {
-      return auth.login()
-    } else {
-      //automatic authentication is disabled, no network available or there is still a valid access token: return resolved promise
-      return Promise.resolve();
-    }
+    return new Promise(function(resolve, reject) {
+      if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl')) {
+        resolve();
+      }
+
+      auth.login(askCredentials, function(){
+        resolve();
+      }).then(() => {
+        resolve();
+      });
+    });
+  }
+
+  function askCredentials() {
+    return new Promise(function(resolve, reject) {
+      if(clientConfig.get('disableAutoAuth') !== true && clientConfig.get('onLineState') === true) {
+        if(env.auth.basic === false && env.auth.oidc.length === 0) {
+          return Promise.reject(new Error('No authentication configured'));
+        } else if(env.auth.basic === true || env.auth.oidc.length > 1) {
+          if(!startupWindow) startupWindow = createStartupWindow();
+
+          startupWindow.webContents.executeJavaScript(`switchView('auth')`);
+          startupWindow.show();
+          startupWindow.focus();
+
+          let windowClosedByUserHandler = function(event) {
+              //reject(new Error('Startup Settings window was closed by user'));
+          }
+
+          startupWindow.on('closed', windowClosedByUserHandler);
+      
+          ipcMain.on('startup-auth', function(event) {
+            startupWindow.webContents.send('startup-auth', env.auth.basic, env.auth.oidc);
+          });
+
+          ipcMain.on('startup-basic-auth', function(event, username, password) {
+            logger.info('requested basic auth with username '+username);
+            return auth.basicAuth(username, password).then(() => {
+              return Promise.resolve();
+            });
+          });
+
+          ipcMain.on('auth-oidc-signin', function(event, idp) {
+            var idpConfig = env.auth.oidc[idp];
+            logger.info('requested oidc signin via provider '+idpConfig.provider);
+            auth.oidcAuth(idpConfig, function(username){
+              if(username !== undefined) {
+                welcomeWizard().then(() => {
+                  resolve();  
+                });
+              } else {
+                resolve();
+              }
+            });
+          });
+        }
+      } else {
+console.log(5);
+        resolve();
+      }
+    });
   }
 
   function showBalloonDir() {
@@ -157,7 +206,7 @@ module.exports = function(env, clientConfig) {
       let windowClosedByUserHandler = function(event) {
         resolve();
       }
-
+      
       startupWindow.on('closed', windowClosedByUserHandler);
 
       ipcMain.on('startup-open-folder', function(event) {
@@ -189,7 +238,7 @@ module.exports = function(env, clientConfig) {
     });
   }
 
-  function openSettings() {
+  function enterServer() {
     logger.info('Startup settings: open requested');
 
     return new Promise(function(resolve, reject) {
@@ -200,7 +249,7 @@ module.exports = function(env, clientConfig) {
       startupWindow.focus();
 
       let windowClosedByUserHandler = function(event) {
-        reject(new Error('Startup Settings window was closed by user'));
+        //reject(new Error('Startup Settings window was closed by user'));
       }
 
       startupWindow.on('closed', windowClosedByUserHandler);
@@ -208,12 +257,15 @@ module.exports = function(env, clientConfig) {
       ipcMain.on('startup-server-continue', function(event, blnUrl) {
         logger.info('Startup Settings: setting blnUrl to: ' + blnUrl);
 
+        clientConfig.set('onLineState', true);
         clientConfig.setBlnUrl(blnUrl);
-
+        askCredentials().then(() => {
+          resolve();
+        });
         //startupWindow.removeListener('closed', windowClosedByUserHandler);
         //startupWindow.close();
 
-        resolve();
+        //resolve();
       });
     });
   }
@@ -325,6 +377,5 @@ module.exports = function(env, clientConfig) {
     preSyncCheck,
     showBalloonDir,
     isFirstStart,
-    welcomeWizard
   }
 }

@@ -3,9 +3,12 @@ const path = require('path');
 
 const {session} = require('electron');
 
+const OidcCtrl = require('../../ui/oidc/controller.js');
+const StartupCtrl = require('../../ui/startup/controller.js');
 const OauthCtrl = require('../../ui/oauth/controller.js');
 const logger = require('../logger.js');
 const fsUtility = require('../fs-utility.js');
+const syncFactory = require('@gyselroth/balloon-node-sync');
 
 var syncArchiveSatesFactory = function(clientConfig) {
   var states;
@@ -55,23 +58,42 @@ var syncArchiveSatesFactory = function(clientConfig) {
 }
 
 module.exports = function(env, clientConfig) {
+  //TODO oauth deprecated, remove after oidc migration
   var oauth = OauthCtrl(env, clientConfig);
+  var oidc = OidcCtrl(env, clientConfig);
+  //var startup = StartupCtrl(env, clientConfig);
 
   function hasAccessToken() {
-    return clientConfig.get('accessToken') !== undefined;
+    return clientConfig.get('oidcAuth').accessToken !== undefined;
+  }
+
+  function hasIdentity() {
+    return clientConfig.get('auth') !== undefined;
+  }
+  
+  function isLoggedIn() {
+    return clientConfig.get('loggedin')
   }
 
   function accessTokenExpired() {
     //if no token is set, or token expires in less then 60 seconds: token is expired
-    return clientConfig.get('accessTokenExpires') !== undefined && clientConfig.get('accessTokenExpires') < (Date.now() / 1000 + 60);
+    return clientConfig.get('oidcAuth').accessToken !== undefined && clientConfig.get('oidcAuth').accessTokenExpires < (Date.now() / 1000 + 60);
   }
 
   function logout() {
     logger.info('AUTH: logout initialized');
 
     return new Promise(function(resolve, reject) {
-      var oldAccessToken = clientConfig.get('accessToken');
-
+      //var oldAccessToken = clientConfig.get('accessToken');
+        clientConfig.setMulti({
+          'loggedin': false,
+          'username': undefined,
+          'oidcAuth': undefined,
+          'auth': undefined
+        });
+        resolve();
+      //TODO logout needs to be reviewd after oauth gets removed (oidc replacement)
+      /*var oldAccessToken = clientConfig.get('accessToken');
       Promise.all([
         oauth.revokeToken(oldAccessToken).then(resolve),
         new Promise(function(resolve, reject) {
@@ -88,54 +110,167 @@ module.exports = function(env, clientConfig) {
 
           resolve();
         })
-      ]).then(resolve).catch(reject);
+      ]).then(resolve).catch(reject);*/
     });
   }
+  
+  function basicAuth(username, password) {
+    console.log(username,password);
+  } 
 
-  function login() {
+  function isBasicAuth() {
+    clientConfig.get('auth') === 'basic';
+  } 
+
+  function validateBasicAuth() {
+    return true;
+  }  
+  
+  function oidcAuth(idpConfig, callback) {
+    if(idpConfig.responseType === 'token') {
+    var oldUser = clientConfig.get('username');
+      return oauth.signin(idpConfig).then(() => {
+        verifyNewLogin(oldUser).then((username) => {
+          callback(username);
+        });
+      });
+    }
+
+    return oidc.signin(idpConfig, function(authorization) {
+      if(authorization === true)  {
+        verifyNewLogin(oldUser).then((username) => {
+          callback(username);
+        });
+      } else {     
+        callback();
+      }
+    });
+  } 
+
+  function login(startup, callback) {
     logger.info('AUTH: login initialized');
 
     var oldUser = clientConfig.get('username');
 
     return new Promise(function (resolve, reject) {
-      oauth.generateAccessToken().then((result) => {
-        clientConfig.set('loggedin', true);
-
-        logger.info('AUTH: user logged in', {result, oldUser});
-        if(oldUser !== undefined && result.username !== undefined && result.username !== oldUser) {
-          var currentUser = result.username;
-          logger.info('AUTH: a new user logged in switching sync state', {oldUser, currentUser});
-
-          switchSyncState(oldUser, currentUser).then(() => {
-            resolve(result);
-          }).catch((err) => {
-            logger.error('AUTH: switching sync state had an error', err);
-
-            logout().then(function() {
-              clientConfig.set('username', oldUser);
-              clientConfig.set('loggedin', false);
-              reject(err);
-            }).catch(err => {
-              clientConfig.setMulti({
-                'username': oldUser,
-                'loggedin': false
-              });
-              reject(err);
-            });
+      verifyAuthentication().then(() => {
+        return resolve();  
+      }).catch(() => {
+        if(!hasIdentity() || clientConfig.get('auth') === 'basic') {
+          startup().then(() => {
+            resolve();
           });
-        } else {
-          resolve(result);
+        } else if(clientConfig.get('auth') === 'oidc') {
+          var oidcAuth = clientConfig.get('oidcAuth');
+          if(oidcAuth === undefined) {
+            startup().then(() => {
+              resolve();
+            });
+          } else {
+            var idpConfig = getIdPByName(oidcAuth.provider);
+            if(idpConfig === undefined) {
+              startup().then(() => {
+                resolve();
+              });
+            } else { 
+              /*if(!hasAccessToken() || accessTokenExpired())*/
+              //TODO type===token is only for for backwards compatibility with out AAI, gets removed after we have an openid-connect IdP deployed.
+              if(idpConfig.responseType === 'token') {
+                oauth.signin(idpConfig).then(() => {
+                  verifyNewLogin(oldUser).then((username) => {
+                    callback(username);
+                  });
+                });
+              } else {
+                oidcAuth(idpConfig, function(authorization){
+                  if(authorization === true) {
+                    verifyNewLogin(oldUser).then((username) => {
+                      callback(username);
+                    });
+                  } else {
+                    callback();
+                  }
+                });
+              }
+            }
+          }
         }
-      }).catch(err => {
-        logger.error('Auth: generateAccessToken failed', err);
+      });
+    });
+  }     
+ 
+  function getIdPByName(name) {
+    for(var i=0; i<env.auth.oidc.length; i++) {
+      if(env.auth.oidc[i].provider === name) {
+        return env.auth.oidc[i];
+      }
+    }
 
-        clientConfig.set('loggedin', false);
+    return undefined;
+  }
 
-        reject(err);
+  function verifyAuthentication() {
+    return new Promise(function(resolve, reject) {
+      var sync = syncFactory(clientConfig.getAll(), logger);
+      sync.blnApi.whoami(function(err, username) {
+        if(err) {
+          clientConfig.set('loggedin', false);
+          reject(err);
+        } else {
+          clientConfig.set('loggedin', true);
+          resolve();
+        }
       });
     });
   }
 
+  function verifyNewLogin(oldUser) {
+    return new Promise(function(resolve, reject) {
+    var sync = syncFactory(clientConfig.getAll(), logger);
+    sync.blnApi.whoami(function(err, username) {
+      if(err) {
+        logger.error('OAUTH: got error', {err});
+        clientConfig.set('oidcAuth', undefined);
+        reject(err);
+      }
+ 
+      logger.info('OAUTH: got username', {username});
+
+      clientConfig.set('username', username);
+      clientConfig.set('loggedin', true);
+      logger.info('AUTH: user logged in', {username});
+
+      if(oldUser !== undefined && username !== undefined && username !== oldUser) {
+        logger.info('AUTH: a new user logged in switching sync state', {oldUser, username});
+
+        switchSyncState(oldUser, username).then(() => {
+          resolve(username);
+        }).catch((err) => {
+          logger.error('AUTH: switching sync state had an error', err);
+
+          logout().then(function() {
+            clientConfig.set('username', oldUser);
+            clientConfig.set('loggedin', false);
+//          reject(err);
+          }).catch(err => {
+            clientConfig.setMulti({
+              'username': oldUser,
+              'loggedin': false
+            });
+            reject(err);
+          });
+        });
+      } else {
+        resolve(username);
+      }
+     /*}).catch(err => {
+        logger.error('Auth: generateAccessToken failed', err);
+
+        clientConfig.set('loggedin', false)*/
+    });
+    });
+  }
+    
   function switchSyncState(oldUser, currentUser) {
     var syncArchiveStates = syncArchiveSatesFactory(clientConfig);
 
@@ -353,7 +488,10 @@ module.exports = function(env, clientConfig) {
   return {
     logout,
     login,
-    hasAccessToken,
-    accessTokenExpired
+    isLoggedIn,
+    hasIdentity,
+    basicAuth,
+    oidcAuth, 
+    getIdPByName
   }
 }

@@ -42,6 +42,9 @@
   "startup.welcome.advanced": "Advanced Settings",
   "startup.advanced.saveDir.title": "balloon directory",
   "startup.advanced.saveDir.message": "Change the directory for your balloon:",
+  "startup.auth.username": "Username",
+  "startup.auth.password": "Password",
+  "startup.auth.message": "Authenticate your account with balloon:",
 
   "button.cancel": "Cancel",
   "button.close": "Close",

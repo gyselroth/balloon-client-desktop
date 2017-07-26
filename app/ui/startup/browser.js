@@ -1,4 +1,4 @@
-(function () {'use strict';
+//(function () {'use strict';
 
 const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
@@ -20,7 +20,7 @@ handlebars.registerHelper('i18n', function(key) {
 });
 
 
-$("document").ready(function() {
+$(document).ready(function() {
   $("html").addClass(process.platform);
   compileTemplates();
 
@@ -43,34 +43,13 @@ $("document").ready(function() {
 
   $('#startup-server-continue').bind('click', verifyServer);
   $(document).bind('keypress', function(e){
-    if(e.which === 13) {
+    if(e.which === 13 &&  $('#startup-view-server').is(':visible')) {
       verifyServer();
     }
   });
 
   $('.startup-open-folder').bind('click', function() {
     ipcRenderer.send('startup-open-folder');
-  });
-
-  $('#startup-advanced').bind('click', function() {
-    var $savedir = $('#startup-savedir');
-    var $savedirLabel = $savedir.find('> div:first-child');
-
-    $savedirLabel.html(clientConfig.get('balloonDir'));
-    $savedir.bind('click', function() {
-      ipcRenderer.send('startup-change-dir');
-    });
-
-    $('#startup-adavanced-selective').bind('click', function() {
-      ipcRenderer.send('startup-selective-sync');
-    });
-
-    ipcRenderer.on('startup-change-dir', function (event, path) {
-        $savedirLabel.html(path);
-    });
-
-    $('#startup-logo').hide();
-    switchView('advanced');
   });
 });
 
@@ -111,15 +90,62 @@ function verifyServer() {
   }
 }
 
-function switchView(view) {
-  $("#startup-view").find("> div").hide();
-  $("#startup-view-"+view).show();
-}
-}());
+  function welcome() {
+  $('#startup-advanced').bind('click', function() {
+    var $savedir = $('#startup-savedir');
+    var $savedirLabel = $savedir.find('> div:first-child');
+
+    $savedirLabel.html(clientConfig.get('balloonDir'));
+    $savedir.bind('click', function() {
+      ipcRenderer.send('startup-change-dir');
+    });
+
+    $('#startup-adavanced-selective').bind('click', function() {
+      ipcRenderer.send('startup-selective-sync');
+    });
+
+    ipcRenderer.on('startup-change-dir', function (event, path) {
+        $savedirLabel.html(path);
+    });
+
+    $('#startup-logo').hide();
+    switchView('advanced');
+  });
+  }
+
+  function auth() {
+  ipcRenderer.send('startup-auth');
+  ipcRenderer.on('startup-auth', function (event, basic, oidc) {
+    if(basic === true) {
+      $('#startup-auth-basic').show();
+    }
+
+    var $container = $('#startup-auth-oidc');
+
+    var i=0;
+    $(oidc).each(function(e, idp){
+      var img = '<img alt="'+i+'" src="data:image/png;base64,'+idp.imgBase64+'"/>';
+      $container.append(img);
+      ++i;
+    });
+
+    $container.on('click', 'img', function(){
+      ipcRenderer.send('auth-oidc-signin', $(this).attr('alt'));
+    });
+  });
+
+  $('#startup-auth-continue').bind('click', function() {
+    ipcRenderer.send('startup-basic-auth');
+  });
+  }
 
 function switchView(view) {
   $(document).ready(function(){
     $("#startup-view").find("> div").hide();
     $("#startup-view-"+view).show();
+    
+    if(view in window) {
+      window[view]();
+    }
   });
 }

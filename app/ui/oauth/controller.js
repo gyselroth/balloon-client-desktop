@@ -24,6 +24,10 @@ module.exports = function (env, clientConfig) {
     clientConfig.set('accessToken', token);
     clientConfig.set('accessTokenExpires', expires);
   }
+  
+  function saveRefreshToken(token) {
+    clientConfig.set('refreshToken', token);
+  }
 
   function saveUsername(username) {
     clientConfig.set('username', username);
@@ -43,7 +47,7 @@ module.exports = function (env, clientConfig) {
     }
   }
 
-  function generateAccessToken() {
+  function signin(idpConfig) {
     if(authWindow !== null) {
       //a oauth processs is already running
       authWindow.focus();
@@ -52,23 +56,25 @@ module.exports = function (env, clientConfig) {
       return Promise.reject(err);
     }
 
+
     var urlParams = {
-      scope: 'all',
-      client: 'balloon-client-desktop',
-      response_type: 'token',
-      redirect_uri: 'app://',
-      client_id: oauthConfig.clientId
+      scope: idpConfig.scope,
+      client_id: idpConfig.clientId,
+      response_type: idpConfig.responseType,
+      redirect_uri: idpConfig.redirectUri
     };
 
-    var url = oauthConfig.authorizationUrl + '?' + queryString.stringify(urlParams);
+    var url = idpConfig.authorizationUrl + '?' + queryString.stringify(urlParams);
 
     return new Promise(function (resolve, reject) {
       const ses = session.fromPartition('persist:oauth');
+      var scheme = idpConfig.redirectUri.substr(0, idpConfig.redirectUri.length -3);
+      
       function destroyWindow() {
         authWindow.removeAllListeners('closed');
         authWindow.destroy();
         windowStates.closed('oauth');
-        ses.protocol.unregisterProtocol('app');
+        ses.protocol.unregisterProtocol(scheme);
         authWindow = null;
       }
 
@@ -79,26 +85,35 @@ module.exports = function (env, clientConfig) {
         reject(err);
       }
 
-      ses.protocol.registerFileProtocol('app', (request, callback) => {
+      ses.protocol.registerFileProtocol(scheme, (request, callback) => {
         function getParamFromUrl(param, url) {
-          var rawParam = new RegExp('[?#&]' + param + '=([a-zA-Z0-9]+)\&?').exec(url);
+          var rawParam = new RegExp('[?#&]' + param + '=([^\&]+)\&?').exec(url);
           var value = (rawParam && rawParam.length > 1) ? rawParam[1] : null;
 
           return value;
         }
 
-        var token = getParamFromUrl('access_token', request.url);
-        var expires = getParamFromUrl('expires', request.url);
+        if(idpConfig.responseType === 'code') {
+          requestAccessToken(getParamFromUrl('code', request.url), idpConfig);
+        } else if(idpConfig.responseType === 'token') {
+          var token = getParamFromUrl('access_token', request.url);
+          var expires = getParamFromUrl('expires', request.url);
+        
+          if(token === null) {
+            return handleError(new Error('No token set'));
+          }
 
-        if(token === null) {
-          return handleError(new Error('No token set'));
+          if(expires === null) {
+            return handleError(new Error('No expires set'));
+          };
+
+          clientConfig.set('auth', 'oidc');
+          clientConfig.set('oidcAuth', {
+            "provider": idpConfig.provider,
+            "accessToken": token,
+            "accessTokenExpires": expires
+          });
         }
-
-        if(expires === null) {
-          return handleError(new Error('No expires set'));
-        };
-
-        saveAccessToken(token, expires);
 
         var sync = syncFactory(clientConfig.getAll(), logger);
         sync.blnApi.whoami(function(err, username) {
@@ -139,7 +154,7 @@ module.exports = function (env, clientConfig) {
   }
 
   return {
-    generateAccessToken,
-    revokeToken
+    revokeToken,
+    signin
   };
 };

@@ -29,9 +29,13 @@
         </div>
         
         <div id="startup-view-auth" class="view">
-            <input type="text" name="username"/>
-            <input type="password" name="password"/>
-            <div id="startup-auth-continue">{{i18n 'button.continue'}}</div>
+            <p>{{i18n 'startup.auth.message'}}</p>
+            <div id="startup-auth-basic">
+              <input type="text" name="username" placeholder="{{i18n 'startup.auth.username'}}"/>
+              <input type="password" name="password" placeholder="{{i18n 'startup.auth.password'}}"/>
+              <button id="startup-auth-continue">{{i18n 'button.continue'}}</button>
+            </div>
+            <div id="startup-auth-oidc"></div>
         </div>
 
         <div id="startup-view-welcome" class="view">
