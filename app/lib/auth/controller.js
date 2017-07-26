@@ -9,6 +9,7 @@ const OauthCtrl = require('../../ui/oauth/controller.js');
 const logger = require('../logger.js');
 const fsUtility = require('../fs-utility.js');
 const syncFactory = require('@gyselroth/balloon-node-sync');
+const keytar = require('keytar')
 
 var syncArchiveSatesFactory = function(clientConfig) {
   var states;
@@ -89,7 +90,8 @@ module.exports = function(env, clientConfig) {
           'loggedin': false,
           'username': undefined,
           'oidcAuth': undefined,
-          'auth': undefined
+          'auth': undefined,
+          'disableAutoAuth': false
         });
         resolve();
       //TODO logout needs to be reviewd after oauth gets removed (oidc replacement)
@@ -116,16 +118,23 @@ module.exports = function(env, clientConfig) {
   
   function basicAuth(username, password) {
     console.log(username,password);
+    clientConfig.set('auth', 'basic');
+    clientConfig.set('username', username);
+    //clientConfig.set('password', password);
+    
+    return new Promise(function(resolve, reject){
+      keytar.setPassword('balloon', username, password).then(() => {
+        verifyNewLogin(clientConfig.get('username')).then(() => {
+          resolve(); 
+        }).catch((err) => {
+          reject(err)
+        });
+      }).catch((err) => {
+        reject(err)
+      });
+    });
   } 
 
-  function isBasicAuth() {
-    clientConfig.get('auth') === 'basic';
-  } 
-
-  function validateBasicAuth() {
-    return true;
-  }  
-  
   function oidcAuth(idpConfig, callback) {
     if(idpConfig.responseType === 'token') {
     var oldUser = clientConfig.get('username');
@@ -155,7 +164,7 @@ module.exports = function(env, clientConfig) {
     return new Promise(function (resolve, reject) {
       verifyAuthentication().then(() => {
         return resolve();  
-      }).catch(() => {
+      }).catch((err) => {
         if(!hasIdentity() || clientConfig.get('auth') === 'basic') {
           startup().then(() => {
             resolve();
@@ -210,64 +219,67 @@ module.exports = function(env, clientConfig) {
   }
 
   function verifyAuthentication() {
-    return new Promise(function(resolve, reject) {
-      var sync = syncFactory(clientConfig.getAll(), logger);
-      sync.blnApi.whoami(function(err, username) {
-        if(err) {
-          clientConfig.set('loggedin', false);
-          reject(err);
-        } else {
-          clientConfig.set('loggedin', true);
-          resolve();
-        }
+  
+    if(config.get('auth') === 'basic') {
+      keytar.getPassword('balloon', config.get('username').then((password) => {
+        conosle.log(password);
       });
-    });
+    } else {
+      return new Promise(function(resolve, reject) {
+        var sync = syncFactory(clientConfig.getAll(), logger);
+        sync.blnApi.whoami(function(err, username) {
+          if(err) {
+            clientConfig.set('loggedin', false);
+            reject(err);
+          } else {
+            clientConfig.set('loggedin', true);
+            resolve();
+          }
+        });
+      });
+    }
   }
 
   function verifyNewLogin(oldUser) {
     return new Promise(function(resolve, reject) {
-    var sync = syncFactory(clientConfig.getAll(), logger);
-    sync.blnApi.whoami(function(err, username) {
-      if(err) {
-        logger.error('OAUTH: got error', {err});
-        clientConfig.set('oidcAuth', undefined);
-        reject(err);
-      }
+      var sync = syncFactory(clientConfig.getAll(), logger);
+      sync.blnApi.whoami(function(err, username) {
+        if(err) {
+          logger.error('OAUTH: got error', {err});
+          clientConfig.set('oidcAuth', undefined);
+          reject(err);
+        }
  
-      logger.info('OAUTH: got username', {username});
+        logger.info('OAUTH: got username', {username});
 
-      clientConfig.set('username', username);
-      clientConfig.set('loggedin', true);
-      logger.info('AUTH: user logged in', {username});
+        clientConfig.set('username', username);
+        clientConfig.set('loggedin', true);
+        logger.info('AUTH: user logged in', {username});
 
-      if(oldUser !== undefined && username !== undefined && username !== oldUser) {
-        logger.info('AUTH: a new user logged in switching sync state', {oldUser, username});
+        if(oldUser !== undefined && username !== undefined && username !== oldUser) {
+          logger.info('AUTH: a new user logged in switching sync state', {oldUser, username});
 
-        switchSyncState(oldUser, username).then(() => {
-          resolve(username);
-        }).catch((err) => {
-          logger.error('AUTH: switching sync state had an error', err);
+          switchSyncState(oldUser, username).then(() => {
+            resolve(username);
+          }).catch((err) => {
+            logger.error('AUTH: switching sync state had an error', err);
 
-          logout().then(function() {
-            clientConfig.set('username', oldUser);
-            clientConfig.set('loggedin', false);
+            logout().then(function() {
+              clientConfig.set('username', oldUser);
+              clientConfig.set('loggedin', false);
 //          reject(err);
-          }).catch(err => {
-            clientConfig.setMulti({
-              'username': oldUser,
-              'loggedin': false
+            }).catch(err => {
+              clientConfig.setMulti({
+                'username': oldUser,
+                'loggedin': false
+              });
+              reject(err);
             });
-            reject(err);
           });
-        });
-      } else {
-        resolve(username);
-      }
-     /*}).catch(err => {
-        logger.error('Auth: generateAccessToken failed', err);
-
-        clientConfig.set('loggedin', false)*/
-    });
+        } else {
+          resolve(username);
+        }
+      });
     });
   }
     

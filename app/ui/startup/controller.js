@@ -161,8 +161,16 @@ module.exports = function(env, clientConfig) {
 
           ipcMain.on('startup-basic-auth', function(event, username, password) {
             logger.info('requested basic auth with username '+username);
-            return auth.basicAuth(username, password).then(() => {
-              return Promise.resolve();
+            auth.basicAuth(username, password).then((username) => {
+              if(username !== undefined) {
+                welcomeWizard().then(() => {
+                  resolve();  
+                });
+              } else {
+                resolve();
+              }
+            }).catch((err) => {
+              console.log("err",err);
             });
           });
 
@@ -181,7 +189,6 @@ module.exports = function(env, clientConfig) {
           });
         }
       } else {
-console.log(5);
         resolve();
       }
     });

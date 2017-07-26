@@ -90,7 +90,7 @@ function verifyServer() {
   }
 }
 
-  function welcome() {
+function welcome() {
   $('#startup-advanced').bind('click', function() {
     var $savedir = $('#startup-savedir');
     var $savedirLabel = $savedir.find('> div:first-child');
@@ -111,9 +111,9 @@ function verifyServer() {
     $('#startup-logo').hide();
     switchView('advanced');
   });
-  }
+}
 
-  function auth() {
+function auth() {
   ipcRenderer.send('startup-auth');
   ipcRenderer.on('startup-auth', function (event, basic, oidc) {
     if(basic === true) {
@@ -135,9 +135,11 @@ function verifyServer() {
   });
 
   $('#startup-auth-continue').bind('click', function() {
-    ipcRenderer.send('startup-basic-auth');
+    var username = $('#startup-view-auth').find('input[name=username]').val();
+    var password = $('#startup-view-auth').find('input[name=password]').val();
+    ipcRenderer.send('startup-basic-auth', username, password);
   });
-  }
+}
 
 function switchView(view) {
   $(document).ready(function(){

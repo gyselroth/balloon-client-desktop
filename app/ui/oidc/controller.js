@@ -40,7 +40,6 @@ module.exports = function (env, clientConfig) {
 
       if(oidcAuth) {
         makeAccessTokenRequest(configuration, oidcAuth.refreshToken).then((response) => {
-          console.log("01", response);
           callback();
           //Promise.resolve();
         });
