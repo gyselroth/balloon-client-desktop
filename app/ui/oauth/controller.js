@@ -1,3 +1,5 @@
+//TODO backwards compatibility, this module gets removed soon!
+
 /**
 * This module was heavily inspired by https://github.com/jvitor83/electron-oauth2/blob/master/index.js
 **/
@@ -18,16 +20,6 @@ module.exports = function (env, clientConfig) {
   var authWindow = null;
 
   windowStates = windowStatesFactory(env);
-
-
-  function saveAccessToken(token, expires) {
-    clientConfig.set('accessToken', token);
-    clientConfig.set('accessTokenExpires', expires);
-  }
-  
-  function saveRefreshToken(token) {
-    clientConfig.set('refreshToken', token);
-  }
 
   function saveUsername(username) {
     clientConfig.set('username', username);
@@ -93,29 +85,27 @@ module.exports = function (env, clientConfig) {
           return value;
         }
 
-        if(idpConfig.responseType === 'code') {
-          requestAccessToken(getParamFromUrl('code', request.url), idpConfig);
-        } else if(idpConfig.responseType === 'token') {
-          var token = getParamFromUrl('access_token', request.url);
-          var expires = getParamFromUrl('expires', request.url);
+        var token = getParamFromUrl('access_token', request.url);
+        var expires = getParamFromUrl('expires', request.url);
         
-          if(token === null) {
-            return handleError(new Error('No token set'));
-          }
-
-          if(expires === null) {
-            return handleError(new Error('No expires set'));
-          };
-
-          clientConfig.set('auth', 'oidc');
-          clientConfig.set('oidcAuth', {
-            "provider": idpConfig.provider,
-            "accessToken": token,
-            "accessTokenExpires": expires
-          });
+        if(token === null) {
+          return handleError(new Error('No token set'));
         }
 
-        var sync = syncFactory(clientConfig.getAll(), logger);
+        if(expires === null) {
+          return handleError(new Error('No expires set'));
+        };
+
+        clientConfig.set('auth', 'oidc');
+        clientConfig.set('oidProvider', idpConfig.provider);
+        clientConfig.set('accessTokenExpires', expires);
+
+        clientConfig.storeSecret('accessToken', token).then(() => {
+          destroyWindow();
+          resolve();
+        });
+
+        /*var sync = syncFactory(clientConfig.getAll(), logger);
         sync.blnApi.whoami(function(err, username) {
           if(err) {
             logger.error('OAUTH: got error', {err});
@@ -127,7 +117,7 @@ module.exports = function (env, clientConfig) {
 
           destroyWindow();
           resolve({token, expires, username});
-        });
+        });*/
       }, (err) => {
         if(err) handleError(err);
       });

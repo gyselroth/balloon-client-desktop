@@ -9,7 +9,6 @@ const OauthCtrl = require('../../ui/oauth/controller.js');
 const logger = require('../logger.js');
 const fsUtility = require('../fs-utility.js');
 const syncFactory = require('@gyselroth/balloon-node-sync');
-const keytar = require('keytar')
 
 var syncArchiveSatesFactory = function(clientConfig) {
   var states;
@@ -64,10 +63,6 @@ module.exports = function(env, clientConfig) {
   var oidc = OidcCtrl(env, clientConfig);
   //var startup = StartupCtrl(env, clientConfig);
 
-  function hasAccessToken() {
-    return clientConfig.get('oidcAuth').accessToken !== undefined;
-  }
-
   function hasIdentity() {
     return clientConfig.get('auth') !== undefined;
   }
@@ -76,10 +71,11 @@ module.exports = function(env, clientConfig) {
     return clientConfig.get('loggedin')
   }
 
-  function accessTokenExpired() {
+  //TODO raffis check
+  //function accessTokenExpired() {
     //if no token is set, or token expires in less then 60 seconds: token is expired
-    return clientConfig.get('oidcAuth').accessToken !== undefined && clientConfig.get('oidcAuth').accessTokenExpires < (Date.now() / 1000 + 60);
-  }
+    //return clientConfig.get('oidcAuth').accessToken !== undefined && clientConfig.get('oidcAuth').accessTokenExpires < (Date.now() / 1000 + 60);
+  //}
 
   function logout() {
     logger.info('AUTH: logout initialized');
@@ -89,12 +85,11 @@ module.exports = function(env, clientConfig) {
         clientConfig.setMulti({
           'loggedin': false,
           'username': undefined,
-          'oidcAuth': undefined,
           'auth': undefined,
           'disableAutoAuth': false
         });
         resolve();
-      //TODO logout needs to be reviewd after oauth gets removed (oidc replacement)
+      //TODO raffis - logout needs to be reviewd after oauth gets removed (oidc replacement)
       /*var oldAccessToken = clientConfig.get('accessToken');
       Promise.all([
         oauth.revokeToken(oldAccessToken).then(resolve),
@@ -123,10 +118,10 @@ module.exports = function(env, clientConfig) {
     //clientConfig.set('password', password);
     
     return new Promise(function(resolve, reject){
-      keytar.setPassword('balloon', username, password).then(() => {
-console.log(password);
-        verifyNewLogin(clientConfig.get('username')).then(() => {
-          resolve(); 
+      clientConfig.storeSecret('basicAuthPassword', password).then(() => {
+        console.log(password);
+        verifyNewLogin(clientConfig.get('username')).then((username) => {
+          resolve(username); 
         }).catch((err) => {
           reject(err)
         });
@@ -137,6 +132,7 @@ console.log(password);
   } 
 
   function oidcAuth(idpConfig, callback) {
+    //TODO raffis - backwards compatibility, gets removed soon
     if(idpConfig.responseType === 'token') {
     var oldUser = clientConfig.get('username');
       return oauth.signin(idpConfig).then(() => {
@@ -150,6 +146,8 @@ console.log(password);
       if(authorization === true)  {
         verifyNewLogin(oldUser).then((username) => {
           callback(username);
+        }).catch((error) => {
+          //TODO needs promise
         });
       } else {     
         callback();
@@ -171,20 +169,20 @@ console.log(password);
             resolve();
           });
         } else if(clientConfig.get('auth') === 'oidc') {
-          var oidcAuth = clientConfig.get('oidcAuth');
-          if(oidcAuth === undefined) {
+          var oidcProvider = clientConfig.get('oidProvider');
+          if(oidcProvider === undefined) {
             startup().then(() => {
               resolve();
             });
           } else {
-            var idpConfig = getIdPByName(oidcAuth.provider);
+            var idpConfig = getIdPByName(oidcProvider);
             if(idpConfig === undefined) {
               startup().then(() => {
                 resolve();
               });
             } else { 
               /*if(!hasAccessToken() || accessTokenExpired())*/
-              //TODO type===token is only for for backwards compatibility with out AAI, gets removed after we have an openid-connect IdP deployed.
+              //TODO raffis - ype===token is only for for backwards compatibility with out AAI, gets removed after we have an openid-connect IdP deployed.
               if(idpConfig.responseType === 'token') {
                 oauth.signin(idpConfig).then(() => {
                   verifyNewLogin(oldUser).then((username) => {
@@ -220,24 +218,18 @@ console.log(password);
   }
 
   function verifyAuthentication() {
-    if(clientConfig.get('auth') === 'basic') {
-      keytar.getPassword('balloon', clientConfig.get('username')).then((password) => {
-        console.log(password);
+    return new Promise(function(resolve, reject) {
+      var sync = syncFactory(clientConfig.getAll(), logger);
+      sync.blnApi.whoami(function(err, username) {
+        if(err) {
+          clientConfig.set('loggedin', false);
+          reject(err);
+        } else {
+          clientConfig.set('loggedin', true);
+          resolve();
+        }
       });
-    } else {
-      return new Promise(function(resolve, reject) {
-        var sync = syncFactory(clientConfig.getAll(), logger);
-        sync.blnApi.whoami(function(err, username) {
-          if(err) {
-            clientConfig.set('loggedin', false);
-            reject(err);
-          } else {
-            clientConfig.set('loggedin', true);
-            resolve();
-          }
-        });
-      });
-    }
+    });
   }
 
   function verifyNewLogin(oldUser) {
@@ -245,16 +237,14 @@ console.log(password);
       var sync = syncFactory(clientConfig.getAll(), logger);
       sync.blnApi.whoami(function(err, username) {
         if(err) {
-          logger.error('OAUTH: got error', {err});
-          clientConfig.set('oidcAuth', undefined);
-          reject(err);
+          logger.error('failed verify authentication', {err});
+          clientConfig.set('oidcProvider', undefined);
+          return reject(err);
         }
  
-        logger.info('OAUTH: got username', {username});
-
+        logger.info('successfully verified authentication', {username});
         clientConfig.set('username', username);
         clientConfig.set('loggedin', true);
-        logger.info('AUTH: user logged in', {username});
 
         if(oldUser !== undefined && username !== undefined && username !== oldUser) {
           logger.info('AUTH: a new user logged in switching sync state', {oldUser, username});

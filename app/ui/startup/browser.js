@@ -133,12 +133,25 @@ function auth() {
       ipcRenderer.send('auth-oidc-signin', $(this).attr('alt'));
     });
   });
-
-  $('#startup-auth-continue').bind('click', function() {
+  
+  ipcRenderer.on('startup-auth-error', function (event, type) {
+    $('#startup-auth-error').find('> div').hide()
+    $('#startup-auth-error-'+type).show();
+  });
+  
+  function basicAuth() {
     var username = $('#startup-view-auth').find('input[name=username]').val();
     var password = $('#startup-view-auth').find('input[name=password]').val();
     ipcRenderer.send('startup-basic-auth', username, password);
+  }
+
+  $(document).bind('keypress', function(e){
+    if(e.which === 13 && $('#startup-view-auth').is(':visible')) {
+      basicAuth();
+    }
   });
+
+  $('#startup-auth-continue').bind('click', basicAuth);
 }
 
 function switchView(view) {

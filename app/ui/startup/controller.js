@@ -126,9 +126,9 @@ module.exports = function(env, clientConfig) {
   function authenticate() {
     return new Promise(function(resolve, reject) {
       if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl')) {
-        resolve();
+        return resolve();
       }
-
+      
       auth.login(askCredentials, function(){
         resolve();
       }).then(() => {
@@ -139,7 +139,7 @@ module.exports = function(env, clientConfig) {
 
   function askCredentials() {
     return new Promise(function(resolve, reject) {
-      if(clientConfig.get('disableAutoAuth') !== true && clientConfig.get('onLineState') === true) {
+      if(clientConfig.get('disableAutoAuth') !== true/* && clientConfig.get('onLineState') === true*/) {
         if(env.auth.basic === false && env.auth.oidc.length === 0) {
           return Promise.reject(new Error('No authentication configured'));
         } else if(env.auth.basic === true || env.auth.oidc.length > 1) {
@@ -167,10 +167,11 @@ module.exports = function(env, clientConfig) {
                   resolve();  
                 });
               } else {
+                startupWindow.close();
                 resolve();
               }
-            }).catch((err) => {
-              console.log("err",err);
+            }).catch((error) => {
+              ipcMain.send('startup-auth-error',  'basic');
             });
           });
 
@@ -183,9 +184,12 @@ module.exports = function(env, clientConfig) {
                   resolve();  
                 });
               } else {
+                startupWindow.close();
                 resolve();
               }
-            });
+            });/*).catch((error) => {
+              ipcMain.send('startup-auth-error',  'oidc');
+            });*/
           });
         }
       } else {

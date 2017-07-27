@@ -1,12 +1,3 @@
-/**
-* This module was heavily inspired by https://github.com/jvitor83/electron-oauth2/blob/master/index.js
-**/
-
-/*const queryString = require('querystring');
-const request = require('request');
-const extend = require('util')._extend;
-*/
-
 const logger = require('../../lib/logger.js');
 const {AuthorizationRequest} = require('../../../node_modules/@openid/appauth/built/authorization_request.js');
 const {AuthorizationNotifier, AuthorizationRequestHandler, AuthorizationRequestResponse, BUILT_IN_PARAMETERS} = require('../../../node_modules/@openid/appauth/built/authorization_request_handler.js');
@@ -36,7 +27,7 @@ module.exports = function (env, clientConfig) {
       console.log(config);
       configuration = config;
       initIdp();
-      var oidcAuth = clientConfig.get('oidcAuth');
+      var oidcAuth = clientConfig.get('oidcProvider');
 
       if(oidcAuth) {
         makeAccessTokenRequest(configuration, oidcAuth.refreshToken).then((response) => {
@@ -45,12 +36,10 @@ module.exports = function (env, clientConfig) {
         });
       } else {
         makeAuthorizationRequest(config, callback)/*.then((respone) => {
-          console.log("02", response);
           Promise.resolve();
         });*/
       }
     });
-
     //});
   }
 
@@ -73,26 +62,24 @@ module.exports = function (env, clientConfig) {
    } 
 
   function makeAuthorizationRequest(AuthorizationServiceConfiguration, callback) {
-    //initIdp();
     //return new Promise(function(resolve, reject) {
-
     notifier.setAuthorizationListener((request, response, error) => {
       //log('Authorization request complete ', request, response, error);
       if (response) {
         makeRefreshTokenRequest(configuration, response.code)
-          .then(result => makeAccessTokenRequest(configuration, result.refreshToken))
           .then((result) => {
-            clientConfig.set('auth', 'oidc');
-            clientConfig.set('oidcAuth', {
-              'provider': idpConfig.provider,
-              'refreshToken': result.refreshToken,
-              'accessToken': result.accessToken,
-              'accessTokenExpires': result.issuedAt + result.expiresIn,
+            clientConfig.storeSecret('refreshToken', result.refreshToken).then(() => { 
+              clientConfig.set('auth', 'oidc');
+              clientConfig.set('oidcProvider', idpConfig.provider);
+              makeAccessTokenRequest(configuration, result.refreshToken).then((access) => {
+                clientConfig.storeSecret('accessToken', access.accessToken).then(() => {
+                  clientConfig.set('accessTokenExpires', access.issuedAt + access.expiresIn);
+                  callback(true);
+                  //Promise.resolve();
+                  return result;
+                });
+              });
             });
-            
-            callback(true);
-            //Promise.resolve();
-            return result;
           });
       }
     });
@@ -104,9 +91,8 @@ module.exports = function (env, clientConfig) {
         undefined, /* state */
         {'prompt': 'consent', 'access_type': 'offline'});
 
-    //log('Making authorization request ', configuration, request);
+    logger.info('making oauth2 authorization request', configuration, request);
     authorizationHandler.performAuthorizationRequest(configuration, request);
-  
     //});
   }
 
@@ -116,9 +102,10 @@ module.exports = function (env, clientConfig) {
         idpConfig.clientId, idpConfig.redirectUri, GRANT_TYPE_AUTHORIZATION_CODE, code, undefined, {'client_secret': idpConfig.clientSecret});
 
     return tokenHandler.performTokenRequest(configuration, request).then(response => {
-      //log(`Refresh Token is ${response.refreshToken}`);
+      logger.info('retrieved oauth2 refresh token');
       return response;
     }).catch((error) => {
+      logger.error('failed requesting refresh token', error);
       //TODO raffis - Doing something here
     });
   }
@@ -128,10 +115,10 @@ module.exports = function (env, clientConfig) {
         idpConfig.clientId, idpConfig.redirectUri, GRANT_TYPE_REFRESH_TOKEN, undefined, refreshToken, {'client_secret': idpConfig.clientSecret});
 
     return tokenHandler.performTokenRequest(configuration, request).then(response => {
-      console.log(response);
-      //log(`Access Token is ${response.accessToken}`);
+      logger.info('retrieved oauth2 access token');
       return response;
     }).catch((error) => {
+      logger.error('failed requesting access token', error);
       //TODO raffis - Doing something here
     });
   }

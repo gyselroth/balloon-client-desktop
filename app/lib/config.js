@@ -8,6 +8,7 @@ const app = electron.app || electron.remote.app;
 
 const env = require('../env.js');
 const fsUtility = require('./fs-utility.js');
+const keytar = require('keytar');
 
 function initialize() {
   var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
@@ -90,6 +91,19 @@ module.exports = function() {
       settings.set('blnUrl', url);
       settings.set('apiUrl', apiUrl);
     },
-    initialize
+    initialize,
+    getSecret: function(type) {
+      if(type in config) {
+        return new Promise(function(resolve) {
+          resolve(config[type]);
+        });
+      } else {
+        return keytar.getPassword('balloon', type);
+      }
+    },
+    storeSecret: function(type, secret) {
+console.log(secret);
+      return keytar.setPassword('balloon', type, secret);
+    }
   }
 }();
