@@ -97,7 +97,7 @@ module.exports = function (env, clientConfig) {
         };
 
         clientConfig.set('auth', 'oidc');
-        clientConfig.set('oidProvider', idpConfig.provider);
+        clientConfig.set('oidcProvider', idpConfig.provider);
         clientConfig.set('accessTokenExpires', expires);
 
         clientConfig.storeSecret('accessToken', token).then(() => {

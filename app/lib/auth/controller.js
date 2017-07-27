@@ -170,7 +170,7 @@ module.exports = function(env, clientConfig) {
             resolve();
           });
         } else if(clientConfig.get('auth') === 'oidc') {
-          var oidcProvider = clientConfig.get('oidProvider');
+          var oidcProvider = clientConfig.get('oidcProvider');
           if(oidcProvider === undefined) {
             startup().then(() => {
               resolve();
