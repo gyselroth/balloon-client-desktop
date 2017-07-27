@@ -102,7 +102,6 @@ module.exports = function() {
       }
     },
     storeSecret: function(type, secret) {
-console.log(secret);
       return keytar.setPassword('balloon', type, secret);
     }
   }

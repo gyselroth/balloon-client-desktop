@@ -171,7 +171,7 @@ module.exports = function(env, clientConfig) {
                 resolve();
               }
             }).catch((error) => {
-              ipcMain.send('startup-auth-error',  'basic');
+              startupWindow.webContents.send('startup-auth-error',  'basic');
             });
           });
 

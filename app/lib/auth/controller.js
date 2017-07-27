@@ -81,7 +81,6 @@ module.exports = function(env, clientConfig) {
     logger.info('AUTH: logout initialized');
 
     return new Promise(function(resolve, reject) {
-      //var oldAccessToken = clientConfig.get('accessToken');
         clientConfig.setMulti({
           'loggedin': false,
           'username': undefined,
@@ -90,6 +89,10 @@ module.exports = function(env, clientConfig) {
         });
         resolve();
       //TODO raffis - logout needs to be reviewd after oauth gets removed (oidc replacement)
+      //TODO raffis - https://github.com/openid/AppAuth-JS/issues/17
+      //AppAuth doesnt fetch the revoke endpoint from the discovery, maybe fork&fix
+
+
       /*var oldAccessToken = clientConfig.get('accessToken');
       Promise.all([
         oauth.revokeToken(oldAccessToken).then(resolve),
@@ -112,14 +115,12 @@ module.exports = function(env, clientConfig) {
   }
   
   function basicAuth(username, password) {
-    console.log(username,password);
     clientConfig.set('auth', 'basic');
     clientConfig.set('username', username);
     //clientConfig.set('password', password);
     
     return new Promise(function(resolve, reject){
       clientConfig.storeSecret('basicAuthPassword', password).then(() => {
-        console.log(password);
         verifyNewLogin(clientConfig.get('username')).then((username) => {
           resolve(username); 
         }).catch((err) => {

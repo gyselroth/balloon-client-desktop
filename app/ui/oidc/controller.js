@@ -24,7 +24,6 @@ module.exports = function (env, clientConfig) {
     //return new Promise(function(resolve, reject) {
 
     fetchServiceConfiguration().then(config => {
-      console.log(config);
       configuration = config;
       initIdp();
       var oidcAuth = clientConfig.get('oidcProvider');

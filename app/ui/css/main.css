@@ -311,6 +311,10 @@ input[type="radio"], input[type="checkbox"] {
     text-align: center;
 }
 
+#startup-auth-error {
+  margin-top: 10px;
+}
+
 #startup-auth-oidc {
   margin-top: 10px;
 }
