@@ -124,6 +124,7 @@ module.exports = function(env, clientConfig) {
     
     return new Promise(function(resolve, reject){
       keytar.setPassword('balloon', username, password).then(() => {
+console.log(password);
         verifyNewLogin(clientConfig.get('username')).then(() => {
           resolve(); 
         }).catch((err) => {
@@ -219,10 +220,9 @@ module.exports = function(env, clientConfig) {
   }
 
   function verifyAuthentication() {
-  
-    if(config.get('auth') === 'basic') {
-      keytar.getPassword('balloon', config.get('username').then((password) => {
-        conosle.log(password);
+    if(clientConfig.get('auth') === 'basic') {
+      keytar.getPassword('balloon', clientConfig.get('username')).then((password) => {
+        console.log(password);
       });
     } else {
       return new Promise(function(resolve, reject) {
