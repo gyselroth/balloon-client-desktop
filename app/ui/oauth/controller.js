@@ -12,7 +12,6 @@ const extend = require('util')._extend;
 const logger = require('../../lib/logger.js');
 const windowStatesFactory = require('../window-states.js');
 const syncFactory = require('@gyselroth/balloon-node-sync');
-const auth = require('../../lib/auth/controller.js');
 
 module.exports = function (env, clientConfig) {
   var oauthConfig = env.oAuth2Config;
@@ -98,7 +97,7 @@ module.exports = function (env, clientConfig) {
         clientConfig.set('auth', 'oidc');
         clientConfig.set('oidcProvider', idpConfig.provider);
         clientConfig.set('accessTokenExpires', expires);
-        auth.storeSecret('accessToken', token).then(() => {
+	clientConfig.storeSecret('accessToken', token).then(() => {
           destroyWindow();
           resolve();
         });

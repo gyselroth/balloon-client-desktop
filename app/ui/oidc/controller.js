@@ -8,7 +8,6 @@ const {NodeRequestor} = require('../../../node_modules/@openid/appauth/built/nod
 const {GRANT_TYPE_AUTHORIZATION_CODE, GRANT_TYPE_REFRESH_TOKEN, TokenRequest} = require('../../../node_modules/@openid/appauth/built/token_request.js');
 const {BaseTokenRequestHandler, TokenRequestHandler} = require('../../../node_modules/@openid/appauth/built/token_request_handler.js');
 const {TokenError, TokenResponse} = require('../../../node_modules/@openid/appauth/built/token_response.js');
-const auth = require('../../lib/auth/controller.js');
 
 /* the Node.js based HTTP client. */
 const requestor = new NodeRequestor();
@@ -30,7 +29,7 @@ module.exports = function (env, clientConfig) {
       var oidcAuth = clientConfig.get('oidcProvider');
 
       if(oidcAuth) {
-        auth.retrieveSecret('refreshToken').then((secret) => {
+        clientConfig.retrieveSecret('refreshToken').then((secret) => {
           logger.info('found refreshToken, trying to request new access token')
           makeAccessTokenRequest(configuration, secret).then((response) => {
             callback();
@@ -74,11 +73,11 @@ module.exports = function (env, clientConfig) {
       if (response) {
         makeRefreshTokenRequest(configuration, response.code)
           .then((result) => {
-            auth.storeSecret('refreshToken', result.refreshToken).then(() => { 
+            clientConfig.storeSecret('refreshToken', result.refreshToken).then(() => { 
               clientConfig.set('auth', 'oidc');
               clientConfig.set('oidcProvider', idpConfig.provider);
               makeAccessTokenRequest(configuration, result.refreshToken).then((access) => {
-                auth.storeSecret('accessToken', access.accessToken).then(() => {
+                clientConfig.storeSecret('accessToken', access.accessToken).then(() => {
                   clientConfig.set('accessTokenExpires', access.issuedAt + access.expiresIn);
                   callback(true);
                   //Promise.resolve();

@@ -5,6 +5,7 @@ const childProcess = require('child_process');
 const electron = require('electron');
 const settings = require('electron-settings');
 const app = electron.app || electron.remote.app;
+const keytar = require('keytar');
 
 const env = require('../env.js');
 const fsUtility = require('./fs-utility.js');
@@ -117,6 +118,13 @@ module.exports = function() {
       } else {
         return true;
       } 
+    },
+    storeSecret: function(type, secret) {
+      secret = secret;
+      return keytar.setPassword('balloon', type, secret);
+    },
+    retrieveSecret: function(type) {
+      return keytar.getPassword('ballon', type);
     }
   }
 }();

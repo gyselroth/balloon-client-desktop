@@ -9,7 +9,6 @@ const OauthCtrl = require('../../ui/oauth/controller.js');
 const logger = require('../logger.js');
 const fsUtility = require('../fs-utility.js');
 const syncFactory = require('@gyselroth/balloon-node-sync');
-const keytar = require('keytar');
 
 var syncArchiveSatesFactory = function(clientConfig) {
   var states;
@@ -120,7 +119,7 @@ module.exports = function(env, clientConfig) {
     clientConfig.set('username', username);
     
     return new Promise(function(resolve, reject){
-      storeSecret('password', password).then(() => {
+      clientConfig.storeSecret('password', password).then(() => {
         verifyNewLogin(clientConfig.get('username')).then((username) => {
           resolve(username); 
         }).catch((err) => {
@@ -156,18 +155,14 @@ module.exports = function(env, clientConfig) {
     });
   } 
   
-  function retrieveSecret(type) {
-    return keytar.getPassword('balloon', type);
-  }
-
   function retrieveLoginSecret() {
     return new Promise(function(resolve) {
       if(!clientConfig.get('auth')) {
         logger.info('AUTH: no authentication method set yet');
         return resolve();
       }
-
-      keytar.getPassword('balloon', clientConfig.getSecretType()).then((secret) => {
+      
+      clientConfig.retrieveSecret(clientConfig.getSecretType()).then((secret) => {
         clientConfig.setSecret(secret)
         resolve();
       }).catch((error) => {
@@ -175,11 +170,6 @@ module.exports = function(env, clientConfig) {
         resolve();
       })
     });
-  }
-
-  function storeSecret(type, secret) {
-    clientConfig.setSecret(secret);
-    return keytar.setPassword('balloon', type, secret);
   }
 
   function login(startup, callback) {
@@ -526,8 +516,6 @@ module.exports = function(env, clientConfig) {
     basicAuth,
     oidcAuth, 
     getIdPByName,
-    storeSecret,
     retrieveLoginSecret,
-    retrieveSecret
   }
 }
