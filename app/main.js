@@ -47,25 +47,22 @@ if(shouldQuit === true) {
 
 app.on('ready', function () {
   logger.info('App ready');
-
-  ipcMain.once('tray-online-state-changed', function(event, state) {
-
-    if(!startup.isFirstStart()) {
-      tray.create();
-      autoUpdate.checkForUpdate();
-    }
-
-    logger.info('Main: initial online state', {state});
-    clientConfig.set('onLineState', state);
-    startup.checkConfig().then(() => {
-      logger.info('startup checkconfig successfull');
-      
-
-      if(startup.isFirstStart()) {
+  auth.retrieveLoginSecret().then(() => {
+    ipcMain.once('tray-online-state-changed', function(event, state) {
+      if(!startup.isFirstStart()) {
         tray.create();
+        autoUpdate.checkForUpdate();
       }
 
-        //tray.create();
+      logger.info('Main: initial online state', {state});
+      clientConfig.set('onLineState', state);
+      startup.checkConfig().then(() => {
+        logger.info('startup checkconfig successfull');
+      
+        if(startup.isFirstStart()) {
+          tray.create();
+        }
+
         sync = SyncCtrl(env, tray);
 
         //startup.showBalloonDir();
@@ -88,16 +85,17 @@ app.on('ready', function () {
             startSync();
           }
         });
-    }).catch(err => {
-      logger.error('startup checkconfig', err);
-      app.quit();
+      }).catch(err => {
+        logger.error('startup checkconfig', err);
+        app.quit();
+      });
     });
-  });
 
-  tray = TrayCtrl(env);
-  settings = SettingsCtrl(env);
-  autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
-  errorReport = ErrorReportCtrl(env, clientConfig, sync);
+    tray = TrayCtrl(env);
+    settings = SettingsCtrl(env);
+    autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
+    errorReport = ErrorReportCtrl(env, clientConfig, sync);
+  });
 });
 
 /** Main App **/
@@ -270,6 +268,8 @@ ipcMain.on('sync-error', (event, error, url, line) => {
 
 /** Development Methods **/
 if(env.name === 'development') {
+  process.on('unhandledRejection', r => console.log(r));
+
   ipcMain.on('dev-reset', (event) => {
     configManager.reset().then(() => {
       event.sender.send('dev-reset-complete');

@@ -11,30 +11,36 @@ logger.setLogger(standardLogger);
 
 try {
   var syncCompleted = false;
-  var sync = syncFactory(clientConfig.getAll(), standardLogger);
 
-  sync.start((err, results) => {
-    if(err) {
-      logger.error('Sync: finished with error', err);
-      ipcRenderer.send('sync-error', err);
-    } else {
-      logger.info('Sync: Finished successfully', results);
-    }
+  ipcRenderer.send('sync-window-loaded');
+  ipcRenderer.once('secret', function(event, type, secret) {
+    var config = clientConfig.getAll();
+    config[type] = secret;
+    var sync = syncFactory(config, standardLogger);
 
-    syncCompleted = true;
-    ipcRenderer.send('sync-complete');
-  });
+    sync.start((err, results) => {
+      if(err) {
+        logger.error('Sync: finished with error', err);
+        ipcRenderer.send('sync-error', err);
+      } else {
+        logger.info('Sync: Finished successfully', results);
+      }
 
-  ipcRenderer.on('sync-stop', function(event, forceQuit) {
-    sync.stop(forceQuit, (err) => {
-      ipcRenderer.send('sync-stop-result', err);
+      syncCompleted = true;
+      ipcRenderer.send('sync-complete');
     });
-  });
 
-  window.addEventListener('beforeunload', function(event) {
-    if(syncCompleted === false) {
-      sync.stop(true);
-    }
+    ipcRenderer.on('sync-stop', function(event, forceQuit) {
+      sync.stop(forceQuit, (err) => {
+        ipcRenderer.send('sync-stop-result', err);
+      });
+    });
+
+    window.addEventListener('beforeunload', function(event) {
+      if(syncCompleted === false) {
+        sync.stop(true);
+      }
+    });
   });
 } catch(err) {
   logger.error(err);

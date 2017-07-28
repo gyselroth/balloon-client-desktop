@@ -12,8 +12,7 @@ const extend = require('util')._extend;
 const logger = require('../../lib/logger.js');
 const windowStatesFactory = require('../window-states.js');
 const syncFactory = require('@gyselroth/balloon-node-sync');
-
-
+const auth = require('../../lib/auth/controller.js');
 
 module.exports = function (env, clientConfig) {
   var oauthConfig = env.oAuth2Config;
@@ -99,25 +98,10 @@ module.exports = function (env, clientConfig) {
         clientConfig.set('auth', 'oidc');
         clientConfig.set('oidcProvider', idpConfig.provider);
         clientConfig.set('accessTokenExpires', expires);
-
-        clientConfig.storeSecret('accessToken', token).then(() => {
+        auth.storeSecret('accessToken', token).then(() => {
           destroyWindow();
           resolve();
         });
-
-        /*var sync = syncFactory(clientConfig.getAll(), logger);
-        sync.blnApi.whoami(function(err, username) {
-          if(err) {
-            logger.error('OAUTH: got error', {err});
-            return handleError(err);
-          }
-
-          logger.info('OAUTH: got username', {username});
-          saveUsername(username);
-
-          destroyWindow();
-          resolve({token, expires, username});
-        });*/
       }, (err) => {
         if(err) handleError(err);
       });

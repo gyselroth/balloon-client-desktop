@@ -38,25 +38,19 @@
   },
   "scripts": {
     "postinstall": "install-app-deps",
-
     "prepack": "gulp build --env=production",
     "pack": "build --dir",
-
     "prebuild": "gulp build --env=production",
     "build": "BLN_ARTIFACT_APPENDIX='' build --win --ia32 --x64 --mac dmg -p never",
     "build-linux": "npm run prebuild && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm tar.xz",
-
     "prerelease": "gulp build --env=production",
     "release": "BLN_ARTIFACT_APPENDIX='' build --win --ia32 --x64 --mac dmg zip -p always",
     "release-linux": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm tar.xz",
-
     "prepackdev": "gulp build --env=development",
     "packdev": "build --dir",
-
     "prebuilddev": "gulp build --env=development",
     "builddev": "BLN_ARTIFACT_APPENDIX='-dev' build --win --ia32 --x64 --mac dmg -p never",
     "builddev-linux": "npm run prereleasedev && BLN_ARTIFACT_APPENDIX='-dev' build --linux deb rpm tar.xz",
-
     "start": "gulp start",
     "startprod": "gulp start --env=production"
   },
@@ -65,6 +59,7 @@
     "electron": "^1.7.3",
     "electron-builder": "^15.5.0",
     "electron-mocha": "^3.2.1",
+    "electron-rebuild": "^1.5.11",
     "gulp": "^3.9.1",
     "gulp-batch": "^1.0.5",
     "gulp-less": "^3.3.0",

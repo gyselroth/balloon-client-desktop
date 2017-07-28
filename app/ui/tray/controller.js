@@ -2,10 +2,10 @@ const path = require('path');
 const os = require('os');
 
 const electron = require('electron');
-const {app, BrowserWindow, nativeImage, Tray} = require('electron');
+const {app, BrowserWindow, ipcMain, nativeImage, Tray} = require('electron');
 
 const url = require('url');
-
+const clientConfig = require('../../lib/config.js');
 
 const i18n = require('../../lib/i18n.js');
 
@@ -153,7 +153,6 @@ module.exports = function(env) {
     if(!trayWindow) trayWindow = createWindow();
 
     const position = getWindowPosition();
-
     trayWindow.webContents.send('update-window');
     trayWindow.setPosition(position.x, position.y, false);
     trayWindow.show();
@@ -214,7 +213,11 @@ module.exports = function(env) {
     if(env.name === 'development') {
       //trayWindow.openDevTools();
     }
-
+    
+    ipcMain.on('tray-window-loaded', function(){
+      trayWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
+    });
+    
     return trayWindow;
   }
 

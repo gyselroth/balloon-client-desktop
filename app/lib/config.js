@@ -8,7 +8,6 @@ const app = electron.app || electron.remote.app;
 
 const env = require('../env.js');
 const fsUtility = require('./fs-utility.js');
-const keytar = require('keytar');
 
 function initialize() {
   var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
@@ -59,9 +58,22 @@ function initialize() {
 module.exports = function() {
   initialize();
 
+  function getSecretType() { 
+    if(settings.get('auth') === 'basic') {
+      return 'password';
+    } else if(settings.get('auth') === 'oidc') {
+      return 'accessToken';
+    }
+  }
+
+  var secret;
   return {
     getAll: function() {
-      return settings.getAll();
+      var conf = settings.getAll();
+      if(getSecretType()) {
+        conf[getSecretType()] = secret; 
+      }
+      return conf;
     },
     get: function(key) {
       return settings.get(key);
@@ -92,17 +104,19 @@ module.exports = function() {
       settings.set('apiUrl', apiUrl);
     },
     initialize,
-    getSecret: function(type) {
-      if(type in config) {
-        return new Promise(function(resolve) {
-          resolve(config[type]);
-        });
-      } else {
-        return keytar.getPassword('balloon', type);
-      }
+    setSecret: function(key) {
+      secret = key;
     },
-    storeSecret: function(type, secret) {
-      return keytar.setPassword('balloon', type, secret);
+    getSecret: function() {
+      return secret;
+    },
+    getSecretType,
+    hasSecret: function() {
+      if(secret === undefined) {
+        return false;
+      } else {
+        return true;
+      } 
     }
   }
 }();

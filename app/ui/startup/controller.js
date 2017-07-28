@@ -122,7 +122,7 @@ module.exports = function(env, clientConfig) {
       });
     });
   }
-  
+
   function authenticate() {
     return new Promise(function(resolve, reject) {
       if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl')) {
@@ -140,58 +140,50 @@ module.exports = function(env, clientConfig) {
   function askCredentials() {
     return new Promise(function(resolve, reject) {
       if(clientConfig.get('disableAutoAuth') !== true/* && clientConfig.get('onLineState') === true*/) {
-        if(env.auth.basic === false && env.auth.oidc.length === 0) {
-          return Promise.reject(new Error('No authentication configured'));
-        } else if(env.auth.basic === true || env.auth.oidc.length > 1) {
-          if(!startupWindow) startupWindow = createStartupWindow();
+        if(!startupWindow) startupWindow = createStartupWindow();
 
-          startupWindow.webContents.executeJavaScript(`switchView('auth')`);
-          startupWindow.show();
-          startupWindow.focus();
+        startupWindow.webContents.executeJavaScript(`switchView('auth')`);
+        startupWindow.show();
+        startupWindow.focus();
 
-          let windowClosedByUserHandler = function(event) {
-              //reject(new Error('Startup Settings window was closed by user'));
-          }
-
-          startupWindow.on('closed', windowClosedByUserHandler);
-      
-          ipcMain.on('startup-auth', function(event) {
-            startupWindow.webContents.send('startup-auth', env.auth.basic, env.auth.oidc);
-          });
-
-          ipcMain.on('startup-basic-auth', function(event, username, password) {
-            logger.info('requested basic auth with username '+username);
-            auth.basicAuth(username, password).then((username) => {
-              if(username !== undefined) {
-                welcomeWizard().then(() => {
-                  resolve();  
-                });
-              } else {
-                startupWindow.close();
-                resolve();
-              }
-            }).catch((error) => {
-              startupWindow.webContents.send('startup-auth-error',  'basic');
-            });
-          });
-
-          ipcMain.on('auth-oidc-signin', function(event, idp) {
-            var idpConfig = env.auth.oidc[idp];
-            logger.info('requested oidc signin via provider '+idpConfig.provider);
-            auth.oidcAuth(idpConfig, function(username){
-              if(username !== undefined) {
-                welcomeWizard().then(() => {
-                  resolve();  
-                });
-              } else {
-                startupWindow.close();
-                resolve();
-              }
-            });/*).catch((error) => {
-              ipcMain.send('startup-auth-error',  'oidc');
-            });*/
-          });
+        let windowClosedByUserHandler = function(event) {
+            //reject(new Error('Startup Settings window was closed by user'));
         }
+
+        startupWindow.on('closed', windowClosedByUserHandler);
+      
+        ipcMain.on('startup-basic-auth', function(event, username, password) {
+          logger.info('requested basic auth with username '+username);
+          auth.basicAuth(username, password).then((username) => {
+            if(username !== undefined) {
+              welcomeWizard().then(() => {
+                resolve();  
+              });
+            } else {
+              startupWindow.close();
+              resolve();
+            }
+          }).catch((error) => {
+            startupWindow.webContents.send('startup-auth-error',  'basic');
+          });
+        });
+
+        ipcMain.on('auth-oidc-signin', function(event, idp) {
+          var idpConfig = env.auth.oidc[idp];
+          logger.info('requested oidc signin via provider '+idpConfig.provider);
+          auth.oidcAuth(idpConfig, function(username){
+            if(username !== undefined) {
+              welcomeWizard().then(() => {
+                resolve();  
+              });
+            } else {
+              startupWindow.close();
+              resolve();
+            }
+          });/*).catch((error) => {
+            ipcMain.send('startup-auth-error',  'oidc');
+          });*/
+        });
       } else {
         resolve();
       }
@@ -290,6 +282,7 @@ module.exports = function(env, clientConfig) {
       selectiveWindow.focus();
 
       ipcMain.on('selective-window-loaded',function(){
+        selectiveWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
         selectiveWindow.webContents.send('selective-ignore-path', clientConfig.get('ignorePath'));
       });
 
@@ -387,6 +380,6 @@ module.exports = function(env, clientConfig) {
     checkConfig,
     preSyncCheck,
     showBalloonDir,
-    isFirstStart,
+    isFirstStart
   }
 }

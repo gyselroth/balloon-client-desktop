@@ -1,10 +1,12 @@
-(function () {'use strict';
+(function() {'use strict';
 
 const {ipcRenderer, shell} = require('electron');
 const handlebars = require('handlebars');
 const request = require('request');
 
 const clientConfig = require('../../lib/config.js');
+const logger = require('../../lib/logger.js');
+const syncFactory = require('@gyselroth/balloon-node-sync');
 
 const i18n = require('../../lib/i18n.js');
 
@@ -13,6 +15,8 @@ handlebars.registerHelper('i18n', function(key) {
 
   return new handlebars.SafeString(translation);
 });
+
+var sync;
 
 $('document').ready(function() {
   $('body').addClass(process.platform);
@@ -90,20 +94,27 @@ $('document').ready(function() {
       $togglePauseSync.toggleClass('paused');
     });
   }
-
+});
+  
+ipcRenderer.send('tray-window-loaded');
+ipcRenderer.once('secret', function(event, type, secret) {
+  var config = clientConfig.getAll();
+  config[type] = secret;
+  sync = syncFactory(config, logger);
   updateWindow();
 });
 
 function showQuota() {
-  const logger = require('../../lib/logger.js');
-  const clientConfig = require('../../lib/config.js');
-  const syncFactory = require('@gyselroth/balloon-node-sync');
-
-  var sync = syncFactory(clientConfig.getAll(), logger);
   sync.blnApi.getQuotaUsage((err, data) => {
-    var percent =  Math.round(data.used / data.hard_quota * 100, 0);
-
     var $quota = $('#quota');
+
+    if(err) {
+      $quota.hide()
+    } else {
+      $quota.show()
+    }
+    
+    var percent =  Math.round(data.used / data.hard_quota * 100, 0);
     var $used = $quota.find('.used');
     $used.width(percent+'%');
 

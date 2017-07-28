@@ -325,10 +325,6 @@ input[type="radio"], input[type="checkbox"] {
   max-width: 300px;
 }
 
-#startup-auth-basic {
-  display: none;
-}
-
 #startup-view-auth input {
     display: block;
     margin: 6px auto;

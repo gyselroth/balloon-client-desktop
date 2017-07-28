@@ -114,25 +114,27 @@ function welcome() {
 }
 
 function auth() {
-  ipcRenderer.send('startup-auth');
-  ipcRenderer.on('startup-auth', function (event, basic, oidc) {
-    if(basic === true) {
-      $('#startup-auth-basic').show();
+  //ipcRenderer.send('startup-auth');
+  //ipcRenderer.on('startup-auth', function (event, basic, oidc) {
+    if(env.auth && env.auth.basic === false) {
+      $('#startup-auth-basic').hide();
     }
 
     var $container = $('#startup-auth-oidc');
 
-    var i=0;
-    $(oidc).each(function(e, idp){
-      var img = '<img alt="'+i+'" src="data:image/png;base64,'+idp.imgBase64+'"/>';
-      $container.append(img);
-      ++i;
-    });
+    if(env.auth && env.auth.oidc) {
+      var i=0;
+      $(env.auth.oidc).each(function(e, idp){
+        var img = '<img alt="'+i+'" src="data:image/png;base64,'+idp.imgBase64+'"/>';
+        $container.append(img);
+        ++i;
+      });
+    }
 
     $container.on('click', 'img', function(){
       ipcRenderer.send('auth-oidc-signin', $(this).attr('alt'));
     });
-  });
+  //});
   
   ipcRenderer.on('startup-auth-error', function (event, type) {
     $('#startup-auth-error').find('> div').hide()
