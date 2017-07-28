@@ -215,10 +215,15 @@ module.exports = function(env) {
     }
     
     ipcMain.on('tray-window-loaded', function(){
-      trayWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
+      clientConfig.updateTraySecret(updateSecret);
+      updateSecret();
     });
     
     return trayWindow;
+  }
+
+  function updateSecret() {
+    trayWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
   }
 
   function syncStarted() {
@@ -241,6 +246,7 @@ module.exports = function(env) {
     show,
     syncStarted,
     syncEnded,
-    toggleState
+    toggleState,
+    updateSecret
   }
 }

@@ -115,12 +115,13 @@ module.exports = function(env, clientConfig) {
   }
   
   function basicAuth(username, password) {
+    var oldUser = clientConfig.get('username');
     clientConfig.set('auth', 'basic');
     clientConfig.set('username', username);
     
     return new Promise(function(resolve, reject){
       clientConfig.storeSecret('password', password).then(() => {
-        verifyNewLogin(clientConfig.get('username')).then((username) => {
+        verifyNewLogin(oldUser).then((username) => {
           resolve(username); 
         }).catch((err) => {
           reject(err)
@@ -161,7 +162,7 @@ module.exports = function(env, clientConfig) {
         logger.info('AUTH: no authentication method set yet');
         return resolve();
       }
-      
+
       clientConfig.retrieveSecret(clientConfig.getSecretType()).then((secret) => {
         clientConfig.setSecret(secret)
         resolve();
@@ -174,14 +175,9 @@ module.exports = function(env, clientConfig) {
 
   function login(startup, callback) {
     logger.info('AUTH: login initialized');
-
     var oldUser = clientConfig.get('username');
 
     return new Promise(function (resolve, reject) {
-      if(!clientConfig.hasSecret()) {
-        return reject();
-      } 
-
       verifyAuthentication().then(() => {
         return resolve();  
       }).catch((err) => {
@@ -264,11 +260,11 @@ module.exports = function(env, clientConfig) {
         }
  
         logger.info('successfully verified authentication', {username});
-        clientConfig.set('username', username);
         clientConfig.set('loggedin', true);
 
         if(oldUser !== undefined && username !== undefined && username !== oldUser) {
           logger.info('AUTH: a new user logged in switching sync state', {oldUser, username});
+          clientConfig.set('username', username);
 
           switchSyncState(oldUser, username).then(() => {
             resolve(username);
@@ -288,7 +284,7 @@ module.exports = function(env, clientConfig) {
             });
           });
         } else {
-          resolve(username);
+          resolve();
         }
       });
     });

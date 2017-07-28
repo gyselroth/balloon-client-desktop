@@ -67,7 +67,8 @@ module.exports = function() {
     }
   }
 
-  var secret;
+  var secret, traySecretUpdate;
+
   return {
     getAll: function() {
       var conf = settings.getAll();
@@ -119,12 +120,16 @@ module.exports = function() {
         return true;
       } 
     },
-    storeSecret: function(type, secret) {
-      secret = secret;
-      return keytar.setPassword('balloon', type, secret);
+    storeSecret: function(type, key) {
+      secret = key;
+      traySecretUpdate();
+      return keytar.setPassword('balloon', type, key);
     },
     retrieveSecret: function(type) {
-      return keytar.getPassword('ballon', type);
+      return keytar.getPassword('balloon', type);
+    },
+    updateTraySecret: function(callee) {
+      traySecretUpdate = callee;
     }
   }
 }();

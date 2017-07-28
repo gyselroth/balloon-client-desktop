@@ -325,7 +325,7 @@ module.exports = function(env, clientConfig) {
     selectiveWindow.setMenu(null);
 
     if(env.name === 'development') {
-      selectiveWindow.openDevTools();
+      //selectiveWindow.openDevTools();
     }
 
     return selectiveWindow;

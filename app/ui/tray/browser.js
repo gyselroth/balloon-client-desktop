@@ -97,7 +97,7 @@ $('document').ready(function() {
 });
   
 ipcRenderer.send('tray-window-loaded');
-ipcRenderer.once('secret', function(event, type, secret) {
+ipcRenderer.on('secret', function(event, type, secret) {
   var config = clientConfig.getAll();
   config[type] = secret;
   sync = syncFactory(config, logger);
