@@ -20,6 +20,7 @@ install:
 branches:
   only:
     - master
+    - develop
 
 test_script:
   - node --version
