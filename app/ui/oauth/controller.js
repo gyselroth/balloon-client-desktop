@@ -1,3 +1,5 @@
+//TODO backwards compatibility, this module gets removed soon!
+
 /**
 * This module was heavily inspired by https://github.com/jvitor83/electron-oauth2/blob/master/index.js
 **/
@@ -11,19 +13,11 @@ const logger = require('../../lib/logger.js');
 const windowStatesFactory = require('../window-states.js');
 const syncFactory = require('@gyselroth/balloon-node-sync');
 
-
-
 module.exports = function (env, clientConfig) {
   var oauthConfig = env.oAuth2Config;
   var authWindow = null;
 
   windowStates = windowStatesFactory(env);
-
-
-  function saveAccessToken(token, expires) {
-    clientConfig.set('accessToken', token);
-    clientConfig.set('accessTokenExpires', expires);
-  }
 
   function saveUsername(username) {
     clientConfig.set('username', username);
@@ -43,7 +37,7 @@ module.exports = function (env, clientConfig) {
     }
   }
 
-  function generateAccessToken() {
+  function signin(idpConfig) {
     if(authWindow !== null) {
       //a oauth processs is already running
       authWindow.focus();
@@ -52,23 +46,25 @@ module.exports = function (env, clientConfig) {
       return Promise.reject(err);
     }
 
+
     var urlParams = {
-      scope: 'all',
-      client: 'balloon-client-desktop',
-      response_type: 'token',
-      redirect_uri: 'app://',
-      client_id: oauthConfig.clientId
+      scope: idpConfig.scope,
+      client_id: idpConfig.clientId,
+      response_type: idpConfig.responseType,
+      redirect_uri: idpConfig.redirectUri
     };
 
-    var url = oauthConfig.authorizationUrl + '?' + queryString.stringify(urlParams);
+    var url = idpConfig.authorizationUrl + '?' + queryString.stringify(urlParams);
 
     return new Promise(function (resolve, reject) {
       const ses = session.fromPartition('persist:oauth');
+      var scheme = idpConfig.redirectUri.substr(0, idpConfig.redirectUri.length -3);
+      
       function destroyWindow() {
         authWindow.removeAllListeners('closed');
         authWindow.destroy();
         windowStates.closed('oauth');
-        ses.protocol.unregisterProtocol('app');
+        ses.protocol.unregisterProtocol(scheme);
         authWindow = null;
       }
 
@@ -79,9 +75,9 @@ module.exports = function (env, clientConfig) {
         reject(err);
       }
 
-      ses.protocol.registerFileProtocol('app', (request, callback) => {
+      ses.protocol.registerFileProtocol(scheme, (request, callback) => {
         function getParamFromUrl(param, url) {
-          var rawParam = new RegExp('[?#&]' + param + '=([a-zA-Z0-9]+)\&?').exec(url);
+          var rawParam = new RegExp('[?#&]' + param + '=([^\&]+)\&?').exec(url);
           var value = (rawParam && rawParam.length > 1) ? rawParam[1] : null;
 
           return value;
@@ -89,7 +85,7 @@ module.exports = function (env, clientConfig) {
 
         var token = getParamFromUrl('access_token', request.url);
         var expires = getParamFromUrl('expires', request.url);
-
+        
         if(token === null) {
           return handleError(new Error('No token set'));
         }
@@ -98,20 +94,12 @@ module.exports = function (env, clientConfig) {
           return handleError(new Error('No expires set'));
         };
 
-        saveAccessToken(token, expires);
-
-        var sync = syncFactory(clientConfig.getAll(), logger);
-        sync.blnApi.whoami(function(err, username) {
-          if(err) {
-            logger.error('OAUTH: got error', {err});
-            return handleError(err);
-          }
-
-          logger.info('OAUTH: got username', {username});
-          saveUsername(username);
-
+        clientConfig.set('auth', 'oidc');
+        clientConfig.set('oidcProvider', idpConfig.provider);
+        clientConfig.set('accessTokenExpires', expires);
+	clientConfig.storeSecret('accessToken', token).then(() => {
           destroyWindow();
-          resolve({token, expires, username});
+          resolve();
         });
       }, (err) => {
         if(err) handleError(err);
@@ -139,7 +127,7 @@ module.exports = function (env, clientConfig) {
   }
 
   return {
-    generateAccessToken,
-    revokeToken
+    revokeToken,
+    signin
   };
 };

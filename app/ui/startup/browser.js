@@ -1,4 +1,4 @@
-(function () {'use strict';
+//(function () {'use strict';
 
 const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
@@ -20,7 +20,7 @@ handlebars.registerHelper('i18n', function(key) {
 });
 
 
-$("document").ready(function() {
+$(document).ready(function() {
   $("html").addClass(process.platform);
   compileTemplates();
 
@@ -41,36 +41,19 @@ $("document").ready(function() {
   window.addEventListener('online', updateOnLineState);
   window.addEventListener('offline', updateOnLineState);
 
+  if(!env.blnUrl) {
+    $('#startup-view-server').find('> div').show();
+  }
+
   $('#startup-server-continue').bind('click', verifyServer);
   $(document).bind('keypress', function(e){
-    if(e.which === 13) {
+    if(e.which === 13 &&  $('#startup-view-server').is(':visible')) {
       verifyServer();
     }
   });
 
   $('.startup-open-folder').bind('click', function() {
     ipcRenderer.send('startup-open-folder');
-  });
-
-  $('#startup-advanced').bind('click', function() {
-    var $savedir = $('#startup-savedir');
-    var $savedirLabel = $savedir.find('> div:first-child');
-
-    $savedirLabel.html(clientConfig.get('balloonDir'));
-    $savedir.bind('click', function() {
-      ipcRenderer.send('startup-change-dir');
-    });
-
-    $('#startup-adavanced-selective').bind('click', function() {
-      ipcRenderer.send('startup-selective-sync');
-    });
-
-    ipcRenderer.on('startup-change-dir', function (event, path) {
-        $savedirLabel.html(path);
-    });
-
-    $('#startup-logo').hide();
-    switchView('advanced');
   });
 });
 
@@ -85,6 +68,10 @@ function compileTemplates() {
 }
 
 function verifyServer() {
+  if(env.blnUrl) {
+    return ipcRenderer.send('startup-server-continue');
+  }
+
   var $blnUrlField = $('#blnUrl');
   var $blnUrlInvalidMessage = $('#blnUrl-error-invalid');
   var $blnUrlNotreachableMessage = $('#blnUrl-error-notreachable');
@@ -111,15 +98,80 @@ function verifyServer() {
   }
 }
 
-function switchView(view) {
-  $("#startup-view").find("> div").hide();
-  $("#startup-view-"+view).show();
+function welcome() {
+  $('#startup-advanced').bind('click', function() {
+    var $savedir = $('#startup-savedir');
+    var $savedirLabel = $savedir.find('> div:first-child');
+
+    $savedirLabel.html(clientConfig.get('balloonDir'));
+    $savedir.bind('click', function() {
+      ipcRenderer.send('startup-change-dir');
+    });
+
+    $('#startup-adavanced-selective').bind('click', function() {
+      ipcRenderer.send('startup-selective-sync');
+    });
+
+    ipcRenderer.on('startup-change-dir', function (event, path) {
+        $savedirLabel.html(path);
+    });
+
+    $('#startup-logo').hide();
+    switchView('advanced');
+  });
 }
-}());
+
+function auth() {
+  //ipcRenderer.send('startup-auth');
+  //ipcRenderer.on('startup-auth', function (event, basic, oidc) {
+    if(env.auth && env.auth.basic === false) {
+      $('#startup-auth-basic').hide();
+    }
+
+    var $container = $('#startup-auth-oidc');
+
+    if(env.auth && env.auth.oidc) {
+      var i=0;
+      $(env.auth.oidc).each(function(e, idp){
+        var img = '<img alt="'+i+'" src="data:image/png;base64,'+idp.imgBase64+'"/>';
+        $container.append(img);
+        ++i;
+      });
+    }
+
+    $container.on('click', 'img', function(){
+      ipcRenderer.send('auth-oidc-signin', $(this).attr('alt'));
+    });
+  //});
+  
+  ipcRenderer.on('startup-auth-error', function (event, type) {
+    $('#startup-auth-error').find('> div').hide()
+    $('#startup-auth-error-'+type).show();
+  });
+  
+  function basicAuth() {
+console.log("BASIC AUTH"); 
+    var username = $('#startup-view-auth').find('input[name=username]').val();
+    var password = $('#startup-view-auth').find('input[name=password]').val();
+    ipcRenderer.send('startup-basic-auth', username, password);
+  }
+
+  $(document).bind('keypress', function(e){
+    if(e.which === 13 && $('#startup-view-auth').is(':visible')) {
+      basicAuth();
+    }
+  });
+
+  $('#startup-auth-continue').bind('click', basicAuth);
+}
 
 function switchView(view) {
   $(document).ready(function(){
     $("#startup-view").find("> div").hide();
     $("#startup-view-"+view).show();
+    
+    if(view in window) {
+      window[view]();
+    }
   });
 }

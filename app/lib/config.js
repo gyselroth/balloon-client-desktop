@@ -5,6 +5,7 @@ const childProcess = require('child_process');
 const electron = require('electron');
 const settings = require('electron-settings');
 const app = electron.app || electron.remote.app;
+const keytar = require('keytar');
 
 const env = require('../env.js');
 const fsUtility = require('./fs-utility.js');
@@ -59,9 +60,23 @@ function initialize() {
 module.exports = function() {
   initialize();
 
+  function getSecretType() { 
+    if(settings.get('auth') === 'basic') {
+      return 'password';
+    } else if(settings.get('auth') === 'oidc') {
+      return 'accessToken';
+    }
+  }
+
+  var secret, traySecretUpdate;
+
   return {
     getAll: function() {
-      return settings.getAll();
+      var conf = settings.getAll();
+      if(getSecretType()) {
+        conf[getSecretType()] = secret; 
+      }
+      return conf;
     },
     get: function(key) {
       return settings.get(key);
@@ -91,7 +106,32 @@ module.exports = function() {
       settings.set('blnUrl', url);
       settings.set('apiUrl', apiUrl);
     },
-
+    initialize,
+    setSecret: function(key) {
+      secret = key;
+    },
+    getSecret: function() {
+      return secret;
+    },
+    getSecretType,
+    hasSecret: function() {
+      if(secret === undefined) {
+        return false;
+      } else {
+        return true;
+      } 
+    },
+    storeSecret: function(type, key) {
+      secret = key;
+      traySecretUpdate();
+      return keytar.setPassword('balloon', type, key);
+    },
+    retrieveSecret: function(type) {
+      return keytar.getPassword('balloon', type);
+    },
+    updateTraySecret: function(callee) {
+      traySecretUpdate = callee;
+    },
     /**
      * @var string||array id node id(s) to ingore
      */
@@ -112,7 +152,5 @@ module.exports = function() {
 
       settings.set('ignoreNodes', ignoreNodes);
     },
-
-    initialize
   }
 }();

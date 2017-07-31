@@ -32,7 +32,7 @@ module.exports = function(env, clientConfig) {
   var selectiveWindow;
   var auth = AuthCtrl(env, clientConfig);
   var configManager = configManagerCtrl(clientConfig);
-  var firstStart = !auth.hasAccessToken();
+  var firstStart = !auth.hasIdentity();
 
   function enableAutoLaunch() {
     return new Promise(function(resolve, reject) {
@@ -64,7 +64,7 @@ module.exports = function(env, clientConfig) {
 
   function checkConfig() {
     return Promise.all([
-      customConfig(),
+      hasServer(),
       makeSureBalloonDirExists(),
       enableAutoLaunch(),
       authenticate(),
@@ -78,9 +78,9 @@ module.exports = function(env, clientConfig) {
     ]);
   }
 
-  function customConfig() {
-    if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl')) {
-      return openSettings();
+  function hasServer() {
+    if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || isFirstStart()) {
+      return enterServer();
     } else {
       return Promise.resolve();
     }
@@ -124,18 +124,70 @@ module.exports = function(env, clientConfig) {
   }
 
   function authenticate() {
-    if(
-      clientConfig.get('disableAutoAuth') !== true
-      &&
-      clientConfig.get('onLineState') === true
-      &&
-      (auth.hasAccessToken() === false || auth.accessTokenExpired())
-    ) {
-      return auth.login()
-    } else {
-      //automatic authentication is disabled, no network available or there is still a valid access token: return resolved promise
-      return Promise.resolve();
-    }
+    return new Promise(function(resolve, reject) {
+      if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || isFirstStart()) {
+        return resolve();
+      }
+      
+      auth.login(askCredentials, function(){
+        resolve();
+      }).then(() => {
+        resolve();
+      });
+    });
+  }
+
+  function askCredentials() {
+    return new Promise(function(resolve, reject) {
+      if(clientConfig.get('disableAutoAuth') !== true/* && clientConfig.get('onLineState') === true*/) {
+        if(!startupWindow) startupWindow = createStartupWindow();
+
+        startupWindow.webContents.executeJavaScript(`switchView('auth')`);
+        startupWindow.show();
+        startupWindow.focus();
+
+        let windowClosedByUserHandler = function(event) {
+            //reject(new Error('Startup Settings window was closed by user'));
+        }
+
+        startupWindow.on('closed', windowClosedByUserHandler);
+      
+        ipcMain.on('startup-basic-auth', function(event, username, password) {
+          logger.info('requested basic auth with username '+username);
+          auth.basicAuth(username, password).then((username) => {
+            if(username !== undefined) {
+              welcomeWizard().then(() => {
+                resolve();  
+              });
+            } else {
+              startupWindow.close();
+              resolve();
+            }
+          }).catch((error) => {
+            startupWindow.webContents.send('startup-auth-error',  'basic');
+          });
+        });
+
+        ipcMain.on('auth-oidc-signin', function(event, idp) {
+          var idpConfig = env.auth.oidc[idp];
+          logger.info('requested oidc signin via provider '+idpConfig.provider);
+          auth.oidcAuth(idpConfig, function(username){
+            if(username !== undefined) {
+              welcomeWizard().then(() => {
+                resolve();  
+              });
+            } else {
+              startupWindow.close();
+              resolve();
+            }
+          });/*).catch((error) => {
+            ipcMain.send('startup-auth-error',  'oidc');
+          });*/
+        });
+      } else {
+        resolve();
+      }
+    });
   }
 
   function showBalloonDir() {
@@ -157,7 +209,7 @@ module.exports = function(env, clientConfig) {
       let windowClosedByUserHandler = function(event) {
         resolve();
       }
-
+      
       startupWindow.on('closed', windowClosedByUserHandler);
 
       ipcMain.on('startup-open-folder', function(event) {
@@ -189,7 +241,7 @@ module.exports = function(env, clientConfig) {
     });
   }
 
-  function openSettings() {
+  function enterServer() {
     logger.info('Startup settings: open requested');
 
     return new Promise(function(resolve, reject) {
@@ -200,20 +252,25 @@ module.exports = function(env, clientConfig) {
       startupWindow.focus();
 
       let windowClosedByUserHandler = function(event) {
-        reject(new Error('Startup Settings window was closed by user'));
+        //reject(new Error('Startup Settings window was closed by user'));
       }
 
       startupWindow.on('closed', windowClosedByUserHandler);
 
       ipcMain.on('startup-server-continue', function(event, blnUrl) {
-        logger.info('Startup Settings: setting blnUrl to: ' + blnUrl);
+        if(!env.blnUrl) {
+          logger.info('Startup Settings: setting blnUrl to: ' + blnUrl);
+          clientConfig.set('onLineState', true);
+          clientConfig.setBlnUrl(blnUrl);
+        }
 
-        clientConfig.setBlnUrl(blnUrl);
-
+        askCredentials().then(() => {
+          resolve();
+        });
         //startupWindow.removeListener('closed', windowClosedByUserHandler);
         //startupWindow.close();
 
-        resolve();
+        //resolve();
       });
     });
   }
@@ -225,6 +282,10 @@ module.exports = function(env, clientConfig) {
       if(!selectiveWindow) selectiveWindow = createSelectiveWindow();
       selectiveWindow.show();
       selectiveWindow.focus();
+
+      ipcMain.on('selective-window-loaded',function(){
+        selectiveWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
+      });
 
       ipcMain.on('selective-apply', function(event, ids) {
         logger.info('Startup Settings: apply selective sync', {ids});
@@ -267,7 +328,7 @@ module.exports = function(env, clientConfig) {
     selectiveWindow.setMenu(null);
 
     if(env.name === 'development') {
-      selectiveWindow.openDevTools();
+      //selectiveWindow.openDevTools();
     }
 
     return selectiveWindow;
@@ -322,7 +383,6 @@ module.exports = function(env, clientConfig) {
     checkConfig,
     preSyncCheck,
     showBalloonDir,
-    isFirstStart,
-    welcomeWizard
+    isFirstStart
   }
 }

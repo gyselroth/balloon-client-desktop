@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Balloon Desktop</title>
+    <link href="../css/fonts.css" rel="stylesheet" type="text/css">
     <link href="../css/main.css" rel="stylesheet" type="text/css">
     <script>$ = require("jquery");</script>
     <script src="browser.js"></script>
@@ -13,14 +14,12 @@
 
     <div id="startup-view">
         <div id="startup-view-server" class="view">
-            <div id="content">
-                <h1>{{i18n 'startup.server.title'}}</h1>
+            <h1>{{i18n 'startup.server.title'}}</h1>
+            <div>
                 <p>{{i18n 'startup.server.message'}}</p>
                 <div id="blnUrl-error-offline">{{i18n 'error.blnUrl.offline'}}</div>
                 <div id="blnUrl-config">
-                    <div class="formfield">
-                        <input id="blnUrl" type="text" placeholder="https://yourserver.com" required>
-                    </div>
+                     <input id="blnUrl" type="text" placeholder="https://yourserver.com" required>
                     <div id="blnUrl-error-invalid" class="error-message">{{i18n 'error.blnUrl.invalid'}}</div>
                     <div id="blnUrl-error-notreachable" class="error-message">{{i18n 'error.blnUrl.notreachable'}}</div>
                 </div>
@@ -29,9 +28,17 @@
         </div>
         
         <div id="startup-view-auth" class="view">
-            <input type="text" name="username"/>
-            <input type="password" name="password"/>
-            <div id="startup-auth-continue">{{i18n 'button.continue'}}</div>
+            <p>{{i18n 'startup.auth.message'}}</p>
+            <div id="startup-auth-basic">
+              <input type="text" name="username" placeholder="{{i18n 'startup.auth.username'}}"/>
+              <input type="password" name="password" placeholder="{{i18n 'startup.auth.password'}}"/>
+              <button id="startup-auth-continue">{{i18n 'button.continue'}}</button>
+            </div>
+            <div id="startup-auth-error">
+                <div id="startup-auth-error-basic" class="error-message">{{i18n 'error.auth.basic'}}</div>
+                <div id="startup-auth-error-oidc" class="error-message">{{i18n 'error.auth.oidc'}}</div>
+            </div>
+            <div id="startup-auth-oidc"></div>
         </div>
 
         <div id="startup-view-welcome" class="view">

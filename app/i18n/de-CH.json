@@ -42,6 +42,9 @@
   "startup.welcome.advanced": "Erweiterte Einstellungen",
   "startup.advanced.saveDir.title": "balloon Verzeichnis",
   "startup.advanced.saveDir.message": "Der Speicherort für deinen balloon ändern:",
+  "startup.auth.username": "Benutzername",
+  "startup.auth.password": "Passwort",
+  "startup.auth.message": "Melde dich an deinem balloon an:",
 
   "button.cancel": "Abbrechen",
   "button.close": "Schliessen",
@@ -53,5 +56,7 @@
   "error.errorReport": "Fehlerbericht konnte nicht gesendet werden. Prüfen Sie die Internet-Verbindung und versuchen Sie es erneut.",
   "error.blnUrl.invalid": "Bitte geben Sie eine gültige Server URL an (Bsp: https://example.org)",
   "error.blnUrl.notreachable": "Der eingegebene Server kann nicht erreicht werden. Bitte prüfen Sie den Server",
-  "error.blnUrl.offline": "Es besteht keine Internetverbindung. Für die Konfiguration ist eine Internetverbindung notwendig."
+  "error.blnUrl.offline": "Es besteht keine Internetverbindung. Für die Konfiguration ist eine Internetverbindung notwendig.",
+  "error.auth.basic": "Authentifizierung fehlgeschlagen",
+  "error.auth.oidc": "Die Authentifzierung mit dem ausgewählen Identity Provider ist fehlgeschlagen."
 }

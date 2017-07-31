@@ -117,6 +117,10 @@ module.exports = function(env, tray) {
         }
       });
 
+      ipcMain.on('sync-window-loaded', function(){
+        syncWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
+      });
+
       syncWindow.on('closed', (event) => {
         syncWindow = null;
 

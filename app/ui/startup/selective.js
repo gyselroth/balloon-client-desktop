@@ -29,16 +29,20 @@ $("document").ready(function() {
 
   var configuredIgnore = clientConfig.get('ignoreNodes');
 
-  var sync = syncFactory(clientConfig.getAll(), logger);
-  sync.blnApi.getChildren(null, {filter: {directory: true}}, (err, data) => {
-    var $list = $('#selective-sync').find('ul');
-    $(data).each((id, node) => {
-      var html = '<input type="checkbox" name="selected" value="'+node.id+'"';
-      if($.inArray(node.id, configuredIgnore) === -1) {
-        html += ' checked';
-      }
+  ipcRenderer.once('secret', function(event, type, secret) {
+    var config = clientConfig.getAll();
+    config[type] = secret;
+    var sync = syncFactory(config, logger);
+    sync.blnApi.getChildren(null, {filter: {directory: true}}, (err, data) => {
+      var $list = $('#selective-sync').find('ul');
+      $(data).each((id, node) => {
+        var html = '<input type="checkbox" name="selected" value="'+node.id+'"';
+        if($.inArray(node.id, configuredIgnore) === -1) {
+          html += ' checked';
+        }
 
-      $list.append('<li>'+html+'/><span>'+node.name+'</span></li>');
+        $list.append('<li>'+html+'/><span>'+node.name+'</span></li>');
+      });
     });
   });
 

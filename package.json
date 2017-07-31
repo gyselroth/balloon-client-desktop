@@ -68,6 +68,7 @@
     "electron": "^1.7.3",
     "electron-builder": "^15.5.0",
     "electron-mocha": "^3.2.1",
+    "electron-rebuild": "^1.5.11",
     "gulp": "^3.9.1",
     "gulp-batch": "^1.0.5",
     "gulp-less": "^3.3.0",
@@ -98,6 +99,8 @@
     "rimraf": "^2.6.1",
     "underscore": "^1.8.3",
     "uuid4": "^1.0.0",
-    "winston": "^2.3.1"
+    "winston": "^2.3.1",
+    "@openid/appauth": "*",
+    "keytar": "*"
   }
 }
