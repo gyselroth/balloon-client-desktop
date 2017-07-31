@@ -150,6 +150,7 @@ function auth() {
   });
   
   function basicAuth() {
+console.log("BASIC AUTH"); 
     var username = $('#startup-view-auth').find('input[name=username]').val();
     var password = $('#startup-view-auth').find('input[name=password]').val();
     ipcRenderer.send('startup-basic-auth', username, password);

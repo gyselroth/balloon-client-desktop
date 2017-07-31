@@ -256,6 +256,7 @@ module.exports = function(env, clientConfig) {
         if(err) {
           logger.error('failed verify authentication', {err});
           clientConfig.set('oidcProvider', undefined);
+          clientConfig.set('username', undefined);
           return reject(err);
         }
  

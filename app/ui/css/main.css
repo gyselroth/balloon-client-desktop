@@ -28,8 +28,7 @@ footer, header, hgroup, menu, nav, section {
 
 body {
     line-height: 1;
-    font-family:  Segoe UI, Dejavu Sans, Helvetica Neue, Arial, sans-serif;
-    letter-spacing: -1px;
+    font-family:  Ubuntu, sans-serif;
     background-color: #fcfcfc;
 }
 
@@ -575,6 +574,7 @@ button, input[type="button"], input[type="submit"] {
 }
 
 .error-message {
+  margin-top: 4px;
   display: none;
   color: #ff0000;
 }
