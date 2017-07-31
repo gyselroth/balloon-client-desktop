@@ -1,13 +1,13 @@
 const logger = require('../../lib/logger.js');
-const {AuthorizationRequest} = require('../../../node_modules/@openid/appauth/built/authorization_request.js');
+const {AuthorizationRequest} = require('@openid/appauth/built/authorization_request.js');
 const {AuthorizationNotifier, AuthorizationRequestHandler, AuthorizationRequestResponse, BUILT_IN_PARAMETERS} = require('../../../node_modules/@openid/appauth/built/authorization_request_handler.js');
-const {AuthorizationResponse} = require('../../../node_modules/@openid/appauth/built/authorization_response.js');
-const {AuthorizationServiceConfiguration} = require('../../../node_modules/@openid/appauth/built/authorization_service_configuration.js');
-const {NodeBasedHandler} = require('../../../node_modules/@openid/appauth/built/node_support/node_request_handler.js');
-const {NodeRequestor} = require('../../../node_modules/@openid/appauth/built/node_support/node_requestor.js');
-const {GRANT_TYPE_AUTHORIZATION_CODE, GRANT_TYPE_REFRESH_TOKEN, TokenRequest} = require('../../../node_modules/@openid/appauth/built/token_request.js');
-const {BaseTokenRequestHandler, TokenRequestHandler} = require('../../../node_modules/@openid/appauth/built/token_request_handler.js');
-const {TokenError, TokenResponse} = require('../../../node_modules/@openid/appauth/built/token_response.js');
+const {AuthorizationResponse} = require('@openid/appauth/built/authorization_response.js');
+const {AuthorizationServiceConfiguration} = require('@openid/appauth/built/authorization_service_configuration.js');
+const {NodeBasedHandler} = require('@openid/appauth/built/node_support/node_request_handler.js');
+const {NodeRequestor} = require('@openid/appauth/built/node_support/node_requestor.js');
+const {GRANT_TYPE_AUTHORIZATION_CODE, GRANT_TYPE_REFRESH_TOKEN, TokenRequest} = require('@openid/appauth/built/token_request.js');
+const {BaseTokenRequestHandler, TokenRequestHandler} = require('@openid/appauth/built/token_request_handler.js');
+const {TokenError, TokenResponse} = require('@openid/appauth/built/token_response.js');
 
 /* the Node.js based HTTP client. */
 const requestor = new NodeRequestor();
