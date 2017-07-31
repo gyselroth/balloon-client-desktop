@@ -79,7 +79,7 @@ module.exports = function(env, clientConfig) {
   }
 
   function hasServer() {
-    if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl')) {
+    if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || isFirstStart()) {
       return enterServer();
     } else {
       return Promise.resolve();
@@ -125,7 +125,7 @@ module.exports = function(env, clientConfig) {
 
   function authenticate() {
     return new Promise(function(resolve, reject) {
-      if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl')) {
+      if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || isFirstStart()) {
         return resolve();
       }
       
@@ -258,10 +258,12 @@ module.exports = function(env, clientConfig) {
       startupWindow.on('closed', windowClosedByUserHandler);
 
       ipcMain.on('startup-server-continue', function(event, blnUrl) {
-        logger.info('Startup Settings: setting blnUrl to: ' + blnUrl);
+        if(!env.blnUrl) {
+          logger.info('Startup Settings: setting blnUrl to: ' + blnUrl);
+          clientConfig.set('onLineState', true);
+          clientConfig.setBlnUrl(blnUrl);
+        }
 
-        clientConfig.set('onLineState', true);
-        clientConfig.setBlnUrl(blnUrl);
         askCredentials().then(() => {
           resolve();
         });

@@ -267,7 +267,7 @@ module.exports = function(env, clientConfig) {
           clientConfig.set('username', username);
 
           switchSyncState(oldUser, username).then(() => {
-            resolve(username);
+            resolve();
           }).catch((err) => {
             logger.error('AUTH: switching sync state had an error', err);
 
@@ -284,7 +284,7 @@ module.exports = function(env, clientConfig) {
             });
           });
         } else {
-          resolve();
+          resolve(username);
         }
       });
     });

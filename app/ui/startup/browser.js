@@ -41,6 +41,10 @@ $(document).ready(function() {
   window.addEventListener('online', updateOnLineState);
   window.addEventListener('offline', updateOnLineState);
 
+  if(!env.blnUrl) {
+    $('#startup-view-server').find('> div').show();
+  }
+
   $('#startup-server-continue').bind('click', verifyServer);
   $(document).bind('keypress', function(e){
     if(e.which === 13 &&  $('#startup-view-server').is(':visible')) {
@@ -64,6 +68,10 @@ function compileTemplates() {
 }
 
 function verifyServer() {
+  if(env.blnUrl) {
+    return ipcRenderer.send('startup-server-continue');
+  }
+
   var $blnUrlField = $('#blnUrl');
   var $blnUrlInvalidMessage = $('#blnUrl-error-invalid');
   var $blnUrlNotreachableMessage = $('#blnUrl-error-notreachable');

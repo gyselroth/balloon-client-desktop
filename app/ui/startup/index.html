@@ -13,14 +13,12 @@
 
     <div id="startup-view">
         <div id="startup-view-server" class="view">
-            <div id="content">
-                <h1>{{i18n 'startup.server.title'}}</h1>
+            <h1>{{i18n 'startup.server.title'}}</h1>
+            <div>
                 <p>{{i18n 'startup.server.message'}}</p>
                 <div id="blnUrl-error-offline">{{i18n 'error.blnUrl.offline'}}</div>
                 <div id="blnUrl-config">
-                    <div class="formfield">
-                        <input id="blnUrl" type="text" placeholder="https://yourserver.com" required>
-                    </div>
+                     <input id="blnUrl" type="text" placeholder="https://yourserver.com" required>
                     <div id="blnUrl-error-invalid" class="error-message">{{i18n 'error.blnUrl.invalid'}}</div>
                     <div id="blnUrl-error-notreachable" class="error-message">{{i18n 'error.blnUrl.notreachable'}}</div>
                 </div>

@@ -33,11 +33,6 @@ body {
     background-color: #fcfcfc;
 }
 
-body.startPage {
-    background-color: #4E53AA;
-    color: #fff;
-}
-
 ol, ul {
     list-style: none;
 }
@@ -109,10 +104,6 @@ p {
     padding: 0;
 }
 
-.startPage #header {
-    background-color: transparent;
-}
-
 #header p {
     position: absolute;
     left: 12px;
@@ -122,26 +113,7 @@ p {
 .taskbar #header p {
     position: static;
 }
-
-.closeBtn {
-    width: 14px;
-    height: 14px;
-    position: absolute;
-    top: 10px;
-    right: 15px;
-}
-
 /*-----Content-----*/
-
-.startPage #content {
-    text-align: center;
-}
-
-.startPage #content p {
-    margin-bottom: 25px;
-    max-width: 100%;
-}
-
 .taskbar #contentWrapper {
     min-height: 0;
     padding: 0;
@@ -151,10 +123,6 @@ p {
     padding: 15px;
     box-sizing: border-box;
     user-select: none;
-}
-
-.startPage #contentWrapper {
-    padding-top: 65px;
 }
 
 .folder {
@@ -227,29 +195,6 @@ p {
 
 form {
     margin-top: 43px;
-}
-
-.formfield {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
-    margin-bottom: 20px;
-}
-
-.formfield label,
-.formfield input,
-.formfield select {
-
-    display: inline-block;
-}
-
-.formfield label {
-    width: 25%;
-}
-
-.formfield input,
-.formfield select {
-    width: 74%;
 }
 
 input,
@@ -332,6 +277,11 @@ input[type="radio"], input[type="checkbox"] {
 
 #startup-view-server input {
     height: 40px;
+    width: 75%;
+}
+
+#startup-view-server > div {
+  display: none;
 }
 
 #startup-adavanced-selective {
@@ -557,63 +507,8 @@ button, input[type="button"], input[type="submit"] {
     -webkit-appearance: none !important;
     -webkit-border-radius: 3px;
 }
+
 /*-----SVG Icons-----*/
-
-.closeBtn .cls-1 {
-    fill: #c2c2c2;
-    stroke: #000;
-    opacity: 0;
-}
-
-.closeBtn .cls-1,
-.closeBtn .cls-2 {
-    stroke-miterlimit: 10;
-}
-
-.closeBtn .cls-2 {
-    fill: none;
-    stroke: #000;
-}
-
-.startPage .closeBtn .cls-2 {
-    fill: none;
-    stroke: #fff;
-}
-
-.startPageImg {
-    width: 290px;
-}
-
-.startPageImg .cls-1,
-.startPageImg .cls-2,
-.startPageImg .cls-5 {
-    fill: none;
-    stroke: #fff;
-    stroke-width: 2px;
-    opacity: 1;
-}
-
-.startPageImg .cls-1 {
-    stroke-linejoin: round;
-}
-
-.startPageImg .cls-2,
-.startPageImg .cls-5 {
-    stroke-miterlimit: 10;
-}
-
-.startPageImg .cls-3 {
-    opacity: 0;
-}
-
-.startPageImg .cls-4 {
-    fill: #fff;
-}
-
-.startPageImg .cls-5 {
-    stroke-dasharray: 4;
-}
-
 .icon .cls-1 {
     fill: #fff;
 }
