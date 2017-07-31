@@ -26,6 +26,7 @@ addons:
   apt:
     packages:
       - libsecret-1-0
+      - libsecret-1-dev
 
 script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run release-linux; fi
