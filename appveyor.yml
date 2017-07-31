@@ -21,8 +21,4 @@ test_script:
   - node --version
   - npm --version
   - SET PATH=C:\Program Files\Nodejs;%PATH%
-  - npm run lint
-  - npm run dev--setup
-  - cd templates
-  - npm run pack
-  - npm run dist
+  - npm run build-win
