@@ -86,7 +86,7 @@ app.on('ready', function () {
           }
         });
       }).catch(err => {
-        logger.error('startup checkconfig', err);
+        logger.error('startup checkconfig', {err});
         app.quit();
       });
     });
@@ -207,7 +207,7 @@ ipcMain.on('settings-login-requested', (event, id) => {
     event.sender.send('settings-login-requested-result-'+id, true);
   }).catch((err) => {
     if(err.code !== 'E_BLN_OAUTH_WINDOW_OPEN') {
-      logger.error('Main: login not successfull', err);
+      logger.error('Main: login not successfull', {err});
     } else {
       logger.info('Main: login aborted as there is already a login window open');
     }

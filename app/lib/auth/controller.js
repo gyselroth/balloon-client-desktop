@@ -167,7 +167,7 @@ module.exports = function(env, clientConfig) {
         clientConfig.setSecret(secret)
         resolve();
       }).catch((error) => {
-        logger.error('AUTH: failed retrieve secret '+type+' from keystore', error);
+        logger.error('AUTH: failed retrieve secret '+type+' from keystore', {error});
         resolve();
       })
     });
@@ -270,7 +270,7 @@ module.exports = function(env, clientConfig) {
           switchSyncState(oldUser, username).then(() => {
             resolve();
           }).catch((err) => {
-            logger.error('AUTH: switching sync state had an error', err);
+            logger.error('AUTH: switching sync state had an error', {err});
 
             logout().then(function() {
               clientConfig.set('username', oldUser);
@@ -408,7 +408,7 @@ module.exports = function(env, clientConfig) {
 
           resolve(syncStateArchivePath);
         }).catch((err) => {
-          logger.error('AUTH: archiveSyncState failed', err);
+          logger.error('AUTH: archiveSyncState failed', {err});
 
           reject(err);
         });

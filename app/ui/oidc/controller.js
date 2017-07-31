@@ -35,7 +35,7 @@ module.exports = function (env, clientConfig) {
             callback();
             //Promise.resolve();
           }).catch((error) => {
-            logger.info('failed to retrieve refreshToken', error);
+            logger.info('failed to retrieve refreshToken', {error});
             makeAuthorizationRequest(config, callback);
           });
         })
@@ -96,7 +96,7 @@ module.exports = function (env, clientConfig) {
         undefined, /* state */
         {'prompt': 'consent', 'access_type': 'offline'});
 
-    logger.info('making oauth2 authorization request', configuration, request);
+    logger.info('making oauth2 authorization request', {configuration, request});
     authorizationHandler.performAuthorizationRequest(configuration, request);
     //});
   }
@@ -110,7 +110,7 @@ module.exports = function (env, clientConfig) {
       logger.info('retrieved oauth2 refresh token');
       return response;
     }).catch((error) => {
-      logger.error('failed requesting refresh token', error);
+      logger.error('failed requesting refresh token', {error});
       //TODO raffis - Doing something here
     });
   }
@@ -123,7 +123,7 @@ module.exports = function (env, clientConfig) {
       logger.info('retrieved oauth2 access token');
       return response;
     }).catch((error) => {
-      logger.error('failed requesting access token', error);
+      logger.error('failed requesting access token', {error});
       //TODO raffis - Doing something here
     });
   }

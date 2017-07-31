@@ -113,7 +113,7 @@ module.exports = function(env, clientConfig) {
 
       fsUtility.createBalloonDir(balloonDir, (err) => {
         if(err) {
-          logger.error('Startup:', err);
+          logger.error('Startup:', {err});
           reject(err);
         } else {
           logger.info('Startup: balloonDir created');
@@ -153,7 +153,7 @@ module.exports = function(env, clientConfig) {
         startupWindow.on('closed', windowClosedByUserHandler);
       
         ipcMain.on('startup-basic-auth', function(event, username, password) {
-          logger.info('requested basic auth with username '+username);
+          logger.info('requested basic authentication', {username});
           auth.basicAuth(username, password).then((username) => {
             if(username !== undefined) {
               welcomeWizard().then(() => {
@@ -170,7 +170,7 @@ module.exports = function(env, clientConfig) {
 
         ipcMain.on('auth-oidc-signin', function(event, idp) {
           var idpConfig = env.auth.oidc[idp];
-          logger.info('requested oidc signin via provider '+idpConfig.provider);
+          logger.info('requested oidc signin', {idpConfig});
           auth.oidcAuth(idpConfig, function(username){
             if(username !== undefined) {
               welcomeWizard().then(() => {
@@ -259,7 +259,7 @@ module.exports = function(env, clientConfig) {
 
       ipcMain.on('startup-server-continue', function(event, blnUrl) {
         if(!env.blnUrl) {
-          logger.info('Startup Settings: setting blnUrl to: ' + blnUrl);
+          logger.info('Startup Settings: change blnUrl', {blnUrl});
           clientConfig.set('onLineState', true);
           clientConfig.setBlnUrl(blnUrl);
         }
