@@ -5,7 +5,7 @@ const {app, ipcMain} = require('electron');
 const env = require('./env.js');
 const clientConfig = require('./lib/config.js');
 
-if(env.commandLineSwitches.authServerWhitelist) {
+if(env.commandLineSwitches && env.commandLineSwitches.authServerWhitelist) {
   app.commandLine.appendSwitch('auth-server-whitelist', env.commandLineSwitches.authServerWhitelist);
 }
 

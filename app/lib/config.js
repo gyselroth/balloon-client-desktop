@@ -41,6 +41,7 @@ function initialize() {
   if(!newSettigns.blnUrl) newSettigns.blnUrl = env.blnUrl;
   if(!newSettigns.apiPath) newSettigns.apiPath = (env.apiPath || '/api/v1/');
   if(!newSettigns.apiUrl) newSettigns.apiUrl = env.blnUrl + newSettigns.apiPath;
+  if(!newSettigns.ignoreNodes) newSettigns.ignoreNodes = [];
 
   newSettigns.context = env.name || 'production';
   newSettigns.maxConcurentConnections = env.sync && env.sync.maxConcurentConnections ? env.sync.maxConcurentConnections : 20;
@@ -130,6 +131,26 @@ module.exports = function() {
     },
     updateTraySecret: function(callee) {
       traySecretUpdate = callee;
-    }
+    },
+    /**
+     * @var string||array id node id(s) to ingore
+     */
+    ignoreNode: function(id) {
+      if(id.constructor === String) {
+        id = [id];
+      }
+
+      if(id.constructor !== Array) {
+        throw(new Error('id must be a string or an array'));
+      }
+
+      var ignoreNodes = settings.get('ignoreNodes');
+
+      ignoreNodes = ignoreNodes.concat(id);
+
+      ignoreNodes = [...new Set(ignoreNodes)];
+
+      settings.set('ignoreNodes', ignoreNodes);
+    },
   }
 }();

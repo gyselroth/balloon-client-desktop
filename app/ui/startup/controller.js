@@ -67,7 +67,7 @@ module.exports = function(env, clientConfig) {
       hasServer(),
       makeSureBalloonDirExists(),
       enableAutoLaunch(),
-      authenticate(),   
+      authenticate(),
     ]);
   }
 
@@ -218,7 +218,7 @@ module.exports = function(env, clientConfig) {
         showBalloonDir();
         resolve();
       });
-      
+
       ipcMain.on('startup-change-dir', function(event) {
         logger.info('Startup Settings: change balloon dir');
         dialog.showOpenDialog({
@@ -229,7 +229,7 @@ module.exports = function(env, clientConfig) {
           if(folder) {
             var p = folder[0]+path.sep+'Balloon';
             startupWindow.webContents.send('startup-change-dir', p);
-            clientConfig.set('balloonDir', p);   
+            clientConfig.set('balloonDir', p);
           }
         });
       });
@@ -285,16 +285,17 @@ module.exports = function(env, clientConfig) {
 
       ipcMain.on('selective-window-loaded',function(){
         selectiveWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
-        selectiveWindow.webContents.send('selective-ignore-path', clientConfig.get('ignorePath'));
       });
 
-      ipcMain.on('selective-apply', function(event, path) {
-        logger.info('Startup Settings: apply selective sync');
-        clientConfig.set('ignorePath', path);
+      ipcMain.on('selective-apply', function(event, ids) {
+        logger.info('Startup Settings: apply selective sync', {ids});
+
+        clientConfig.ignoreNode(ids);
+
         selectiveWindow.close();
         selectiveWindow = undefined;
       });
-      
+
       ipcMain.on('selective-cancel', function(event) {
         logger.info('Startup Settings: cancel selective sync');
         selectiveWindow.close();
@@ -315,7 +316,7 @@ module.exports = function(env, clientConfig) {
       resizable: false,
       transparent: false,
       skipTaskbar: false,
-      icon: __dirname+'/../../img/taskbar_black.png' 
+      icon: __dirname+'/../../img/taskbar_black.png'
     });
 
     selectiveWindow.loadURL(url.format({
@@ -345,7 +346,7 @@ module.exports = function(env, clientConfig) {
       resizable: false,
       transparent: false,
       skipTaskbar: false,
-      icon: __dirname+'/../../img/taskbar_black.png' 
+      icon: __dirname+'/../../img/taskbar_black.png'
     });
 
 

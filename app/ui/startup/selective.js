@@ -19,7 +19,7 @@ handlebars.registerHelper('i18n', function(key) {
   return new handlebars.SafeString(translation);
 });
 
-$("document").ready(function() {    
+$("document").ready(function() {
   $("html").addClass(process.platform);
   compileTemplates();
 
@@ -27,37 +27,34 @@ $("document").ready(function() {
   const clientConfig = require('../../lib/config.js');
   const syncFactory = require('@gyselroth/balloon-node-sync');
 
-  var configuredIgnore = [];
-  ipcRenderer.send('selective-window-loaded'); 
-  ipcRenderer.on('selective-ignore-path', function (event, path) {
-    configuredIgnore = path;
-  });
+  var configuredIgnore = clientConfig.get('ignoreNodes');
 
   ipcRenderer.once('secret', function(event, type, secret) {
     var config = clientConfig.getAll();
     config[type] = secret;
     var sync = syncFactory(config, logger);
-    sync.blnApi.getChildren(null, (err, data) => {
-      var $list = $('#selective-sync'onfig$(data).each((id, node) => {
-        var html = '<input type="checkbox" name="selected" value="/'+node.name+'"';
+    sync.blnApi.getChildren(null, {filter: {directory: true}}, (err, data) => {
+      var $list = $('#selective-sync').find('ul');
+      $(data).each((id, node) => {
+        var html = '<input type="checkbox" name="selected" value="'+node.id+'"';
         if($.inArray('/'+node.name, configuredIgnore) === -1) {
           html += ' checked';
         }
-
+        
         $list.append('<li>'+html+'/><span>'+node.name+'</span></li>');
       });
     });
   });
 
   $('#selective-apply').bind('click', function() {
-    var path = [];
+    var ids = [];
     $("#selective-sync").find("input:checkbox:not(:checked)").each(function(){
-      path.push($(this).val());
+      ids.push($(this).val());
     });
 
-    ipcRenderer.send('selective-apply', path);
+    ipcRenderer.send('selective-apply', ids);
   });
-  
+
   $('#selective-cancel').bind('click', function() {
     ipcRenderer.send('selective-cancel');
   });
