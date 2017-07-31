@@ -122,27 +122,24 @@ function welcome() {
 }
 
 function auth() {
-  //ipcRenderer.send('startup-auth');
-  //ipcRenderer.on('startup-auth', function (event, basic, oidc) {
-    if(env.auth && env.auth.basic === false) {
-      $('#startup-auth-basic').hide();
-    }
+  if(env.auth && env.auth.basic === false) {
+    $('#startup-auth-basic').hide();
+  }
 
-    var $container = $('#startup-auth-oidc');
-
-    if(env.auth && env.auth.oidc) {
-      var i=0;
-      $(env.auth.oidc).each(function(e, idp){
-        var img = '<img alt="'+i+'" src="data:image/png;base64,'+idp.imgBase64+'"/>';
-        $container.append(img);
-        ++i;
-      });
-    }
-
-    $container.on('click', 'img', function(){
-      ipcRenderer.send('auth-oidc-signin', $(this).attr('alt'));
+  var $container = $('#startup-auth-oidc');
+ 
+  if(env.auth && env.auth.oidc) {
+    var i=0;
+    $(env.auth.oidc).each(function(e, idp){
+      var img = '<img alt="'+i+'" src="data:image/png;base64,'+idp.imgBase64+'"/>';
+      $container.append(img);
+      ++i;
     });
-  //});
+  }
+
+  $container.on('click', 'img', function(){
+    ipcRenderer.send('auth-oidc-signin', $(this).attr('alt'));
+  });
   
   ipcRenderer.on('startup-auth-error', function (event, type) {
     $('#startup-auth-error').find('> div').hide()
@@ -150,7 +147,6 @@ function auth() {
   });
   
   function basicAuth() {
-console.log("BASIC AUTH"); 
     var username = $('#startup-view-auth').find('input[name=username]').val();
     var password = $('#startup-view-auth').find('input[name=password]').val();
     ipcRenderer.send('startup-basic-auth', username, password);

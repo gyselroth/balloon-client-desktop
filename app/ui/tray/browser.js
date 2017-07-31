@@ -1,6 +1,6 @@
 (function() {'use strict';
 
-const {ipcRenderer, shell} = require('electron');
+const {ipcRenderer, shell, remote} = require('electron');
 const handlebars = require('handlebars');
 const request = require('request');
 
@@ -17,6 +17,17 @@ handlebars.registerHelper('i18n', function(key) {
 });
 
 var sync;
+
+
+const {Menu, MenuItem} = remote
+const menu = new Menu()
+var label = i18n.__('tray.menu.feedback');
+menu.append(new MenuItem({label: label}))
+label = i18n.__('tray.menu.about');
+menu.append(new MenuItem({label: label}))
+label = i18n.__('tray.menu.close');
+menu.append(new MenuItem({label: label}))
+
 
 $('document').ready(function() {
   $('body').addClass(process.platform);
@@ -45,6 +56,7 @@ $('document').ready(function() {
 
   $('#item-settings').bind('click', function() {
     ipcRenderer.send('settings-open');
+    //menu.popup(remote.getCurrentWindow());
   });
 
   if(clientConfig.get('context') === 'development') {
