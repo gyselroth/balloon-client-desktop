@@ -21,4 +21,4 @@ test_script:
   - node --version
   - npm --version
   - SET PATH=C:\Program Files\Nodejs;%PATH%
-  - npm run build-win
+  - npm run release-win
