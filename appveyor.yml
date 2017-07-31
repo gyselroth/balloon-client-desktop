@@ -17,6 +17,10 @@ install:
   - npm prune
   - npm install
 
+branches:
+  only:
+    - master
+
 test_script:
   - node --version
   - npm --version
