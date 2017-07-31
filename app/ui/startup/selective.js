@@ -37,10 +37,10 @@ $("document").ready(function() {
       var $list = $('#selective-sync').find('ul');
       $(data).each((id, node) => {
         var html = '<input type="checkbox" name="selected" value="'+node.id+'"';
-        if($.inArray('/'+node.name, configuredIgnore) === -1) {
+        if($.inArray(node.id, configuredIgnore) === -1) {
           html += ' checked';
         }
-        
+
         $list.append('<li>'+html+'/><span>'+node.name+'</span></li>');
       });
     });
