@@ -28,8 +28,8 @@ addons:
       - libsecret-1-0
 
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run build-linux; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then npm run build-osx; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run release-linux; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then npm run release-osx; fi
 
 before_cache:
   - rm -rf $HOME/.cache/electron-builder/wine
