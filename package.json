@@ -43,18 +43,21 @@
     "pack": "build --dir",
 
     "prebuild": "gulp build --env=production",
-    "build": "BLN_ARTIFACT_APPENDIX='' build --win --ia32 --x64 --mac dmg -p never",
+    "build-osx": "BLN_ARTIFACT_APPENDIX='' build --mac dmg -p never",
+    "build-win": "BLN_ARTIFACT_APPENDIX='' build --win --ia32 --x64 -p never",
     "build-linux": "npm run prebuild && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm tar.xz",
 
     "prerelease": "gulp build --env=production",
-    "release": "BLN_ARTIFACT_APPENDIX='' build --win --ia32 --x64 --mac dmg zip -p always",
+    "release-osx": "BLN_ARTIFACT_APPENDIX='' build --mac dmg zip -p always",
+    "release-win": "BLN_ARTIFACT_APPENDIX='' build --win --ia32 --x64 -p always",
     "release-linux": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm tar.xz",
 
     "prepackdev": "gulp build --env=development",
     "packdev": "build --dir",
 
     "prebuilddev": "gulp build --env=development",
-    "builddev": "BLN_ARTIFACT_APPENDIX='-dev' build --win --ia32 --x64 --mac dmg -p never",
+    "builddev-osx": "BLN_ARTIFACT_APPENDIX='-dev' build --mac dmg -p never",
+    "builddev-win": "BLN_ARTIFACT_APPENDIX='-dev' build --win --ia32 --x64 -p never",
     "builddev-linux": "npm run prereleasedev && BLN_ARTIFACT_APPENDIX='-dev' build --linux deb rpm tar.xz",
 
     "start": "gulp start",

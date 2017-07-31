@@ -1,0 +1,28 @@
+environment:
+  matrix:
+    - nodejs_version: '6'
+
+version: "{build}"
+build: off
+deploy: off
+matrix:
+  fast_finish: true
+
+cache:
+  - node_modules -> package.json
+
+install:
+  - ps: Install-Product node $env:nodejs_version x64
+  - npm set progress=false
+  - npm prune
+  - npm install
+
+test_script:
+  - node --version
+  - npm --version
+  - SET PATH=C:\Program Files\Nodejs;%PATH%
+  - npm run lint
+  - npm run dev--setup
+  - cd templates
+  - npm run pack
+  - npm run dist
