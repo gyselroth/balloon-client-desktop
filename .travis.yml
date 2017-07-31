@@ -27,6 +27,7 @@ addons:
     packages:
       - libsecret-1-0
       - libsecret-1-dev
+      - libgnome-keyring-dev
 
 script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run release-linux; fi
