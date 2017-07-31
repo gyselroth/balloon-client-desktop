@@ -10,15 +10,15 @@ let logger;
 module.exports = function(config, logfile) {
   if(!logger) {
     const pathLogFile = path.join(config.configDir, logfile || 'error.log');
-
+    const logConfig = env.log || {};
     logger = new (winston.Logger)({levels: logLevels});
 
     if(env.context !== 'test') {
       logger.add(winston.transports.File, {
         filename: pathLogFile,
-        level: env.log.logLevel || 'info',
-        maxsize: env.log.maxsize || 10000000,
-        maxFiles: env.log.maxFiles || 10,
+        level: logConfig.logLevel || 'info',
+        maxsize: logConfig.maxsize || 10000000,
+        maxFiles: logConfig.maxFiles || 10,
         json: true,
         showLevel: true,
         tailable: true,
