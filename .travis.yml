@@ -25,6 +25,7 @@ cache:
 addons:
   apt:
     packages:
+      - rpm
       - libsecret-1-0
       - libsecret-1-dev
       - libgnome-keyring-dev
