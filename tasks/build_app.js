@@ -7,11 +7,19 @@ const gulp = require('gulp');
 const utils = require('./utils');
 
 gulp.task('build', function () {
-    var srcPath = path.join(__dirname, '../config/', 'env_' + utils.getEnvName() + '.json');
+    var envName = utils.getEnvName();
+    var srcPath = path.join(__dirname, '../config/', `env_${envName}.json`);
     var destPath = path.join(__dirname, '../app/', 'env.json');
 
     if(!fs.existsSync(srcPath)) {
-      throw new Error('Config does not exists, please create it at: ' + srcPath);
+      //Try to fall back to defualt config
+      var defaultSrcPath = path.join(__dirname, '../config/', `default_${envName}.json`);
+
+      if(!fs.existsSync(defaultSrcPath)) {
+        throw new Error('Config does not exists, please create it at: ' + srcPath);
+      } else {
+        srcPath = defaultSrcPath;
+      }
     }
 
     if(fs.existsSync(destPath)) {
