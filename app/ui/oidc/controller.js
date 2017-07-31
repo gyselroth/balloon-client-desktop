@@ -1,6 +1,6 @@
 const logger = require('../../lib/logger.js');
 const {AuthorizationRequest} = require('@openid/appauth/built/authorization_request.js');
-const {AuthorizationNotifier, AuthorizationRequestHandler, AuthorizationRequestResponse, BUILT_IN_PARAMETERS} = require('../../../node_modules/@openid/appauth/built/authorization_request_handler.js');
+const {AuthorizationNotifier, AuthorizationRequestHandler, AuthorizationRequestResponse, BUILT_IN_PARAMETERS} = require('@openid/appauth/built/authorization_request_handler.js');
 const {AuthorizationResponse} = require('@openid/appauth/built/authorization_response.js');
 const {AuthorizationServiceConfiguration} = require('@openid/appauth/built/authorization_service_configuration.js');
 const {NodeBasedHandler} = require('@openid/appauth/built/node_support/node_request_handler.js');
