@@ -248,8 +248,18 @@ input[type="radio"], input[type="checkbox"] {
     text-align: right;
     padding: 0 40px;
 }
+/*-----Feeedback-----*/
+#feedback textarea {
+  width: 100%;
+  height: 200px;
+  margin: 5px 0;
+}
 
-/*-----Startup.....*/
+#feedback button {
+  float: right;
+}
+
+/*-----Startup-------*/
 #startup .view  {
     display: none;
     text-align: center;
@@ -379,11 +389,6 @@ html.win32,
 
 .taskbar-action {
     float: right;
-}
-
-#production-menu, #development-menu {
-    float: right;
-    display: none;
 }
 
 .task:hover {
@@ -573,8 +578,14 @@ button, input[type="button"], input[type="submit"] {
   display: inline-block;
 }
 
+.success-message {
+  margin-top: 6px;
+  display: none;
+  color: #00cc00;
+}
+
 .error-message {
-  margin-top: 4px;
+  margin-top: 6px;
   display: none;
   color: #ff0000;
 }

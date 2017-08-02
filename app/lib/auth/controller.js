@@ -132,27 +132,31 @@ module.exports = function(env, clientConfig) {
     });
   } 
 
-  function oidcAuth(idpConfig, callback) {
-    //TODO raffis - backwards compatibility, gets removed soon
-    if(idpConfig.responseType === 'token') {
-    var oldUser = clientConfig.get('username');
-      return oauth.signin(idpConfig).then(() => {
-        verifyNewLogin(oldUser).then((username) => {
-          callback(username);
-        });
-      });
-    }
-
-    return oidc.signin(idpConfig, function(authorization) {
-      if(authorization === true)  {
-        verifyNewLogin(oldUser).then((username) => {
-          callback(username);
+  function oidcAuth(idpConfig) {
+    return new Promise(function(resolve, reject) {
+      //TODO raffis - backwards compatibility, gets removed soon
+      if(idpConfig.responseType === 'token') {
+        var oldUser = clientConfig.get('username');
+        return oauth.signin(idpConfig).then(() => {
+          verifyNewLogin(oldUser).then((username) => {
+            resolve(username);
+          });
         }).catch((error) => {
-          //TODO needs promise
+          reject(error);
         });
-      } else {     
-        callback();
       }
+    
+      oidc.signin(idpConfig).then((authorization) => {
+        if(authorization === true)  {
+          verifyNewLogin(oldUser).then((username) => {
+            resolve(username);
+          }).catch((error) => {
+            reject(error)
+          });
+        } else {
+          resolve();
+        }
+      });
     });
   } 
   
@@ -167,7 +171,7 @@ module.exports = function(env, clientConfig) {
         clientConfig.setSecret(secret)
         resolve();
       }).catch((error) => {
-        logger.error('AUTH: failed retrieve secret '+type+' from keystore', {error});
+        logger.error('AUTH: failed retrieve secret from keystore', {error});
         resolve();
       })
     });
@@ -193,14 +197,14 @@ module.exports = function(env, clientConfig) {
             });
           } else {
             var idpConfig = getIdPByName(oidcProvider);
-            if(idpConfig === undefined) {
+            //if(idpConfig === undefined) {
               startup().then(() => {
                 resolve();
               });
-            } else { 
+            //} else { 
               /*if(!hasAccessToken() || accessTokenExpired())*/
               //TODO raffis - ype===token is only for for backwards compatibility with out AAI, gets removed after we have an openid-connect IdP deployed.
-              if(idpConfig.responseType === 'token') {
+            /*  if(idpConfig.responseType === 'token') {
                 oauth.signin(idpConfig).then(() => {
                   verifyNewLogin(oldUser).then((username) => {
                     callback(username);
@@ -217,7 +221,7 @@ module.exports = function(env, clientConfig) {
                   }
                 });
               }
-            }
+            }*/
           }
         }
       });

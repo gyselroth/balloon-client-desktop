@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Balloon Feedback</title>
+        <link href="../css/main.css" rel="stylesheet" type="text/css">
+        <script>$ = require("jquery");</script>
+        <script src="browser.js"></script>
+    </head>
+    <body id="feedback">
+        <script id="template-content" type="text/x-handlebars-template">
+            <div id="content">
+                <h1>{{i18n 'feedback.title'}}</h1>
+                <p>{{i18n 'feedback.text'}}</p>
+                <div><textarea name="text"></textarea></div>
+                <div>{{i18n 'feedback.includeSystemFiles'}} <input type="checkbox" value="1" name="file" checked/></div>
+                <div id="feedback-success" class="success-message">{{i18n 'feedback.sent'}}</div>
+                <div id="feedback-error-empty" class="error-message">{{i18n 'feedback.error.empty'}}</div>
+                <div id="feedback-error-send" class="error-message">{{i18n 'feedback.error.send'}}</div>
+                <button id="feedback-send">{{i18n 'button.send'}}</button>
+            </div>
+        </script>
+        <div id="contentWrapper"></div>
+    </body>
+</html>

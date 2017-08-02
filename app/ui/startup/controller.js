@@ -129,10 +129,10 @@ module.exports = function(env, clientConfig) {
         return resolve();
       }
       
-      auth.login(askCredentials, function(){
+      auth.login(askCredentials).then(() => {
         resolve();
-      }).then(() => {
-        resolve();
+      }).catch((error) => {
+        reject();
       });
     });
   }
@@ -171,7 +171,7 @@ module.exports = function(env, clientConfig) {
         ipcMain.on('auth-oidc-signin', function(event, idp) {
           var idpConfig = env.auth.oidc[idp];
           logger.info('requested oidc signin', {idpConfig});
-          auth.oidcAuth(idpConfig, function(username){
+          auth.oidcAuth(idpConfig).then((username) => {
             if(username !== undefined) {
               welcomeWizard().then(() => {
                 resolve();  
@@ -180,9 +180,9 @@ module.exports = function(env, clientConfig) {
               startupWindow.close();
               resolve();
             }
-          });/*).catch((error) => {
-            ipcMain.send('startup-auth-error',  'oidc');
-          });*/
+          }).catch((error) => {
+            startupWindow.webContents.send('startup-auth-error',  'oidc');
+          });
         });
       } else {
         resolve();

@@ -17,17 +17,67 @@ handlebars.registerHelper('i18n', function(key) {
 });
 
 var sync;
+var syncStatus = true;
+var showReset  = true;
+var showSync   = true;
 
+function buildMenu() {
+  var label;
+  const {Menu, MenuItem} = remote
+  const menu = new Menu()
 
-const {Menu, MenuItem} = remote
-const menu = new Menu()
-var label = i18n.__('tray.menu.feedback');
-menu.append(new MenuItem({label: label}))
-label = i18n.__('tray.menu.about');
-menu.append(new MenuItem({label: label}))
-label = i18n.__('tray.menu.close');
-menu.append(new MenuItem({label: label}))
+  if(clientConfig.get('context') === 'development') {
+    if(showSync === true) {
+      label = i18n.__('tray.menu.startSync');
+      menu.append(new MenuItem({label: label, click:function(){
+        ipcRenderer.send('sync-start');
+        ipcRenderer.send('tray-hide');
+      }}))
+    }
 
+    if(showReset === true) {
+      label = i18n.__('tray.menu.resetSync');
+      menu.append(new MenuItem({label: label, click:function(){
+        showReset = false;
+        showSync = false;
+        ipcRenderer.send('dev-reset');
+        ipcRenderer.send('tray-hide');
+      }}))
+    }
+  } else {  
+    if(syncStatus === true) {
+      syncStatus = false;
+      label = i18n.__('tray.menu.pauseSync');
+    } else {
+      syncStatus = true;
+      label = i18n.__('tray.menu.continueSync');
+    }
+    menu.append(new MenuItem({label: label, click:function(){
+      ipcRenderer.send('sync-toggle-pause');
+      ipcRenderer.send('tray-hide');
+    }}))
+  }
+
+  label = i18n.__('tray.menu.feedback');
+  menu.append(new MenuItem({label: label, click: function(){
+    ipcRenderer.send('feedback-open');
+    ipcRenderer.send('tray-hide');
+  }}))
+
+  label = i18n.__('tray.menu.about');
+  menu.append(new MenuItem({label: label}))
+  /*label = i18n.__('tray.menu.settings');
+  menu.append(new MenuItem({label: label, click: function(){
+    ipcRenderer.send('open-settings')
+  }}))*/
+
+  label = i18n.__('tray.menu.close');
+  menu.append(new MenuItem({label: label, click: function(){
+    ipcRenderer.send('quit');
+  }}))
+
+  menu.popup(remote.getCurrentWindow());
+}
 
 $('document').ready(function() {
   $('body').addClass(process.platform);
@@ -50,62 +100,22 @@ $('document').ready(function() {
     ipcRenderer.send('tray-hide');
   });
 
-  $('#item-quit').bind('click', function() {
-    ipcRenderer.send('quit');
-  });
+  $('#item-menu').bind('click', buildMenu);
+});
 
-  $('#item-settings').bind('click', function() {
-    ipcRenderer.send('settings-open');
-    //menu.popup(remote.getCurrentWindow());
-  });
+ipcRenderer.on('sync-started' , function() {
+  showSync = false;
+});
 
-  if(clientConfig.get('context') === 'development') {
-    $('#development-menu').show();
+ipcRenderer.on('sync-ended' , function() {
+  showSync = true;
+});
 
-    /** Sync **/
-    var $runSync = $('#item-runsync');
-
-    ipcRenderer.on('sync-started' , function() {
-      $runSync.addClass('disabled');
-    });
-
-    ipcRenderer.on('sync-ended' , function() {
-      $runSync.removeClass('disabled');
-    });
-
-    $runSync.bind('click', function() {
-      ipcRenderer.send('sync-start');
-      ipcRenderer.send('tray-hide');
-    });
-
-
-    /** Reset **/
-    var $runReset = $('#item-reset');
-
-    $runReset.bind('click', function() {
-      ipcRenderer.send('dev-reset');
-      ipcRenderer.send('tray-hide');
-      $runReset.addClass('disabled');
-      $runSync.addClass('disabled');
-    });
-
-    ipcRenderer.on('dev-reset-complete', (event, err) => {
-      if(err) return console.error('ERROR, reset not successfull', err);
-
-      $runReset.removeClass('disabled');
-      $runSync.removeClass('disabled');
-
-      return console.info('Reset complete', new Date());
-    });
-  } else {
-    $('#production-menu').show();
-
-    var $togglePauseSync = $('#item-sync-toggle');
-    $togglePauseSync.bind('click', function() {
-      ipcRenderer.send('sync-toggle-pause');
-      $togglePauseSync.toggleClass('paused');
-    });
-  }
+ipcRenderer.on('dev-reset-complete', (event, err) => {
+  if(err) return console.error('ERROR, reset not successfull', err);
+  showReset = true;
+  showSync = true;
+  return console.info('Reset complete', new Date());
 });
   
 ipcRenderer.send('tray-window-loaded');

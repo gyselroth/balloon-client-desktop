@@ -218,7 +218,7 @@ module.exports = function(env) {
       clientConfig.updateTraySecret(updateSecret);
       updateSecret();
     });
-    
+
     return trayWindow;
   }
 

@@ -15,7 +15,7 @@ const SyncCtrl = require('./lib/sync/controller.js');
 const StartupCtrl = require('./ui/startup/controller.js');
 const AuthCtrl = require('./lib/auth/controller.js');
 const AutoUpdateCtrl = require('./lib/auto-update/controller.js');
-const ErrorReportCtrl = require('./lib/error-report/controller.js');
+const FeedbackCtrl = require('./ui/feedback/controller.js');
 
 const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
@@ -23,7 +23,7 @@ const configManager = require('./lib/config-manager/controller.js')(clientConfig
 
 
 
-var tray, sync, settings, errorReport, autoUpdate;
+var tray, sync, settings, feedback, autoUpdate;
 
 var standardLogger = new loggerFactory(clientConfig.getAll());
 var startup = StartupCtrl(env, clientConfig);
@@ -94,7 +94,7 @@ app.on('ready', function () {
     tray = TrayCtrl(env);
     settings = SettingsCtrl(env);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
-    errorReport = ErrorReportCtrl(env, clientConfig, sync);
+    feedback = FeedbackCtrl(env, clientConfig, sync);
   });
 });
 
@@ -155,7 +155,6 @@ ipcMain.on('sync-toggle-pause', () => {
   sync.togglePause();
 });
 
-/** Settings **/
 ipcMain.on('settings-open', () => {
   settings.open();
 });
@@ -164,14 +163,8 @@ ipcMain.on('settings-close', () => {
   settings.close();
 });
 
-ipcMain.on('settings-send-error-report', (event) => {
-  errorReport.send().then(function(reportDir, reportPath) {
-    logger.error('Main: sending error report successfull');
-    event.sender.send('settings-send-error-report-result', true);
-  }).catch(function(err) {
-    logger.error('Main: got error while sending error report', err);
-    event.sender.send('settings-send-error-report-result', false);
-  });
+ipcMain.on('feedback-open', (event) => {
+  feedback.open();
 });
 
 ipcMain.on('settings-logout-requested', (event) => {
