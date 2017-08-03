@@ -18,6 +18,8 @@
   "tray.tooltip.state.sync": "Daten werden gerade synchronisiert",
   "tray.tooltip.state.update": "Update bereit zur Installation",
 
+  "about.checkNewVersion": "Auf neue Versionen püfen",
+
   "feedback.title": "Feedback",
   "feedback.includeSystemFiles": "System informationen sendn:",
   "feedback.text": "Vielen Dank dass du balloon unterstützt:",

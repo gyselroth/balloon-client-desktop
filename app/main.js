@@ -16,6 +16,7 @@ const StartupCtrl = require('./ui/startup/controller.js');
 const AuthCtrl = require('./lib/auth/controller.js');
 const AutoUpdateCtrl = require('./lib/auto-update/controller.js');
 const FeedbackCtrl = require('./ui/feedback/controller.js');
+const AboutCtrl = require('./ui/about/controller.js');
 
 const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
@@ -95,6 +96,7 @@ app.on('ready', function () {
     settings = SettingsCtrl(env);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
     feedback = FeedbackCtrl(env, clientConfig, sync);
+    about = AboutCtrl(env, clientConfig);
   });
 });
 
@@ -165,6 +167,10 @@ ipcMain.on('settings-close', () => {
 
 ipcMain.on('feedback-open', (event) => {
   feedback.open();
+});
+
+ipcMain.on('about-open', (event) => {
+  about.open();
 });
 
 ipcMain.on('settings-logout-requested', (event) => {

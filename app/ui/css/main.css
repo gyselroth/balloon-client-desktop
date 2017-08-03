@@ -248,15 +248,34 @@ input[type="radio"], input[type="checkbox"] {
     text-align: right;
     padding: 0 40px;
 }
+/*-----About-----*/
+#about p {
+    text-align: center;
+    line-height: 18px;
+    font-size: 13px;
+}
+
+#about p:first-child {
+    font-weight: bold;
+}
+
+#about-version {
+    text-decoration: underline;
+    text-align: center;
+    margin-top: 10px;
+    width: 100%;
+    font-size: 13px;
+}
+
 /*-----Feeedback-----*/
 #feedback textarea {
-  width: 100%;
-  height: 200px;
-  margin: 5px 0;
+    width: 100%;
+    height: 200px;
+    margin: 5px 0;
 }
 
 #feedback button {
-  float: right;
+    float: right;
 }
 
 /*-----Startup-------*/
@@ -266,17 +285,17 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 #startup-auth-error {
-  margin-top: 10px;
+    margin-top: 10px;
 }
 
 #startup-auth-oidc {
-  margin-top: 10px;
+    margin-top: 10px;
 }
 
 #startup-auth-oidc > img {
-  margin: 5px auto;
-  display: block;
-  max-width: 300px;
+    margin: 5px auto;
+    display: block;
+    max-width: 300px;
 }
 
 #startup-view-auth input {
@@ -290,7 +309,7 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 #startup-view-server > div {
-  display: none;
+    display: none;
 }
 
 #startup-adavanced-selective {
@@ -397,7 +416,7 @@ html.win32,
 
 .taskbar #content {
     width: 300px;
-    height: 155px;
+    height: 90px;
     border: solid 1px #ccdfff;
     padding: 2px;
 }
@@ -444,14 +463,8 @@ html.win32,
     padding: 1px;
 }
 
-#taskbar-bottom {
-    height: 30px;
-    border-top: solid 1px #DDD;
-    padding: 1px;
-}
-
 #taskbar-center {
-    height: 80px;
+    /*height: 80px;*/
     clear: both;
 }
 

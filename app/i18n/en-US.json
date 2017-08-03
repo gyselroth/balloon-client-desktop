@@ -19,6 +19,8 @@
   "tray.tooltip.state.sync": "data is syncing at the moment",
   "tray.tooltip.state.update": "Update ready to install",
 
+  "about.checkNewVersion": "Check for a new Version",
+
   "feedback.title": "Feedback",
   "feedback.includeSystemFiles": "Include system information:",
   "feedback.text": "We appreciate any feedback you might given us:",

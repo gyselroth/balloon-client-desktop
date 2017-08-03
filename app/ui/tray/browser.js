@@ -65,7 +65,10 @@ function buildMenu() {
   }}))
 
   label = i18n.__('tray.menu.about');
-  menu.append(new MenuItem({label: label}))
+  menu.append(new MenuItem({label: label, click: function(){
+    ipcRenderer.send('about-open'); 
+    ipcRenderer.send('tray-hide');
+  }}))
   /*label = i18n.__('tray.menu.settings');
   menu.append(new MenuItem({label: label, click: function(){
     ipcRenderer.send('open-settings')

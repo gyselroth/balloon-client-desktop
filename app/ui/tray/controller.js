@@ -53,7 +53,7 @@ const currentStates = {
 }
 
 const trayWindowWidth = 306;
-const trayWindowHeight = 161;
+const trayWindowHeight = 96;
 
 var tray;
 
