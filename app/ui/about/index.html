@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>About balloon</title>
+        <link href="../css/main.css" rel="stylesheet" type="text/css">
+        <script>$ = require("jquery");</script>
+        <script src="browser.js"></script>
+    </head>
+    <body id="about">
+        <script id="template-content" type="text/x-handlebars-template">
+            <div id="startup-logo"></div>
+            <div id="content">
+              <p>balloon Desktop {{version}}</p>
+              <p>General Public License v3</p>
+              <p>gyselroth GmbH 2017</p>
+
+              <div id="about-version">{{i18n 'about.checkNewVersion'}}</div>
+            </div>
+        </script>
+        <div id="contentWrapper"></div>
+    </body>
+</html>
