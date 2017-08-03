@@ -17,10 +17,10 @@
     ],
     "extraResources": "resources/**/*",
     "deb": {
-      "artifactName": "${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
+      "artifactName": "deb-${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
     },
     "rpm": {
-      "artifactName": "${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
+      "artifactName": "rpm-${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
     },
     "mac": {
       "artifactName": "${os}/${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
