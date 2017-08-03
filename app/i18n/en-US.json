@@ -4,7 +4,7 @@
   "tray.item.installupdate": "Install update",
   "tray.item.menu": "Open tray menu",
   "tray.menu.startSync": "Start synchronization",
-  "tray.menu.continuesync": "Continue synchronization",
+  "tray.menu.continueSync": "Continue synchronization",
   "tray.menu.pauseSync": "Pause synchronization",
   "tray.menu.resetSync": "Reset synchronization",
   "tray.menu.about": "About",
