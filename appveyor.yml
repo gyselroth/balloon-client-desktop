@@ -9,7 +9,6 @@ matrix:
   fast_finish: true
 
 cache:
-  - node_modules -> package.json
 
 install:
   - ps: Install-Product node $env:nodejs_version x64
