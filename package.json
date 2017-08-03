@@ -16,7 +16,10 @@
       "package.json"
     ],
     "extraResources": "resources/**/*",
-    "linux": {
+    "deb": {
+      "artifactName": "${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
+    },
+    "rpm": {
       "artifactName": "${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
     },
     "mac": {
@@ -50,7 +53,7 @@
     "prerelease": "gulp build --env=production",
     "release-osx": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --mac dmg zip -p always",
     "release-win": "npm run prerelease && set BLN_ARTIFACT_APPENDIX='' && build --win --ia32 --x64 -p always",
-    "release-linux": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --linux deb",
+    "release-linux": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm",
 
     "prepackdev": "gulp build --env=development",
     "packdev": "build --dir",
