@@ -3,8 +3,8 @@
   "productName": "Balloon",
   "description": "Balloon Desktop Client",
   "version": "0.0.18",
-  "author": "gyselroth GmbH  <info@gysleroth.com>",
-  "copyright": "© 2016, gyselroth GmbH",
+  "author": "gyselroth GmbH  <main@gysleroth.com>",
+  "copyright": "© 2017, gyselroth GmbH",
   "homepage": "https://www.gyselroth.com",
   "license": "GPLv3",
   "main": "app/main.js",
@@ -16,12 +16,6 @@
       "package.json"
     ],
     "extraResources": "resources/**/*",
-    "deb": {
-      "artifactName": "deb-${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
-    },
-    "rpm": {
-      "artifactName": "rpm-${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
-    },
     "mac": {
       "artifactName": "${os}/${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
     },
@@ -51,9 +45,9 @@
     "build-linux": "npm run prebuild && BLN_ARTIFACT_APPENDIX='' build --linux deb",
 
     "prerelease": "gulp build --env=production",
-    "release-osx": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --mac dmg zip -p always",
+    "release-osx": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --mac dmg -p always",
     "release-win": "npm run prerelease && set BLN_ARTIFACT_APPENDIX='' && build --win --ia32 --x64 -p always",
-    "release-linux": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm",
+    "release-linux": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --linux deb",
 
     "prepackdev": "gulp build --env=development",
     "packdev": "build --dir",
