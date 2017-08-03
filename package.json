@@ -6,8 +6,12 @@
   "author": "gyselroth GmbH  <main@gysleroth.com>",
   "copyright": "© 2017, gyselroth GmbH",
   "homepage": "https://www.gyselroth.com",
-  "license": "GPLv3",
+  "license": "GPL-3.0",
   "main": "app/main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyselroth/balloon-client-desktop.git"
+  },
   "build": {
     "appId": "com.gyselroth.balloon-desktop",
     "files": [
