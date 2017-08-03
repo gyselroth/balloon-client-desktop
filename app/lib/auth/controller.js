@@ -122,7 +122,11 @@ module.exports = function(env, clientConfig) {
     return new Promise(function(resolve, reject){
       clientConfig.storeSecret('password', password).then(() => {
         verifyNewLogin(oldUser).then((username) => {
-          resolve(username); 
+          if(oldUser === undefined || oldUser !== username) {
+            resolve(username); 
+          } else {
+            resolve();
+          }
         }).catch((err) => {
           reject(err)
         });
@@ -134,12 +138,17 @@ module.exports = function(env, clientConfig) {
 
   function oidcAuth(idpConfig) {
     return new Promise(function(resolve, reject) {
+      var oldUser = clientConfig.get('username');
       //TODO raffis - backwards compatibility, gets removed soon
       if(idpConfig.responseType === 'token') {
-        var oldUser = clientConfig.get('username');
         return oauth.signin(idpConfig).then(() => {
           verifyNewLogin(oldUser).then((username) => {
-            resolve(username);
+            clientConfig.set('username', username);
+            if(oldUser === undefined || oldUser !== username) {
+              resolve(username); 
+            } else {
+              resolve();
+            }
           });
         }).catch((error) => {
           reject(error);
@@ -149,7 +158,12 @@ module.exports = function(env, clientConfig) {
       oidc.signin(idpConfig).then((authorization) => {
         if(authorization === true)  {
           verifyNewLogin(oldUser).then((username) => {
-            resolve(username);
+            clientConfig.set('username', username);
+            if(oldUser === undefined || oldUser !== username) {
+              resolve(username); 
+            } else {
+              resolve();
+            }
           }).catch((error) => {
             reject(error)
           });
@@ -177,7 +191,7 @@ module.exports = function(env, clientConfig) {
     });
   }
 
-  function login(startup, callback) {
+  function login(startup) {
     logger.info('AUTH: login initialized');
     var oldUser = clientConfig.get('username');
 
@@ -272,7 +286,7 @@ module.exports = function(env, clientConfig) {
           clientConfig.set('username', username);
 
           switchSyncState(oldUser, username).then(() => {
-            resolve();
+            resolve(username);
           }).catch((err) => {
             logger.error('AUTH: switching sync state had an error', {err});
 

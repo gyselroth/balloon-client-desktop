@@ -191,7 +191,7 @@ ipcMain.on('settings-logout-requested', (event) => {
 
 ipcMain.on('settings-login-requested', (event, id) => {
   logger.info('Main: login requested');
-  auth.login().then(() => {
+  auth.login(startup.askCredentials).then(() => {
     clientConfig.set('disableAutoAuth', false);
     logger.info('Main: login successfull', clientConfig.getMulti(['disableAutoAuth', 'username', 'loggedin']));
 
@@ -218,7 +218,7 @@ ipcMain.on('sync-error', (event, error, url, line) => {
 
       if(clientConfig.get('disableAutoAuth')) return;
 
-      auth.login().then(() => {
+      auth.login(startup.askCredentials).then(() => {
         logger.info('Main: successfully re-authenticated');
         tray.toggleState('loggedout', false);
         startSync();
@@ -280,9 +280,8 @@ if (process.platform === 'darwin' && app.dock && env.name === 'production') {
 function startSync() {
   if(!auth.isLoggedIn()) {
     tray.toggleState('loggedout', true);
-
     if(clientConfig.get('disableAutoAuth') !== true && clientConfig.get('onLineState') === true) {
-      auth.login().then(result => {
+      auth.login(startup.askCredentials).then(result => {
         tray.toggleState('loggedout', false);
         sync.start();
       }).catch(err => {

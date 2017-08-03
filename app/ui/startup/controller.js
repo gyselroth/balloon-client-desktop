@@ -328,7 +328,7 @@ module.exports = function(env, clientConfig) {
     selectiveWindow.setMenu(null);
 
     if(env.name === 'development') {
-      //selectiveWindow.openDevTools();
+      selectiveWindow.openDevTools();
     }
 
     return selectiveWindow;
@@ -383,6 +383,7 @@ module.exports = function(env, clientConfig) {
     checkConfig,
     preSyncCheck,
     showBalloonDir,
-    isFirstStart
+    isFirstStart,
+    askCredentials
   }
 }

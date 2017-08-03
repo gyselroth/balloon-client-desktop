@@ -29,6 +29,7 @@ $("document").ready(function() {
 
   var configuredIgnore = clientConfig.get('ignoreNodes');
 
+  ipcRenderer.send('selective-window-loaded');
   ipcRenderer.once('secret', function(event, type, secret) {
     var config = clientConfig.getAll();
     config[type] = secret;
