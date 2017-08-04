@@ -29,6 +29,7 @@ var startup = StartupCtrl(env, clientConfig);
 var auth = AuthCtrl(env, clientConfig);
 
 clientConfig.set('updateAvailable', false);
+
 logger.setLogger(standardLogger);
 
 process.on('uncaughtException', function(exception) {
