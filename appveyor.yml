@@ -8,13 +8,12 @@ deploy: off
 matrix:
   fast_finish: true
 
-cache:
-
 install:
   - ps: Install-Product node $env:nodejs_version x64
   - npm set progress=false
   - npm prune
   - npm install
+  - npm run release-win
 
 branches:
   only:
@@ -24,4 +23,3 @@ test_script:
   - node --version
   - npm --version
   - SET PATH=C:\Program Files\Nodejs;%PATH%
-  - npm run release-win
