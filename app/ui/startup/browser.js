@@ -41,7 +41,7 @@ $(document).ready(function() {
   window.addEventListener('online', updateOnLineState);
   window.addEventListener('offline', updateOnLineState);
 
-  if(!env.blnUrl) {
+  if(!clientConfig.get('blnUrl')) {
     $('#startup-view-server').find('> div').show();
   }
 
@@ -68,7 +68,7 @@ function compileTemplates() {
 }
 
 function verifyServer() {
-  if(env.blnUrl) {
+  if(clientConfig.get('blnUrl')) {
     return ipcRenderer.send('startup-server-continue');
   }
 

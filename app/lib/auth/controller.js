@@ -61,56 +61,31 @@ module.exports = function(env, clientConfig) {
   //TODO oauth deprecated, remove after oidc migration
   var oauth = OauthCtrl(env, clientConfig);
   var oidc = OidcCtrl(env, clientConfig);
-  //var startup = StartupCtrl(env, clientConfig);
 
-  function hasIdentity() {
-    return clientConfig.get('auth') !== undefined;
-  }
-  
   function isLoggedIn() {
     return clientConfig.get('loggedin')
   }
-
-  //TODO raffis check
-  //function accessTokenExpired() {
-    //if no token is set, or token expires in less then 60 seconds: token is expired
-    //return clientConfig.get('oidcAuth').accessToken !== undefined && clientConfig.get('oidcAuth').accessTokenExpires < (Date.now() / 1000 + 60);
-  //}
 
   function logout() {
     logger.info('AUTH: logout initialized');
 
     return new Promise(function(resolve, reject) {
+      clientConfig.destroySecret(clientConfig.getSecretType()).then(() => {
         clientConfig.setMulti({
           'loggedin': false,
-          'username': undefined,
           'auth': undefined,
           'disableAutoAuth': false
         });
+
         resolve();
+      }).catch((error) => {
+        logger.error("failed to destroy secret", {error})
+        reject(error);
+      })
+
       //TODO raffis - logout needs to be reviewd after oauth gets removed (oidc replacement)
       //TODO raffis - https://github.com/openid/AppAuth-JS/issues/17
       //AppAuth doesnt fetch the revoke endpoint from the discovery, maybe fork&fix
-
-
-      /*var oldAccessToken = clientConfig.get('accessToken');
-      Promise.all([
-        oauth.revokeToken(oldAccessToken).then(resolve),
-        new Promise(function(resolve, reject) {
-          session.fromPartition('persist:oauth').clearStorageData({storages: ['cookies']}, () => {
-            resolve();
-          });
-        }),
-        new Promise(function(resolve, reject) {
-          clientConfig.setMulti({
-            'loggedin': false,
-            'accessToken': undefined,
-            'accessTokenExpires': undefined
-          });
-
-          resolve();
-        })
-      ]).then(resolve).catch(reject);*/
     });
   }
   
@@ -199,11 +174,7 @@ module.exports = function(env, clientConfig) {
       verifyAuthentication().then(() => {
         return resolve();  
       }).catch((err) => {
-        if(!hasIdentity() || clientConfig.get('auth') === 'basic') {
-          startup().then(() => {
-            resolve();
-          });
-        } else if(clientConfig.get('auth') === 'oidc') {
+        if(clientConfig.get('auth') === 'oidc') {
           var oidcProvider = clientConfig.get('oidcProvider');
           if(oidcProvider === undefined) {
             startup().then(() => {
@@ -237,6 +208,10 @@ module.exports = function(env, clientConfig) {
               }
             }*/
           }
+        } else {
+          startup().then(() => {
+            resolve();
+          });
         }
       });
     });
@@ -527,7 +502,6 @@ module.exports = function(env, clientConfig) {
     logout,
     login,
     isLoggedIn,
-    hasIdentity,
     basicAuth,
     oidcAuth, 
     getIdPByName,

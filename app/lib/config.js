@@ -10,6 +10,8 @@ const keytar = require('keytar');
 const env = require('../env.js');
 const fsUtility = require('./fs-utility.js');
 
+var configExists = false;
+
 function initialize() {
   var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
   var configDirName = env.configDirName || '.balloon';
@@ -17,8 +19,10 @@ function initialize() {
   var configDir = path.join(homeDir, configDirName);
 
   var configFile = path.join(configDir, env.configFileName || 'config.json');
-  var balloonDir = path.join(homeDir, env.balloonDirName || 'Balloon');
+  configExists = fs.existsSync(configFile);
 
+  var balloonDir = path.join(homeDir, env.balloonDirName || 'Balloon');
+  
   if(!fs.existsSync(configDir)) {
     fsUtility.mkdirpSync(configDir);
 
@@ -71,6 +75,9 @@ module.exports = function() {
   var secret, traySecretUpdate;
 
   return {
+    hadConfig: function() {
+      return configExists;
+    },
     getAll: function() {
       var conf = settings.getAll();
       if(getSecretType()) {
@@ -120,6 +127,11 @@ module.exports = function() {
       } else {
         return true;
       } 
+    },
+    destroySecret: function(type) {
+      secret = undefined;
+      traySecretUpdate();
+      return keytar.deletePassword('balloon', type);
     },
     storeSecret: function(type, key) {
       secret = key;

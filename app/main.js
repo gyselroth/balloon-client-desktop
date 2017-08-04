@@ -48,7 +48,7 @@ app.on('ready', function () {
   logger.info('App ready');
   auth.retrieveLoginSecret().then(() => {
     ipcMain.once('tray-online-state-changed', function(event, state) {
-      if(!startup.isFirstStart()) {
+      if(clientConfig.hadConfig()) {
         tray.create();
         autoUpdate.checkForUpdate();
       }
@@ -58,13 +58,11 @@ app.on('ready', function () {
       startup.checkConfig().then(() => {
         logger.info('startup checkconfig successfull');
       
-        if(startup.isFirstStart()) {
+        if(!clientConfig.hadConfig()) {
           tray.create();
         }
 
         sync = SyncCtrl(env, tray);
-
-        //startup.showBalloonDir();
 
         if(env.name === 'production') {
           startSync();
@@ -171,10 +169,10 @@ ipcMain.on('about-open', (event) => {
   about.open();
 });
 
-ipcMain.on('settings-logout-requested', (event) => {
+ipcMain.on('unlink-account', (event) => {
   logger.info('Main: logout requested');
 
-  clientConfig.set('disableAutoAuth', true);
+  //clientConfig.set('disableAutoAuth', true);
 
   Promise.all([
     auth.logout(),
@@ -185,15 +183,15 @@ ipcMain.on('settings-logout-requested', (event) => {
     }())
   ]).then(() => {
     logger.info('Main: logout successfull');
-    event.sender.send('settings-logout-requested-result', true);
+    event.sender.send('unlink-account-result', true);
     tray.toggleState('loggedout', true);
   }).catch((err) => {
     logger.error('Main: logout not successfull', err);
-    event.sender.send('settings-logout-requested-result', false);
+    event.sender.send('unlink-account-result', false);
   });
 });
 
-ipcMain.on('settings-login-requested', (event, id) => {
+ipcMain.on('link-account', (event, id) => {
   logger.info('Main: login requested');
   auth.login(startup.askCredentials).then(() => {
     clientConfig.set('disableAutoAuth', false);
@@ -201,7 +199,7 @@ ipcMain.on('settings-login-requested', (event, id) => {
 
     startSync();
     tray.toggleState('loggedout', false);
-    event.sender.send('settings-login-requested-result-'+id, true);
+    event.sender.send('link-account-result', true);
   }).catch((err) => {
     if(err.code !== 'E_BLN_OAUTH_WINDOW_OPEN') {
       logger.error('Main: login not successfull', {err});
@@ -209,7 +207,7 @@ ipcMain.on('settings-login-requested', (event, id) => {
       logger.info('Main: login aborted as there is already a login window open');
     }
 
-    event.sender.send('settings-login-requested-result-'+id, false);
+    event.sender.send('link-account-result', false);
   });
 });
 

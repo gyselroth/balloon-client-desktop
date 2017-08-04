@@ -20,11 +20,32 @@ var sync;
 var syncStatus = true;
 var showReset  = true;
 var showSync   = true;
+var showLogin  = true;
 
 function buildMenu() {
   var label;
   const {Menu, MenuItem} = remote
   const menu = new Menu()
+
+  if(showLogin === false && clientConfig.get('username')) {
+    menu.append(new MenuItem({label: clientConfig.get('username'), enabled: false}))
+  }
+    
+  if(showLogin === true) {
+    label = i18n.__('tray.menu.link');
+    menu.append(new MenuItem({label: label, click: function(){
+      ipcRenderer.send('link-account');
+      ipcRenderer.send('tray-hide');
+    }}))
+  } else {
+    label = i18n.__('tray.menu.unlink');
+    menu.append(new MenuItem({label: label, click: function(){
+      ipcRenderer.send('unlink-account');
+      ipcRenderer.send('tray-hide');
+    }}))
+  }
+  
+  menu.append(new MenuItem({type: 'separator', enabled: false}))
 
   if(clientConfig.get('context') === 'development') {
     if(showSync === true) {
@@ -106,6 +127,16 @@ $('document').ready(function() {
   $('#item-menu').bind('click', buildMenu);
 });
 
+ipcRenderer.on('unlink-account-result', (event, result) => {
+  showLogin = result;
+  buildMenu();
+});
+
+ipcRenderer.on('link-account-result', (event, result) => {
+  showLogin = !result;
+  buildMenu();
+});
+
 ipcRenderer.on('sync-started' , function() {
   showSync = false;
 });
@@ -126,13 +157,17 @@ ipcRenderer.on('secret', function(event, type, secret) {
   var config = clientConfig.getAll();
   config[type] = secret;
   sync = syncFactory(config, logger);
+
+  if(secret !== undefined) {
+    showLogin = false;
+  }
+
   updateWindow();
 });
 
 function showQuota() {
   sync.blnApi.getQuotaUsage((err, data) => {
     var $quota = $('#quota');
-
     if(err) {
       $quota.hide()
     } else {

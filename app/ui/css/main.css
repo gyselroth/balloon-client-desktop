@@ -259,12 +259,13 @@ input[type="radio"], input[type="checkbox"] {
     font-weight: bold;
 }
 
-#about-version {
+#about-version-check, #about-version-install {
     text-decoration: underline;
     text-align: center;
     margin-top: 10px;
     width: 100%;
     font-size: 13px;
+    display: none;
 }
 
 /*-----Feeedback-----*/
@@ -276,6 +277,11 @@ input[type="radio"], input[type="checkbox"] {
 
 #feedback button {
     float: right;
+}
+
+/*-----Tray----------*/
+#item-installupdate {
+    display: none;
 }
 
 /*-----Startup-------*/
@@ -447,6 +453,21 @@ html.win32,
     color: #999;
 }
 
+.taskbar-text > div:last-child {
+  width: 18px;
+  height: 18px;
+}
+
+.taskbar-text > div:first-child {
+  font-weight: bold;
+  margin-right: 6px;
+  line-height: 20px;
+}
+
+.taskbar-text > div {
+    float: left;
+}
+
 #quota .used {
     background-color: #ccdfff;
     width: 0%;
@@ -573,22 +594,6 @@ button, input[type="button"], input[type="submit"] {
 
 .taskicon .a {
     fill: #333;
-}
-
-#item-sync-toggle .active {
-  display: inline-block;
-}
-
-#item-sync-toggle .inactive {
-  display: none;
-}
-
-#item-sync-toggle.paused .active {
-  display: none;
-}
-
-#item-sync-toggle.paused .inactive {
-  display: inline-block;
 }
 
 .success-message {

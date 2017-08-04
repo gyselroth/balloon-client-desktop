@@ -18,9 +18,23 @@ handlebars.registerHelper('i18n', function(key) {
 
 $(document).ready(function() {
   compileTemplates();
-  $('#about-version').click(function(){
-    ipcRenderer.send('check-for-update');
-  })
+  if(process.platform !== 'linux') {
+    var $check = $('#about-version-check').click(function(){
+      ipcRenderer.send('check-for-update');
+    });
+  
+    var $install = $('#about-version-install').click(function(){
+      ipcRenderer.send('install-update');
+    });
+
+    if(clientConfig.get('updateAvailable')) {
+      $install.show();
+      $check.hide();
+    } else {
+      $install.hide();
+      $check.show();
+    }
+  }
 });
 
 function compileTemplates() {

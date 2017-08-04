@@ -32,7 +32,6 @@ module.exports = function(env, clientConfig) {
   var selectiveWindow;
   var auth = AuthCtrl(env, clientConfig);
   var configManager = configManagerCtrl(clientConfig);
-  var firstStart = !auth.hasIdentity();
 
   function enableAutoLaunch() {
     return new Promise(function(resolve, reject) {
@@ -58,13 +57,9 @@ module.exports = function(env, clientConfig) {
     return process.argv.find(argument => {return argument === '--hidden'}) !== undefined;
   }
 
-  function isFirstStart() {
-    return firstStart;
-  }
-
   function checkConfig() {
     return Promise.all([
-      hasServer(),
+      firstTimeStart(),
       makeSureBalloonDirExists(),
       enableAutoLaunch(),
       authenticate(),
@@ -78,9 +73,9 @@ module.exports = function(env, clientConfig) {
     ]);
   }
 
-  function hasServer() {
-    if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || isFirstStart()) {
-      return enterServer();
+  function firstTimeStart() {
+    if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || !clientConfig.hadConfig()) {
+      return firstTimeWizard();
     } else {
       return Promise.resolve();
     }
@@ -125,7 +120,8 @@ module.exports = function(env, clientConfig) {
 
   function authenticate() {
     return new Promise(function(resolve, reject) {
-      if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || isFirstStart()) {
+console.log("authenticate", clientConfig.hadConfig());
+      if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || !clientConfig.hadConfig()) {
         return resolve();
       }
       
@@ -241,7 +237,7 @@ module.exports = function(env, clientConfig) {
     });
   }
 
-  function enterServer() {
+  function firstTimeWizard() {
     logger.info('Startup settings: open requested');
 
     return new Promise(function(resolve, reject) {
@@ -383,7 +379,6 @@ module.exports = function(env, clientConfig) {
     checkConfig,
     preSyncCheck,
     showBalloonDir,
-    isFirstStart,
     askCredentials
   }
 }
