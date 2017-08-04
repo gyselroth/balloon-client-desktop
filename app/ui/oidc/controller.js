@@ -6,6 +6,7 @@ const {AuthorizationServiceConfiguration} = require('@openid/appauth/built/autho
 const {NodeBasedHandler} = require('@openid/appauth/built/node_support/node_request_handler.js');
 const {NodeRequestor} = require('@openid/appauth/built/node_support/node_requestor.js');
 const {GRANT_TYPE_AUTHORIZATION_CODE, GRANT_TYPE_REFRESH_TOKEN, TokenRequest} = require('@openid/appauth/built/token_request.js');
+const {RevokeTokenRequest} = require('@openid/appauth/built/revoke_token_request.js');
 const {BaseTokenRequestHandler, TokenRequestHandler} = require('@openid/appauth/built/token_request_handler.js');
 const {TokenError, TokenResponse} = require('@openid/appauth/built/token_response.js');
 
@@ -34,7 +35,7 @@ module.exports = function (env, clientConfig) {
               resolve();
             }).catch((error) => {
               logger.info('failed to retrieve accessToken, request new refreshToken', {error});
-              makeAuthorizationRequest(config, callback).then((error) => {
+              makeAuthorizationRequest(config).then((error) => {
                 resolve(true);
               }).catch((error) => {
                 logger.info('failed to retrieve refreshToken', {error});
@@ -46,7 +47,7 @@ module.exports = function (env, clientConfig) {
             reject(error);
           });
         } else {
-          makeAuthorizationRequest(config, callback).then((respone) => {
+          makeAuthorizationRequest(config).then((respone) => {
             resolve(true);
           }).catch((error) => {
             logger.info('failed to retrieve refreshToken', {error});
@@ -74,7 +75,7 @@ module.exports = function (env, clientConfig) {
         });
    } 
 
-  function makeAuthorizationRequest(AuthorizationServiceConfiguration, callback) {
+  function makeAuthorizationRequest(AuthorizationServiceConfiguration) {
     return new Promise(function(resolve, reject) {
       notifier.setAuthorizationListener((request, response, error) => {
         logger.info('Authorization request complete ', {request, response, error});
@@ -132,8 +133,45 @@ module.exports = function (env, clientConfig) {
       return response;
     });
   }
+
+  function makeRevokeTokenRequest(configuration, refreshToken) {
+    let request = new RevokeTokenRequest(refreshToken);
+
+    return tokenHandler.performRevokeTokenRequest(configuration, request).then(response => {
+      logger.info('revoked refreshToken');
+      return response;
+    });
+  }
+
+  function revokeToken(idp) {
+    idpConfig = idp;
+    return new Promise(function(resolve, reject) {
+      fetchServiceConfiguration().then(config => {
+        configuration = config;
+        initIdp();
+        var oidcAuth = clientConfig.get('oidcProvider');
+        if(oidcAuth) {
+          clientConfig.retrieveSecret('refreshToken').then((secret) => {
+            logger.info('found refreshToken to revoke')
+            makeRevokeTokenRequest(configuration, secret).then((response) => {
+              resolve();
+            }).catch((error) => {
+              logger.info('failed to revoke refreshToken', {error});
+              reject(error);
+            });
+          }).catch((error) => {
+            logger.info('failed to read refreshToken from secret store', {error});
+            reject(error);
+          });
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
   
   return {
-    signin
+    signin,
+    revokeToken
   };
 };

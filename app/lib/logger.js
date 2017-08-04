@@ -28,6 +28,12 @@ module.exports = function() {
 
   Object.keys(errorLevels).forEach((level) => {
     logger[level] = function() {
+      if(level === 'err') {
+        level = 'error';
+      } else if(level === 'warn') {
+        level = 'warning';
+      }
+
       _logger[level].apply(this, arguments);
     }
   });

@@ -39,28 +39,22 @@
   },
   "scripts": {
     "postinstall": "install-app-deps",
-
     "prepack": "gulp build --env=production",
     "pack": "build --dir",
-
     "prebuild": "gulp build --env=production",
     "build-osx": "npm run prebuild && BLN_ARTIFACT_APPENDIX='' build --mac dmg zip -p never",
     "build-win": "npm run prebuild && set BLN_ARTIFACT_APPENDIX='' && build --win --ia32 --x64 -p never",
     "build-linux": "npm run prebuild && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm zip -p never",
-
     "prerelease": "gulp build --env=production",
     "release-osx": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --mac dmg zip",
     "release-win": "npm run prerelease && set BLN_ARTIFACT_APPENDIX='' && build --win --ia32 --x64",
     "release-linux": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm zip",
-
     "prepackdev": "gulp build --env=development",
     "packdev": "build --dir",
-
     "prebuilddev": "gulp build --env=development",
     "builddev-osx": "npm run prereleasedev && BLN_ARTIFACT_APPENDIX='-dev' build --mac dmg zip -p never",
     "builddev-win": "npm run prereleasedev && set BLN_ARTIFACT_APPENDIX='-dev' && build --win --ia32 --x64 -p never",
     "builddev-linux": "npm run prereleasedev && BLN_ARTIFACT_APPENDIX='-dev' build --linux deb -p never",
-
     "start": "gulp start",
     "startprod": "gulp start --env=production"
   },
@@ -69,6 +63,7 @@
     "electron": "^1.7.3",
     "electron-builder": "next",
     "electron-mocha": "^3.2.1",
+    "electron-rebuild": "^1.6.0",
     "gulp": "^3.9.1",
     "gulp-batch": "^1.0.5",
     "gulp-less": "^3.3.0",
@@ -85,22 +80,21 @@
   },
   "dependencies": {
     "@gyselroth/balloon-node-sync": "0.0.18",
+    "@openid/appauth": "*",
     "archiver": "^1.3.0",
-    "async": "^2.1.4",
     "auto-launch": "^5.0.1",
     "electron-settings": "^3.1.1",
     "electron-updater": "^2.7.1",
     "graceful-fs": "^4.1.11",
     "handlebars": "^4.0.6",
     "jquery": "^3.2.1",
+    "keytar": "*",
     "mkdirp": "^0.5.1",
     "querystring": "^0.2.0",
     "request": "^2.79.0",
     "rimraf": "^2.6.1",
     "underscore": "^1.8.3",
     "uuid4": "^1.0.0",
-    "winston": "^2.3.1",
-    "@openid/appauth": "*",
-    "keytar": "*"
+    "winston": "^2.3.1"
   }
 }
