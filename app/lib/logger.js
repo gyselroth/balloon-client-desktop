@@ -5,7 +5,7 @@ const winston = require('winston');
 let _logger;
 
 module.exports = function() {
-  var errorLevels = {error: 3, warning: 4, notice: 5, info: 6, debug: 7};
+  var errorLevels = {error: 3, err: 3, warning: 4, warn: 4, notice: 5, info: 6, debug: 7};
   var defaultLogger = new (winston.Logger)({
     levels: errorLevels
   });
