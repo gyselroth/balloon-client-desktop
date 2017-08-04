@@ -15,6 +15,9 @@ os:
   - linux
   - osx
 
+notifications:
+  email: false
+
 cache:
   directories:
   - $HOME/.cache/electron
