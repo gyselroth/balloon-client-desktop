@@ -6,7 +6,7 @@ const {AuthorizationServiceConfiguration} = require('@openid/appauth/built/autho
 const {NodeBasedHandler} = require('@openid/appauth/built/node_support/node_request_handler.js');
 const {NodeRequestor} = require('@openid/appauth/built/node_support/node_requestor.js');
 const {GRANT_TYPE_AUTHORIZATION_CODE, GRANT_TYPE_REFRESH_TOKEN, TokenRequest} = require('@openid/appauth/built/token_request.js');
-const {RevokeTokenRequest} = require('@openid/appauth/built/revoke_token_request.js');
+//const {RevokeTokenRequest} = require('@openid/appauth/built/revoke_token_request.js');
 const {BaseTokenRequestHandler, TokenRequestHandler} = require('@openid/appauth/built/token_request_handler.js');
 const {TokenError, TokenResponse} = require('@openid/appauth/built/token_response.js');
 
