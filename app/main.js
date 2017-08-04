@@ -22,8 +22,6 @@ const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
 const configManager = require('./lib/config-manager/controller.js')(clientConfig);
 
-
-
 var tray, sync, settings, feedback, autoUpdate;
 
 var standardLogger = new loggerFactory(clientConfig.getAll());
