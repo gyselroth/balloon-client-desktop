@@ -4,7 +4,7 @@ const winston = require('winston');
 
 const env = require('../env.js');
 
-const logLevels = {error: 3, warning: 4, notice: 5, info: 6, debug: 7};
+const logLevels = {error: 3, err: 3, warning: 4, warn: 4, notice: 5, info: 6, debug: 7};
 let logger;
 
 module.exports = function(config, logfile) {
