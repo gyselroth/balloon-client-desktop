@@ -16,7 +16,7 @@
   "tray.tooltip.state.default": "Sämtliche Daten wurden synchronisiert",
   "tray.tooltip.state.check": "Sämtliche Daten wurden synchronisiert",
   "tray.tooltip.state.offline": "Keine Synchronisation möglich. Es besteht keine Internetverbindung.",
-  "tray.tooltip.state.loggedout": "Bitte Anmelden. Siehe Einstellungen > Anmelden.",
+  "tray.tooltip.state.loggedout": "Kein Account verbunden",
   "tray.tooltip.state.pause": "Die Synchronisation ist angehalten",
   "tray.tooltip.state.sync": "Daten werden gerade synchronisiert",
   "tray.tooltip.state.update": "Update bereit zur Installation",

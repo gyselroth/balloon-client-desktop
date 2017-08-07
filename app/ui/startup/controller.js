@@ -120,7 +120,6 @@ module.exports = function(env, clientConfig) {
 
   function authenticate() {
     return new Promise(function(resolve, reject) {
-console.log("authenticate", clientConfig.hadConfig());
       if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || !clientConfig.hadConfig()) {
         return resolve();
       }
@@ -135,7 +134,7 @@ console.log("authenticate", clientConfig.hadConfig());
 
   function askCredentials() {
     return new Promise(function(resolve, reject) {
-      if(clientConfig.get('disableAutoAuth') !== true/* && clientConfig.get('onLineState') === true*/) {
+      if(clientConfig.get('disableAutoAuth') !== true && clientConfig.get('onLineState') === true) {
         if(!startupWindow) startupWindow = createStartupWindow();
 
         startupWindow.webContents.executeJavaScript(`switchView('auth')`);
@@ -143,13 +142,16 @@ console.log("authenticate", clientConfig.hadConfig());
         startupWindow.focus();
 
         let windowClosedByUserHandler = function(event) {
-            //reject(new Error('Startup Settings window was closed by user'));
+          if(!clientConfig.hadConfig()) {
+            reject(new Error('auth window closed by user'));
+          }
         }
 
         startupWindow.on('closed', windowClosedByUserHandler);
       
         ipcMain.on('startup-basic-auth', function(event, username, password) {
           logger.info('requested basic authentication', {username});
+          startupWindow.removeListener('closed', windowClosedByUserHandler);
           auth.basicAuth(username, password).then((username) => {
             if(username !== undefined) {
               welcomeWizard().then(() => {
@@ -167,6 +169,7 @@ console.log("authenticate", clientConfig.hadConfig());
         ipcMain.on('auth-oidc-signin', function(event, idp) {
           var idpConfig = env.auth.oidc[idp];
           logger.info('requested oidc signin', {idpConfig});
+          startupWindow.removeListener('closed', windowClosedByUserHandler);
           auth.oidcAuth(idpConfig).then((username) => {
             if(username !== undefined) {
               welcomeWizard().then(() => {
@@ -248,7 +251,7 @@ console.log("authenticate", clientConfig.hadConfig());
       startupWindow.focus();
 
       let windowClosedByUserHandler = function(event) {
-        //reject(new Error('Startup Settings window was closed by user'));
+        reject(new Error('first start window closed by user'));
       }
 
       startupWindow.on('closed', windowClosedByUserHandler);
@@ -262,11 +265,11 @@ console.log("authenticate", clientConfig.hadConfig());
 
         askCredentials().then(() => {
           resolve();
+        }).catch((error) => {
+          reject(error);
         });
-        //startupWindow.removeListener('closed', windowClosedByUserHandler);
-        //startupWindow.close();
-
-        //resolve();
+          
+        startupWindow.removeListener('closed', windowClosedByUserHandler);
       });
     });
   }
@@ -289,13 +292,11 @@ console.log("authenticate", clientConfig.hadConfig());
         clientConfig.ignoreNode(ids);
 
         selectiveWindow.close();
-        selectiveWindow = undefined;
       });
 
       ipcMain.on('selective-cancel', function(event) {
         logger.info('Startup Settings: cancel selective sync');
         selectiveWindow.close();
-        selectiveWindow = undefined;
       });
     });
   }
@@ -321,10 +322,15 @@ console.log("authenticate", clientConfig.hadConfig());
         slashes: true
     }));
 
+    let windowClosedByUserHandler = function(event) {
+      selectiveWindow = undefined;
+    }
+    selectiveWindow.on('closed', windowClosedByUserHandler);
+
     selectiveWindow.setMenu(null);
 
     if(env.name === 'development') {
-      selectiveWindow.openDevTools();
+      //selectiveWindow.openDevTools();
     }
 
     return selectiveWindow;
@@ -369,7 +375,7 @@ console.log("authenticate", clientConfig.hadConfig());
     });
 
     if(env.name === 'development') {
-      startupWindow.openDevTools();
+      //startupWindow.openDevTools();
     }
 
     return startupWindow;

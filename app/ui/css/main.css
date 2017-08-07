@@ -341,7 +341,7 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 #startup-view-advanced {
-  margin-top: 30px;
+    margin-top: 30px;
 }
 
 #startup-view-advanced .startup-open-folder {
@@ -428,7 +428,7 @@ html.win32,
 }
 
 .taskbar {
-  font-size: 11px;
+    font-size: 11px;
 }
 
 .taskbar #quota {
@@ -453,15 +453,11 @@ html.win32,
     color: #999;
 }
 
-.taskbar-text > div:last-child {
-  width: 18px;
-  height: 18px;
-}
-
-.taskbar-text > div:first-child {
-  font-weight: bold;
-  margin-right: 6px;
-  line-height: 20px;
+.taskbar-text > div {
+    font-weight: bold;
+    margin-right: 6px;
+    line-height: 20px;
+    color: #000;
 }
 
 .taskbar-text > div {

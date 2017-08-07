@@ -1,3 +1,4 @@
 {
-  "name": "production"
+  "name": "production",
+  "configFileName": "config-production.json",
 }

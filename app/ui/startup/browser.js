@@ -127,7 +127,8 @@ function auth() {
   }
 
   var $container = $('#startup-auth-oidc');
- 
+  $container.find('> img').remove(); 
+
   if(env.auth && env.auth.oidc) {
     var i=0;
     $(env.auth.oidc).each(function(e, idp){
