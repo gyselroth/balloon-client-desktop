@@ -69,7 +69,7 @@ module.exports = function (env, clientConfig) {
   }
 
   function fetchServiceConfiguration() {
-    return AuthorizationServiceConfiguration.fetchFromIssuer(idpConfig.connectUrl, requestor)
+    return AuthorizationServiceConfiguration.fetchFromIssuer(idpConfig.discoveryUrl, requestor)
         .then(response => {
           return response;
         });
