@@ -9,6 +9,8 @@ const loggerFactory = require('../logger-factory.js');
 var standardLogger = new loggerFactory(clientConfig.getAll(), 'sync.log');
 logger.setLogger(standardLogger);
 
+var sync;
+
 try {
   var syncCompleted = false;
 
@@ -16,7 +18,7 @@ try {
   ipcRenderer.once('secret', function(event, type, secret) {
     var config = clientConfig.getAll();
     config[type] = secret;
-    var sync = syncFactory(config, standardLogger);
+    sync = syncFactory(config, standardLogger);
 
     sync.start((err, results) => {
       if(err) {
@@ -50,7 +52,12 @@ try {
 window.onerror = function(message, url, line, column, error) {
   logger.error(message, {url, line, column, error});
 
-  sync.cleanup((cleanupErr) => {
+  if(sync && sync.cleanup) {
+    sync.cleanup((cleanupErr) => {
+      ipcRenderer.send('sync-error', error, url, line);
+    });
+  } else {
     ipcRenderer.send('sync-error', error, url, line);
-  });
+  }
+
 };
