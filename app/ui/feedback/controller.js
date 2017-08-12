@@ -194,6 +194,9 @@ module.exports = function(env, clientConfig, sync) {
     var offset = now.getTimezoneOffset();
     var absOffset = Math.abs(offset);
 
+    var config = extend({}, clientConfig.getAll());
+    delete config.password;
+
     function pad(value) {
       return value < 10 ? '0' + value : value;
     }
@@ -206,7 +209,7 @@ module.exports = function(env, clientConfig, sync) {
         offset: (offset > 0 ? '-' : '+') + pad(Math.floor(absOffset / 60)) + ':' + pad(absOffset % 60)
       },
       locale: app.getLocale(),
-      config: extend({}, clientConfig.getAll()),
+      config,
       env: env,
       os: {
         arch: os.arch(),
