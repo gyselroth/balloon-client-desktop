@@ -23,6 +23,8 @@
 
   "about.installNewVersion": "Install new Version",
   "about.checkNewVersion": "Check for a new Version",
+  "about.updateNotAvailable": "You already have the latest version installed",
+  "about.updateError": "There was an error during the update, please try it again later",
 
   "feedback.title": "Feedback",
   "feedback.includeSystemFiles": "Include system information:",

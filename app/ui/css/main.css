@@ -90,6 +90,15 @@ p {
     line-height: 25px;
 }
 
+.loader {
+    background-image: url(../../img/loading.gif);
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 30px;
+    height: 30px;
+    display: none;
+}
+
 /*-----Header-----*/
 
 #header {
@@ -259,13 +268,24 @@ input[type="radio"], input[type="checkbox"] {
     font-weight: bold;
 }
 
+#about #content > div {
+    text-align: center;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
 #about-version-check, #about-version-install {
     text-decoration: underline;
-    text-align: center;
-    margin-top: 10px;
     width: 100%;
-    font-size: 13px;
     display: none;
+}
+
+#about-update-not-available {
+    display: none;
+}
+
+#about .loader {
+    margin: auto;
 }
 
 /*-----Feeedback-----*/

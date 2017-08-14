@@ -2,6 +2,7 @@
 
 const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
+const shell = electron.shell;
 const handlebars = require('handlebars');
 const uuid4 = require('uuid4');
 
@@ -18,8 +19,10 @@ handlebars.registerHelper('i18n', function(key) {
 
 $(document).ready(function() {
   compileTemplates();
-  if(process.platform !== 'linux') {
+  //if(process.platform !== 'linux') {
     var $check = $('#about-version-check').click(function(){
+      $('#about').find('.loader').show();
+      $(this).hide();
       ipcRenderer.send('check-for-update');
     });
   
@@ -34,7 +37,26 @@ $(document).ready(function() {
       $install.hide();
       $check.show();
     }
-  }
+  //}
+
+  $('#about').find('span').click(function(){
+    shell.openExternal('https://gyselroth.com');
+  });
+});
+
+ipcRenderer.on('error', () => {
+  $('#about').find('#content > div').hide();
+  $('#about-update-error').show();
+});
+
+ipcRenderer.on('update-downloaded', () => {
+  $('#about').find('#content > div').hide();
+  $('#about-version-install').show();
+});
+
+ipcRenderer.on('update-not-available', () => {
+  $('#about').find('#content > div').hide();
+  $('#about-update-not-available').show();
 });
 
 function compileTemplates() {

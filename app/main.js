@@ -90,9 +90,9 @@ app.on('ready', function () {
 
     tray = TrayCtrl(env);
     settings = SettingsCtrl(env);
-    autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
-    feedback = FeedbackCtrl(env, clientConfig, sync);
     about = AboutCtrl(env, clientConfig);
+    autoUpdate = AutoUpdateCtrl(env, clientConfig, tray, about);
+    feedback = FeedbackCtrl(env, clientConfig, sync);
   });
 });
 

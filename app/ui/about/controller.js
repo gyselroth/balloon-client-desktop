@@ -75,7 +75,7 @@ module.exports = function(env, clientConfig, sync) {
     });
 
     if(env.name === 'development') {
-      //aboutWindow.openDevTools();
+      aboutWindow.openDevTools();
     }
 
     ipcMain.on('about-send', (event, text, file) => {
@@ -91,8 +91,13 @@ module.exports = function(env, clientConfig, sync) {
     return aboutWindow;
   }
 
+  function update(state) {
+    aboutWindow.webContents.send(state);
+  }
+
   return {
     close,
-    open
+    open,
+    update
   }
 }

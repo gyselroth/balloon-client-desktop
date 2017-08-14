@@ -13,10 +13,13 @@
             <div id="content">
               <p>balloon Desktop {{version}}</p>
               <p>General Public License v3</p>
-              <p>gyselroth GmbH 2017</p>
+              <p><span>gyselroth GmbH</span> 2017</p>
 
+              <div id="about-update-error" class="error-message">{{i18n 'about.updateError'}}</div>
+              <div id="about-update-not-available">{{i18n 'about.updateNotAvailable'}}</div>
               <div id="about-version-check">{{i18n 'about.checkNewVersion'}}</div>
               <div id="about-version-install">{{i18n 'about.installNewVersion'}}</div>
+              <div class="loader"></div>
             </div>
         </script>
         <div id="contentWrapper"></div>
