@@ -187,7 +187,7 @@ module.exports = function(env) {
     });
 
     if(env.name === 'development') {
-      trayWindow.openDevTools();
+      //trayWindow.openDevTools();
     }
     
     ipcMain.on('tray-window-loaded', function(){

@@ -46,6 +46,8 @@ module.exports = function(env, clientConfig, tray, about) {
     if(!checkRunning && shouldCheckForUpdates()) {
       checkRunning = true;
       autoUpdater.checkForUpdates();
+    } else {
+      about.update('update-not-available');
     }
   }
 

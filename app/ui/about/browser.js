@@ -19,7 +19,7 @@ handlebars.registerHelper('i18n', function(key) {
 
 $(document).ready(function() {
   compileTemplates();
-  //if(process.platform !== 'linux') {
+  if(process.platform !== 'linux') {
     var $check = $('#about-version-check').click(function(){
       $('#about').find('.loader').show();
       $(this).hide();
@@ -37,7 +37,7 @@ $(document).ready(function() {
       $install.hide();
       $check.show();
     }
-  //}
+  }
 
   $('#about').find('span').click(function(){
     shell.openExternal('https://gyselroth.com');
