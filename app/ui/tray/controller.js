@@ -3,6 +3,7 @@ const os = require('os');
 
 const electron = require('electron');
 const {app, BrowserWindow, ipcMain, nativeImage, Tray} = require('electron');
+const positioner = require('electron-traywindow-positioner');
 
 const url = require('url');
 const clientConfig = require('../../lib/config.js');
@@ -152,36 +153,11 @@ module.exports = function(env) {
   function show() {
     if(!trayWindow) trayWindow = createWindow();
 
-    const position = getWindowPosition();
     trayWindow.webContents.send('update-window');
-    trayWindow.setPosition(position.x, position.y, false);
+    positioner.position(trayWindow, tray.getBounds());
+    trayWindow.setAlwaysOnTop(true);
     trayWindow.show();
     trayWindow.focus();
-  }
-
-  function getWindowPosition() {
-    if (process.platform === 'linux') {
-        var pointer = electron.screen.getCursorScreenPoint();
-        pointer.x -= trayWindowWidth;
-        return pointer;
-    }
-
-    const windowBounds = trayWindow.getBounds();
-    const trayBounds = tray.getBounds();
-    var x, y;
-
-    // Center window horizontally below the tray icon
-    x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2));
-
-    if (process.platform === 'darwin') {
-      // On OSX: position window 4 pixels vertically below the tray icon
-      y = Math.round(trayBounds.y + trayBounds.height + 3);
-    } else {
-      //On Windows: position window verticaly above the tray bar
-      y = Math.round(trayBounds.y - trayWindowHeight);
-    }
-
-    return {x, y};
   }
 
   function createWindow() {
