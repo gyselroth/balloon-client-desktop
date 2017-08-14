@@ -78,9 +78,9 @@ module.exports = function() {
     hadConfig: function() {
       return configExists;
     },
-    getAll: function() {
+    getAll: function(include_secret) {
       var conf = settings.getAll();
-      if(getSecretType()) {
+      if(include_secret === true && getSecretType()) {
         conf[getSecretType()] = secret; 
       }
       return conf;

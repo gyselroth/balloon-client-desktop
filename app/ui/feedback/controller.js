@@ -195,7 +195,6 @@ module.exports = function(env, clientConfig, sync) {
     var absOffset = Math.abs(offset);
 
     var config = extend({}, clientConfig.getAll());
-    delete config.password;
 
     function pad(value) {
       return value < 10 ? '0' + value : value;

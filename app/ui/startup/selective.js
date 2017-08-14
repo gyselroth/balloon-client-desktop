@@ -31,7 +31,7 @@ $("document").ready(function() {
 
   ipcRenderer.send('selective-window-loaded');
   ipcRenderer.once('secret', function(event, type, secret) {
-    var config = clientConfig.getAll();
+    var config = clientConfig.getAll(true);
     config[type] = secret;
     var sync = syncFactory(config, logger);
     sync.blnApi.getChildren(null, {filter: {directory: true}}, (err, data) => {

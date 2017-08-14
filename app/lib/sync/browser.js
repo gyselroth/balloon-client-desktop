@@ -16,7 +16,7 @@ try {
 
   ipcRenderer.send('sync-window-loaded');
   ipcRenderer.once('secret', function(event, type, secret) {
-    var config = clientConfig.getAll();
+    var config = clientConfig.getAll(true);
     config[type] = secret;
     sync = syncFactory(config, standardLogger);
 

@@ -187,7 +187,7 @@ module.exports = function(env) {
     });
 
     if(env.name === 'development') {
-      //trayWindow.openDevTools();
+      trayWindow.openDevTools();
     }
     
     ipcMain.on('tray-window-loaded', function(){
@@ -200,6 +200,10 @@ module.exports = function(env) {
 
   function updateSecret() {
     trayWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
+  }
+  
+  function syncPaused() {
+    trayWindow.webContents.send('sync-paused');
   }
 
   function syncStarted() {
@@ -222,6 +226,7 @@ module.exports = function(env) {
     show,
     syncStarted,
     syncEnded,
+    syncPaused,
     toggleState,
     updateSecret
   }

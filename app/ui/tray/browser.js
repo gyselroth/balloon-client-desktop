@@ -17,10 +17,11 @@ handlebars.registerHelper('i18n', function(key) {
 });
 
 var sync;
-var syncStatus = true;
-var showReset  = true;
-var showSync   = true;
-var showLogin  = true;
+var syncStatus    = true;
+var showReset     = true;
+var showSync      = true;
+var showLogin     = true;
+var unlinkAccount = false;
 
 function buildMenu() {
   var label;
@@ -40,7 +41,15 @@ function buildMenu() {
   } else {
     label = i18n.__('tray.menu.unlink');
     menu.append(new MenuItem({label: label, click: function(){
-      ipcRenderer.send('unlink-account');
+console.log("unlink called");
+      if(syncStatus === true) {
+        ipcRenderer.send('sync-toggle-pause');
+console.log("pause syncStatus")
+        unlinkAccount = true;
+      } else {
+        ipcRenderer.send('unlink-account');
+      }
+  
       ipcRenderer.send('tray-hide');
     }}))
   }
@@ -67,10 +76,8 @@ function buildMenu() {
     }
   } else {  
     if(syncStatus === true) {
-      syncStatus = false;
       label = i18n.__('tray.menu.pauseSync');
     } else {
-      syncStatus = true;
       label = i18n.__('tray.menu.continueSync');
     }
     menu.append(new MenuItem({label: label, click:function(){
@@ -129,20 +136,27 @@ $('document').ready(function() {
 
 ipcRenderer.on('unlink-account-result', (event, result) => {
   showLogin = result;
-  buildMenu();
 });
 
 ipcRenderer.on('link-account-result', (event, result) => {
   showLogin = !result;
-  buildMenu();
 });
 
 ipcRenderer.on('sync-started' , function() {
+  syncStatus = true;
   showSync = false;
 });
 
 ipcRenderer.on('sync-ended' , function() {
   showSync = true;
+});
+
+ipcRenderer.on('sync-paused' , function() {
+  syncStatus = false;
+  if(unlinkAccount === true) {
+    unlinkAccount = false;
+    ipcRenderer.send('unlink-account');
+  }
 });
 
 ipcRenderer.on('dev-reset-complete', (event, err) => {

@@ -33,8 +33,9 @@ module.exports = function(env, tray) {
     syncPaused = !syncPaused;
     if(syncPaused) {
       //pause
-
-      pause(false);
+      pause(false).then(() => {
+        tray.syncPaused();
+      });
     } else {
       //resume
       start();

@@ -39,7 +39,8 @@ $(document).ready(function() {
       $('#feedback-success').hide();
       $('#feedback-error-send').show();
     } else {
-      $feedback.find('textarea').val('');
+      $('#feedback-form').hide();
+      $('#feedback-send').hide();
       $('#feedback-success').show();
       $feedback.find('.error-message').hide();
     }

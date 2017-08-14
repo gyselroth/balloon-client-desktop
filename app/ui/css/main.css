@@ -437,9 +437,9 @@ html.win32,
 }
 
 .taskbar #quota .bar {
-    width: 90%;
+    width: 95%;
     height: 20px;
-    background-color: #EEE;
+    background-color: #DDD;
 }
 
 .quota-text {

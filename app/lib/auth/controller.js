@@ -229,7 +229,7 @@ module.exports = function(env, clientConfig) {
 
   function verifyAuthentication() {
     return new Promise(function(resolve, reject) {
-      var sync = syncFactory(clientConfig.getAll(), logger);
+      var sync = syncFactory(clientConfig.getAll(true), logger);
       sync.blnApi.whoami(function(err, username) {
         if(err) {
           clientConfig.set('loggedin', false);
@@ -244,7 +244,7 @@ module.exports = function(env, clientConfig) {
 
   function verifyNewLogin(oldUser) {
     return new Promise(function(resolve, reject) {
-      var sync = syncFactory(clientConfig.getAll(), logger);
+      var sync = syncFactory(clientConfig.getAll(true), logger);
       sync.blnApi.whoami(function(err, username) {
         if(err) {
           logger.error('failed verify authentication', {err});
