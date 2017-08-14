@@ -171,7 +171,6 @@ ipcMain.on('about-open', (event) => {
 
 ipcMain.on('unlink-account', (event) => {
   logger.info('Main: logout requested');
-
   //clientConfig.set('disableAutoAuth', true);
 
   Promise.all([

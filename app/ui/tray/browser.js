@@ -22,6 +22,7 @@ var showReset     = true;
 var showSync      = true;
 var showLogin     = true;
 var unlinkAccount = false;
+var refreshQuota  = true;
 
 function buildMenu() {
   var label;
@@ -41,10 +42,8 @@ function buildMenu() {
   } else {
     label = i18n.__('tray.menu.unlink');
     menu.append(new MenuItem({label: label, click: function(){
-console.log("unlink called");
       if(syncStatus === true) {
         ipcRenderer.send('sync-toggle-pause');
-console.log("pause syncStatus")
         unlinkAccount = true;
       } else {
         ipcRenderer.send('unlink-account');
@@ -136,10 +135,15 @@ $('document').ready(function() {
 
 ipcRenderer.on('unlink-account-result', (event, result) => {
   showLogin = result;
+  if(result) {
+    $('#quota').find('.used').width(0);
+    $('#quota').find('.quota-text').html('');
+  }
 });
 
 ipcRenderer.on('link-account-result', (event, result) => {
   showLogin = !result;
+  ipcRenderer.send('sync-toggle-pause');
 });
 
 ipcRenderer.on('sync-started' , function() {
@@ -170,9 +174,15 @@ ipcRenderer.send('tray-window-loaded');
 ipcRenderer.on('secret', function(event, type, secret) {
   var config = clientConfig.getAll();
   config[type] = secret;
+
+  if(!secret) {
+    refreshQuota = false;
+  } 
+
   sync = syncFactory(config, logger);
 
   if(secret !== undefined) {
+    refreshQuota = true;
     showLogin = false;
   }
 
@@ -180,6 +190,10 @@ ipcRenderer.on('secret', function(event, type, secret) {
 });
 
 function showQuota() {
+  if(refreshQuota === false) {
+    return;
+  }
+  
   sync.blnApi.getQuotaUsage((err, data) => {
     var $quota = $('#quota');
     if(err) {
