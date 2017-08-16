@@ -79,6 +79,7 @@ module.exports = function(env, clientConfig) {
 
         resolve();
       }).catch((error) => {
+        // TODO pixtron - should loggedin be set to false here?
         logger.error("failed to destroy secret", {error})
         reject(error);
       })
@@ -268,6 +269,7 @@ module.exports = function(env, clientConfig) {
             logout().then(function() {
               clientConfig.set('username', oldUser);
               clientConfig.set('loggedin', false);
+// TODO pixtron - Shouldn't promise be rejected, as login did not work?
 //          reject(err);
             }).catch(err => {
               clientConfig.setMulti({
