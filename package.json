@@ -79,7 +79,7 @@
     "spectron": "^3.4.0"
   },
   "dependencies": {
-    "@gyselroth/balloon-node-sync": "0.0.20",
+    "@gyselroth/balloon-node-sync": "0.0.21",
     "@openid/appauth": "*",
     "archiver": "^1.3.0",
     "auto-launch": "^5.0.1",
