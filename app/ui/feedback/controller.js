@@ -78,18 +78,19 @@ module.exports = function(env, clientConfig, sync) {
       //feedbackWindow.openDevTools();
     }
 
-    ipcMain.on('feedback-send', (event, text, file) => {
-      send(text, file).then(function(reportDir, reportPath) {
-        logger.error('feedback: sending feedback successfull');
-        event.sender.send('feedback-send-result', true);
-      }).catch(function(err) {
-        logger.error('feedback: got error while sending feedback', {err});
-        event.sender.send('feedback-send-result', false);
-      });
-    });
-
     return feedbackWindow;
   }
+    
+  ipcMain.on('feedback-send', (event, text, file) => {
+    send(text, file).then(function(reportDir, reportPath) {
+      logger.error('feedback: sending feedback successfull');
+      event.sender.send('feedback-send-result', true);
+    }).catch(function(err) {
+      logger.error('feedback: got error while sending feedback', {err});
+      event.sender.send('feedback-send-result', false);
+    });
+  });
+
 
   function send(text, file) {
     logger.info('feedback: sending error report triggered');

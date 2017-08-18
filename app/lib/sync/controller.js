@@ -113,8 +113,8 @@ module.exports = function(env, tray) {
 
       syncWindow.once('ready-to-show', () => {
         if((env.name === 'development')) {
-          //syncWindow.openDevTools();
-          //syncWindow.show();
+          syncWindow.openDevTools();
+          syncWindow.show();
         }
       });
 

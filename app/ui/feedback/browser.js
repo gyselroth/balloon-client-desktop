@@ -23,13 +23,19 @@ $(document).ready(function() {
   $feedback.find('button').click(function(){
     var file = $feedback.find('input').is(':checked');
     var text = $feedback.find('textarea').val();
-      
+    var $loader = $feedback.find('.loader');      
+
+    if($loader.is(':visible')) {
+      return;
+    }
+
     $('#feedback-success').hide();
     $feedback.find('.error-message').hide();
 
     if(text === '') {
       $('#feedback-error-empty').show();
     } else {
+      $loader.show();
       ipcRenderer.send('feedback-send', text, file);
     }
   })
@@ -39,6 +45,7 @@ $(document).ready(function() {
       $('#feedback-success').hide();
       $('#feedback-error-send').show();
     } else {
+      $feedback.find('.loader').hide();
       $('#feedback-form').hide();
       $('#feedback-send').hide();
       $('#feedback-success').show();

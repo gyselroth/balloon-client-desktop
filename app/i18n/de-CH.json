@@ -22,7 +22,7 @@
   "tray.tooltip.state.update": "Update bereit zur Installation",
 
   "about.installNewVersion": "Neue Version installieren",
-  "about.checkNewVersion": "Auf eine neue Version püfen",
+  "about.checkNewVersion": "Auf eine neue Version prüfen",
   "about.updateNotAvailable": "Du hast bereits die neuste Version installiert",
   "about.updateError": "Ein Fehler ist aufgetreten, bitte versuche es später erneut",
 

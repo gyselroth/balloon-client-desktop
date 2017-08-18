@@ -79,9 +79,14 @@ module.exports = function(env, clientConfig) {
 
         resolve();
       }).catch((error) => {
-        // TODO pixtron - should loggedin be set to false here?
-        logger.error("failed to destroy secret", {error})
-        reject(error);
+        logger.error("failed to destroy secret, but user gets logged out anyways", {error})
+        clientConfig.setMulti({
+          'loggedin': false,
+          'auth': undefined,
+          'disableAutoAuth': false
+        });
+
+        resolve();
       })
 
       //TODO raffis - logout needs to be reviewd after oauth gets removed (oidc replacement)
@@ -93,11 +98,11 @@ module.exports = function(env, clientConfig) {
   function basicAuth(username, password) {
     var oldUser = clientConfig.get('username');
     clientConfig.set('auth', 'basic');
-    clientConfig.set('username', username);
     
     return new Promise(function(resolve, reject){
       clientConfig.storeSecret('password', password).then(() => {
-        verifyNewLogin(oldUser).then((username) => {
+        verifyNewLogin(oldUser, username).then((username) => {
+          //clientConfig.set('username', username);
           if(oldUser === undefined || oldUser !== username) {
             resolve(username); 
           } else {
@@ -119,7 +124,7 @@ module.exports = function(env, clientConfig) {
       if(idpConfig.responseType === 'token') {
         return oauth.signin(idpConfig).then(() => {
           verifyNewLogin(oldUser).then((username) => {
-            clientConfig.set('username', username);
+            //clientConfig.set('username', username);
             if(oldUser === undefined || oldUser !== username) {
               resolve(username); 
             } else {
@@ -134,7 +139,7 @@ module.exports = function(env, clientConfig) {
       oidc.signin(idpConfig).then((authorization) => {
         if(authorization === true)  {
           verifyNewLogin(oldUser).then((username) => {
-            clientConfig.set('username', username);
+            //clientConfig.set('username', username);
             if(oldUser === undefined || oldUser !== username) {
               resolve(username); 
             } else {
@@ -183,31 +188,9 @@ module.exports = function(env, clientConfig) {
             });
           } else {
             var idpConfig = getIdPByName(oidcProvider);
-            //if(idpConfig === undefined) {
-              startup().then(() => {
-                resolve();
-              });
-            //} else { 
-              /*if(!hasAccessToken() || accessTokenExpired())*/
-              //TODO raffis - ype===token is only for for backwards compatibility with out AAI, gets removed after we have an openid-connect IdP deployed.
-            /*  if(idpConfig.responseType === 'token') {
-                oauth.signin(idpConfig).then(() => {
-                  verifyNewLogin(oldUser).then((username) => {
-                    callback(username);
-                  });
-                });
-              } else {
-                oidcAuth(idpConfig, function(authorization){
-                  if(authorization === true) {
-                    verifyNewLogin(oldUser).then((username) => {
-                      callback(username);
-                    });
-                  } else {
-                    callback();
-                  }
-                });
-              }
-            }*/
+            startup().then(() => {
+              resolve();
+            });
           }
         } else {
           startup().then(() => {
@@ -243,14 +226,17 @@ module.exports = function(env, clientConfig) {
     });
   }
 
-  function verifyNewLogin(oldUser) {
+  function verifyNewLogin(oldUser, newUser) {
     return new Promise(function(resolve, reject) {
-      var sync = syncFactory(clientConfig.getAll(true), logger);
+      var config = clientConfig.getAll(true);
+      config.username = newUser;      
+
+      var sync = syncFactory(config, logger);
       sync.blnApi.whoami(function(err, username) {
         if(err) {
           logger.error('failed verify authentication', {err});
           clientConfig.set('oidcProvider', undefined);
-          clientConfig.set('username', undefined);
+          //clientConfig.set('username', undefined);
           return reject(err);
         }
  
@@ -269,8 +255,7 @@ module.exports = function(env, clientConfig) {
             logout().then(function() {
               clientConfig.set('username', oldUser);
               clientConfig.set('loggedin', false);
-// TODO pixtron - Shouldn't promise be rejected, as login did not work?
-//          reject(err);
+              reject(err);
             }).catch(err => {
               clientConfig.setMulti({
                 'username': oldUser,

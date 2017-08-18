@@ -299,6 +299,11 @@ input[type="radio"], input[type="checkbox"] {
     float: right;
 }
 
+#feedback .loader {
+    float: right;
+    margin-top: 13px;
+}
+
 /*-----Tray----------*/
 #item-installupdate {
     display: none;
