@@ -12,17 +12,22 @@ const fsUtility = require('./fs-utility.js');
 
 var configExists = false;
 
+function getInstanceName()
+{
+  return 'instance-1';
+}
+
 function initialize() {
   var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
   var configDirName = env.configDirName || '.balloon';
 
-  var configDir = path.join(homeDir, configDirName);
+  var configDir = path.join(homeDir, configDirName, getInstanceName());
 
   var configFile = path.join(configDir, env.configFileName || 'config.json');
   configExists = fs.existsSync(configFile);
 
   var balloonDir = path.join(homeDir, env.balloonDirName || 'Balloon');
-  
+ console.log(configDir); 
   if(!fs.existsSync(configDir)) {
     fsUtility.mkdirpSync(configDir);
 
@@ -33,7 +38,15 @@ function initialize() {
   }
 
   settings.setPath(configFile);
+  var newSettigns = settings.getAll();
+  newSettigns.configFile = configFile;
+  newSettigns.configDir = configDir;
+  newSettigns.homeDir = homeDir;
+  newSettigns.balloonDir = balloonDir;
+  newSettigns.context = env.name || 'production';
+  settings.setAll(newSettigns);
 
+/*
   var newSettigns = settings.getAll();
 
   newSettigns.version = app.getVersion();
@@ -58,16 +71,16 @@ function initialize() {
     newSettigns.disableAutoAuth = false;
   }
 
-  settings.setAll(newSettigns);
+  settings.setAll(newSettigns);*/
 }
 
 module.exports = function() {
   initialize();
 
   function getSecretType() { 
-    if(settings.get('auth') === 'basic') {
+    if(settings.get('authMethod') === 'basic') {
       return 'password';
-    } else if(settings.get('auth') === 'oidc') {
+    } else if(settings.get('authMethod') === 'oidc') {
       return 'accessToken';
     }
   }
@@ -108,7 +121,7 @@ module.exports = function() {
       settings.set(key, value);
     },
     setBlnUrl: function(url) {
-      var apiUrl = url + settings.get('apiPath');
+      var apiUrl = url + env.apiPath;
 
       settings.set('blnUrl', url);
       settings.set('apiUrl', apiUrl);

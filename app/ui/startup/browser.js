@@ -84,7 +84,7 @@ function verifyServer() {
       blnUrl = 'https://' + blnUrl;
     }
 
-    var apiPingUrl = blnUrl + clientConfig.get('apiPath');
+    var apiPingUrl = blnUrl + env.apiPath;
 
     request.get(apiPingUrl, {timeout: 2000}, (err, result) => {
       if(err || result.statusCode !== 401) {

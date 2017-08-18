@@ -41,6 +41,10 @@ var syncArchiveSatesFactory = function(clientConfig) {
     fs.writeFileSync(statesFile, JSON.stringify(states, null, 2));
   }
 
+  function hasState(url, username) {
+
+  }
+
   initialize(clientConfig);
 
   return {
@@ -73,7 +77,7 @@ module.exports = function(env, clientConfig) {
       clientConfig.destroySecret(clientConfig.getSecretType()).then(() => {
         clientConfig.setMulti({
           'loggedin': false,
-          'auth': undefined,
+          'authMethod': undefined,
           'disableAutoAuth': false
         });
 
@@ -82,7 +86,7 @@ module.exports = function(env, clientConfig) {
         logger.error("failed to destroy secret, but user gets logged out anyways", {error})
         clientConfig.setMulti({
           'loggedin': false,
-          'auth': undefined,
+          'authMethod': undefined,
           'disableAutoAuth': false
         });
 
@@ -97,22 +101,23 @@ module.exports = function(env, clientConfig) {
   
   function basicAuth(username, password) {
     var oldUser = clientConfig.get('username');
-    clientConfig.set('auth', 'basic');
+    clientConfig.set('authMethod', 'basic');
     
     return new Promise(function(resolve, reject){
       clientConfig.storeSecret('password', password).then(() => {
         verifyNewLogin(oldUser, username).then((username) => {
-          //clientConfig.set('username', username);
           if(oldUser === undefined || oldUser !== username) {
             resolve(username); 
           } else {
             resolve();
           }
-        }).catch((err) => {
-          reject(err)
+        }).catch((error) => {
+          logger.error('AUTH: failed signin via basic auth', {error});
+          reject(error)
         });
-      }).catch((err) => {
-        reject(err)
+      }).catch((error) => {
+        logger.error('AUTH: failed store secret in keystore', {error});
+        reject(error)
       });
     });
   } 
@@ -124,7 +129,6 @@ module.exports = function(env, clientConfig) {
       if(idpConfig.responseType === 'token') {
         return oauth.signin(idpConfig).then(() => {
           verifyNewLogin(oldUser).then((username) => {
-            //clientConfig.set('username', username);
             if(oldUser === undefined || oldUser !== username) {
               resolve(username); 
             } else {
@@ -139,13 +143,13 @@ module.exports = function(env, clientConfig) {
       oidc.signin(idpConfig).then((authorization) => {
         if(authorization === true)  {
           verifyNewLogin(oldUser).then((username) => {
-            //clientConfig.set('username', username);
             if(oldUser === undefined || oldUser !== username) {
               resolve(username); 
             } else {
               resolve();
             }
           }).catch((error) => {
+            logger.error('AUTH: failed signin via oidc', {error});
             reject(error)
           });
         } else {
@@ -157,7 +161,7 @@ module.exports = function(env, clientConfig) {
   
   function retrieveLoginSecret() {
     return new Promise(function(resolve) {
-      if(!clientConfig.get('auth')) {
+      if(!clientConfig.get('authMethod')) {
         logger.info('AUTH: no authentication method set yet');
         return resolve();
       }
@@ -180,7 +184,7 @@ module.exports = function(env, clientConfig) {
       verifyAuthentication().then(() => {
         return resolve();  
       }).catch((err) => {
-        if(clientConfig.get('auth') === 'oidc') {
+        if(clientConfig.get('authMethod') === 'oidc') {
           var oidcProvider = clientConfig.get('oidcProvider');
           if(oidcProvider === undefined) {
             startup().then(() => {
@@ -213,6 +217,8 @@ module.exports = function(env, clientConfig) {
 
   function verifyAuthentication() {
     return new Promise(function(resolve, reject) {
+console.log("verifyLogin");
+console.log(clientConfig.getAll());
       var sync = syncFactory(clientConfig.getAll(true), logger);
       sync.blnApi.whoami(function(err, username) {
         if(err) {
@@ -230,20 +236,25 @@ module.exports = function(env, clientConfig) {
     return new Promise(function(resolve, reject) {
       var config = clientConfig.getAll(true);
       config.username = newUser;      
-
+console.log(config);
+console.log("whoami");
       var sync = syncFactory(config, logger);
       sync.blnApi.whoami(function(err, username) {
+console.log(username, err);
         if(err) {
           logger.error('failed verify authentication', {err});
           clientConfig.set('oidcProvider', undefined);
-          //clientConfig.set('username', undefined);
           return reject(err);
         }
  
         logger.info('successfully verified authentication', {username});
         clientConfig.set('loggedin', true);
+          
+        clientConfig.set('username', username);
 
-        if(oldUser !== undefined && username !== undefined && username !== oldUser) {
+        //TODO change switch instance here
+
+        /*if(oldUser !== undefined && username !== undefined && username !== oldUser) {
           logger.info('AUTH: a new user logged in switching sync state', {oldUser, username});
           clientConfig.set('username', username);
 
@@ -266,7 +277,7 @@ module.exports = function(env, clientConfig) {
           });
         } else {
           resolve(username);
-        }
+        }*/
       });
     });
   }
