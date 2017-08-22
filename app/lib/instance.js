@@ -105,7 +105,7 @@ console.log(instance.instances);
     if(instances.active) {
       return instances.active;
     } else {
-      return getNewInstanceName();
+      return 'instance-1';
     }
   }
   

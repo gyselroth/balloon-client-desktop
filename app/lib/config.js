@@ -14,6 +14,7 @@ const fsUtility = require('./fs-utility.js');
 var configExists = false;
 
 function initialize() {
+console.log("INITIALUZE CONFI");
   var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
   var configDirName = env.configDirName || '.balloon';
   var instanceName = instance.getActiveInstance();
