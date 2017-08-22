@@ -72,6 +72,10 @@ module.exports = function(clientConfig) {
   }
 
   function resetLastCursor(callback) {
+    if(!instanceDir) {
+      return callback(null) 
+    }
+
     fs.unlink(path.join(instanceDir, 'last-cursor'), (err) => {
       if(err && err.code !== 'ENOENT') {
         logger.error(err);
@@ -83,6 +87,10 @@ module.exports = function(clientConfig) {
   }
 
   function resetSyncDb(callback) {
+    if(!instanceDir) {
+      return callback(null) 
+    }
+
     fs.unlink(path.join(instanceDir, 'db/nodes.db'), (err) => {
       if(err && err.code !== 'ENOENT') {
         logger.error(err);
@@ -94,6 +102,10 @@ module.exports = function(clientConfig) {
   }
 
   function resetQueueErrorDb(callback) {
+    if(!instanceDir) {
+      return callback(null) 
+    }
+
     fs.unlink(path.join(instanceDir, 'db/api-error-queue.db'), (err) => {
       if(err && err.code !== 'ENOENT') {
         logger.error(err);
@@ -105,6 +117,10 @@ module.exports = function(clientConfig) {
   }
 
   function resetTransferDb(callback) {
+    if(!instanceDir) {
+      return callback(null) 
+    }
+
     fs.unlink(path.join(instanceDir, 'db/transfer.db'), (err) => {
       if(err && err.code !== 'ENOENT') {
         logger.error(err);

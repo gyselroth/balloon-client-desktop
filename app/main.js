@@ -49,7 +49,6 @@ app.on('ready', function () {
   auth.retrieveLoginSecret().then(() => {
     ipcMain.once('tray-online-state-changed', function(event, state) {
       if(clientConfig.hadConfig()) {
-console.log("CREATE");
         tray.create();
         autoUpdate.checkForUpdate();
       }
@@ -83,8 +82,8 @@ console.log("CREATE");
             startSync();
           }
         });
-      }).catch(err => {
-        logger.error('startup checkconfig', {err});
+      }).catch((error) => {
+        logger.error('startup checkconfig', {error});
         app.quit();
       });
     });
@@ -194,11 +193,13 @@ ipcMain.on('unlink-account', (event) => {
 ipcMain.on('link-account', (event, id) => {
   logger.info('Main: login requested');
   startup.checkConfig().then(() => {
-  //auth.login(startup.askCredentials).then(() => {
     clientConfig.set('disableAutoAuth', false);
     logger.info('Main: login successfull', clientConfig.getMulti(['disableAutoAuth', 'username', 'loggedin']));
 
-    startSync();
+    if(env.name === 'production') {
+      startSync();
+    }
+
     tray.toggleState('loggedout', false);
     event.sender.send('link-account-result', true);
   }).catch((err) => {

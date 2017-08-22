@@ -124,14 +124,9 @@ function getIconPath(state) {
 }
 
 module.exports = function(env, clientConfig) {
-  var trayWindow;
-    trayWindow = createWindow();
-
-console.log("ZRTA");
+  var trayWindow = createWindow();
 
   function create() {
-    //trayWindow = createWindow();
-console.log("CREATE_TRAY", clientConfig.getAll());
     if(!tray) {
       tray = new Tray(getTrayIcon('default'));
       changeTrayIcon();
@@ -192,7 +187,7 @@ console.log("CREATE_TRAY", clientConfig.getAll());
     });
 
     if(env.name === 'development') {
-      trayWindow.openDevTools();
+      //trayWindow.openDevTools();
     }
     
     return trayWindow;    

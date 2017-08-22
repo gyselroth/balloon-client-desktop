@@ -74,7 +74,8 @@ module.exports = function(env, clientConfig) {
   }
 
   function firstTimeStart() {
-    if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || !clientConfig.hadConfig()) {
+    if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || !clientConfig.hadConfig()
+     || !clientConfig.isActiveInstance()) {
       return firstTimeWizard();
     } else {
       return Promise.resolve();
@@ -105,7 +106,6 @@ module.exports = function(env, clientConfig) {
   function createBalloonDir() {
     return new Promise(function(resolve, reject) {
       var balloonDir = clientConfig.get('balloonDir');
-
       fsUtility.createBalloonDir(balloonDir, (err) => {
         if(err) {
           logger.error('Startup:', {err});
@@ -120,21 +120,22 @@ module.exports = function(env, clientConfig) {
 
   function authenticate() {
     return new Promise(function(resolve, reject) {
-      if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || !clientConfig.hadConfig()) {
+      if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || !clientConfig.hadConfig() 
+       || !clientConfig.isActiveInstance()) {
         return resolve();
       }
       
       auth.login(askCredentials).then(() => {
         resolve();
       }).catch((error) => {
-        reject();
+        reject(error);
       });
     });
   }
 
   function askCredentials() {
     return new Promise(function(resolve, reject) {
-      if(clientConfig.get('disableAutoAuth') !== true && clientConfig.get('onLineState') === true) {
+      if(!clientConfig.isActiveInstance() || clientConfig.get('disableAutoAuth') !== true && clientConfig.get('onLineState') === true) {
         if(!startupWindow) startupWindow = createStartupWindow();
 
         startupWindow.webContents.executeJavaScript(`switchView('auth')`);

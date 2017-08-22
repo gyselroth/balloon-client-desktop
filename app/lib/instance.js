@@ -32,9 +32,7 @@ module.exports = function() {
   initialize();
 
   function archiveDataDir(clientConfig) {
-console.log("ALERT . 1");
     return new Promise(function(resolve, reject) {
-console.log("ALERT . 2");
       var instance = instances.lastActive;
       if(!instance) {
         logger.info('INSTANCE: nothing to archive');
@@ -42,8 +40,6 @@ console.log("ALERT . 2");
       }
 
       var username = clientConfig.get('username');
-console.log("ALERT . 3", instance);
-console.log(instance.instances);
       logger.info('INSTANCE: archiveDataDir initialized', {username});
 
       var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];

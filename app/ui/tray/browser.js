@@ -8,6 +8,7 @@ const logger = require('../../lib/logger.js');
 const syncFactory = require('@gyselroth/balloon-node-sync');
 
 const i18n = require('../../lib/i18n.js');
+const config = require('../../lib/config.js');
 
 handlebars.registerHelper('i18n', function(key) {
   var translation = i18n.__(key);
@@ -22,14 +23,13 @@ var showSync      = true;
 var showLogin     = true;
 var unlinkAccount = false;
 var refreshQuota  = true;
-var clientConfig  = {};
+var clientConfig  = config.getAll();
 
 function buildMenu() {
   var label;
   const {Menu, MenuItem} = remote
   const menu = new Menu()
 
-console.log("SHOW_LOGIN",showLogin, clientConfig['username']);
   if(showLogin === false && clientConfig['username']) {
     menu.append(new MenuItem({label: clientConfig['username'], enabled: false}))
   }
@@ -173,21 +173,14 @@ ipcRenderer.on('dev-reset-complete', (event, err) => {
   
 ipcRenderer.send('tray-window-loaded');
 ipcRenderer.on('config', function(event, config, secretType) {
-  console.log("INIT CONFIGF",);
-  /*var config = clientConfig.getAll();
-  config[type] = secret;
-console.log(type,secret);*/
   clientConfig = config;   
 
   if(!config[secretType]) {
     refreshQuota = false;
   } 
-console.log("sync-factiry");
-console.log(config, secretType);
   sync = syncFactory(config, logger);
 
   if(config[secretType] !== undefined) {
-console.log("hideLogin");
     refreshQuota = true;
     showLogin = false;
   }
@@ -266,14 +259,18 @@ Network change detection
 function getOnLineState(callback) {
   var onLine = navigator.onLine;
   if(onLine === true) {
-    var apiPingUrl = clientConfig['apiUrl'];
-    request.get(apiPingUrl, {timeout: 2000}, (err, result) => {
-      callback(!err);
-      if(err) {
-        //if api is not reachable atm, check again in 5s
-        window.setTimeout(updateOnLineState, 5000);
-      }
-    });
+    if(clientConfig['apiUrl']) {
+      var apiPingUrl = clientConfig['apiUrl'];
+      request.get(apiPingUrl, {timeout: 2000}, (err, result) => {
+        callback(!err);
+        if(err) {
+          //if api is not reachable atm, check again in 5s
+          window.setTimeout(updateOnLineState, 5000);
+        }
+      });
+    } else {
+      callback(true);
+    }
   } else {
     callback(false);
   }

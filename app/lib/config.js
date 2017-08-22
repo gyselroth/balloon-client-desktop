@@ -17,8 +17,6 @@ var memorySettings = {};
 
 function initialize() {
   activeInstance = instance.getActiveInstance();
-console.log("CONFOG::" );
-console.log(instance.getActiveInstance());
 
   var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
   var configDirName = env.configDirName || '.balloon';
@@ -102,6 +100,9 @@ module.exports = function() {
   var secret, traySecretUpdate;
 
   return {
+    isActiveInstance: function() {
+      return instance.getActiveInstance();
+    },
     hadConfig: function() {
       return configExists;
     },
@@ -202,6 +203,9 @@ module.exports = function() {
       }
 
       var ignoreNodes = settings.get('ignoreNodes');
+      if(!ignoreNodes) {
+        ignoreNodes = [];
+      }
 
       ignoreNodes = ignoreNodes.concat(id);
 

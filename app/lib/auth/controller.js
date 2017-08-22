@@ -25,22 +25,10 @@ module.exports = function(env, clientConfig) {
 
     return new Promise(function(resolve, reject) {
       clientConfig.destroySecret(clientConfig.getSecretType()).then(() => {
-        /*clientConfig.setMulti({
-          'loggedin': false,
-          'authMethod': undefined,
-          'disableAutoAuth': false
-        });*/
-
         instance.unlink(clientConfig);
         resolve();
       }).catch((error) => {
         logger.error("failed to destroy secret, but user gets logged out anyways", {error})
-        /*clientConfig.setMulti({
-          'loggedin': false,
-          'authMethod': undefined,
-          'disableAutoAuth': false
-        });*/
-
         instance.unlink(clientConfig);
         resolve();
       })
@@ -133,10 +121,8 @@ module.exports = function(env, clientConfig) {
     logger.info('AUTH: login initialized');
     return new Promise(function (resolve, reject) {
       verifyAuthentication().then(() => {
-console.log("00 - SUCCESS");
         return resolve();  
       }).catch((err) => {
-console.log("00 - ERROR");
         if(clientConfig.get('authMethod') === 'oidc') {
           var oidcProvider = clientConfig.get('oidcProvider');
           if(oidcProvider === undefined) {
@@ -170,11 +156,8 @@ console.log("00 - ERROR");
 
   function verifyAuthentication() {
     return new Promise(function(resolve, reject) {
-console.log("verifyLogin");
-console.log(clientConfig.getAll(true));
       var sync = syncFactory(clientConfig.getAll(true), logger);
       sync.blnApi.whoami(function(err, username) {
-console.log(err, username);
         if(err) {
           clientConfig.set('loggedin', false);
           reject(err);
@@ -190,15 +173,9 @@ console.log(err, username);
     return new Promise(function(resolve, reject) {
       var config = clientConfig.getAll(true);
       config.username = newUser;      
-console.log(config);
-console.log("whoami");
-console.log("CALL_WHOAMI", config);
       var sync = syncFactory(config, logger);
       sync.blnApi.whoami(function(err, username) {
-console.log(username, err);
-console.log("IF", err, username);
         if(err) {
-console.log("IF_ERR", err);
           logger.error('failed verify authentication', {err});
           clientConfig.set('oidcProvider', undefined);
           return reject(err);
@@ -206,10 +183,8 @@ console.log("IF_ERR", err);
  
         logger.info('successfully verified authentication', {username});
         clientConfig.set('loggedin', true);
-          
         clientConfig.set('username', username);
  
-
         if(!instance.getInstances()) {
           instance.setNewInstance(clientConfig);
           resolve();
@@ -217,10 +192,6 @@ console.log("IF_ERR", err);
           var instanceName = instance.getInstance(clientConfig);
 
           if(instanceName === instance.getLastActiveInstance()) {
-            /*clientConfig.setMulti({
-              'username': undefined,
-              'blnUrl': undefined
-            });*/
             instance.loadInstance(instanceName, clientConfig);
             resolve();
           } else {
@@ -234,18 +205,10 @@ console.log("IF_ERR", err);
                   resolve();
                   clientConfig.set('loggedin', true);
                 }).catch((error) => {
-                  clientConfig.setMulti({
-                    'username': undefined,
-                    //'loggedin': false
-                  });
                   reject(error);
                 });
               }
             }).catch((error) => {
-              clientConfig.setMulti({
-                'username': undefined,
-                //'loggedin': false
-              });
               reject(error);
             });
           }
