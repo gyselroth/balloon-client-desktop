@@ -153,8 +153,9 @@ module.exports = function(env, clientConfig) {
         ipcMain.on('startup-basic-auth', function(event, username, password) {
           logger.info('requested basic authentication', {username});
           startupWindow.removeListener('closed', windowClosedByUserHandler);
-          auth.basicAuth(username, password).then((username) => {
-            if(username !== undefined) {
+          auth.basicAuth(username, password).then(() => {
+            if(!clientConfig.hadConfig()) {
+            //if(username !== undefined) {
               welcomeWizard().then(() => {
                 resolve();  
               });
@@ -172,8 +173,9 @@ module.exports = function(env, clientConfig) {
           var idpConfig = env.auth.oidc[idp];
           logger.info('requested oidc signin', {idpConfig});
           startupWindow.removeListener('closed', windowClosedByUserHandler);
-          auth.oidcAuth(idpConfig).then((username) => {
-            if(username !== undefined) {
+          auth.oidcAuth(idpConfig).then(() => {
+            if(!clientConfig.hadConfig()) {
+            //if(username !== undefined) {
               welcomeWizard().then(() => {
                 resolve();  
               });

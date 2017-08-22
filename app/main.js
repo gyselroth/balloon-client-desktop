@@ -49,6 +49,7 @@ app.on('ready', function () {
   auth.retrieveLoginSecret().then(() => {
     ipcMain.once('tray-online-state-changed', function(event, state) {
       if(clientConfig.hadConfig()) {
+console.log("CREATE");
         tray.create();
         autoUpdate.checkForUpdate();
       }
@@ -58,7 +59,7 @@ app.on('ready', function () {
       startup.checkConfig().then(() => {
         logger.info('startup checkconfig successfull');
       
-        if(!clientConfig.hadConfig()) {
+        if(!tray.isRunning()) {
           tray.create();
         }
 
@@ -88,7 +89,7 @@ app.on('ready', function () {
       });
     });
 
-    tray = TrayCtrl(env);
+    tray = TrayCtrl(env, clientConfig);
     settings = SettingsCtrl(env);
     about = AboutCtrl(env, clientConfig);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray, about);

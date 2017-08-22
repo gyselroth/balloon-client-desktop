@@ -5,7 +5,6 @@ const env = require('../env.js');
 const fsUtility = require('./fs-utility.js');
 const logger = require('./logger.js')
 
-//module.exports = function() {
 var instances = {};
 var instancesFile;
 
@@ -45,7 +44,7 @@ console.log("ALERT . 2");
       var username = clientConfig.get('username');
 console.log("ALERT . 3", instance);
 console.log(instance.instances);
-      logger.info('AUTH: archiveDataDir initialized', {username});
+      logger.info('INSTANCE: archiveDataDir initialized', {username});
 
       var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
       var balloonDirsyncStateArchivePath;
@@ -90,7 +89,7 @@ console.log(instance.instances);
     logger.info('INSTANCE: unarchiveBalloonDir initialized', {archiveDir});
 
     return new Promise(function(resolve, reject) {
-      if(fs.existsSync(path) === false) return createDataDir(balloonDir)
+      if(fs.existsSync(archiveDir) === false) return createDataDir(balloonDir)
 
       fs.rename(archiveDir, balloonDir, (err) => {
         if(err) return reject(err);
@@ -101,48 +100,34 @@ console.log(instance.instances);
     });
   }
 
-  function getActiveInstance() {
-    if(instances.active) {
-      return instances.active;
-    } else {
-      return 'instance-1';
-    }
-  }
-  
-  function getLastActiveInstance() {
-    if(instances.lastActive) {
-      return instances.lastActive;
-    }
-  
-    return null;
-  }
-
   function getNewInstanceName() {
-console.log("getNewInstanceName");
-      var versionString = 'instance-';
-      var versionNumber = 1;
-      var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
-      var configDirName = env.configDirName || '.balloon';
-      var instancePath;
+    var versionString = 'instance-';
+    var versionNumber = 1;
+    var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
+    var configDirName = env.configDirName || '.balloon';
+    var instancePath;
       
-      while(true) {
-        var instancePath = path.join(homeDir, configDirName, versionString + versionNumber);
-        console.log(instancePath);
-        if(!fs.existsSync(instancePath)) {
-          return versionString + versionNumber;
-        } else {
-            console.log("aa");
-        }
-        versionNumber++;
-      }
+    while(true) {
+      var instancePath = path.join(homeDir, configDirName, versionString + versionNumber);
+      
+      if(!fs.existsSync(instancePath)) {
+        return versionString + versionNumber;
+      } 
+      versionNumber++;
+    }
   }
 
   return {
+    initialize,
     getInstances: function() {
       return instances.instances;
     },
-    getLastActiveInstance,
-    getActiveInstance,
+    getLastActiveInstance: function() {
+      return instances.lastActive;
+    },
+    getActiveInstance: function() {
+      return instances.active;
+    },
     getInstance: function(clientConfig) {
       if(instances.instances) {
         for(instance in instances.instances) {
@@ -154,9 +139,6 @@ console.log("getNewInstanceName");
       }
 
       return null;
-    },
-    getInstanceByName: function(name) {
-      
     },
     archiveDataDir,
     loadInstance: function(name, clientConfig) {
@@ -170,8 +152,8 @@ console.log("getNewInstanceName");
 
       return new Promise(function(resolve, reject) {
         var instance = instances.instances[name];
-        if(fs.existsSync(instance.balloonDirPath)) {
-          unarchiveBalloonDir(instance.balloonDirPath, clientConfig.get('balloonDir')).then(() => {
+        if(fs.existsSync(instance.balloonDir)) {
+          unarchiveDataDir(instance.balloonDir, clientConfig.get('balloonDir')).then(() => {
             switchInstance();
             resolve();
           }).catch(reject);
@@ -192,27 +174,20 @@ console.log("getNewInstanceName");
       if(!instances.instances) {
         instances.instances = {};
       } 
-
-      instances.instances[getActiveInstance()] = {
+      
+      var name = getNewInstanceName();
+      instances.instances[name] = {
         server: clientConfig.get('blnUrl'),
         username: clientConfig.get('username')
       };
 
-      instances.active = getActiveInstance();
+      instances.active = name;
+      clientConfig.initialize();
       persist();
     },
     unlink: function(clientConfig){
-      instances.lastActive = getActiveInstance()
-      /*var name;
-      if(instances.active) {
-        var nr = parseInt(getActiveInstance().split('-')[1]);
-        ++nr;
-        name = 'instance-'+nr;
-      } else {
-        instances.active = 'instance-1';
-      }*/
-
-      instances.active = getNewInstanceName();
+      instances.lastActive = instances.active;
+      instances.active = undefined;
       persist();
       clientConfig.initialize();
     }

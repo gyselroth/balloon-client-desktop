@@ -4,7 +4,6 @@ const {ipcRenderer, shell, remote} = require('electron');
 const handlebars = require('handlebars');
 const request = require('request');
 
-const clientConfig = require('../../lib/config.js');
 const logger = require('../../lib/logger.js');
 const syncFactory = require('@gyselroth/balloon-node-sync');
 
@@ -23,14 +22,16 @@ var showSync      = true;
 var showLogin     = true;
 var unlinkAccount = false;
 var refreshQuota  = true;
+var clientConfig  = {};
 
 function buildMenu() {
   var label;
   const {Menu, MenuItem} = remote
   const menu = new Menu()
 
-  if(showLogin === false && clientConfig.get('username')) {
-    menu.append(new MenuItem({label: clientConfig.get('username'), enabled: false}))
+console.log("SHOW_LOGIN",showLogin, clientConfig['username']);
+  if(showLogin === false && clientConfig['username']) {
+    menu.append(new MenuItem({label: clientConfig['username'], enabled: false}))
   }
     
   if(showLogin === true) {
@@ -55,7 +56,7 @@ function buildMenu() {
   
   menu.append(new MenuItem({type: 'separator', enabled: false}))
 
-  if(clientConfig.get('context') === 'development') {
+  if(clientConfig['context'] === 'development') {
     if(showSync === true) {
       label = i18n.__('tray.menu.startSync');
       menu.append(new MenuItem({label: label, click:function(){
@@ -121,12 +122,12 @@ $('document').ready(function() {
   });
 
   $('#item-gotofolder').bind('click', function() {
-    shell.openItem(clientConfig.get('balloonDir'));
+    shell.openItem(clientConfig['balloonDir']);
     ipcRenderer.send('tray-hide');
   });
 
   $('#item-openinbrowser').bind('click', function() {
-    shell.openExternal(clientConfig.get('blnUrl'));
+    shell.openExternal(clientConfig['blnUrl']);
     ipcRenderer.send('tray-hide');
   });
 
@@ -171,18 +172,21 @@ ipcRenderer.on('dev-reset-complete', (event, err) => {
 });
   
 ipcRenderer.send('tray-window-loaded');
-ipcRenderer.on('secret', function(event, type, secret) {
-  var config = clientConfig.getAll();
+ipcRenderer.on('config', function(event, config, secretType) {
+  console.log("INIT CONFIGF",);
+  /*var config = clientConfig.getAll();
   config[type] = secret;
-console.log(type,secret);
-  if(!secret) {
+console.log(type,secret);*/
+  clientConfig = config;   
+
+  if(!config[secretType]) {
     refreshQuota = false;
   } 
 console.log("sync-factiry");
-console.log(config);
+console.log(config, secretType);
   sync = syncFactory(config, logger);
 
-  if(secret !== undefined) {
+  if(config[secretType] !== undefined) {
 console.log("hideLogin");
     refreshQuota = true;
     showLogin = false;
@@ -248,7 +252,7 @@ function compileTemplate() {
 }
 
 function toggleInstallUpdate() {
-  $('#item-installupdate').toggle(clientConfig.get('updateAvailable'));
+  $('#item-installupdate').toggle(clientConfig['updateAvailable']);
 }
 
 function updateWindow() {
@@ -262,7 +266,7 @@ Network change detection
 function getOnLineState(callback) {
   var onLine = navigator.onLine;
   if(onLine === true) {
-    var apiPingUrl = clientConfig.get('apiUrl');
+    var apiPingUrl = clientConfig['apiUrl'];
     request.get(apiPingUrl, {timeout: 2000}, (err, result) => {
       callback(!err);
       if(err) {

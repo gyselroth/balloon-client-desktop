@@ -192,10 +192,13 @@ console.log(err, username);
       config.username = newUser;      
 console.log(config);
 console.log("whoami");
+console.log("CALL_WHOAMI", config);
       var sync = syncFactory(config, logger);
       sync.blnApi.whoami(function(err, username) {
 console.log(username, err);
+console.log("IF", err, username);
         if(err) {
+console.log("IF_ERR", err);
           logger.error('failed verify authentication', {err});
           clientConfig.set('oidcProvider', undefined);
           return reject(err);

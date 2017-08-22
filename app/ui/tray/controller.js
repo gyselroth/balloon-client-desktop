@@ -123,10 +123,15 @@ function getIconPath(state) {
   return path.join(__dirname, '../../img/', filename);;
 }
 
-module.exports = function(env) {
-  var trayWindow = createWindow();
+module.exports = function(env, clientConfig) {
+  var trayWindow;
+    trayWindow = createWindow();
+
+console.log("ZRTA");
 
   function create() {
+    //trayWindow = createWindow();
+console.log("CREATE_TRAY", clientConfig.getAll());
     if(!tray) {
       tray = new Tray(getTrayIcon('default'));
       changeTrayIcon();
@@ -191,16 +196,15 @@ module.exports = function(env) {
     }
     
     return trayWindow;    
-}
+  }
   
-ipcMain.on('tray-window-loaded', function(){
-  clientConfig.updateTraySecret(updateSecret);
-  updateSecret();
-});
+  ipcMain.on('tray-window-loaded', function(){
+    clientConfig.updateTraySecret(updateSecret);
+    updateSecret();
+  });
 
   function updateSecret() {
-console.log("update-secret");
-    trayWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
+    trayWindow.webContents.send('config', clientConfig.getAll(true), clientConfig.getSecretType());
   }
   
   function syncPaused() {
@@ -220,8 +224,17 @@ console.log("update-secret");
     toggleState('sync', false);
   }
 
+  function isRunning() {
+    if(tray) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   return {
     create,
+    isRunning,
     toggle,
     hide,
     show,
