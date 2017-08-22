@@ -192,7 +192,8 @@ ipcMain.on('unlink-account', (event) => {
 
 ipcMain.on('link-account', (event, id) => {
   logger.info('Main: login requested');
-  auth.login(startup.askCredentials).then(() => {
+  startup.checkConfig().then(() => {
+  //auth.login(startup.askCredentials).then(() => {
     clientConfig.set('disableAutoAuth', false);
     logger.info('Main: login successfull', clientConfig.getMulti(['disableAutoAuth', 'username', 'loggedin']));
 

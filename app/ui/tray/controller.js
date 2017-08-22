@@ -187,18 +187,19 @@ module.exports = function(env) {
     });
 
     if(env.name === 'development') {
-      //trayWindow.openDevTools();
+      trayWindow.openDevTools();
     }
     
-    ipcMain.on('tray-window-loaded', function(){
-      clientConfig.updateTraySecret(updateSecret);
-      updateSecret();
-    });
-
-    return trayWindow;
-  }
+    return trayWindow;    
+}
+  
+ipcMain.on('tray-window-loaded', function(){
+  clientConfig.updateTraySecret(updateSecret);
+  updateSecret();
+});
 
   function updateSecret() {
+console.log("update-secret");
     trayWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
   }
   

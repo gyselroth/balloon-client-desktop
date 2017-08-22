@@ -8,20 +8,16 @@ const app = electron.app || electron.remote.app;
 const keytar = require('keytar');
 
 const env = require('../env.js');
+const instance = require('./instance.js');
 const fsUtility = require('./fs-utility.js');
 
 var configExists = false;
 
-function getInstanceName()
-{
-  return 'instance-1';
-}
-
 function initialize() {
   var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
   var configDirName = env.configDirName || '.balloon';
-
-  var configDir = path.join(homeDir, configDirName, getInstanceName());
+  var instanceName = instance.getActiveInstance();
+  var configDir = path.join(homeDir, configDirName, instanceName);
 
   var configFile = path.join(configDir, env.configFileName || 'config.json');
   configExists = fs.existsSync(configFile);
@@ -41,6 +37,7 @@ function initialize() {
   var newSettigns = settings.getAll();
   newSettigns.configFile = configFile;
   newSettigns.configDir = configDir;
+  //newSettigns.instanceName = instanceName;
   newSettigns.homeDir = homeDir;
   newSettigns.balloonDir = balloonDir;
   newSettigns.context = env.name || 'production';

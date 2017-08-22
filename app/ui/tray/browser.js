@@ -174,14 +174,16 @@ ipcRenderer.send('tray-window-loaded');
 ipcRenderer.on('secret', function(event, type, secret) {
   var config = clientConfig.getAll();
   config[type] = secret;
-
+console.log(type,secret);
   if(!secret) {
     refreshQuota = false;
   } 
-
+console.log("sync-factiry");
+console.log(config);
   sync = syncFactory(config, logger);
 
   if(secret !== undefined) {
+console.log("hideLogin");
     refreshQuota = true;
     showLogin = false;
   }
