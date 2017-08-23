@@ -32,7 +32,7 @@ function initialize() {
       childProcess.execSync('ATTRIB +H ' + configDir);
     }
   }
-
+  
   //If we do not have an active instance we're going to store any config in memory first
   if(activeInstance) {
     var instanceDir = path.join(configDir, activeInstance);
@@ -52,9 +52,9 @@ function initialize() {
     configExists = false;
   }
 
-  newSettings.configDir  = configDir;
-  newSettings.homeDir    = homeDir;
-  newSettings.balloonDir = balloonDir;
+  newSettings.configDir  = newSettings.configDir || configDir;
+  newSettings.homeDir    = newSettings.homeDir || homeDir;
+  newSettings.balloonDir = newSettings.balloonDir || balloonDir;
   newSettings.context    = env.name || 'production';
 
   if(env.blnUrl) {

@@ -245,7 +245,11 @@ function compileTemplate() {
 }
 
 function toggleInstallUpdate() {
-  $('#item-installupdate').toggle(clientConfig['updateAvailable']);
+  if(clientConfig['updateAvailable']) {
+    $('#item-installupdate').show();
+  } else {
+    $('#item-installupdate').hide();
+  }
 }
 
 function updateWindow() {
