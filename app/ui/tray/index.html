@@ -6,14 +6,14 @@
     <script>$ = require("jquery");</script>
     <script src="browser.js"></script>
 </head>
-<body class="taskbar">
+<body id="tray">
     <script id="template" type="text/x-handlebars-template">
     <div id="content">
-	    <div id="taskbar-top">
-            <div class="taskbar-text">
+	    <div id="tray-top">
+            <div class="tray-text">
                 <div>Beta</div>
             </div>
-            <div class="taskbar-action">
+            <div class="tray-action">
                 <div id="item-menu" class="task">
                   <div class="taskicon" title="{{i18n 'tray.item.menu'}}">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -49,7 +49,7 @@
             </div>
 	    </div>
 
-	    <div id="taskbar-center">
+	    <div id="tray-center">
           <div id="quota">
               <div class="bar">
                   <div class="used"></div>

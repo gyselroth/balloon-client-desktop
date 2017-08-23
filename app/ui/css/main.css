@@ -107,7 +107,7 @@ p {
     background-color: #E0E0E0;
 }
 
-.taskbar #header {
+#tray #header {
     height: auto;
     padding: 0;
 }
@@ -118,11 +118,11 @@ p {
     top: 4px;
 }
 
-.taskbar #header p {
+#tray #header p {
     position: static;
 }
 /*-----Content-----*/
-.taskbar #contentWrapper {
+#tray #contentWrapper {
     min-height: 0;
     padding: 0;
 }
@@ -242,7 +242,7 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 .arrow-down {
-  margin-bottom: 10px;
+    margin-bottom: 10px;
     width: 0; 
     height: 0; 
     border-left: 5px solid transparent;
@@ -258,6 +258,10 @@ input[type="radio"], input[type="checkbox"] {
     padding: 0 40px;
 }
 /*-----About-----*/
+#about {
+    overflow: hidden;
+}
+
 #about p {
     text-align: center;
     line-height: 18px;
@@ -423,13 +427,13 @@ input[type="radio"], input[type="checkbox"] {
 
 /*-----Taskbar-----*/
 html.win32,
-.win32 .taskbar {
-  height: 100%;
-  overflow: hidden;
+.win32 #tray {
+    height: 100%;
+    overflow: hidden;
 }
 
-.win32 .taskbar {
-  border: 1px solid rgba(0,0,0,0.3)
+.win32 #tray {
+    border: 1px solid rgba(0,0,0,0.3)
 }
 
 .task {
@@ -437,7 +441,7 @@ html.win32,
     float: right;
 }
 
-.taskbar-action {
+.tray-action {
     float: right;
 }
 
@@ -445,23 +449,24 @@ html.win32,
     background-color: #EEE;
 }
 
-.taskbar #content {
+#tray #content {
     width: 300px;
     height: 90px;
     border: solid 1px #ccdfff;
     padding: 2px;
 }
 
-.taskbar {
+#tray {
+    overflow: hidden;
     font-size: 11px;
 }
 
-.taskbar #quota {
+#tray #quota {
     width: 90%;
     margin: 10px;
 }
 
-.taskbar #quota .bar {
+#tray #quota .bar {
     width: 95%;
     height: 20px;
     background-color: #DDD;
@@ -471,21 +476,21 @@ html.win32,
     margin-top: 4px;
 }
 
-.taskbar-text {
+.tray-text {
     float: left;
     padding: 2px;
     line-height: 24px;
     color: #999;
 }
 
-.taskbar-text > div {
+.tray-text > div {
     font-weight: bold;
     margin-right: 6px;
     line-height: 20px;
     color: #000;
 }
 
-.taskbar-text > div {
+.tray-text > div {
     float: left;
 }
 
@@ -499,13 +504,13 @@ html.win32,
     background-color: #FF0000 !important;
 }
 
-#taskbar-top {
+#tray-top {
     height: 30px;
     border-bottom: solid 1px #DDD;
     padding: 1px;
 }
 
-#taskbar-center {
+#tray-center {
     /*height: 80px;*/
     clear: both;
 }

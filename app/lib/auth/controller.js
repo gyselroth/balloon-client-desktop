@@ -40,18 +40,13 @@ module.exports = function(env, clientConfig) {
   }
   
   function basicAuth(username, password) {
-    var oldUser = clientConfig.get('username');
     clientConfig.set('authMethod', 'basic');
     clientConfig.set('username', username);
     
     return new Promise(function(resolve, reject){
       clientConfig.storeSecret('password', password).then(() => {
-        verifyNewLogin(oldUser, username).then((username) => {
-          if(oldUser === undefined || oldUser !== username) {
-            resolve(username); 
-          } else {
-            resolve();
-          }
+        verifyNewLogin().then((username) => {
+          resolve();
         }).catch((error) => {
           logger.error('AUTH: failed signin via basic auth', {error});
           reject(error)
@@ -65,16 +60,11 @@ module.exports = function(env, clientConfig) {
 
   function oidcAuth(idpConfig) {
     return new Promise(function(resolve, reject) {
-      var oldUser = clientConfig.get('username');
       //TODO raffis - backwards compatibility, gets removed soon
       if(idpConfig.responseType === 'token') {
         return oauth.signin(idpConfig).then(() => {
-          verifyNewLogin(oldUser).then((username) => {
-            if(oldUser === undefined || oldUser !== username) {
-              resolve(username); 
-            } else {
-              resolve();
-            }
+          verifyNewLogin().then((username) => {
+            resolve();
           });
         }).catch((error) => {
           reject(error);
@@ -83,13 +73,10 @@ module.exports = function(env, clientConfig) {
     
       oidc.signin(idpConfig).then((authorization) => {
         if(authorization === true)  {
-          verifyNewLogin(oldUser).then((username) => {
-            if(oldUser === undefined || oldUser !== username) {
-              resolve(username); 
-            } else {
-              resolve();
-            }
+          verifyNewLogin().then((username) => {
+            resolve();
           }).catch((error) => {
+            clientConfig.set('oidcProvider', undefined);
             logger.error('AUTH: failed signin via oidc', {error});
             reject(error)
           });
@@ -171,9 +158,7 @@ module.exports = function(env, clientConfig) {
 
   function verifyNewLogin(oldUser, newUser) {
     return new Promise(function(resolve, reject) {
-      var config = clientConfig.getAll(true);
-      config.username = newUser;      
-      var sync = syncFactory(config, logger);
+      var sync = syncFactory(clientConfig.getAll(true), logger);
       sync.blnApi.whoami(function(err, username) {
         if(err) {
           logger.error('failed verify authentication', {err});
