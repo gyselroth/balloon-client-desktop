@@ -25,12 +25,12 @@ function initialize() {
   var configDir = path.join(homeDir, configDirName);
     
   if(!fs.existsSync(configDir)) {
-      fsUtility.mkdirpSync(configDir);
+    fsUtility.mkdirpSync(configDir);
 
-      if(process.platform === 'win32') {
-        //"Hide" configDir on win32
-        childProcess.execSync('ATTRIB +H ' + configDir);
-      }
+    if(process.platform === 'win32') {
+      //"Hide" configDir on win32
+      childProcess.execSync('ATTRIB +H ' + configDir);
+    }
   }
 
   //If we do not have an active instance we're going to store any config in memory first
