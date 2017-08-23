@@ -1,4 +1,4 @@
-# Balloon Desktop Client
+# balloon Desktop Client
 [![Build status](https://ci.appveyor.com/api/projects/status/ym07006bvsrjo698?svg=true)](https://ci.appveyor.com/project/raffis/balloon-client-desktop)
 [![Build Status](https://travis-ci.org/gyselroth/balloon-client-desktop.svg?branch=master)](https://travis-ci.org/gyselroth/balloon-client-desktop)
 
