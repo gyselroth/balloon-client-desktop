@@ -213,7 +213,6 @@ ipcMain.on('link-account', (event, id) => {
   });
 });
 
-
 ipcMain.on('sync-error', (event, error, url, line) => {
   switch(error.code) {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
@@ -261,7 +260,6 @@ ipcMain.on('sync-error', (event, error, url, line) => {
       });
   }
 });
-
 
 /** Development Methods **/
 if(env.name === 'development') {
