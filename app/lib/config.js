@@ -8,21 +8,22 @@ const app = electron.app || electron.remote.app;
 const keytar = require('keytar');
 
 const env = require('../env.js');
+const instance = require('./instance.js');
 const fsUtility = require('./fs-utility.js');
 
-var configExists = false;
+var configExists   = false;
+var activeInstance = false;
+var memorySettings = {};
 
 function initialize() {
+  activeInstance = instance.getActiveInstance();
+
   var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
   var configDirName = env.configDirName || '.balloon';
-
-  var configDir = path.join(homeDir, configDirName);
-
-  var configFile = path.join(configDir, env.configFileName || 'config.json');
-  configExists = fs.existsSync(configFile);
-
+  var newSettings = {};
   var balloonDir = path.join(homeDir, env.balloonDirName || 'Balloon');
-  
+  var configDir = path.join(homeDir, configDirName);
+    
   if(!fs.existsSync(configDir)) {
     fsUtility.mkdirpSync(configDir);
 
@@ -31,43 +32,67 @@ function initialize() {
       childProcess.execSync('ATTRIB +H ' + configDir);
     }
   }
+  
+  //If we do not have an active instance we're going to store any config in memory first
+  if(activeInstance) {
+    var instanceDir = path.join(configDir, activeInstance);
+    var configFile  = path.join(instanceDir, env.configFileName || 'config.json');
+    configExists = fs.existsSync(configFile);
 
-  settings.setPath(configFile);
+    if(!fs.existsSync(instanceDir)) {
+      fsUtility.mkdirpSync(instanceDir);
+    }
 
-  var newSettigns = settings.getAll();
+    settings.setPath(configFile);
+    newSettings = settings.getAll();
 
-  newSettigns.version = app.getVersion();
-  newSettigns.configDir = configDir;
-  newSettigns.configFile = configFile;
-  newSettigns.homeDir = homeDir;
-  newSettigns.balloonDir = balloonDir;
-
-  if(!newSettigns.blnUrl) newSettigns.blnUrl = env.blnUrl;
-  if(!newSettigns.apiPath) newSettigns.apiPath = (env.apiPath || '/api/v1/');
-  if(!newSettigns.apiUrl) newSettigns.apiUrl = env.blnUrl + newSettigns.apiPath;
-  if(!newSettigns.ignoreNodes) newSettigns.ignoreNodes = [];
-
-  newSettigns.context = env.name || 'production';
-  newSettigns.maxConcurentConnections = env.sync && env.sync.maxConcurentConnections ? env.sync.maxConcurentConnections : 20;
-
-  if(newSettigns.loggedin === undefined) {
-    newSettigns.loggedin = false;
+    newSettings.configFile  = configFile;
+    newSettings.instanceDir = instanceDir;
+  } else {
+    configExists = false;
   }
 
-  if(newSettigns.disableAutoAuth === undefined) {
-    newSettigns.disableAutoAuth = false;
+  newSettings.configDir  = newSettings.configDir || configDir;
+  newSettings.homeDir    = newSettings.homeDir || homeDir;
+  newSettings.balloonDir = newSettings.balloonDir || balloonDir;
+  newSettings.context    = env.name || 'production';
+
+  if(env.blnUrl) {
+    newSettings.blnUrl = env.blnUrl;
+
+    if(env.apiPath) {
+      newSettings.apiUrl = env.blnUrl+env.apiPath;
+    } else {
+      newSettings.apiUrl = env.blnUrl+'/api/v1/';
+    }
   }
 
-  settings.setAll(newSettigns);
+  if(activeInstance) {
+    settings.setAll(newSettings);
+    for(key in memorySettings) {
+      if(key !== 'password' && key !== 'accessToken') {
+        settings.set(key, memorySettings[key]);
+      }
+    }
+  } else {
+    memorySettings = newSettings;
+  }
 }
 
 module.exports = function() {
   initialize();
 
   function getSecretType() { 
-    if(settings.get('auth') === 'basic') {
+    var method;
+    if(activeInstance) {
+      method = settings.get('authMethod');
+    } else {
+      method = memorySettings['authMethod'];
+    }
+      
+    if(method === 'basic') {
       return 'password';
-    } else if(settings.get('auth') === 'oidc') {
+    } else if(method === 'oidc') {
       return 'accessToken';
     }
   }
@@ -75,18 +100,30 @@ module.exports = function() {
   var secret, traySecretUpdate;
 
   return {
+    isActiveInstance: function() {
+      return instance.getActiveInstance();
+    },
     hadConfig: function() {
       return configExists;
     },
     getAll: function(include_secret) {
-      var conf = settings.getAll();
+      if(activeInstance) {
+        var conf = settings.getAll();
+      } else {
+        var conf = memorySettings;
+      }
+
       if(include_secret === true && getSecretType()) {
         conf[getSecretType()] = secret; 
       }
       return conf;
     },
     get: function(key) {
-      return settings.get(key);
+      if(activeInstance) {
+        return settings.get(key);
+      } else {
+        return memorySettings[key];
+      }
     },
     getMulti: function(keys) {
       var valuesToReturn = {};
@@ -105,13 +142,22 @@ module.exports = function() {
       }
     },
     set: function(key, value) {
-      settings.set(key, value);
+      if(activeInstance) {
+        settings.set(key, value);
+      } else {
+        memorySettings[key] = value = value;
+      }
     },
     setBlnUrl: function(url) {
-      var apiUrl = url + settings.get('apiPath');
+      var apiUrl = url + env.apiPath;
 
-      settings.set('blnUrl', url);
-      settings.set('apiUrl', apiUrl);
+      if(activeInstance) {
+        settings.set('blnUrl', url);
+        settings.set('apiUrl', apiUrl);
+      } else {
+        memorySettings['blnUrl'] = url;
+        memorySettings['apiUrl'] = apiUrl;
+      }
     },
     initialize,
     setSecret: function(key) {
@@ -157,6 +203,9 @@ module.exports = function() {
       }
 
       var ignoreNodes = settings.get('ignoreNodes');
+      if(!ignoreNodes) {
+        ignoreNodes = [];
+      }
 
       ignoreNodes = ignoreNodes.concat(id);
 

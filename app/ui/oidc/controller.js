@@ -83,7 +83,7 @@ module.exports = function (env, clientConfig) {
           makeRefreshTokenRequest(configuration, response.code)
             .then((result) => {
               clientConfig.storeSecret('refreshToken', result.refreshToken).then(() => { 
-                clientConfig.set('auth', 'oidc');
+                clientConfig.set('authMethod', 'oidc');
                 clientConfig.set('oidcProvider', idpConfig.provider);
                 makeAccessTokenRequest(configuration, result.refreshToken).then((access) => {
                   clientConfig.storeSecret('accessToken', access.accessToken).then(() => {

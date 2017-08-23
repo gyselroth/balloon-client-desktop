@@ -3,7 +3,7 @@
   "productName": "Balloon",
   "description": "Balloon Desktop Client",
   "version": "0.0.26",
-  "author": "gyselroth GmbH  <maint@gyselroth.com>",
+  "author": "gyselroth GmbH  <maint@gyselroth.net>",
   "copyright": "© 2017, gyselroth GmbH",
   "homepage": "https://www.gyselroth.com",
   "license": "GPL-3.0",
@@ -79,7 +79,7 @@
     "spectron": "^3.4.0"
   },
   "dependencies": {
-    "@gyselroth/balloon-node-sync": "0.0.21",
+    "@gyselroth/balloon-node-sync": "0.0.22",
     "@openid/appauth": "*",
     "archiver": "^1.3.0",
     "auto-launch": "^5.0.1",

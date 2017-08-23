@@ -74,7 +74,8 @@ module.exports = function(env, clientConfig) {
   }
 
   function firstTimeStart() {
-    if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || !clientConfig.hadConfig()) {
+    if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || !clientConfig.hadConfig()
+     || !clientConfig.isActiveInstance()) {
       return firstTimeWizard();
     } else {
       return Promise.resolve();
@@ -105,7 +106,6 @@ module.exports = function(env, clientConfig) {
   function createBalloonDir() {
     return new Promise(function(resolve, reject) {
       var balloonDir = clientConfig.get('balloonDir');
-
       fsUtility.createBalloonDir(balloonDir, (err) => {
         if(err) {
           logger.error('Startup:', {err});
@@ -120,21 +120,22 @@ module.exports = function(env, clientConfig) {
 
   function authenticate() {
     return new Promise(function(resolve, reject) {
-      if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || !clientConfig.hadConfig()) {
+      if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || !clientConfig.hadConfig() 
+       || !clientConfig.isActiveInstance()) {
         return resolve();
       }
       
       auth.login(askCredentials).then(() => {
         resolve();
       }).catch((error) => {
-        reject();
+        reject(error);
       });
     });
   }
 
   function askCredentials() {
     return new Promise(function(resolve, reject) {
-      if(clientConfig.get('disableAutoAuth') !== true && clientConfig.get('onLineState') === true) {
+      if(!clientConfig.isActiveInstance() || clientConfig.get('disableAutoAuth') !== true && clientConfig.get('onLineState') === true) {
         if(!startupWindow) startupWindow = createStartupWindow();
 
         startupWindow.webContents.executeJavaScript(`switchView('auth')`);
@@ -149,11 +150,12 @@ module.exports = function(env, clientConfig) {
 
         startupWindow.on('closed', windowClosedByUserHandler);
       
+        ipcMain.removeAllListeners('startup-basic-auth');
         ipcMain.on('startup-basic-auth', function(event, username, password) {
           logger.info('requested basic authentication', {username});
           startupWindow.removeListener('closed', windowClosedByUserHandler);
-          auth.basicAuth(username, password).then((username) => {
-            if(username !== undefined) {
+          auth.basicAuth(username, password).then(() => {
+            if(!clientConfig.hadConfig()) {
               welcomeWizard().then(() => {
                 resolve();  
               });
@@ -166,12 +168,13 @@ module.exports = function(env, clientConfig) {
           });
         });
 
+        ipcMain.removeAllListeners('auth-oidc-signin');
         ipcMain.on('auth-oidc-signin', function(event, idp) {
           var idpConfig = env.auth.oidc[idp];
           logger.info('requested oidc signin', {idpConfig});
           startupWindow.removeListener('closed', windowClosedByUserHandler);
-          auth.oidcAuth(idpConfig).then((username) => {
-            if(username !== undefined) {
+          auth.oidcAuth(idpConfig).then(() => {
+            if(!clientConfig.hadConfig()) {
               welcomeWizard().then(() => {
                 resolve();  
               });
@@ -211,6 +214,7 @@ module.exports = function(env, clientConfig) {
       
       startupWindow.on('closed', windowClosedByUserHandler);
 
+      ipcMain.removeAllListeners('startup-open-folder');
       ipcMain.on('startup-open-folder', function(event) {
         startupWindow.removeListener('closed', windowClosedByUserHandler);
         startupWindow.close();
@@ -218,6 +222,7 @@ module.exports = function(env, clientConfig) {
         resolve();
       });
 
+      ipcMain.removeAllListeners('startup-change-dir');
       ipcMain.on('startup-change-dir', function(event) {
         logger.info('Startup Settings: change balloon dir');
         dialog.showOpenDialog({
@@ -233,6 +238,7 @@ module.exports = function(env, clientConfig) {
         });
       });
 
+      ipcMain.removeAllListeners('startup-selective-sync');
       ipcMain.on('startup-selective-sync', function(event) {
         logger.info('Startup Settings: selective sync');
         openSelectiveSync();
@@ -256,6 +262,7 @@ module.exports = function(env, clientConfig) {
 
       startupWindow.on('closed', windowClosedByUserHandler);
 
+      ipcMain.removeAllListeners('startup-server-continue');
       ipcMain.on('startup-server-continue', function(event, blnUrl) {
         if(!env.blnUrl) {
           logger.info('Startup Settings: change blnUrl', {blnUrl});
@@ -286,6 +293,7 @@ module.exports = function(env, clientConfig) {
         selectiveWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
       });
 
+      ipcMain.removeAllListeners('selective-apply');
       ipcMain.on('selective-apply', function(event, ids) {
         logger.info('Startup Settings: apply selective sync', {ids});
 
@@ -294,6 +302,7 @@ module.exports = function(env, clientConfig) {
         selectiveWindow.close();
       });
 
+      ipcMain.removeAllListeners('selective-cancel');
       ipcMain.on('selective-cancel', function(event) {
         logger.info('Startup Settings: cancel selective sync');
         selectiveWindow.close();

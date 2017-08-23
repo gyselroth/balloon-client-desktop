@@ -7,7 +7,7 @@ const logger = require('../logger.js');
 const fsUtility = require('../fs-utility.js');
 
 module.exports = function(clientConfig) {
-  const configDir = clientConfig.get('configDir');
+  const instanceDir = clientConfig.get('instanceDir');
 
   function reset() {
     logger.debug('Reset initalized');
@@ -72,7 +72,11 @@ module.exports = function(clientConfig) {
   }
 
   function resetLastCursor(callback) {
-    fs.unlink(path.join(configDir, 'last-cursor'), (err) => {
+    if(!instanceDir) {
+      return callback(null) 
+    }
+
+    fs.unlink(path.join(instanceDir, 'last-cursor'), (err) => {
       if(err && err.code !== 'ENOENT') {
         logger.error(err);
         return callback(err);
@@ -83,7 +87,11 @@ module.exports = function(clientConfig) {
   }
 
   function resetSyncDb(callback) {
-    fs.unlink(path.join(configDir, 'db/nodes.db'), (err) => {
+    if(!instanceDir) {
+      return callback(null) 
+    }
+
+    fs.unlink(path.join(instanceDir, 'db/nodes.db'), (err) => {
       if(err && err.code !== 'ENOENT') {
         logger.error(err);
         return callback(err);
@@ -94,7 +102,11 @@ module.exports = function(clientConfig) {
   }
 
   function resetQueueErrorDb(callback) {
-    fs.unlink(path.join(configDir, 'db/api-error-queue.db'), (err) => {
+    if(!instanceDir) {
+      return callback(null) 
+    }
+
+    fs.unlink(path.join(instanceDir, 'db/api-error-queue.db'), (err) => {
       if(err && err.code !== 'ENOENT') {
         logger.error(err);
         return callback(err);
@@ -105,7 +117,11 @@ module.exports = function(clientConfig) {
   }
 
   function resetTransferDb(callback) {
-    fs.unlink(path.join(configDir, 'db/transfer.db'), (err) => {
+    if(!instanceDir) {
+      return callback(null) 
+    }
+
+    fs.unlink(path.join(instanceDir, 'db/transfer.db'), (err) => {
       if(err && err.code !== 'ENOENT') {
         logger.error(err);
         return callback(err);

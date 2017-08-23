@@ -123,7 +123,7 @@ function getIconPath(state) {
   return path.join(__dirname, '../../img/', filename);;
 }
 
-module.exports = function(env) {
+module.exports = function(env, clientConfig) {
   var trayWindow = createWindow();
 
   function create() {
@@ -187,19 +187,19 @@ module.exports = function(env) {
     });
 
     if(env.name === 'development') {
-      //trayWindow.openDevTools();
+      trayWindow.openDevTools();
     }
     
-    ipcMain.on('tray-window-loaded', function(){
-      clientConfig.updateTraySecret(updateSecret);
-      updateSecret();
-    });
-
-    return trayWindow;
+    return trayWindow;    
   }
+  
+  ipcMain.on('tray-window-loaded', function(){
+    clientConfig.updateTraySecret(updateSecret);
+    updateSecret();
+  });
 
   function updateSecret() {
-    trayWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
+    trayWindow.webContents.send('config', clientConfig.getAll(true), clientConfig.getSecretType());
   }
   
   function syncPaused() {
@@ -219,8 +219,17 @@ module.exports = function(env) {
     toggleState('sync', false);
   }
 
+  function isRunning() {
+    if(tray) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   return {
     create,
+    isRunning,
     toggle,
     hide,
     show,

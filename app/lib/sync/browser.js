@@ -2,6 +2,7 @@ const {ipcRenderer} = require('electron');
 
 const syncFactory = require('@gyselroth/balloon-node-sync');
 
+const env = require('../../env.js');
 const clientConfig = require('../config.js');
 const logger = require('../logger.js');
 const loggerFactory = require('../logger-factory.js');
@@ -18,6 +19,11 @@ try {
   ipcRenderer.once('secret', function(event, type, secret) {
     var config = clientConfig.getAll(true);
     config[type] = secret;
+    
+    if(env.sync && env.sync.maxConcurentConnections) {
+      config['maxConcurentConnections'] = env.sync.maxConcurentConnections;
+    }
+
     sync = syncFactory(config, standardLogger);
 
     sync.start((err, results) => {

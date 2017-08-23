@@ -58,7 +58,7 @@ app.on('ready', function () {
       startup.checkConfig().then(() => {
         logger.info('startup checkconfig successfull');
       
-        if(!clientConfig.hadConfig()) {
+        if(!tray.isRunning()) {
           tray.create();
         }
 
@@ -82,13 +82,13 @@ app.on('ready', function () {
             startSync();
           }
         });
-      }).catch(err => {
-        logger.error('startup checkconfig', {err});
+      }).catch((error) => {
+        logger.error('startup checkconfig', {error});
         app.quit();
       });
     });
 
-    tray = TrayCtrl(env);
+    tray = TrayCtrl(env, clientConfig);
     settings = SettingsCtrl(env);
     about = AboutCtrl(env, clientConfig);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray, about);
@@ -192,11 +192,14 @@ ipcMain.on('unlink-account', (event) => {
 
 ipcMain.on('link-account', (event, id) => {
   logger.info('Main: login requested');
-  auth.login(startup.askCredentials).then(() => {
+  startup.checkConfig().then(() => {
     clientConfig.set('disableAutoAuth', false);
     logger.info('Main: login successfull', clientConfig.getMulti(['disableAutoAuth', 'username', 'loggedin']));
 
-    startSync();
+    if(env.name === 'production') {
+      startSync();
+    }
+
     tray.toggleState('loggedout', false);
     event.sender.send('link-account-result', true);
   }).catch((err) => {
@@ -279,24 +282,10 @@ if (process.platform === 'darwin' && app.dock && env.name === 'production') {
 }
 
 function startSync() {
-  if(!auth.isLoggedIn()) {
-    tray.toggleState('loggedout', true);
-    if(clientConfig.get('disableAutoAuth') !== true && clientConfig.get('onLineState') === true) {
-      auth.login(startup.askCredentials).then(result => {
-        tray.toggleState('loggedout', false);
-        sync.start();
-      }).catch(err => {
-        logger.error('Main login failed:', err);
-      });
-    } else {
-      endSync();
-    }
+  if(clientConfig.get('onLineState') === true) {
+    sync.start();
   } else {
-    if(clientConfig.get('onLineState') === true) {
-      sync.start();
-    } else {
-      logger.info('Not starting Sync because client is offline');
-    }
+    logger.info('Not starting Sync because client is offline');
   }
 }
 
