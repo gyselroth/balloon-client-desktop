@@ -28,7 +28,7 @@ var standardLogger = new loggerFactory(clientConfig.getAll());
 var startup = StartupCtrl(env, clientConfig);
 var auth = AuthCtrl(env, clientConfig);
 
-//TODO: raffis - this wont work with first start and memory config
+//TODO: raffis: this wont work with first start and memory config
 clientConfig.set('updateAvailable', false);
 
 logger.setLogger(standardLogger);
