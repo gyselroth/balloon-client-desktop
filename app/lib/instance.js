@@ -39,8 +39,7 @@ module.exports = function() {
         resolve();
       }
 
-      var username = clientConfig.get('username');
-      logger.info('INSTANCE: archiveDataDir initialized', {username});
+      logger.info('INSTANCE: archiveDataDir initialized');
 
       var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
       var balloonDirsyncStateArchivePath;
@@ -50,7 +49,7 @@ module.exports = function() {
       while(true) {
         if(versionNumber > 0) versionString = '-' + versionNumber;
 
-        var balloonDirsyncStateArchivePath = path.join(homeDir, 'BalloonDir-' + username + versionString);
+        var balloonDirsyncStateArchivePath = path.join(homeDir, 'Balloon-' + instances.instances[instance].username + versionString);
 
         if(!fs.existsSync(balloonDirsyncStateArchivePath)) break;
 

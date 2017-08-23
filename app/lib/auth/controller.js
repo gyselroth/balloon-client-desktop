@@ -16,10 +16,6 @@ module.exports = function(env, clientConfig) {
   var oauth = OauthCtrl(env, clientConfig);
   var oidc = OidcCtrl(env, clientConfig);
 
-  function isLoggedIn() {
-    return clientConfig.get('loggedin')
-  }
-
   function logout() {
     logger.info('AUTH: logout initialized');
 
@@ -205,7 +201,6 @@ module.exports = function(env, clientConfig) {
   return {
     logout,
     login,
-    isLoggedIn,
     basicAuth,
     oidcAuth, 
     getIdPByName,

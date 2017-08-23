@@ -282,25 +282,11 @@ if (process.platform === 'darwin' && app.dock && env.name === 'production') {
 }
 
 function startSync() {
-  /*if(!auth.isLoggedIn()) {
-    tray.toggleState('loggedout', true);
-    if(clientConfig.get('disableAutoAuth') !== true && clientConfig.get('onLineState') === true) {
-      auth.login(startup.askCredentials).then(result => {
-        tray.toggleState('loggedout', false);
-        sync.start();
-      }).catch(err => {
-        logger.error('Main login failed:', err);
-      });
-    } else {
-      endSync();
-    }
-  } else {*/
-    if(clientConfig.get('onLineState') === true) {
-      sync.start();
-    } else {
-      logger.info('Not starting Sync because client is offline');
-    }
-  //}
+  if(clientConfig.get('onLineState') === true) {
+    sync.start();
+  } else {
+    logger.info('Not starting Sync because client is offline');
+  }
 }
 
 function endSync() {
