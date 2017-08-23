@@ -154,8 +154,12 @@ function auth() {
   }
 
   $(document).bind('keypress', function(e){
+    if($(e.target).attr('id') === 'startup-auth-continue') {
+      return;
+    }
+
     if(e.which === 13 && $('#startup-view-auth').is(':visible')) {
-      basicAuth();
+      basicAuth(e);
     }
   });
 
@@ -165,7 +169,8 @@ function auth() {
 function switchView(view) {
   $(document).ready(function(){
     $("#startup-view").find("> div").hide();
-    $("#startup-view-"+view).show();
+    $("#startup-view-"+view).show()
+     .find('input,textarea,select,button').filter(':visible:first').focus();
     
     if(view in window) {
       window[view]();

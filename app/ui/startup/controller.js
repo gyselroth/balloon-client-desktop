@@ -156,7 +156,6 @@ module.exports = function(env, clientConfig) {
           startupWindow.removeListener('closed', windowClosedByUserHandler);
           auth.basicAuth(username, password).then(() => {
             if(!clientConfig.hadConfig()) {
-            //if(username !== undefined) {
               welcomeWizard().then(() => {
                 resolve();  
               });
@@ -176,7 +175,6 @@ module.exports = function(env, clientConfig) {
           startupWindow.removeListener('closed', windowClosedByUserHandler);
           auth.oidcAuth(idpConfig).then(() => {
             if(!clientConfig.hadConfig()) {
-            //if(username !== undefined) {
               welcomeWizard().then(() => {
                 resolve();  
               });
