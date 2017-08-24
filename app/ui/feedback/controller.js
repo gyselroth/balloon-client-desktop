@@ -104,7 +104,8 @@ module.exports = function(env, clientConfig, sync) {
         reject(err);
       });
 
-      var req = request.put('https://support.gyselroth.net/balloon/' + reportName+'?feedback='+encodeURIComponent(text));
+      var url = env.feedbackPutUrl || 'https://support.gyselroth.net/balloon';
+      var req = request.put(url+'/' + reportName+'?feedback='+encodeURIComponent(text));
 
       req.on('error', function(err) {
         logger.error('feedback: sending error report failed', err);

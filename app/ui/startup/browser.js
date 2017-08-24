@@ -86,6 +86,8 @@ function verifyServer() {
 
     var apiPingUrl = blnUrl + env.apiPath;
 
+console.log(apiPingUrl);
+
     request.get(apiPingUrl, {timeout: 2000}, (err, result) => {
       if(err || result.statusCode !== 401) {
         $blnUrlNotreachableMessage.show();
@@ -119,6 +121,12 @@ function welcome() {
     $('#startup-logo').hide();
     switchView('advanced');
   });
+}
+
+function advanced() {
+  if(env.balloonDir) {
+    $('#startup-advanced-saveDir').hide();
+  }
 }
 
 function auth() {

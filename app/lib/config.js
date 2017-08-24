@@ -19,11 +19,22 @@ function initialize() {
   activeInstance = instance.getActiveInstance();
 
   var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
-  var configDirName = env.configDirName || '.balloon';
+  var configDir;
+  var balloonDir;
   var newSettings = {};
-  var balloonDir = path.join(homeDir, env.balloonDirName || 'Balloon');
-  var configDir = path.join(homeDir, configDirName);
-    
+
+  if(env.configDir) {
+    configDir = env.configDir.replace('{HOME}', homeDir);
+  } else {
+    configDir = path.join(homeDir, '.balloon');
+  }
+  
+  if(env.balloonDir) {
+    balloonDir = env.balloonDir.replace('{HOME}', homeDir);
+  } else {
+    balloonDir = path.join(homeDir, 'Balloon');
+  }
+
   if(!fs.existsSync(configDir)) {
     fsUtility.mkdirpSync(configDir);
 

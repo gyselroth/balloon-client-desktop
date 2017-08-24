@@ -50,16 +50,20 @@
 
         <div id="startup-view-advanced" class="view">
             <h1>{{i18n 'startup.welcome.advanced'}}</h1>
-            <h2>{{i18n 'startup.advanced.saveDir.title'}}</h2>
-            <p>{{i18n 'startup.advanced.saveDir.message'}}</p>
-            <label class="select-node" id="startup-savedir">
-              <div></div>
-              <div class="arrow-down"></div>
-            </label>
-            <h2>{{i18n 'settings.selective.title'}}</h2>
-            <p>{{i18n 'settings.selective.choosePath'}}</p>
-            <button id="startup-adavanced-selective">{{i18n 'settings.selective.setup'}}</button>
-            <button class="startup-open-folder">{{i18n 'startup.welcome.openFolder'}}</button>
+            <div id="startup-advanced-saveDir">
+              <h2>{{i18n 'startup.advanced.saveDir.title'}}</h2>
+              <p>{{i18n 'startup.advanced.saveDir.message'}}</p>
+              <label class="select-node" id="startup-savedir">
+                <div></div>
+                <div class="arrow-down"></div>
+              </label>
+            </div>
+            <div id="startup-advanced-selective">
+              <h2>{{i18n 'settings.selective.title'}}</h2>
+              <p>{{i18n 'settings.selective.choosePath'}}</p>
+              <button id="startup-adavanced-selective">{{i18n 'settings.selective.setup'}}</button>
+              <button class="startup-open-folder">{{i18n 'startup.welcome.openFolder'}}</button>
+            </div>
         </div>
     </div>
     </script>

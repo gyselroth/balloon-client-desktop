@@ -6,6 +6,7 @@ const shell = electron.shell;
 const handlebars = require('handlebars');
 const uuid4 = require('uuid4');
 
+const env = require('../../lib/env.js');
 const clientConfig = require('../../lib/config.js');
 
 const i18n = require('../../lib/i18n.js');
@@ -30,12 +31,14 @@ $(document).ready(function() {
       ipcRenderer.send('install-update');
     });
 
-    if(clientConfig.get('updateAvailable')) {
-      $install.show();
-      $check.hide();
-    } else {
-      $install.hide();
-      $check.show();
+    if(env.update && env.update.enable !== false) {
+      if(clientConfig.get('updateAvailable')) {
+        $install.show();
+        $check.hide();
+      } else {
+        $install.hide();
+        $check.show();
+      }
     }
   }
 
