@@ -6,7 +6,7 @@ const shell = electron.shell;
 const handlebars = require('handlebars');
 const uuid4 = require('uuid4');
 
-const env = require('../../lib/env.js');
+const env = require('../../env.js');
 const clientConfig = require('../../lib/config.js');
 
 const i18n = require('../../lib/i18n.js');
