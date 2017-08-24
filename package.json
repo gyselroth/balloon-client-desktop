@@ -24,7 +24,8 @@
       "artifactName": "${os}/${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
     },
     "nsis": {
-      "artifactName": "${productName}-Setup-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
+      "artifactName": "${productName}-Setup-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}",
+      "allowToChangeInstallationDirectory": true
     },
     "publish": [
       {
