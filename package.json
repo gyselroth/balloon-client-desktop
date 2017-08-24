@@ -49,7 +49,7 @@
     "build-linux": "npm run prebuild && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm zip -p never",
     "prerelease": "gulp build --env=production",
     "release-osx": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --mac dmg zip",
-    "release-win": "npm run prerelease && set BLN_ARTIFACT_APPENDIX='' && build --win --ia32 --x64",
+    "release-win": "npm run prerelease && set BLN_ARTIFACT_APPENDIX='' && build --win zip --ia32 --x64",
     "release-linux": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm zip",
     "prepackdev": "gulp build --env=development",
     "packdev": "build --dir",
@@ -63,7 +63,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "electron": "^1.7.3",
-    "electron-builder": "19.24.1",
+    "electron-builder": "19.24.3",
     "electron-mocha": "^3.2.1",
     "electron-rebuild": "^1.6.0",
     "gulp": "^3.9.1",
