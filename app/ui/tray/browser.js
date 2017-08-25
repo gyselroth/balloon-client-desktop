@@ -8,7 +8,8 @@ const logger = require('../../lib/logger.js');
 const syncFactory = require('@gyselroth/balloon-node-sync');
 
 const i18n = require('../../lib/i18n.js');
-const config = require('../../lib/config.js');
+const instance = require('../../lib/instance.js');
+const clientConfig = require('../../lib/config.js');
 
 handlebars.registerHelper('i18n', function(key) {
   var translation = i18n.__(key);
@@ -23,15 +24,14 @@ var showSync      = true;
 var showLogin     = true;
 var unlinkAccount = false;
 var refreshQuota  = true;
-var clientConfig  = config.getAll();
 
 function buildMenu() {
   var label;
   const {Menu, MenuItem} = remote
   const menu = new Menu()
 
-  if(showLogin === false && clientConfig['username']) {
-    menu.append(new MenuItem({label: clientConfig['username'], enabled: false}))
+  if(showLogin === false && clientConfig.get('username')) {
+    menu.append(new MenuItem({label: clientConfig.get('username'), enabled: false}))
   }
     
   if(showLogin === true) {
@@ -56,7 +56,7 @@ function buildMenu() {
   
   menu.append(new MenuItem({type: 'separator', enabled: false}))
 
-  if(clientConfig['context'] === 'development') {
+  if(clientConfig.get('context') === 'development') {
     if(showSync === true) {
       label = i18n.__('tray.menu.startSync');
       menu.append(new MenuItem({label: label, click:function(){
@@ -122,12 +122,12 @@ $('document').ready(function() {
   });
 
   $('#item-gotofolder').bind('click', function() {
-    shell.openItem(clientConfig['balloonDir']);
+    shell.openItem(clientConfig.get('balloonDir'));
     ipcRenderer.send('tray-hide');
   });
 
   $('#item-openinbrowser').bind('click', function() {
-    shell.openExternal(clientConfig['blnUrl']);
+    shell.openExternal(clientConfig.get('blnUrl'));
     ipcRenderer.send('tray-hide');
   });
 
@@ -172,9 +172,11 @@ ipcRenderer.on('dev-reset-complete', (event, err) => {
 });
   
 ipcRenderer.send('tray-window-loaded');
-ipcRenderer.on('config', function(event, config, secretType) {
-  clientConfig = config;   
-
+ipcRenderer.on('config', function(event, secret, secretType) {
+  clientConfig.initialize(false);
+  var config = clientConfig.getAll();
+  config[secretType] = secret;  
+  
   if(!config[secretType]) {
     refreshQuota = false;
   } 
@@ -263,8 +265,8 @@ Network change detection
 function getOnLineState(callback) {
   var onLine = navigator.onLine;
   if(onLine === true) {
-    if(clientConfig['apiUrl']) {
-      var apiPingUrl = clientConfig['apiUrl'];
+    if(clientConfig.get('apiUrl')) {
+      var apiPingUrl = clientConfig.get('apiUrl');
       request.get(apiPingUrl, {timeout: 2000}, (err, result) => {
         callback(!err);
         if(err) {

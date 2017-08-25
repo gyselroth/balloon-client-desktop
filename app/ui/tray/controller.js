@@ -134,6 +134,8 @@ module.exports = function(env, clientConfig) {
       tray.on('click', function (event) {
         toggle();
       });
+
+      clientConfig.updateTraySecret();
     }
   }
 
@@ -194,12 +196,12 @@ module.exports = function(env, clientConfig) {
   }
   
   ipcMain.on('tray-window-loaded', function(){
-    clientConfig.updateTraySecret(updateSecret);
+    clientConfig.setTraySecretCallback(updateSecret);
     updateSecret();
   });
 
   function updateSecret() {
-    trayWindow.webContents.send('config', clientConfig.getAll(true), clientConfig.getSecretType());
+    trayWindow.webContents.send('config', clientConfig.getSecret(), clientConfig.getSecretType());
   }
   
   function syncPaused() {

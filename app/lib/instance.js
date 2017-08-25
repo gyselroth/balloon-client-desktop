@@ -10,9 +10,15 @@ var instancesFile;
 
 function initialize() {
   var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
-  var configDirName = env.configDirName || '.balloon';
-  instancesFile = path.join(homeDir, configDirName, 'instances.json');
+  var configDir;
 
+  if(env.configDir) {
+    configDir = env.configDir.replace('{HOME}', homeDir);
+  } else {
+    configDir = path.join(homeDir, '.balloon');
+  }
+
+  instancesFile = path.join(configDir, 'instances.json');
   if(!fs.existsSync(instancesFile)) {
     instances = {};
   } else {
@@ -177,8 +183,8 @@ module.exports = function() {
       };
 
       instances.active = name;
-      clientConfig.initialize();
       persist();
+      clientConfig.initialize();
     },
     unlink: function(clientConfig){
       instances.lastActive = instances.active;

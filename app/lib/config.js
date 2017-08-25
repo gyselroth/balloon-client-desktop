@@ -15,9 +15,13 @@ var configExists   = false;
 var activeInstance = false;
 var memorySettings = {};
 
-function initialize() {
-  activeInstance = instance.getActiveInstance();
+function initialize(syncMemory) {
+  if(syncMemory === undefined) {
+    syncMemory = true;
+  }
 
+  instance.initialize();
+  activeInstance = instance.getActiveInstance();
   var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
   var configDir;
   var balloonDir;
@@ -80,9 +84,11 @@ function initialize() {
 
   if(activeInstance) {
     settings.setAll(newSettings);
-    for(key in memorySettings) {
-      if(key !== 'password' && key !== 'accessToken') {
-        settings.set(key, memorySettings[key]);
+    if(syncMemory) {
+      for(key in memorySettings) {
+        if(key !== 'password' && key !== 'accessToken') {
+          settings.set(key, memorySettings[key]);
+        }
       }
     }
   } else {
@@ -198,8 +204,11 @@ module.exports = function() {
     retrieveSecret: function(type) {
       return keytar.getPassword('balloon', type);
     },
-    updateTraySecret: function(callee) {
+    setTraySecretCallback: function(callee) {
       traySecretUpdate = callee;
+    },
+    updateTraySecret: function() {
+      traySecretUpdate();
     },
     /**
      * @var string||array id node id(s) to ingore
