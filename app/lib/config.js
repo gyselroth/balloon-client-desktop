@@ -52,7 +52,7 @@ function initialize(syncMemory) {
   //If we do not have an active instance we're going to store any config in memory first
   if(activeInstance) {
     var instanceDir = path.join(configDir, activeInstance);
-    var configFile  = path.join(instanceDir, env.configFileName || 'config.json');
+    var configFile  = path.join(instanceDir, env.configFileName || 'config-'+env.name+'.json');
     configExists = fs.existsSync(configFile);
 
     if(!fs.existsSync(instanceDir)) {
@@ -167,8 +167,7 @@ module.exports = function() {
       }
     },
     setBlnUrl: function(url) {
-      var apiUrl = url + env.apiPath;
-
+      var apiUrl = url + (env.apiPath || '/api/v1');
       if(activeInstance) {
         settings.set('blnUrl', url);
         settings.set('apiUrl', apiUrl);
