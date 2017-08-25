@@ -144,6 +144,7 @@ ipcRenderer.on('unlink-account-result', (event, result) => {
 
 ipcRenderer.on('link-account-result', (event, result) => {
   showLogin = !result;
+  clientConfig.initialize(false);
   ipcRenderer.send('sync-toggle-pause');
 });
 

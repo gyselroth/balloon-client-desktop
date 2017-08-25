@@ -196,10 +196,10 @@ ipcMain.on('link-account', (event, id) => {
   startup.checkConfig().then(() => {
     clientConfig.set('disableAutoAuth', false);
     logger.info('Main: login successfull', clientConfig.getMulti(['disableAutoAuth', 'username', 'loggedin']));
-
-    if(env.name === 'production') {
+    clientConfig.updateTraySecret();
+    /*if(env.name === 'production') {
       startSync();
-    }
+    }*/
 
     tray.toggleState('loggedout', false);
     event.sender.send('link-account-result', true);

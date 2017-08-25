@@ -19,9 +19,10 @@ function initialize(syncMemory) {
   if(syncMemory === undefined) {
     syncMemory = true;
   }
-
+  
   instance.initialize();
   activeInstance = instance.getActiveInstance();
+
   var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
   var configDir;
   var balloonDir;

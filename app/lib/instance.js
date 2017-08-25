@@ -19,10 +19,13 @@ function initialize() {
   }
 
   instancesFile = path.join(configDir, 'instances.json');
+
   if(!fs.existsSync(instancesFile)) {
     instances = {};
   } else {
-    instances = require(instancesFile);
+    instances = JSON.parse(fs.readFileSync(instancesFile, 'utf8'));
+    //require() does caching?
+    //instances = require(instancesFile);
   }
 }
 
