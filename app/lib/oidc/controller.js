@@ -1,4 +1,4 @@
-const logger = require('../../lib/logger.js');
+const logger = require('../logger.js');
 const {AuthorizationRequest} = require('@openid/appauth/built/authorization_request.js');
 const {AuthorizationNotifier, AuthorizationRequestHandler, AuthorizationRequestResponse, BUILT_IN_PARAMETERS} = require('@openid/appauth/built/authorization_request_handler.js');
 const {AuthorizationResponse} = require('@openid/appauth/built/authorization_response.js');
@@ -69,7 +69,7 @@ module.exports = function (env, clientConfig) {
   }
 
   function fetchServiceConfiguration() {
-    return AuthorizationServiceConfiguration.fetchFromIssuer(idpConfig.discoveryUrl, requestor)
+    return AuthorizationServiceConfiguration.fetchFromIssuer(idpConfig.providerUrl, requestor)
         .then(response => {
           return response;
         });

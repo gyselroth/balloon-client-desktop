@@ -4,11 +4,6 @@ const {app, ipcMain} = require('electron');
 
 const env = require('./env.js');
 const clientConfig = require('./lib/config.js');
-
-if(env.commandLineSwitches && env.commandLineSwitches.authServerWhitelist) {
-  app.commandLine.appendSwitch('auth-server-whitelist', env.commandLineSwitches.authServerWhitelist);
-}
-
 const TrayCtrl = require('./ui/tray/controller.js');
 const SettingsCtrl = require('./ui/settings/controller.js');
 const SyncCtrl = require('./lib/sync/controller.js');

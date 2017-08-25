@@ -3,17 +3,14 @@ const path = require('path');
 
 const {session} = require('electron');
 
-const OidcCtrl = require('../../ui/oidc/controller.js');
+const OidcCtrl = require('../oidc/controller.js');
 const StartupCtrl = require('../../ui/startup/controller.js');
-const OauthCtrl = require('../../ui/oauth/controller.js');
 const logger = require('../logger.js');
 const instance = require('../instance.js');
 const fsUtility = require('../fs-utility.js');
 const syncFactory = require('@gyselroth/balloon-node-sync');
 
 module.exports = function(env, clientConfig) {
-  //TODO oauth deprecated, remove after oidc migration
-  var oauth = OauthCtrl(env, clientConfig);
   var oidc = OidcCtrl(env, clientConfig);
 
   function logout() {
@@ -29,7 +26,6 @@ module.exports = function(env, clientConfig) {
         resolve();
       })
 
-      //TODO raffis - logout needs to be reviewd after oauth gets removed (oidc replacement)
       //TODO raffis - https://github.com/openid/AppAuth-JS/issues/17
       //AppAuth doesnt fetch the revoke endpoint from the discovery, maybe fork&fix
     });
@@ -56,17 +52,6 @@ module.exports = function(env, clientConfig) {
 
   function oidcAuth(idpConfig) {
     return new Promise(function(resolve, reject) {
-      //TODO raffis - backwards compatibility, gets removed soon
-      if(idpConfig.responseType === 'token') {
-        return oauth.signin(idpConfig).then(() => {
-          verifyNewLogin().then((username) => {
-            resolve();
-          });
-        }).catch((error) => {
-          reject(error);
-        });
-      }
-    
       oidc.signin(idpConfig).then((authorization) => {
         if(authorization === true)  {
           verifyNewLogin().then((username) => {
