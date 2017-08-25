@@ -12,7 +12,7 @@ install:
   - ps: Install-Product node $env:nodejs_version x64
   - npm set progress=false
   - npm prune
-  - npm install
+  - npm update
   - npm run release-win
 
 branches:

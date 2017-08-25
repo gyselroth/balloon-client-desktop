@@ -18,12 +18,6 @@ os:
 notifications:
   email: false
 
-cache:
-  directories:
-  - $HOME/.cache/electron
-  - $HOME/.cache/electron-builder
-  - $HOME/.npm/_prebuilds
-
 addons:
   apt:
     packages:
@@ -31,6 +25,8 @@ addons:
       - libsecret-1-0
       - libsecret-1-dev
       - libgnome-keyring-dev
+
+before_script: npm update
 
 script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run release-linux; fi
