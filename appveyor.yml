@@ -8,11 +8,13 @@ deploy: off
 matrix:
   fast_finish: true
 
+cache:
+
 install:
   - ps: Install-Product node $env:nodejs_version x64
   - npm set progress=false
   - npm prune
-  - npm update
+  - npm install
   - npm run release-win
 
 branches:
