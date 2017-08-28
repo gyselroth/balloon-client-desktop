@@ -31,7 +31,7 @@ $(document).ready(function() {
       ipcRenderer.send('install-update');
     });
 
-    if(env.update && env.update.enable !== false) {
+    if(env.update && env.update.enable === true || !env.update || env.update.enable === undefined) {
       if(clientConfig.get('updateAvailable')) {
         $install.show();
         $check.hide();
