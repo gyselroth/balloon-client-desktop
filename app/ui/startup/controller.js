@@ -35,7 +35,7 @@ module.exports = function(env, clientConfig) {
 
   function enableAutoLaunch() {
     return new Promise(function(resolve, reject) {
-      if(!env.enableAutoLaunch) return resolve();
+      if(env.enableAutoLaunch === false) return resolve();
 
       balloonAutoLauncher.isEnabled().then(function(isEnabled) {
         if(!isEnabled) {
