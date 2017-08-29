@@ -78,9 +78,9 @@ module.exports = function() {
     });
   }
     
-  function createDataDir(balloonDir) {
+  function createDataDir(balloonDir, homeDir) {
     return new Promise(function(resolve, reject) {
-      fsUtility.createBalloonDir(balloonDir, (err) => {
+      fsUtility.createBalloonDir(balloonDir, homeDir, (err) => {
         if(err) return reject(err);
 
         logger.info('INSTANCE: createDataDir finished');
@@ -89,11 +89,11 @@ module.exports = function() {
     });
   }
 
-  function unarchiveDataDir(archiveDir, balloonDir) {
+  function unarchiveDataDir(archiveDir, balloonDir, homeDir) {
     logger.info('INSTANCE: unarchiveBalloonDir initialized', {archiveDir});
 
     return new Promise(function(resolve, reject) {
-      if(fs.existsSync(archiveDir) === false) return createDataDir(balloonDir)
+      if(fs.existsSync(archiveDir) === false) return createDataDir(balloonDir, homeDir)
 
       fs.rename(archiveDir, balloonDir, (err) => {
         if(err) return reject(err);
@@ -157,13 +157,13 @@ module.exports = function() {
       return new Promise(function(resolve, reject) {
         var instance = instances.instances[name];
         if(fs.existsSync(instance.balloonDir)) {
-          unarchiveDataDir(instance.balloonDir, clientConfig.get('balloonDir')).then(() => {
+          unarchiveDataDir(instance.balloonDir, clientConfig.get('balloonDir'), clientConfig.get('homeDir')).then(() => {
             switchInstance();
             resolve();
           }).catch(reject);
         } else {
           if(fs.existsSync(clientConfig.get('balloonDir')) === false) {
-            createDataDir(clientConfig.get('balloonDir')).then(() => {
+            createDataDir(clientConfig.get('balloonDir'), clientConfig.get('homeDir')).then(() => {
               switchInstance();
               resolve();
             }).catch(reject);

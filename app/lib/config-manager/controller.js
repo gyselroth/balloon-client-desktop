@@ -59,7 +59,7 @@ module.exports = function(clientConfig) {
         fsUtility.rmdirp(pathBalloonDir, cb);
       },
       (cb) => {
-        fsUtility.createBalloonDir(pathBalloonDir, cb);
+        fsUtility.createBalloonDir(pathBalloonDir, clientConfig.get('homeDir'), cb);
       }
     ], (err) => {
       if(err) {

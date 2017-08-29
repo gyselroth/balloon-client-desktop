@@ -105,8 +105,7 @@ module.exports = function(env, clientConfig) {
 
   function createBalloonDir() {
     return new Promise(function(resolve, reject) {
-      var balloonDir = clientConfig.get('balloonDir');
-      fsUtility.createBalloonDir(balloonDir, (err) => {
+      fsUtility.createBalloonDir(clientConfig.get('balloonDir'), clientConfig.get('homeDir'), (err) => {
         if(err) {
           logger.error('Startup:', {err});
           reject(err);
