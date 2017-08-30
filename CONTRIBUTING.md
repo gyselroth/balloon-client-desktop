@@ -72,9 +72,9 @@ The following configuration options are available
 * `name` String (optional) - the name of the context. `production` or `development`. Default: `production`
 * `blnUrl` String (optional) - the url under which your Balloon installation is running. If not set user will be prompted to enter URL on first start (eg: `https://example-balloon.io`)
 * `apiPath` String (optional) - the path to the API Default: `'/api/v1/'`
-* `configDir` String (optional) - path to the directory where configuration is stored on the client. You can use {HOME} which gets replaced with the current home directory. Default: `{HOME}/.balloon`
+* `configDir` String (optional) - path to the directory where configuration is stored on the client. You can use {home} which gets replaced with the current home directory. Default: `{home}/.balloon`
 * `configFileName` String (optional) - name of the configuration file inside `configDirName`. Default: `config.json`
-* `balloonDir` String (optional) - default path to the directory where the synced files are saved. You can use {GOME} which gets replaced with the current home directory. Default: `{HOME}/Balloon`
+* `balloonDir` String (optional) - default path to the directory where the synced files are saved. You can use {home} which gets replaced with the current home directory. Default: `{home}/Balloon`
 * `log` Object (optional) - logging configuration
   * `level` String (optional) - Maximum level that should be logged. Default: `info`. Available levels: `{error: 3, warning: 4, notice: 5, info: 6, debug: 7}`
   * `maxsize` Integer (optional) - max size of a single lg file. Default: `10000000`
@@ -87,6 +87,7 @@ The following configuration options are available
   * `enable` Boolean (optional) - Enables automatic (and manual) updates - Default: `true`
   * `checkInterval` Integer (optional) - Interval in days the client should check for updates. A first check is always done on app start. Default: `7`
 * `auth`: Object (optional) - authentication configuration
+  * `secretStore` String (optional) - Credential storage, Either config or keytar (OS keychain). Default: `keytar`
   * `basic` Boolean (optional) - Enabled basic authentication (username/password), be sure that your server has basic authentication enabled
   * `oidc` Array (optional) - Configure multiple OpenID-connect provider, be sure that your server also supports those oidc provider
     * `provider` String (required) Name of the OpenID-connect provider

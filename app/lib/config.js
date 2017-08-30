@@ -29,13 +29,13 @@ function initialize(syncMemory) {
   var newSettings = {};
 
   if(env.configDir) {
-    configDir = env.configDir.replace('{HOME}', homeDir);
+    configDir = env.configDir.replace('{home}', homeDir);
   } else {
     configDir = path.join(homeDir, '.balloon');
   }
   
   if(env.balloonDir) {
-    balloonDir = env.balloonDir.replace('{HOME}', homeDir);
+    balloonDir = env.balloonDir.replace('{home}', homeDir);
   } else {
     balloonDir = path.join(homeDir, 'Balloon');
   }
@@ -87,7 +87,7 @@ function initialize(syncMemory) {
     settings.setAll(newSettings);
     if(syncMemory) {
       for(key in memorySettings) {
-        if(key !== 'password' && key !== 'accessToken') {
+        if(env.auth && env.auth.secretStore === 'config' || (key !== 'password' && key !== 'accessToken') ) {
           settings.set(key, memorySettings[key]);
         }
       }
@@ -117,6 +117,22 @@ module.exports = function() {
 
   var secret, traySecretUpdate;
 
+  function set(key, value) {
+    if(activeInstance) {
+      settings.set(key, value);
+    } else {
+      memorySettings[key] = value;
+    }
+  }
+    
+  function get(key) {
+    if(activeInstance) {
+      return settings.get(key);
+    } else {
+      return memorySettings[key];
+    }
+  }
+
   return {
     isActiveInstance: function() {
       return instance.getActiveInstance();
@@ -136,13 +152,7 @@ module.exports = function() {
       }
       return conf;
     },
-    get: function(key) {
-      if(activeInstance) {
-        return settings.get(key);
-      } else {
-        return memorySettings[key];
-      }
-    },
+    get,
     getMulti: function(keys) {
       var valuesToReturn = {};
       keys.forEach((key) => {
@@ -159,13 +169,7 @@ module.exports = function() {
         settings.set(key, newSettings[key]);
       }
     },
-    set: function(key, value) {
-      if(activeInstance) {
-        settings.set(key, value);
-      } else {
-        memorySettings[key] = value = value;
-      }
-    },
+    set,
     setBlnUrl: function(url) {
       var apiUrl = url + (env.apiPath || '/api/v1');
       if(activeInstance) {
@@ -194,15 +198,31 @@ module.exports = function() {
     destroySecret: function(type) {
       secret = undefined;
       traySecretUpdate();
-      return keytar.deletePassword('balloon', type);
+      
+      if(!env.auth || !env.auth.secretStore || env.auth.secretStore === 'keytar') {
+        return keytar.deletePassword('balloon', type);
+      } else if(env.auth.secretStore === 'config') {
+        set(type, undefined);
+        return Promise.resolve();
+      }
     },
     storeSecret: function(type, key) {
       secret = key;
       traySecretUpdate();
-      return keytar.setPassword('balloon', type, key);
+
+      if(!env.auth || !env.auth.secretStore || env.auth.secretStore === 'keytar') {
+        return keytar.setPassword('balloon', type, key);
+      } else if(env.auth.secretStore === 'config') {
+        set(type, key);
+        return Promise.resolve();
+      }
     },
     retrieveSecret: function(type) {
-      return keytar.getPassword('balloon', type);
+      if(!env.auth || !env.auth.secretStore || env.auth.secretStore === 'keytar') {
+        return keytar.getPassword('balloon', type);
+      } else if(env.auth.secretStore === 'config') {
+        return Promise.resolve(get(type));
+      }
     },
     setTraySecretCallback: function(callee) {
       traySecretUpdate = callee;
