@@ -87,7 +87,7 @@ The following configuration options are available
   * `enable` Boolean (optional) - Enables automatic (and manual) updates - Default: `true`
   * `checkInterval` Integer (optional) - Interval in days the client should check for updates. A first check is always done on app start. Default: `7`
 * `auth`: Object (optional) - authentication configuration
-  * `secretStore` String (optional) - Credential storage, Either config or keytar (OS keychain). Default: `keytar`
+  * `secretStorage` String (optional) - Credential storage, Either config or keytar (OS keychain). Default: `keytar`
   * `basic` Boolean (optional) - Enabled basic authentication (username/password), be sure that your server has basic authentication enabled
   * `oidc` Array (optional) - Configure multiple OpenID-connect provider, be sure that your server also supports those oidc provider
     * `provider` String (required) Name of the OpenID-connect provider

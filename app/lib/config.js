@@ -87,7 +87,7 @@ function initialize(syncMemory) {
     settings.setAll(newSettings);
     if(syncMemory) {
       for(key in memorySettings) {
-        if(env.auth && env.auth.secretStore === 'config' || (key !== 'password' && key !== 'accessToken') ) {
+        if(env.auth && env.auth.secretStorage === 'config' || (key !== 'password' && key !== 'accessToken') ) {
           settings.set(key, memorySettings[key]);
         }
       }
@@ -199,9 +199,9 @@ module.exports = function() {
       secret = undefined;
       traySecretUpdate();
       
-      if(!env.auth || !env.auth.secretStore || env.auth.secretStore === 'keytar') {
+      if(!env.auth || !env.auth.secretStorage || env.auth.secretStorage === 'keytar') {
         return keytar.deletePassword('balloon', type);
-      } else if(env.auth.secretStore === 'config') {
+      } else if(env.auth.secretStorage === 'config') {
         set(type, undefined);
         return Promise.resolve();
       }
@@ -210,17 +210,17 @@ module.exports = function() {
       secret = key;
       traySecretUpdate();
 
-      if(!env.auth || !env.auth.secretStore || env.auth.secretStore === 'keytar') {
+      if(!env.auth || !env.auth.secretStorage || env.auth.secretStorage === 'keytar') {
         return keytar.setPassword('balloon', type, key);
-      } else if(env.auth.secretStore === 'config') {
+      } else if(env.auth.secretStorage === 'config') {
         set(type, key);
         return Promise.resolve();
       }
     },
     retrieveSecret: function(type) {
-      if(!env.auth || !env.auth.secretStore || env.auth.secretStore === 'keytar') {
+      if(!env.auth || !env.auth.secretStorage || env.auth.secretStorage === 'keytar') {
         return keytar.getPassword('balloon', type);
-      } else if(env.auth.secretStore === 'config') {
+      } else if(env.auth.secretStorage === 'config') {
         return Promise.resolve(get(type));
       }
     },
