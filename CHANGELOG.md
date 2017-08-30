@@ -6,4 +6,4 @@
 * CORE: [FEATURE] Adds balloon folder icon on linux
 * CORE: [FEATURE] Adds balloon bookmark on linux (.config/gtk-3.0/bookmarks, read by nautilus)
 * UI: [FIX] Update action is now visible again under menu/about
-* DISTRIBUTION: [FEATIURE] Builds for Mac OSX are now signed therefore autoupdate should for for it
+* DISTRIBUTION: [FEATURE] Builds for Mac OSX are now signed therefore autoupdate should for for it
