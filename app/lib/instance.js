@@ -13,7 +13,7 @@ function initialize() {
   var configDir;
 
   if(env.configDir) {
-    configDir = env.configDir.replace('{HOME}', homeDir);
+    configDir = env.configDir.replace('{home}', homeDir);
   } else {
     configDir = path.join(homeDir, '.balloon');
   }
