@@ -58,11 +58,17 @@ module.exports = function(env, clientConfig) {
             resolve();
           }).catch((error) => {
             clientConfig.set('oidcProvider', undefined);
-            logger.error('AUTH: failed signin via oidc', {error});
+            logger.error('AUTH: failed signin new authorization via oidc', {error});
             reject(error)
           });
         } else {
-          resolve();
+          verifyAuthentication().then((username) => {
+            resolve();
+          }).catch((error) => {
+            clientConfig.set('oidcProvider', undefined);
+            logger.error('AUTH: failed signin via oidc', {error});
+            reject(error)
+          });
         }
       });
     });
@@ -99,8 +105,12 @@ module.exports = function(env, clientConfig) {
             });
           } else {
             var idpConfig = getIdPByName(oidcProvider);
-            startup().then(() => {
+            oidcAuth(idpConfig).then(() => {
               resolve();
+            }).catch(() => {
+              startup().then(() => {
+                resolve();
+              });
             });
           }
         } else {

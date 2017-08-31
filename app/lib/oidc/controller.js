@@ -32,7 +32,12 @@ module.exports = function (env, clientConfig) {
           clientConfig.retrieveSecret('refreshToken').then((secret) => {
             logger.info('found refreshToken, trying to request new access token')
             makeAccessTokenRequest(configuration, secret).then((response) => {
-              resolve();
+              clientConfig.storeSecret('accessToken', response.accessToken).then(() => {
+                clientConfig.set('accessTokenExpires', response.issuedAt + response.expiresIn);
+                resolve();
+              }).catch((error) => {
+                reject(error)
+              });
             }).catch((error) => {
               logger.info('failed to retrieve accessToken, request new refreshToken', {error});
               makeAuthorizationRequest(config).then((error) => {

@@ -145,6 +145,10 @@ ipcMain.on('sync-complete', () => {
 });
 
 ipcMain.on('sync-toggle-pause', () => {
+  if(!sync) {
+    return tray.syncPaused();
+  }
+
   tray.toggleState('pause', !sync.isPaused());
   sync.togglePause();
 });

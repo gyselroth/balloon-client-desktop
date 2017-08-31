@@ -38,7 +38,7 @@ module.exports = function(env, clientConfig, sync) {
 
     aboutWindow = new BrowserWindow({
       width: 300,
-      height: 350,
+      height: 360,
       show: false,
       frame: true,
       fullscreenable: false,

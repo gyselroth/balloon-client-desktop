@@ -15,7 +15,7 @@ var configExists   = false;
 var activeInstance = false;
 var memorySettings = {};
 
-function initialize(syncMemory) {
+function initialize(syncMemory, mainSync) {
   if(syncMemory === undefined) {
     syncMemory = true;
   }
@@ -84,17 +84,20 @@ function initialize(syncMemory) {
     }
   }
 
-  if(activeInstance) {
-    settings.setAll(newSettings);
-    if(syncMemory) {
-      for(key in memorySettings) {
-        if(env.auth && env.auth.secretStorage === 'config' || (key !== 'password' && key !== 'accessToken') ) {
-          settings.set(key, memorySettings[key]);
+  //only write default or startup settings in <main>  
+  if(process.type === 'browser') {
+    if(activeInstance) {
+      settings.setAll(newSettings);
+      if(syncMemory) {
+        for(key in memorySettings) {
+          if(env.auth && env.auth.secretStorage === 'config' || (key !== 'password' && key !== 'accessToken') ) {
+            settings.set(key, memorySettings[key]);
+          }
         }
       }
+    } else {
+      memorySettings = newSettings;
     }
-  } else {
-    memorySettings = newSettings;
   }
 }
 
