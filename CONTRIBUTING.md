@@ -72,9 +72,9 @@ The following configuration options are available
 * `name` String (optional) - the name of the context. `production` or `development`. Default: `production`
 * `blnUrl` String (optional) - the url under which your Balloon installation is running. If not set user will be prompted to enter URL on first start (eg: `https://example-balloon.io`)
 * `apiPath` String (optional) - the path to the API Default: `'/api/v1/'`
-* `configDir` String (optional) - path to the directory where configuration is stored on the client. You can use {home} which gets replaced with the current home directory. Default: `{home}/.balloon`
+* `configDir` String (optional) - path to the directory where configuration is stored on the client. You can use {home}/{username} which gets replaced with the current home directory/local username. Default: `{home}/.balloon`
 * `configFileName` String (optional) - name of the configuration file inside `configDirName`. Default: `config.json`
-* `balloonDir` String (optional) - default path to the directory where the synced files are saved. You can use {home} which gets replaced with the current home directory. Default: `{home}/Balloon`
+* `balloonDir` String (optional) - default path to the directory where the synced files are saved. You can use {home}/{username} which gets replaced with the current home directory/local username. Default: `{home}/Balloon`
 * `log` Object (optional) - logging configuration
   * `level` String (optional) - Maximum level that should be logged. Default: `info`. Available levels: `{error: 3, warning: 4, notice: 5, info: 6, debug: 7}`
   * `maxsize` Integer (optional) - max size of a single lg file. Default: `10000000`

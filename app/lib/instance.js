@@ -10,10 +10,12 @@ var instancesFile;
 
 function initialize() {
   var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
+  var user = process.env[(/^win/.test(process.platform)) ? 'USERNAME' : 'USER'];
+
   var configDir;
 
   if(env.configDir) {
-    configDir = env.configDir.replace('{home}', homeDir);
+    configDir = env.configDir.replace('{home}', homeDir).replace('{username}', user);
   } else {
     configDir = path.join(homeDir, '.balloon');
   }

@@ -24,18 +24,19 @@ function initialize(syncMemory) {
   activeInstance = instance.getActiveInstance();
 
   var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
+  var user = process.env[(/^win/.test(process.platform)) ? 'USERNAME' : 'USER'];
   var configDir;
   var balloonDir;
   var newSettings = {};
 
   if(env.configDir) {
-    configDir = env.configDir.replace('{home}', homeDir);
+    configDir = env.configDir.replace('{home}', homeDir).replace('{username}', user);
   } else {
     configDir = path.join(homeDir, '.balloon');
   }
   
   if(env.balloonDir) {
-    balloonDir = env.balloonDir.replace('{home}', homeDir);
+    balloonDir = env.balloonDir.replace('{home}', homeDir).replace('{username}', user);
   } else {
     balloonDir = path.join(homeDir, 'Balloon');
   }
