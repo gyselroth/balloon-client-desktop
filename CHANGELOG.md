@@ -1,3 +1,11 @@
+## 0.0.28
+**Maintainer**: balloon-team <maint@gyselroth.com>\
+**Date**: Wed September 6 15:15:29 WEST 2017
+
+* CORE: [FIX] It is now possible to use localhost or an IP as bln url
+* CORE: [FIX] Enable Copy&Paste on OSX
+* CORE: [FEATURE] Update balloon-node-sync
+
 ## 0.0.27
 **Maintainer**: balloon-team <maint@gyselroth.com>\
 **Date**: Wed Augist 30 15:04:32 CEST 2017
