@@ -203,6 +203,7 @@ module.exports = function(env, clientConfig, sync) {
     }
 
     var metaData = {
+      version: app.getVersion(),
       hasToken: clientConfig.get('accessToken') !== undefined,
       lastCursor: getLastCursor(),
       date: {
