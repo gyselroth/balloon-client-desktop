@@ -12,6 +12,7 @@ const AuthCtrl = require('./lib/auth/controller.js');
 const AutoUpdateCtrl = require('./lib/auto-update/controller.js');
 const FeedbackCtrl = require('./ui/feedback/controller.js');
 const AboutCtrl = require('./ui/about/controller.js');
+const setMenu = require('./lib/menu.js');
 
 const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
@@ -42,6 +43,9 @@ if(shouldQuit === true) {
 
 app.on('ready', function () {
   logger.info('App ready');
+
+  setMenu();
+
   auth.retrieveLoginSecret().then(() => {
     ipcMain.once('tray-online-state-changed', function(event, state) {
       if(clientConfig.hadConfig()) {

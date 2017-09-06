@@ -1,4 +1,15 @@
 {
+  "menu.app": "Balloon",
+  "menu.app.about": "Über Balloon",
+  "menu.app.quit": "Balloon beenden",
+  "menu.edit": "Bearbeiten",
+  "menu.edit.undo": "Wiederrufen",
+  "menu.edit.redo": "Wiederholen",
+  "menu.edit.cut": "Ausschneiden",
+  "menu.edit.copy": "Kopieren",
+  "menu.edit.paste": "Einfügen",
+  "menu.edit.select": "Alles auswählen",
+
   "tray.item.gotofolder": "Balloon Ordner öffnen",
   "tray.item.openinbrowser": "Balloon online besuchen",
   "tray.item.installupdate": "Update installieren",
