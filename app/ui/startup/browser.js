@@ -78,24 +78,20 @@ function verifyServer() {
   var blnUrl = $blnUrlField.val();
   $blnUrlInvalidMessage.hide();
   $blnUrlNotreachableMessage.hide();
-  
-  if(blnUrl && /^(https?:\/\/)?[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+/.test(blnUrl)) {
-    if(/^https:\/\/?/.test(blnUrl) === false) {
-      blnUrl = 'https://' + blnUrl;
-    }
 
-    var apiPingUrl = blnUrl + (env.apiPath || '/api/v1');
-
-    request.get(apiPingUrl, {timeout: 2000}, (err, result) => {
-      if(err || result.statusCode !== 401) {
-        $blnUrlNotreachableMessage.show();
-      } else {
-        ipcRenderer.send('startup-server-continue', blnUrl);
-      }
-    });
-  } else {
-    $blnUrlInvalidMessage.show();
+  if(/^https?:\/\//.test(blnUrl) === false) {
+    blnUrl = 'https://' + blnUrl;
   }
+
+  var apiPingUrl = blnUrl + (env.apiPath || '/api/v1');
+
+  request.get(apiPingUrl, {timeout: 2000}, (err, result) => {
+    if(err || result.statusCode !== 401) {
+      $blnUrlNotreachableMessage.show();
+    } else {
+      ipcRenderer.send('startup-server-continue', blnUrl);
+    }
+  });
 }
 
 function welcome() {
