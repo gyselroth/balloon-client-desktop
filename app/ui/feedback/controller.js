@@ -128,65 +128,65 @@ module.exports = function(env, clientConfig, sync) {
       });
 
       if(file === true) {
-      archive.pipe(req);
+        archive.pipe(req);
 
-      var snycLogPath = path.join(clientConfig.get('configDir'), 'sync.log');
-      if(fs.existsSync(snycLogPath)) {
-        archive.append(fs.createReadStream(snycLogPath), { name: 'report/sync.log' });
-      }
-
-      var errorLogPath = path.join(clientConfig.get('configDir'), 'error.log');
-      if(fs.existsSync(errorLogPath)) {
-        archive.append(fs.createReadStream(errorLogPath), { name: 'report/error.log' });
-      }
-
-      var dbPath = path.join(clientConfig.get('configDir'), 'db', 'nodes.db');
-      if(fs.existsSync(dbPath)) {
-        archive.append(fs.createReadStream(dbPath), { name: 'report/nodes.db' });
-      }
-
-      var errorDbPath = path.join(clientConfig.get('configDir'), 'db', 'api-error-queue.db');
-      if(fs.existsSync(errorDbPath)) {
-        archive.append(fs.createReadStream(errorDbPath), { name: 'report/api-error-queue.db' });
-      }
-
-      var transferDbPath = path.join(clientConfig.get('configDir'), 'db', 'transfer.db');
-      if(fs.existsSync(transferDbPath)) {
-        archive.append(fs.createReadStream(transferDbPath), { name: 'report/transfer.db' });
-      }
-
-      var remoteDeltaLogDbPath = path.join(clientConfig.get('configDir'), 'db', 'remotedelta-log.db');
-      if(fs.existsSync(remoteDeltaLogDbPath)) {
-        archive.append(fs.createReadStream(remoteDeltaLogDbPath), { name: 'report/remotedelta-log.db' });
-      }
-
-      archive.append(getMetaData(), {name: 'report/metadata.json'});
-
-      async.parallel([
-        (cb) => {
-          createDirectorySnapshot((err, snapshot) => {
-            if(err) return cb(err);
-
-            archive.append(snapshot, {name: 'report/snapshot.json'});
-
-            cb(null);
-          })
-        },
-        (cb) => {
-          fsInfo(clientConfig.get('balloonDir'), (err, result) => {
-            if(err) return cb(err);
-
-            archive.append(result, { name: 'report/fs.txt' });
-
-            return cb(null);
-          });
-
+        var snycLogPath = path.join(clientConfig.get('configDir'), 'sync.log');
+        if(fs.existsSync(snycLogPath)) {
+          archive.append(fs.createReadStream(snycLogPath), { name: 'report/sync.log' });
         }
-      ], (err, results) => {
-        if(err) return reject(err);
 
-        archive.finalize();
-      });
+        var errorLogPath = path.join(clientConfig.get('configDir'), 'error.log');
+        if(fs.existsSync(errorLogPath)) {
+          archive.append(fs.createReadStream(errorLogPath), { name: 'report/error.log' });
+        }
+
+        var dbPath = path.join(clientConfig.get('configDir'), 'db', 'nodes.db');
+        if(fs.existsSync(dbPath)) {
+          archive.append(fs.createReadStream(dbPath), { name: 'report/nodes.db' });
+        }
+
+        var errorDbPath = path.join(clientConfig.get('configDir'), 'db', 'api-error-queue.db');
+        if(fs.existsSync(errorDbPath)) {
+          archive.append(fs.createReadStream(errorDbPath), { name: 'report/api-error-queue.db' });
+        }
+
+        var transferDbPath = path.join(clientConfig.get('configDir'), 'db', 'transfer.db');
+        if(fs.existsSync(transferDbPath)) {
+          archive.append(fs.createReadStream(transferDbPath), { name: 'report/transfer.db' });
+        }
+
+        var remoteDeltaLogDbPath = path.join(clientConfig.get('configDir'), 'db', 'remotedelta-log.db');
+        if(fs.existsSync(remoteDeltaLogDbPath)) {
+          archive.append(fs.createReadStream(remoteDeltaLogDbPath), { name: 'report/remotedelta-log.db' });
+        }
+
+        archive.append(getMetaData(), {name: 'report/metadata.json'});
+
+        async.parallel([
+          (cb) => {
+            createDirectorySnapshot((err, snapshot) => {
+              if(err) return cb(err);
+
+              archive.append(snapshot, {name: 'report/snapshot.json'});
+
+              cb(null);
+            })
+          },
+          (cb) => {
+            fsInfo(clientConfig.get('balloonDir'), (err, result) => {
+              if(err) return cb(err);
+
+              archive.append(result, { name: 'report/fs.txt' });
+
+              return cb(null);
+            });
+
+          }
+        ], (err, results) => {
+          if(err) return reject(err);
+
+          archive.finalize();
+        });
       }
     });
   }
