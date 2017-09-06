@@ -15,10 +15,6 @@ install:
   - npm install
   - npm run release-win
 
-branches:
-  only:
-    - master
-
 test_script:
   - node --version
   - npm --version
