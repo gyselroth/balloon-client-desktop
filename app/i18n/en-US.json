@@ -1,4 +1,15 @@
 {
+  "menu.app": "Balloon",
+  "menu.app.about": "About Balloon",
+  "menu.app.quit": "Quit Balloon",
+  "menu.edit": "Edit",
+  "menu.edit.undo": "Undo",
+  "menu.edit.redo": "Redo",
+  "menu.edit.cut": "Cut",
+  "menu.edit.copy": "Copy",
+  "menu.edit.paste": "Paste",
+  "menu.edit.select": "Select all",
+
   "tray.item.gotofolder": "Open Balloon folder",
   "tray.item.openinbrowser": "Visit Balloon online",
   "tray.item.installupdate": "Install update",
