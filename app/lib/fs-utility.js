@@ -6,6 +6,8 @@ const prependFile = require('prepend-file');
 const mkdirp = require('mkdirp');
 const rimraf = require('rimraf');
 
+const env = require('../env.js');
+
 module.exports = {
   createBalloonDir: function(balloonDir, homeDir, callback) {
     this.mkdirp(balloonDir, (err) => {
@@ -54,6 +56,13 @@ module.exports = {
   },
 
   setDirShortcut: function(balloonDir, homeDir) {
+    var resourcesPath;
+    if(process.defaultApp) {
+      resourcesPath = path.resolve(__dirname, '../../');
+    } else {
+      resourcesPath = path.resolve(process.resourcesPath);
+    }
+
     switch(process.platform) {
       case 'linux':
         var gtk = path.join(homeDir, '.config', 'gtk-3.0');
@@ -65,15 +74,25 @@ module.exports = {
               if(data.indexOf('file://'+balloonDir+"\n") === -1){
                 prependFile(bookmarks, 'file://'+balloonDir+"\n", function (err) {
                   if (err) throw err;
-                });          
+                });
               }
             })
           } else {
             fs.writeFile(bookmarks, 'file://'+balloonDir+"\n", function (err) {
               if (err) throw err;
-            });          
+            });
           }
         }
+      break;
+      case 'win32':
+        if(!env.winClsId) return;
+
+        exec([
+          path.resolve(resourcesPath, 'resources/shortcut/win.cmd'),
+          balloonDir,
+          path.resolve(resourcesPath, 'resources/diricon/icon.ico'),
+          env.winClsId
+        ].join(' '));
       break;
     }
   },
