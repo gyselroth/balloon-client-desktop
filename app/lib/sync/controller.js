@@ -66,6 +66,12 @@ module.exports = function(env, tray) {
 
           resolve();
         });
+
+        ipcMain.once('sync-error', (event, error, url, line) => {
+          stopPowerSaveBlocker();
+
+          resolve();
+        });
       });
     } else {
       stopPowerSaveBlocker();
