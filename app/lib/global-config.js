@@ -3,21 +3,13 @@ const path = require('path');
 
 const env = require('../env.js');
 const fsUtility = require('./fs-utility.js');
+const paths = require('./paths.js');
 
 let configFile;
 let config = {};
 
 function initialize() {
-  const homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
-  const user = process.env[(/^win/.test(process.platform)) ? 'USERNAME' : 'USER'];
-  let configDir;
-
-
-  if(env.configDir) {
-    configDir = env.configDir.replace('{home}', homeDir).replace('{username}', user);
-  } else {
-    configDir = path.join(homeDir, '.balloon');
-  }
+  configDir = paths.getConfigDir();
 
   fsUtility.createConfigDir(configDir);
 

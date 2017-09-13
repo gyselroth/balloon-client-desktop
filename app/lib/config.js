@@ -9,6 +9,7 @@ const keytar = require('keytar');
 const env = require('../env.js');
 const instance = require('./instance.js');
 const fsUtility = require('./fs-utility.js');
+const paths = require('./paths.js');
 
 var configExists   = false;
 var activeInstance = false;
@@ -18,33 +19,20 @@ function initialize(syncMemory, mainSync) {
   if(syncMemory === undefined) {
     syncMemory = true;
   }
-  
+
   instance.initialize();
   activeInstance = instance.getActiveInstance();
 
-  var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
-  var user = process.env[(/^win/.test(process.platform)) ? 'USERNAME' : 'USER'];
-  var configDir;
-  var balloonDir;
   var newSettings = {};
 
-  if(env.configDir) {
-    configDir = env.configDir.replace('{home}', homeDir).replace('{username}', user);
-  } else {
-    configDir = path.join(homeDir, '.balloon');
-  }
-
-  if(env.balloonDir) {
-    balloonDir = env.balloonDir.replace('{home}', homeDir).replace('{username}', user);
-  } else {
-    balloonDir = path.join(homeDir, 'Balloon');
-  }
+  var configDir = paths.getConfigDir();
+  var balloonDir = paths.getBalloonDir();
 
   fsUtility.createConfigDir(configDir);
 
   //If we do not have an active instance we're going to store any config in memory first
   if(activeInstance) {
-    var instanceDir = path.join(configDir, activeInstance);
+    var instanceDir = paths.getInstanceDir(activeInstance);
     var configFile  = path.join(instanceDir, env.configFileName || 'config-'+env.name+'.json');
     configExists = fs.existsSync(configFile);
 
@@ -62,7 +50,7 @@ function initialize(syncMemory, mainSync) {
   }
 
   newSettings.configDir  = newSettings.configDir || configDir;
-  newSettings.homeDir    = newSettings.homeDir || homeDir;
+  newSettings.homeDir    = newSettings.homeDir || paths.homeDir();
   newSettings.balloonDir = newSettings.balloonDir || balloonDir;
   newSettings.context    = env.name || 'production';
 

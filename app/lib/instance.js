@@ -3,24 +3,14 @@ const path = require('path');
 const settings = require('electron-settings');
 const env = require('../env.js');
 const fsUtility = require('./fs-utility.js');
-const logger = require('./logger.js')
+const logger = require('./logger.js');
+const paths = require('./paths.js');
 
 var instances = {};
 var instancesFile;
 
 function initialize() {
-  var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
-  var user = process.env[(/^win/.test(process.platform)) ? 'USERNAME' : 'USER'];
-
-  var configDir;
-
-  if(env.configDir) {
-    configDir = env.configDir.replace('{home}', homeDir).replace('{username}', user);
-  } else {
-    configDir = path.join(homeDir, '.balloon');
-  }
-
-  instancesFile = path.join(configDir, 'instances.json');
+  instancesFile = paths.getInstancesFile();
 
   if(!fs.existsSync(instancesFile)) {
     instances = {};
@@ -107,18 +97,17 @@ module.exports = function() {
   }
 
   function getNewInstanceName() {
+    var configDir = paths.getConfigDir();
     var versionString = 'instance-';
     var versionNumber = 1;
-    var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
-    var configDirName = env.configDirName || '.balloon';
     var instancePath;
-      
+
     while(true) {
-      var instancePath = path.join(homeDir, configDirName, versionString + versionNumber);
-      
+      var instancePath = path.join(configDir, versionString + versionNumber);
+
       if(!fs.existsSync(instancePath)) {
         return versionString + versionNumber;
-      } 
+      }
       versionNumber++;
     }
   }
