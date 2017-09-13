@@ -4,6 +4,7 @@ const {app, ipcMain} = require('electron');
 
 const env = require('./env.js');
 const clientConfig = require('./lib/config.js');
+const migrate = require('./lib/migrate.js');
 const TrayCtrl = require('./ui/tray/controller.js');
 const SettingsCtrl = require('./ui/settings/controller.js');
 const SyncCtrl = require('./lib/sync/controller.js');
@@ -41,11 +42,7 @@ if(shouldQuit === true) {
   return;
 }
 
-app.on('ready', function () {
-  logger.info('App ready');
-
-  setMenu();
-
+function startApp() {
   auth.retrieveLoginSecret().then(() => {
     ipcMain.once('tray-online-state-changed', function(event, state) {
       if(clientConfig.hadConfig()) {
@@ -57,7 +54,7 @@ app.on('ready', function () {
       clientConfig.set('onLineState', state);
       startup.checkConfig().then(() => {
         logger.info('startup checkconfig successfull');
-      
+
         if(!tray.isRunning()) {
           tray.create();
         }
@@ -94,6 +91,19 @@ app.on('ready', function () {
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray, about);
     feedback = FeedbackCtrl(env, clientConfig, sync);
   });
+}
+
+app.on('ready', function () {
+  logger.info('App ready');
+
+  setMenu();
+
+  migrate().then(result => {
+    startApp();
+  }).catch(err => {
+    logger.error('Main: error during migration, quitting app', {err: err});
+    app.quit();
+  })
 });
 
 /** Main App **/

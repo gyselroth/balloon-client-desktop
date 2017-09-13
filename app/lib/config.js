@@ -1,6 +1,5 @@
 const fs = require('graceful-fs');
 const path = require('path');
-const childProcess = require('child_process');
 
 const electron = require('electron');
 const settings = require('electron-settings');
@@ -34,22 +33,15 @@ function initialize(syncMemory, mainSync) {
   } else {
     configDir = path.join(homeDir, '.balloon');
   }
-  
+
   if(env.balloonDir) {
     balloonDir = env.balloonDir.replace('{home}', homeDir).replace('{username}', user);
   } else {
     balloonDir = path.join(homeDir, 'Balloon');
   }
 
-  if(!fs.existsSync(configDir)) {
-    fsUtility.mkdirpSync(configDir);
+  fsUtility.createConfigDir(configDir);
 
-    if(process.platform === 'win32') {
-      //"Hide" configDir on win32
-      childProcess.execSync('ATTRIB +H ' + configDir);
-    }
-  }
-  
   //If we do not have an active instance we're going to store any config in memory first
   if(activeInstance) {
     var instanceDir = path.join(configDir, activeInstance);

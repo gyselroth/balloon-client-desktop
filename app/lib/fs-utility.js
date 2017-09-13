@@ -1,6 +1,6 @@
 const fs = require('graceful-fs');
 const path = require('path');
-const {exec} = require('child_process');
+const {exec, execSync} = require('child_process');
 const logger = require('./logger.js');
 const prependFile = require('prepend-file');
 const mkdirp = require('mkdirp');
@@ -18,6 +18,17 @@ module.exports = {
 
       callback(null);
     });
+  },
+
+  createConfigDir: function(configDir) {
+    if(!fs.existsSync(configDir)) {
+      this.mkdirpSync(configDir);
+
+      if(process.platform === 'win32') {
+        //"Hide" configDir on win32
+        execSync('ATTRIB +H ' + configDir);
+      }
+    }
   },
 
   setDirIcon: function(balloonDir) {
