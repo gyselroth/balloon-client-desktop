@@ -1,3 +1,12 @@
+## 0.0.29-dev
+**Maintainer**: balloon-team <maint@gyselroth.com>\
+**Date**: 
+
+* CORE: [FEATURE] Add migration framework
+* CORE: [FIX] Fix ino collisions on windows
+* CORE: [FEATURE] Add Balloon dir shortcut in windows explorer left pane
+
+
 ## 0.0.28
 **Maintainer**: balloon-team <maint@gyselroth.com>\
 **Date**: Wed September 6 15:15:29 WEST 2017
