@@ -17,6 +17,10 @@ module.exports = function(env, clientConfig) {
     logger.info('AUTH: logout initialized');
 
     return new Promise(function(resolve, reject) {
+      if(clientConfig.get('authMethod') === 'oidc' && clientConfig.get('oidcProvider')) {
+        oidc.revokeToken(getIdPByName(clientConfig.get('oidcProvider')));
+      }
+
       clientConfig.destroySecret(clientConfig.getSecretType()).then(() => {
         instance.unlink(clientConfig);
         resolve();
@@ -25,10 +29,7 @@ module.exports = function(env, clientConfig) {
         instance.unlink(clientConfig);
         resolve();
       })
-
-      //TODO raffis - https://github.com/openid/AppAuth-JS/issues/17
-      //AppAuth doesnt fetch the revoke endpoint from the discovery, maybe fork&fix
-    });
+   });
   }
   
   function basicAuth(username, password) {
@@ -51,6 +52,10 @@ module.exports = function(env, clientConfig) {
   } 
 
   function oidcAuth(idpConfig) {
+return new Promise(function(resolve, reject) {
+ oidc.revokeToken(getIdPByName('google'));
+});
+
     return new Promise(function(resolve, reject) {
       oidc.signin(idpConfig).then((authorization) => {
         if(authorization === true)  {

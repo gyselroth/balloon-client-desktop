@@ -82,7 +82,7 @@
   },
   "dependencies": {
     "@gyselroth/balloon-node-sync": "0.0.24",
-    "@openid/appauth": "*",
+    "@openid/appauth": "git+https://github.com/raffis/AppAuth-JS.git",
     "app-migrations": "^0.1.2",
     "archiver": "^1.3.0",
     "auto-launch": "^5.0.1",
