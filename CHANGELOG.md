@@ -5,6 +5,8 @@
 * CORE: [FEATURE] Add migration framework
 * CORE: [FIX] Fix ino collisions on windows
 * CORE: [FEATURE] Add Balloon dir shortcut in windows explorer left pane
+* CORE: [FIX] fixed memory config for threads at first start
+* CORE: [FEATURE] Implemented support for refreshToken revocation
 
 
 ## 0.0.28
