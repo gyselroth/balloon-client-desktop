@@ -42,7 +42,7 @@ module.exports = function() {
 
       logger.info('INSTANCE: archiveDataDir initialized');
 
-      var homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
+      var balloonDir = clientConfig.get('balloonDir');
       var balloonDirsyncStateArchivePath;
       var versionNumber = 0;
       var versionString = '';
@@ -50,14 +50,14 @@ module.exports = function() {
       while(true) {
         if(versionNumber > 0) versionString = '-' + versionNumber;
 
-        var balloonDirsyncStateArchivePath = path.join(homeDir, 'Balloon-' + instances.instances[instance].username + versionString);
+        var balloonDirsyncStateArchivePath = balloonDir+'-'+instances.instances[instance].username + versionString;
 
         if(!fs.existsSync(balloonDirsyncStateArchivePath)) break;
 
         versionNumber++;
       }
 
-      fs.rename(clientConfig.get('balloonDir'), balloonDirsyncStateArchivePath, (err) => {
+      fs.rename(balloonDir, balloonDirsyncStateArchivePath, (err) => {
         if(err) return reject(err);
 
         logger.info('INSTANCE: archiveDataDir finished', {balloonDirsyncStateArchivePath});

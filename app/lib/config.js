@@ -65,8 +65,8 @@ function initialize(syncMemory, mainSync) {
   }
 
   //only write default or startup settings in <main>  
-  if(process.type === 'browser') {
-    if(activeInstance) {
+  if(activeInstance) {
+    if(process.type === 'browser') {
       settings.setAll(newSettings);
       if(syncMemory) {
         for(key in memorySettings) {
@@ -75,9 +75,9 @@ function initialize(syncMemory, mainSync) {
           }
         }
       }
-    } else {
-      memorySettings = newSettings;
     }
+  } else {
+    memorySettings = newSettings;
   }
 }
 
@@ -130,7 +130,7 @@ module.exports = function() {
       } else {
         var conf = memorySettings;
       }
-
+      
       if(include_secret === true && getSecretType()) {
         conf[getSecretType()] = secret; 
       }
