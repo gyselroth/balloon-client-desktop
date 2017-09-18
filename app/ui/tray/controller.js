@@ -189,7 +189,7 @@ module.exports = function(env, clientConfig) {
     });
 
     if(env.name === 'development') {
-      //trayWindow.openDevTools();
+      trayWindow.openDevTools();
     }
     
     return trayWindow;    
@@ -197,7 +197,6 @@ module.exports = function(env, clientConfig) {
   
   ipcMain.on('tray-window-loaded', function(){
     clientConfig.setTraySecretCallback(updateSecret);
-    updateSecret();
   });
 
   function updateSecret() {

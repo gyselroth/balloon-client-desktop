@@ -181,8 +181,6 @@ module.exports = function() {
     },
     destroySecret: function(type) {
       secret = undefined;
-      traySecretUpdate();
-      
       if(!env.auth || !env.auth.secretStorage || env.auth.secretStorage === 'keytar') {
         return keytar.deletePassword('balloon', type);
       } else if(env.auth.secretStorage === 'config') {

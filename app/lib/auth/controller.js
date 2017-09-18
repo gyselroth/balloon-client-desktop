@@ -21,13 +21,17 @@ module.exports = function(env, clientConfig) {
         oidc.revokeToken(getIdPByName(clientConfig.get('oidcProvider')));
       }
 
-      clientConfig.destroySecret(clientConfig.getSecretType()).then(() => {
+      var _logout = function() {
+        clientConfig.set('authMethod', undefined);
+        clientConfig.updateTraySecret();
         instance.unlink(clientConfig);
         resolve();
-      }).catch((error) => {
+      };
+      
+      clientConfig.destroySecret(clientConfig.getSecretType()).then(_logout
+      ).catch(error => {
         logger.error("failed to destroy secret, but user gets logged out anyways", {error})
-        instance.unlink(clientConfig);
-        resolve();
+        _logout();
       })
    });
   }
@@ -52,10 +56,6 @@ module.exports = function(env, clientConfig) {
   } 
 
   function oidcAuth(idpConfig) {
-return new Promise(function(resolve, reject) {
- oidc.revokeToken(getIdPByName('google'));
-});
-
     return new Promise(function(resolve, reject) {
       oidc.signin(idpConfig).then((authorization) => {
         if(authorization === true)  {

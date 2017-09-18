@@ -23,7 +23,7 @@ var showReset     = true;
 var showSync      = true;
 var showLogin     = true;
 var unlinkAccount = false;
-var refreshQuota  = true;
+var refreshQuota  = false;
 
 function buildMenu() {
   var label;
@@ -97,11 +97,7 @@ function buildMenu() {
     ipcRenderer.send('about-open'); 
     ipcRenderer.send('tray-hide');
   }}))
-  /*label = i18n.__('tray.menu.settings');
-  menu.append(new MenuItem({label: label, click: function(){
-    ipcRenderer.send('open-settings')
-  }}))*/
-
+  
   label = i18n.__('tray.menu.close');
   menu.append(new MenuItem({label: label, click: function(){
     ipcRenderer.send('quit');
@@ -177,13 +173,14 @@ ipcRenderer.on('config', function(event, secret, secretType) {
   clientConfig.initialize(false);
   var config = clientConfig.getAll();
   config[secretType] = secret;  
-  
+
   if(!config[secretType]) {
     refreshQuota = false;
-  } 
+  }
+
   sync = syncFactory(config, logger);
 
-  if(config[secretType] !== undefined) {
+  if(config[secretType]) {
     refreshQuota = true;
     showLogin = false;
   }
@@ -197,6 +194,12 @@ function showQuota() {
   }
   
   sync.blnApi.getQuotaUsage((err, data) => {
+    if(err) {
+      $('#quota').find('.used').width(0);
+      $('#quota').find('.quota-text').html('');
+      return;
+    }
+
     var $quota = $('#quota');
     if(err) {
       $quota.hide()
