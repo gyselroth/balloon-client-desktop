@@ -1,12 +1,15 @@
-## 0.0.29-dev
+## 0.0.29
 **Maintainer**: balloon-team <maint@gyselroth.com>\
-**Date**: 
+**Date**: Wed September 20 09:58:20 CEST 2017
 
 * CORE: [FEATURE] Add migration framework
 * CORE: [FIX] Fix ino collisions on windows
 * CORE: [FEATURE] Add Balloon dir shortcut in windows explorer left pane
 * CORE: [FIX] fixed memory config for threads at first start
 * CORE: [FEATURE] Implemented support for refreshToken revocation
+* CORE: [FEATURE] Added new option revokeAuthenticatioRequired
+* CORE: [CHANGE] Removed useless oidc option
+* UI: [FIX] fixed de-CH locale
 
 
 ## 0.0.28
@@ -16,6 +19,7 @@
 * CORE: [FIX] It is now possible to use localhost or an IP as bln url
 * CORE: [FIX] Enable Copy&Paste on OSX
 * CORE: [FEATURE] Update balloon-node-sync
+
 
 ## 0.0.27
 **Maintainer**: balloon-team <maint@gyselroth.com>\
