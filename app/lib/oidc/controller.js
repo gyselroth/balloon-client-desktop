@@ -9,6 +9,7 @@ const {GRANT_TYPE_AUTHORIZATION_CODE, GRANT_TYPE_REFRESH_TOKEN, TokenRequest} = 
 const {RevokeTokenRequest} = require('@openid/appauth/built/revoke_token_request.js');
 const {BaseTokenRequestHandler, TokenRequestHandler} = require('@openid/appauth/built/token_request_handler.js');
 const {TokenError, TokenResponse} = require('@openid/appauth/built/token_response.js');
+const {URL} = require('url');
 
 /* the Node.js based HTTP client. */
 const requestor = new NodeRequestor();
@@ -63,9 +64,14 @@ module.exports = function (env, clientConfig) {
     });
   }
 
+  function getLocalPort(url) {
+    var localUrl = new URL(url);
+    return localUrl.port;
+  }
+
   function initIdp() {
     notifier = new AuthorizationNotifier();
-    authorizationHandler = new NodeBasedHandler(idpConfig.localPort);
+    authorizationHandler = new NodeBasedHandler(getLocalPort(idpConfig.redirectUri));
     tokenHandler = new BaseTokenRequestHandler(requestor);
     // set notifier to deliver responses
     authorizationHandler.setAuthorizationNotifier(notifier);
@@ -89,7 +95,7 @@ module.exports = function (env, clientConfig) {
             .then((result) => {
               clientConfig.storeSecret('refreshToken', result.refreshToken).then(() => { 
                 clientConfig.set('authMethod', 'oidc');
-                clientConfig.set('oidcProvider', idpConfig.provider);
+                clientConfig.set('oidcProvider', idpConfig.providerUrl);
                 makeAccessTokenRequest(configuration, result.refreshToken).then((access) => {
                   clientConfig.storeSecret('accessToken', access.accessToken).then(() => {
                     clientConfig.set('accessTokenExpires', access.issuedAt + access.expiresIn);
@@ -140,7 +146,11 @@ module.exports = function (env, clientConfig) {
   }
 
   function makeRevokeTokenRequest(configuration, refreshToken) {
-    let request = new RevokeTokenRequest(refreshToken, 'refresh_token', idpConfig.clientId, idpConfig.clientSecret);
+    if(idpConfig.revokeAuthenticationRequired === false) {
+      var request = new RevokeTokenRequest(refreshToken, 'refresh_token');
+    } else {
+      var request = new RevokeTokenRequest(refreshToken, 'refresh_token', idpConfig.clientId, idpConfig.clientSecret);
+    }
 
     return tokenHandler.performRevokeTokenRequest(configuration, request).then(response => {
       logger.info('revoked refreshToken');

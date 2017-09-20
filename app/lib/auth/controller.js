@@ -18,7 +18,7 @@ module.exports = function(env, clientConfig) {
 
     return new Promise(function(resolve, reject) {
       if(clientConfig.get('authMethod') === 'oidc' && clientConfig.get('oidcProvider')) {
-        oidc.revokeToken(getIdPByName(clientConfig.get('oidcProvider')));
+        oidc.revokeToken(getIdPByProviderUrl(clientConfig.get('oidcProvider')));
       }
 
       var _logout = function() {
@@ -109,7 +109,7 @@ module.exports = function(env, clientConfig) {
               resolve();
             });
           } else {
-            var idpConfig = getIdPByName(oidcProvider);
+            var idpConfig = getIdPByProviderUrl(oidcProvider);
             oidcAuth(idpConfig).then(() => {
               resolve();
             }).catch(() => {
@@ -127,9 +127,9 @@ module.exports = function(env, clientConfig) {
     });
   }     
  
-  function getIdPByName(name) {
+  function getIdPByProviderUrl(providerUrl) {
     for(var i=0; i<env.auth.oidc.length; i++) {
-      if(env.auth.oidc[i].provider === name) {
+      if(env.auth.oidc[i].providerUrl === providerUrl) {
         return env.auth.oidc[i];
       }
     }
@@ -203,7 +203,7 @@ module.exports = function(env, clientConfig) {
     login,
     basicAuth,
     oidcAuth, 
-    getIdPByName,
+    getIdPByProviderUrl,
     retrieveLoginSecret
   }
 }

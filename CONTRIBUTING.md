@@ -90,11 +90,10 @@ The following configuration options are available
   * `secretStorage` String (optional) - Credential storage, Either config or keytar (OS keychain). Default: `keytar`
   * `basic` Boolean (optional) - Enabled basic authentication (username/password), be sure that your server has basic authentication enabled
   * `oidc` Array (optional) - Configure multiple OpenID-connect provider, be sure that your server also supports those oidc provider
-    * `provider` String (required) Name of the OpenID-connect provider
     * `clientId` String (required) client id
     * `clientSecret` String (required) client secret
     * `providerUrl` String (required) URL to the discovery document
     * `redirectUri` String (required) Redirect uri to local http port (for example: http://127.0.0.1:13005)
-    * `localPort` String (required) Local listener, must be the same port which has been used in redirectUri
+    * `revokeAuthenticationRequired` Boolean (otional) Should be false if the /revoke endpoint does not require client authentication. Default: `true`
     * `scope` String (required) OAUTH2 scopes (For example: openid profile)
     * `imgBase64` String (required) Base64 encoded Oidc sign-in button
