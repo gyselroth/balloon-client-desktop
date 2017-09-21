@@ -1,4 +1,4 @@
-# Contribute to balloon web client
+# Contribute to balloon desktop client
 Did you find a bug or would you like to contribute a feature? You are certainly welcome to do so.
 Please always fill an [issue](https://github.com/gyselroth/balloon-client-desktop/issues/new) first to discuss the matter.
 Do not start development without an open issue otherwise we do not know what you are working on. 
@@ -20,7 +20,7 @@ git clone https://github.com/gyselroth/balloon-client-desktop.git
 ## Git commit 
 Please make sure that you always specify the number of your issue starting with a hastag (#) within any git commits.
 
-# Recommended setup for development
+## Recommended setup for development
 
 ```
 mkdir balloon
