@@ -99,34 +99,31 @@ module.exports = function(env, clientConfig) {
   function login(startup) {
     logger.info('AUTH: login initialized');
     return new Promise(function (resolve, reject) {
-      verifyAuthentication().then(() => {
-        return resolve();  
-      }).catch((err) => {
+      verifyAuthentication().then(resolve).catch((err) => {
+        logger.info('AUTH: login failed', {code: err.code, message: err.message, stack: err.stack});
+
         if(clientConfig.get('authMethod') === 'oidc') {
           var oidcProvider = clientConfig.get('oidcProvider');
+
           if(oidcProvider === undefined) {
-            startup().then(() => {
-              resolve();
-            });
+            logger.info('AUTH: login no oidc provider, open startup configuration');
+            startup().then(resolve).catch(reject);
           } else {
             var idpConfig = getIdPByProviderUrl(oidcProvider);
-            oidcAuth(idpConfig).then(() => {
-              resolve();
-            }).catch(() => {
-              startup().then(() => {
-                resolve();
-              });
+            oidcAuth(idpConfig).then(resolve).catch((err) => {
+              logger.info('AUTH: login oidc login failed, open startup configuration', {err});
+
+              startup().then(resolve).catch(reject);
             });
           }
         } else {
-          startup().then(() => {
-            resolve();
-          });
+          logger.info('AUTH: login method not oidc, starting startup configuration');
+          startup().then(resolve).catch(reject);
         }
       });
     });
-  }     
- 
+  }
+
   function getIdPByProviderUrl(providerUrl) {
     for(var i=0; i<env.auth.oidc.length; i++) {
       if(env.auth.oidc[i].providerUrl === providerUrl) {
@@ -139,12 +136,24 @@ module.exports = function(env, clientConfig) {
 
   function verifyAuthentication() {
     return new Promise(function(resolve, reject) {
-      var sync = syncFactory(clientConfig.getAll(true), logger);
+      var config = clientConfig.getAll(true);
+
+      if((config.authMethod === 'oidc' && !config.accessToken) || (config.authMethod === 'basic' && !config.password)) {
+        logger.error('AUTH: verifyAuthentication secret not set');
+        reject(new Error('Secret not set'));
+      }
+
+      var sync = syncFactory(config, logger);
+
+      logger.info('AUTH: verifyAuthentication', {authMethod: config.authMethod, username: config.username});
+
       sync.blnApi.whoami(function(err, username) {
         if(err) {
+          logger.info('AUTH: verifyAuthentication whoami failed', {err, username});
           clientConfig.set('loggedin', false);
           reject(err);
         } else {
+          logger.info('AUTH: verifyAuthentication whoami successfull', {username});
           clientConfig.set('loggedin', true);
           resolve();
         }
