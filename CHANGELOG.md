@@ -5,6 +5,7 @@
 * UI: [CHANGE] migrated fonts to ubuntu-font package #14
 * UI: [FIX] fixed tray icon for *nix systems #17
 * UI: [FIX] switched from ico to png for windows systems which should fix #15
+* UI: [FIX] fixed install update button in tray menu is gone #13
 
 
 ## 0.0.29
