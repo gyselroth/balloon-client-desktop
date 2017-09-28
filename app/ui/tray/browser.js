@@ -251,7 +251,7 @@ function compileTemplate() {
 }
 
 function toggleInstallUpdate() {
-  if(clientConfig['updateAvailable']) {
+  if(clientConfig.get('updateAvailable')) {
     $('#item-installupdate').show();
   } else {
     $('#item-installupdate').hide();
