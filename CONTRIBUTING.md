@@ -51,8 +51,10 @@ Please note that this project is released with a [Contributor Code of Conduct](h
 This software is freely available under the terms of [GPL-3.0](https://github.com/gyselroth/balloon-client-desktop/LICENSE), please respect this license
 and do not contribute software which ist not compatible with GPL-3.0 or is not your work.
 
-## Code policy
+## Editor config
+This repository gets shipped with an .editorconfig configuration. For more information on how to configure your editor please visit [editorconfig](https://github.com/editorconfig).
 
+## Code policy
 There are no javascript standards like PSR-1/2 for PHP, but please follow the following rules:
 
 * Abstract classes named with an Abstract prefix: AbstractExample
