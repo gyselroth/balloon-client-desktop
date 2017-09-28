@@ -194,7 +194,7 @@ module.exports = function(env, clientConfig) {
     });
 
     if(env.name === 'development') {
-      trayWindow.openDevTools();
+      //trayWindow.openDevTools();
     }
     
     return trayWindow;    
