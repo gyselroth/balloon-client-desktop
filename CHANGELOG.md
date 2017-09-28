@@ -7,7 +7,7 @@
 
 ## 0.0.29
 **Maintainer**: balloon-team <maint@gyselroth.com>\
-**Date**: Thu September 21 11:19:20 CEST 2017
+**Date**: Thu September 28 11:19:20 CEST 2017
 
 * CORE: [FEATURE] Add migration framework
 * CORE: [FIX] Fix ino collisions on windows
