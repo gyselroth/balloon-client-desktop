@@ -1,6 +1,6 @@
 ## 0.0.30
 **Maintainer**: balloon-team <maint@gyselroth.com>\
-**Date**:
+**Date**: Thu September 28 13:30:20 CEST 2017
 
 * UI: [CHANGE] migrated fonts to ubuntu-font package #14
 * UI: [FIX] fixed tray icon for *nix systems #17
