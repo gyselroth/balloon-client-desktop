@@ -2,9 +2,9 @@
 **Maintainer**: balloon-team <maint@gyselroth.com>\
 **Date**:
 
-* UI: [CHANGE] migreated fonts to ubuntu-font package #14
+* UI: [CHANGE] migrated fonts to ubuntu-font package #14
 * UI: [FIX] fixed tray icon for *nix systems #17
-* UI: [FIX] switched from ico to png for windows systems which should fix 
+* UI: [FIX] switched from ico to png for windows systems which should fix #15
 
 
 ## 0.0.29
