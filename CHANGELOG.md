@@ -1,3 +1,10 @@
+## 0.0.30
+**Maintainer**: balloon-team <maint@gyselroth.com>\
+**Date**:
+
+* UI: [CHANGE] migreated fonts to ubuntu-font package
+
+
 ## 0.0.29
 **Maintainer**: balloon-team <maint@gyselroth.com>\
 **Date**: Thu September 21 11:19:20 CEST 2017
