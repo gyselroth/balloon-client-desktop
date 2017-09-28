@@ -36,8 +36,13 @@ const Icons = {
     'sync': 'taskbar_sync.ico',
     'update': 'taskbar_error.ico'
   },
-  default: {
-    'default': 'tray-icon.png'
+  pngWhite: {
+    'default': 'taskbar.png',
+    'offline': 'taskbar_error.png',
+    'loggedout': 'taskbar_error.png',
+    'pause': 'taskbar_pause.png',
+    'sync': 'taskbar_sync.png',
+    'update': 'taskbar_error.png'
   }
 }
 
@@ -107,14 +112,14 @@ function getIconPath(state) {
       var release = os.release();
       if(parseInt(release.split('.')[0]) >= 10) {
         //windows 10, Windows Server 2016 or higher
-        iconFamily = 'icoWhite';
+        iconFamily = 'pngWhite';
       } else {
         //Windows 8.1, Windows Server 2012 R2 or lower
-        iconFamily = 'icoBlack';
+        iconFamily = 'pngBlack';
       }
     break;
     default:
-      iconFamily = 'default';
+      iconFamily = 'pngWhite';
   }
 
   var iconFamilySet = Icons[iconFamily] ? Icons[iconFamily] : Icons['default'];
