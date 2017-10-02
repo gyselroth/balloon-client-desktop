@@ -19,9 +19,12 @@ before_script: npm update
 script:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run release-linux; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then npm run release-osx; fi
+before_deploy:
+  - export RELEASE_PKG_FILE=$(ls dist/*.deb)
+  - echo "deploying $RELEASE_PKG_FILE to bintray"
 deploy:
   - provider: bintray
-    file: dist/*.deb
+    file: "${RELEASE_PKG_FILE}"
     file_glob: true
     user: raffis
     name: balloon-client-desktop
@@ -34,7 +37,7 @@ deploy:
       tags: true
   - provider: bintray
     file_glob: true
-    file: dist/*.deb
+    file: "${RELEASE_PKG_FILE}"
     user: raffis
     name: balloon-client-desktop
     repo: balloon-unstable
