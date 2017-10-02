@@ -102,6 +102,11 @@ module.exports = function(env, clientConfig) {
       verifyAuthentication().then(resolve).catch((err) => {
         logger.info('AUTH: login failed', {code: err.code, message: err.message, stack: err.stack});
 
+        if(!err.code || err.code !== 'E_BLN_API_REQUEST_UNAUTHORIZED') {
+          // assume there is a network problem, should retry later
+          return reject(err);
+        }
+
         if(clientConfig.get('authMethod') === 'oidc') {
           var oidcProvider = clientConfig.get('oidcProvider');
 

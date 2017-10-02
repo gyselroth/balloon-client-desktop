@@ -137,11 +137,12 @@ module.exports = function(env, tray) {
     }).catch(err => {
       logger.error('Sync: pre sync check failed', err);
       tray.syncEnded();
+      end(true);
     });
   }
 
-  function end() {
-    if(!syncWindow) return;
+  function end(forceNextSync) {
+    if(!syncWindow && !forceNextSync) return;
 
     if(env.name === 'production' && syncPaused !== true) {
       //do not set timeout when sync has been paused
@@ -150,7 +151,7 @@ module.exports = function(env, tray) {
       }, ((env.sync && env.sync.interval) || 30) * 1000);
     }
 
-    syncWindow.close();
+    if(syncWindow) syncWindow.close();
 
     stopPowerSaveBlocker();
   }
