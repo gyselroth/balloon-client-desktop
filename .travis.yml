@@ -22,6 +22,7 @@ script:
 deploy:
   - provider: bintray
     file: dist/*.deb
+    file_glob: true
     user: raffis
     name: balloon-client-desktop
     repo: balloon-stable
@@ -32,6 +33,7 @@ deploy:
       master: false
       tags: true
   - provider: bintray
+    file_glob: true
     file: dist/*.deb
     user: raffis
     name: balloon-client-desktop
