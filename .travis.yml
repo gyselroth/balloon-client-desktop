@@ -21,10 +21,14 @@ script:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then npm run release-osx; fi
 before_deploy:
   - export version=$(cat package.json | grep '"version"' | cut -d '"' -f4)
+  - export date=$(date +%Y-%m-%d)
   - cp packaging/debian/bintray-stable.json bintray-stable.json
   - cp packaging/debian/bintray-unstable.json bintray-unstable.json
   - sed -i s/'{version}'/$version/g bintray-stable.json
   - sed -i s/'{version}'/$version/g bintray-unstable.json
+  - sed -i s/'{date}'/$date/g bintray-stable.json
+  - sed -i s/'{date}'/$date/g bintray-unstable.json
+deploy:
 deploy:
   - provider: bintray
     file: bintray-stable.json
