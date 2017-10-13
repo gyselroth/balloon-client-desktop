@@ -12,11 +12,11 @@ balloon is a cloud server and document management system.
 
 ## Features
 
-* NodeJS application which is compatible with all popular operating systems including (MacOS, Windows and Linux)
-* Synchronize your whole cloud with your desktop!
+* NodeJS application which is compatible with all popular operating systems including (OS X, Windows and Linux)
+* Synchronize your cloud with your desktop!
 * Multilangual (And locale based)
-* HTTP basic authentication and/or support for multiple OpenID-Connect provider
-* Intergrated auto-update mechanism
+* HTTP basic authentication and/or support for (multiple) OpenID-Connect provider
+* Integrated auto-update mechanism
 * Superfast and operates in the background
 * Settings/Status available via tray
 * Support for unlink/link instances from multiple balloon server/accounts
