@@ -360,12 +360,13 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 #startup-logo {
-    background-image: url('../../img/balloon.svg');
+    background-image: url('../../img/balloon-startup.png');
     background-repeat: no-repeat;
-    background-size: 200px;
+    background-size: 100%;
     background-position: center;
-    width: 100px;
-    height: 200px;
+    width: 80%;
+    height: 0;
+    padding-top: 65.04369538077186%;
     margin: 0 auto 10px auto;
 }
 
