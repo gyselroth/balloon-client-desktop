@@ -15,42 +15,43 @@
     <div id="startup-view">
         <div id="startup-view-server" class="view">
             <h1>{{i18n 'startup.server.title'}}</h1>
-            <div>
+            <div class="client-offline-hidden">
                 <p>{{i18n 'startup.server.message'}}</p>
-                <div id="blnUrl-error-offline">{{i18n 'error.blnUrl.offline'}}</div>
                 <div id="blnUrl-config">
                     <input id="blnUrl" type="text" placeholder="https://yourserver.com" required autofocus>
                     <div id="blnUrl-error-invalid" class="error-message">{{i18n 'error.blnUrl.invalid'}}</div>
                     <div id="blnUrl-error-notreachable" class="error-message">{{i18n 'error.blnUrl.notreachable'}}</div>
                 </div>
             </div>
-            <button id="startup-server-continue">{{i18n 'button.continue'}}</button>
+            <button class="client-offline-hidden" id="startup-server-continue">{{i18n 'button.continue'}}</button>
         </div>
-        
+
         <div id="startup-view-auth" class="view">
             <p>{{i18n 'startup.auth.message'}}</p>
-            <div id="startup-auth-basic">
+            <div class="client-offline-hidden" id="startup-auth-basic">
               <input type="text" name="username" placeholder="{{i18n 'startup.auth.username'}}"/>
               <input type="password" name="password" placeholder="{{i18n 'startup.auth.password'}}"/>
               <button id="startup-auth-continue">{{i18n 'button.continue'}}</button>
             </div>
-            <div id="startup-auth-error">
+            <div class="client-offline-hidden" id="startup-auth-error">
                 <div id="startup-auth-error-basic" class="error-message">{{i18n 'error.auth.basic'}}</div>
                 <div id="startup-auth-error-oidc" class="error-message">{{i18n 'error.auth.oidc'}}</div>
             </div>
-            <div id="startup-auth-oidc"></div>
+            <div class="client-offline-hidden" id="startup-auth-oidc"></div>
         </div>
 
         <div id="startup-view-welcome" class="view">
             <h1>{{i18n 'startup.welcome.title'}}</h1>
-            <p>{{i18n 'startup.welcome.message'}}</p>
-            <button class="startup-open-folder">{{i18n 'startup.welcome.openFolder'}}</button>
-            <div id="startup-advanced">{{i18n 'startup.welcome.advanced'}}</div>
+            <div class="client-offline-hidden">
+                <p>{{i18n 'startup.welcome.message'}}</p>
+                <button class="startup-open-folder">{{i18n 'startup.welcome.openFolder'}}</button>
+                <div id="startup-advanced">{{i18n 'startup.welcome.advanced'}}</div>
+            </div>
         </div>
 
         <div id="startup-view-advanced" class="view">
             <h1>{{i18n 'startup.welcome.advanced'}}</h1>
-            <div id="startup-advanced-saveDir">
+            <div class="client-offline-hidden" id="startup-advanced-saveDir">
               <h2>{{i18n 'startup.advanced.saveDir.title'}}</h2>
               <p>{{i18n 'startup.advanced.saveDir.message'}}</p>
               <label class="select-node" id="startup-savedir">
@@ -58,15 +59,20 @@
                 <div class="arrow-down"></div>
               </label>
             </div>
-            <div id="startup-advanced-selective">
+            <div class="client-offline-hidden" id="startup-advanced-selective">
               <h2>{{i18n 'settings.selective.title'}}</h2>
               <p>{{i18n 'settings.selective.choosePath'}}</p>
               <button id="startup-adavanced-selective">{{i18n 'settings.selective.setup'}}</button>
               <button class="startup-open-folder">{{i18n 'startup.welcome.openFolder'}}</button>
             </div>
         </div>
+
+        <div class="client-offline-visible view">
+            <p>{{i18n 'error.blnUrl.offline'}}</p>
+        </div>
     </div>
     </script>
+
     <div id="contentWrapper"></div>
 </body>
 </html>

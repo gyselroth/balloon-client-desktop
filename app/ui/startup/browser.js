@@ -21,23 +21,19 @@ handlebars.registerHelper('i18n', function(key) {
 
 
 $(document).ready(function() {
-  $("html").addClass(process.platform);
+  var $html = $("html");
+  $html.addClass(process.platform);
   compileTemplates();
 
-  var $blnUrlOfflineMessage = $('#blnUrl-error-offline');
-  var $blnUrlConfig = $('#blnUrl-config');
-
-  function updateOnLineState(onLine) {
-    if(onLine === false) {
-      $blnUrlConfig.hide();
-      $blnUrlOfflineMessage.show();
+  function updateOnLineState() {
+    if(navigator.onLine === false) {
+      $html.addClass('client-offline');
     } else {
-      $blnUrlConfig.show();
-      $blnUrlOfflineMessage.hide();
+      $html.removeClass('client-offline');
     }
   }
 
-  updateOnLineState(navigator.onLine);
+  updateOnLineState();
   window.addEventListener('online', updateOnLineState);
   window.addEventListener('offline', updateOnLineState);
 

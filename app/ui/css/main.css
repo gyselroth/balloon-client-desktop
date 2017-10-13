@@ -243,8 +243,8 @@ input[type="radio"], input[type="checkbox"] {
 
 .arrow-down {
     margin-bottom: 10px;
-    width: 0; 
-    height: 0; 
+    width: 0;
+    height: 0;
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;
     border-top: 5px solid #000;
@@ -638,4 +638,12 @@ button:disabled,
 button[disabled] {
   color: #ccc;
   cursor: initial;
+}
+
+.client-offline .client-offline-hidden {
+  display: none !important;
+}
+
+.client-offline .client-offline-visible {
+  display: block !important;
 }
