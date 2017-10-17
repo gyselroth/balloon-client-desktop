@@ -10,41 +10,87 @@ const clientConfig = require('../../lib/config.js');
 
 const i18n = require('../../lib/i18n.js');
 
+const animationSpeed = 1000/24; //24 fps
+
+const stateIconNameMap = {
+  default: 'default',
+  sync: 'sync',
+  offline: 'error',
+  loggedout: 'error',
+  pause: 'warning'
+};
+
 const Icons = {
-  pngBlack: {
-    'default': 'taskbar_black.png',
-    'check': 'taskbar_check_black.png',
-    'offline': 'taskbar_error_black.png',
-    'loggedout': 'taskbar_error_black.png',
-    'pause': 'taskbar_pause_black.png',
-    'sync': 'taskbar_sync_black.png',
-    'update': 'taskbar_error_black.png'
+  'win10+': {
+    default: {
+      path: 'icon-tray-white-16x16.png',
+      animate: false,
+      template: false
+    },
+    sync: {
+      path: 'icon-tray-white-16x16-frame%d.png',
+      animate: true,
+      frames: 8,
+      template: false
+    },
+    error: {
+      path: 'icon-tray-red-16x16.png',
+      animate: false,
+      template: false
+    },
+    warning: {
+      path: 'icon-tray-orange-16x16.png',
+      animate: false,
+      template: false
+    }
   },
-  icoBlack: {
-    'default': 'taskbar_black.ico',
-    'check': 'taskbar_check_black.ico',
-    'offline': 'taskbar_error_black.ico',
-    'pause': 'taskbar_pause_black.ico',
-    'sync': 'taskbar_sync_black.ico',
-    'update': 'taskbar_error_black.ico'
+  darwin: {
+    default: {
+      path: 'icon-tray-black-16x16.png',
+      animate: false,
+      template: true
+    },
+    sync: {
+      path: 'icon-tray-black-16x16-frame%d.png',
+      animate: true,
+      frames: 8,
+      template: true
+    },
+    error: {
+      path: 'icon-tray-red-16x16.png',
+      animate: false,
+      template: false
+    },
+    warning: {
+      path: 'icon-tray-orange-16x16.png',
+      animate: false,
+      template: false
+    }
   },
-  icoWhite: {
-    'default': 'taskbar.ico',
-    'offline': 'taskbar_error.ico',
-    'loggedout': 'taskbar_error.ico',
-    'pause': 'taskbar_pause.ico',
-    'sync': 'taskbar_sync.ico',
-    'update': 'taskbar_error.ico'
+  default: {
+    default: {
+      path: 'icon-tray-blue-16x16.png',
+      animate: false,
+      template: false
+    },
+    sync: {
+      path: 'icon-tray-blue-16x16-frame%d.png',
+      animate: true,
+      frames: 8,
+      template: false
+    },
+    error: {
+      path: 'icon-tray-red-16x16.png',
+      animate: false,
+      template: false
+    },
+    warning: {
+      path: 'icon-tray-orange-16x16.png',
+      animate: false,
+      template: false
+    }
   },
-  pngWhite: {
-    'default': 'taskbar.png',
-    'offline': 'taskbar_error.png',
-    'loggedout': 'taskbar_error.png',
-    'pause': 'taskbar_pause.png',
-    'sync': 'taskbar_sync.png',
-    'update': 'taskbar_error.png'
-  }
-}
+};
 
 const StatePriorities = ['offline', 'loggedout', 'pause', 'sync', 'update', 'default'];
 
@@ -62,23 +108,12 @@ const trayWindowWidth = 306;
 const trayWindowHeight = 96;
 
 var tray;
+var animationTimeout = null;
 
 function toggleState(state, value) {
   currentStates[state] = value;
 
   changeTrayIcon();
-}
-
-function changeTrayIcon() {
-  var state = getCurrentState();
-
-  if(tray) {
-    var title = 'Balloon ' + app.getVersion() + '\n';
-    var stateDescription = i18n.__('tray.tooltip.state.' + state)
-    tray.setToolTip(title + stateDescription);
-
-    tray.setImage(getTrayIcon(state));
-  }
 }
 
 function getCurrentState() {
@@ -87,53 +122,90 @@ function getCurrentState() {
   });
 }
 
-function getTrayIcon(state) {
-  var iconPath = getIconPath(state);
+function changeTrayIcon(frame = 1) {
+  if(!tray) return;
 
-  if(process.platform === 'darwin') {
-    var image = nativeImage.createFromPath(iconPath);
-    image.setTemplateImage(true);
-  } else {
-    var image = iconPath;
+  var state = getCurrentState();
+
+  if(animationTimeout) {
+    clearTimeout(animationTimeout);
+    animationTimeout = null;
   }
 
-  return image;
+  var title = 'Balloon ' + app.getVersion() + '\n';
+  var stateDescription = i18n.__('tray.tooltip.state.' + state)
+  tray.setToolTip(title + stateDescription);
+
+  const iconConfig = getIconConfig(state);
+  const iconPath = getIconPath(iconConfig, frame);
+  const icon = nativeImage.createFromPath(iconPath);
+
+  if(iconConfig.template === true && process.platform === 'darwin') {
+    icon.setTemplateImage(true);
+  }
+
+  if(iconConfig.animate) {
+    animateIcon(frame, iconConfig.frames);
+  }
+
+  tray.setImage(icon);
 }
 
-function getIconPath(state) {
-  state = state || 'default';
-  var iconFamily;
+function getIconPath(iconConfig, frame=1) {
+  return path.join(__dirname, '../../img/tray-icons', iconConfig.path.replace('%d', frame));
+}
+
+function getIconConfig(state = 'default') {
+  let iconFamily;
 
   switch(process.platform) {
     case 'darwin':
-      iconFamily = 'pngBlack';
+      iconFamily = 'darwin';
     break;
     case 'win32':
       var release = os.release();
       if(parseInt(release.split('.')[0]) >= 10) {
         //windows 10, Windows Server 2016 or higher
-        iconFamily = 'pngWhite';
+        iconFamily = 'win10+';
       } else {
         //Windows 8.1, Windows Server 2012 R2 or lower
-        iconFamily = 'pngBlack';
+        iconFamily = 'default';
       }
     break;
     default:
-      iconFamily = 'pngWhite';
+      iconFamily = 'default';
   }
 
-  var iconFamilySet = Icons[iconFamily] ? Icons[iconFamily] : Icons['default'];
-  var filename = iconFamilySet[state] ? iconFamilySet[state] : iconFamilySet['default'];
+  const iconFamilySet = Icons[iconFamily] ? Icons[iconFamily] : Icons['default'];
+  const iconName = stateIconNameMap[state] || 'default';
+  const iconConfig = iconFamilySet[iconName] ? iconFamilySet[iconName] : iconFamilySet['default'];
 
-  return path.join(__dirname, '../../img/', filename);;
+  return iconConfig;
 }
+
+function animateIcon(curFrame=1, maxFrames=1) {
+  if(curFrame === maxFrames) {
+    curFrame = 1;
+  } else {
+    curFrame ++;
+  }
+
+  animationTimeout = setTimeout(function() {
+    changeTrayIcon(curFrame);
+  }, animationSpeed);
+}
+
 
 module.exports = function(env, clientConfig) {
   var trayWindow = createWindow();
 
   function create() {
     if(!tray) {
-      tray = new Tray(getTrayIcon('default'));
+      const iconConfig = getIconConfig('default');
+      const iconPath = getIconPath(iconConfig);
+      const icon = nativeImage.createFromPath(iconPath);
+
+      tray = new Tray(icon);
       changeTrayIcon();
 
       tray.on('click', function (event) {
@@ -196,10 +268,10 @@ module.exports = function(env, clientConfig) {
     if(env.name === 'development') {
       //trayWindow.openDevTools();
     }
-    
-    return trayWindow;    
+
+    return trayWindow;
   }
-  
+
   ipcMain.on('tray-window-loaded', function(){
     clientConfig.setTraySecretCallback(updateSecret);
   });
@@ -207,7 +279,7 @@ module.exports = function(env, clientConfig) {
   function updateSecret() {
     trayWindow.webContents.send('config', clientConfig.getSecret(), clientConfig.getSecretType());
   }
-  
+
   function syncPaused() {
     trayWindow.webContents.send('sync-paused');
   }
