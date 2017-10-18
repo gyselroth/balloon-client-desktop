@@ -22,7 +22,6 @@ var syncStatus    = true;
 var showReset     = true;
 var showSync      = true;
 var showLogin     = true;
-var unlinkAccount = false;
 var refreshQuota  = false;
 
 function buildMenu() {
@@ -33,7 +32,7 @@ function buildMenu() {
   if(showLogin === false && clientConfig.get('username')) {
     menu.append(new MenuItem({label: clientConfig.get('username'), enabled: false}))
   }
-    
+
   if(showLogin === true) {
     label = i18n.__('tray.menu.link');
     menu.append(new MenuItem({label: label, click: function(){
@@ -43,17 +42,11 @@ function buildMenu() {
   } else {
     label = i18n.__('tray.menu.unlink');
     menu.append(new MenuItem({label: label, click: function(){
-      if(syncStatus === true) {
-        ipcRenderer.send('sync-toggle-pause');
-        unlinkAccount = true;
-      } else {
-        ipcRenderer.send('unlink-account');
-      }
-  
+      ipcRenderer.send('unlink-account');
       ipcRenderer.send('tray-hide');
     }}))
   }
-  
+
   menu.append(new MenuItem({type: 'separator', enabled: false}))
 
   if(clientConfig.get('context') === 'development') {
@@ -74,7 +67,7 @@ function buildMenu() {
         ipcRenderer.send('tray-hide');
       }}))
     }
-  } else {  
+  } else if(clientConfig.get('loggedin') === true) {
     if(syncStatus === true) {
       label = i18n.__('tray.menu.pauseSync');
     } else {
@@ -94,10 +87,10 @@ function buildMenu() {
 
   label = i18n.__('tray.menu.about');
   menu.append(new MenuItem({label: label, click: function(){
-    ipcRenderer.send('about-open'); 
+    ipcRenderer.send('about-open');
     ipcRenderer.send('tray-hide');
   }}))
-  
+
   label = i18n.__('tray.menu.close');
   menu.append(new MenuItem({label: label, click: function(){
     ipcRenderer.send('quit');
@@ -141,7 +134,6 @@ ipcRenderer.on('unlink-account-result', (event, result) => {
 ipcRenderer.on('link-account-result', (event, result) => {
   showLogin = !result;
   clientConfig.initialize(false);
-  ipcRenderer.send('sync-toggle-pause');
 });
 
 ipcRenderer.on('sync-started' , function() {
@@ -155,10 +147,6 @@ ipcRenderer.on('sync-ended' , function() {
 
 ipcRenderer.on('sync-paused' , function() {
   syncStatus = false;
-  if(unlinkAccount === true) {
-    unlinkAccount = false;
-    ipcRenderer.send('unlink-account');
-  }
 });
 
 ipcRenderer.on('dev-reset-complete', (event, err) => {
@@ -167,12 +155,12 @@ ipcRenderer.on('dev-reset-complete', (event, err) => {
   showSync = true;
   return console.info('Reset complete', new Date());
 });
-  
+
 ipcRenderer.send('tray-window-loaded');
 ipcRenderer.on('config', function(event, secret, secretType) {
   clientConfig.initialize(false);
   var config = clientConfig.getAll();
-  config[secretType] = secret;  
+  config[secretType] = secret;
 
   if(!config[secretType]) {
     refreshQuota = false;
@@ -192,7 +180,7 @@ function showQuota() {
   if(refreshQuota === false) {
     return;
   }
-  
+
   sync.blnApi.getQuotaUsage((err, data) => {
     if(err) {
       $('#quota').find('.used').width(0);
@@ -206,7 +194,7 @@ function showQuota() {
     } else {
       $quota.show()
     }
-    
+
     var percent =  Math.round(data.used / data.hard_quota * 100, 0);
     var $used = $quota.find('.used');
     $used.width(percent+'%');

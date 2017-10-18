@@ -60,15 +60,15 @@ module.exports = function(env, tray) {
         syncWindow.webContents.send('sync-stop', forceQuit);
 
         ipcMain.once('sync-stop-result', (event, err) => {
-          if(err) return reject(err);
+          end();
 
-          stopPowerSaveBlocker();
+          if(err) return reject(err);
 
           resolve();
         });
 
         ipcMain.once('sync-error', (event, error, url, line) => {
-          stopPowerSaveBlocker();
+          end();
 
           resolve();
         });
@@ -124,11 +124,11 @@ module.exports = function(env, tray) {
         }
       });
 
-      ipcMain.on('sync-window-loaded', function(){
+      ipcMain.once('sync-window-loaded', function(){
         syncWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
       });
 
-      syncWindow.on('closed', (event) => {
+      syncWindow.once('closed', (event) => {
         syncWindow = null;
 
         logger.info('Sync: ended');

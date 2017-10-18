@@ -93,6 +93,25 @@ function startApp() {
   });
 }
 
+function unlinkAccount() {
+  return Promise.all([
+    auth.logout(),
+    (function() {
+      if(!sync || env.name === 'development') return Promise.resolve();
+
+      return sync.pause(true);
+    }())
+  ]).then(() => {
+    logger.info('Main: logout successfull');
+
+    tray.emit('unlink-account-result', true);
+    tray.toggleState('loggedout', true);
+  }).catch((err) => {
+    logger.error('Main: logout not successfull', err);
+    tray.emit('unlink-account-result', false);
+  });
+}
+
 app.on('ready', function () {
   logger.info('App ready');
 
@@ -159,6 +178,8 @@ ipcMain.on('sync-complete', () => {
 });
 
 ipcMain.on('sync-toggle-pause', () => {
+  if(env.name === 'development') return;
+
   if(!sync) {
     return tray.syncPaused();
   }
@@ -185,36 +206,19 @@ ipcMain.on('about-open', (event) => {
 
 ipcMain.on('unlink-account', (event) => {
   logger.info('Main: logout requested');
-  //clientConfig.set('disableAutoAuth', true);
 
-  Promise.all([
-    auth.logout(),
-    (function() {
-      if(!sync) return Promise.resolve();
-
-      return sync.pause(true);
-    }())
-  ]).then(() => {
-    logger.info('Main: logout successfull');
-    event.sender.send('unlink-account-result', true);
-    tray.toggleState('loggedout', true);
-  }).catch((err) => {
-    logger.error('Main: logout not successfull', err);
-    event.sender.send('unlink-account-result', false);
-  });
+  unlinkAccount();
 });
 
 ipcMain.on('link-account', (event, id) => {
   logger.info('Main: login requested');
+
   startup.checkConfig().then(() => {
-    clientConfig.set('disableAutoAuth', false);
-    logger.info('Main: login successfull', clientConfig.getMulti(['disableAutoAuth', 'username', 'loggedin']));
+    logger.info('Main: login successfull', clientConfig.getMulti(['username', 'loggedin']));
     clientConfig.updateTraySecret();
-    /*if(env.name === 'production') {
-      startSync();
-    }*/
 
     tray.toggleState('loggedout', false);
+    startSync();
     event.sender.send('link-account-result', true);
   }).catch((err) => {
     if(err.code !== 'E_BLN_OAUTH_WINDOW_OPEN') {
@@ -230,19 +234,10 @@ ipcMain.on('link-account', (event, id) => {
 ipcMain.on('sync-error', (event, error, url, line) => {
   switch(error.code) {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
+      logger.info('Main: got 401, end sync and unlink account');
+
       endSync();
-      tray.toggleState('loggedout', true);
-
-      if(clientConfig.get('disableAutoAuth')) return;
-
-      auth.login(startup.askCredentials).then(() => {
-        logger.info('Main: successfully re-authenticated');
-        tray.toggleState('loggedout', false);
-        startSync();
-      }).catch(err => {
-        logger.error('Main: re-authentication failed', {err});
-        app.quit();
-      });
+      unlinkAccount();
     break;
     case 'E_BLN_CONFIG_CREDENTIALS':
     case 'E_BLN_CONFIG_BALLOONDIR':

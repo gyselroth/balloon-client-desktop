@@ -272,6 +272,10 @@ module.exports = function(env, clientConfig) {
     return trayWindow;
   }
 
+  function emit(key, message) {
+    if(trayWindow) trayWindow.webContents.send(key, message);
+  }
+
   ipcMain.on('tray-window-loaded', function(){
     clientConfig.setTraySecretCallback(updateSecret);
   });
@@ -315,6 +319,7 @@ module.exports = function(env, clientConfig) {
     syncEnded,
     syncPaused,
     toggleState,
-    updateSecret
+    updateSecret,
+    emit
   }
 }

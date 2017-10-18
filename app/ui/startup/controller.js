@@ -67,10 +67,7 @@ module.exports = function(env, clientConfig) {
   }
 
   function preSyncCheck() {
-    return Promise.all([
-      makeSureBalloonDirExists(),
-      authenticate()
-    ]);
+    return makeSureBalloonDirExists();
   }
 
   function firstTimeStart() {
@@ -119,11 +116,17 @@ module.exports = function(env, clientConfig) {
 
   function authenticate() {
     return new Promise(function(resolve, reject) {
-      if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || !clientConfig.hadConfig() 
-       || !clientConfig.isActiveInstance()) {
+      if(!clientConfig.get('blnUrl')
+        ||
+        !clientConfig.get('apiUrl')
+        ||
+        !clientConfig.hadConfig()
+        ||
+        !clientConfig.isActiveInstance()
+      ) {
         return resolve();
       }
-      
+
       auth.login(askCredentials).then(() => {
         resolve();
       }).catch((error) => {
@@ -134,7 +137,7 @@ module.exports = function(env, clientConfig) {
 
   function askCredentials() {
     return new Promise(function(resolve, reject) {
-      if(!clientConfig.isActiveInstance() || clientConfig.get('disableAutoAuth') !== true && clientConfig.get('onLineState') === true) {
+      if(!clientConfig.isActiveInstance() && clientConfig.get('onLineState') === true) {
         if(!startupWindow) startupWindow = createStartupWindow();
 
         startupWindow.webContents.executeJavaScript(`switchView('auth')`);
@@ -148,7 +151,7 @@ module.exports = function(env, clientConfig) {
         }
 
         startupWindow.on('closed', windowClosedByUserHandler);
-      
+
         ipcMain.removeAllListeners('startup-basic-auth');
         ipcMain.on('startup-basic-auth', function(event, username, password) {
           logger.info('requested basic authentication', {username});
@@ -156,7 +159,7 @@ module.exports = function(env, clientConfig) {
           auth.basicAuth(username, password).then(() => {
             if(!clientConfig.hadConfig()) {
               welcomeWizard().then(() => {
-                resolve();  
+                resolve();
               });
             } else {
               startupWindow.close();
@@ -175,7 +178,7 @@ module.exports = function(env, clientConfig) {
           auth.oidcAuth(idpConfig).then(() => {
             if(!clientConfig.hadConfig()) {
               welcomeWizard().then(() => {
-                resolve();  
+                resolve();
               });
             } else {
               startupWindow.close();
@@ -210,7 +213,7 @@ module.exports = function(env, clientConfig) {
       let windowClosedByUserHandler = function(event) {
         resolve();
       }
-      
+
       startupWindow.on('closed', windowClosedByUserHandler);
 
       ipcMain.removeAllListeners('startup-open-folder');
@@ -263,9 +266,11 @@ module.exports = function(env, clientConfig) {
 
       ipcMain.removeAllListeners('startup-server-continue');
       ipcMain.on('startup-server-continue', function(event, blnUrl) {
+        //TODO pixtron - this should not be set here. This should only be changed by the event listeners.
+        clientConfig.set('onLineState', true);
+
         if(!env.blnUrl) {
           logger.info('Startup Settings: change blnUrl', {blnUrl});
-          clientConfig.set('onLineState', true);
           clientConfig.setBlnUrl(blnUrl);
         }
 
@@ -274,7 +279,7 @@ module.exports = function(env, clientConfig) {
         }).catch((error) => {
           reject(error);
         });
-          
+
         startupWindow.removeListener('closed', windowClosedByUserHandler);
       });
     });
