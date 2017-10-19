@@ -128,7 +128,6 @@ p {
 }
 
 #contentWrapper {
-    padding: 15px;
     box-sizing: border-box;
     user-select: none;
 }
@@ -264,12 +263,13 @@ input[type="radio"], input[type="checkbox"] {
 
 #about p {
     text-align: center;
-    line-height: 18px;
-    font-size: 13px;
+    font-size: 16px;
 }
 
 #about p:first-child {
     font-weight: bold;
+    font-size: 21px;
+    margin-bottom: 5px;
 }
 
 #about #content > div {
@@ -364,10 +364,8 @@ input[type="radio"], input[type="checkbox"] {
     background-repeat: no-repeat;
     background-size: 100%;
     background-position: center;
-    width: 80%;
-    height: 0;
-    padding-top: 65.04369538077186%;
-    margin: 0 auto 10px auto;
+    height: 290px;
+    margin: -30px 0 30px 0;
 }
 
 #startup-view-advanced {
