@@ -1,6 +1,6 @@
 ## 0.0.31
 **Maintainer**: balloon-team <maint@gyselroth.com>\
-**Date**: 
+**Date**: Thu October 19 16:20:18 CEST 2017 \
 
 * UI: [CHANGE] New balloon (tray) icon for all operating systems
 * UI: [CHANGE] New startup/about balloon teaser image

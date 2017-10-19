@@ -293,6 +293,10 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 /*-----Feeedback-----*/
+#feedback {
+    padding: 15px;
+}
+
 #feedback textarea {
     width: 100%;
     height: 200px;
