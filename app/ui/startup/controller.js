@@ -120,6 +120,8 @@ module.exports = function(env, clientConfig) {
         ||
         !clientConfig.get('apiUrl')
         ||
+        clientConfig.get('onLineState') === false
+        ||
         !clientConfig.hadConfig()
         ||
         !clientConfig.isActiveInstance()
