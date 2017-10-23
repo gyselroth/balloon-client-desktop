@@ -177,11 +177,12 @@ module.exports = function() {
         return false;
       } else {
         return true;
-      } 
+      }
     },
     destroySecret: function(type) {
       secret = undefined;
       if(!env.auth || !env.auth.secretStorage || env.auth.secretStorage === 'keytar') {
+        if(type === undefined) return Promise.resolve();
         return keytar.deletePassword('balloon', type);
       } else if(env.auth.secretStorage === 'config') {
         set(type, undefined);

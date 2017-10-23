@@ -81,7 +81,14 @@ function startApp() {
         });
       }).catch((error) => {
         logger.error('startup checkconfig', {error});
-        app.quit();
+
+        switch(error.code) {
+          case 'E_BLN_CONFIG_CREDENTIALS':
+            unlinkAccount();
+          break;
+          default:
+            app.quit();
+        }
       });
     });
 
@@ -240,6 +247,11 @@ ipcMain.on('sync-error', (event, error, url, line) => {
       unlinkAccount();
     break;
     case 'E_BLN_CONFIG_CREDENTIALS':
+      logger.error('Main: credentials not set', {code: error.code});
+
+      endSync();
+      unlinkAccount();
+    break;
     case 'E_BLN_CONFIG_BALLOONDIR':
     case 'E_BLN_CONFIG_CONFIGDIR':
     case 'E_BLN_CONFIG_CONFIGDIR_NOTEXISTS':
@@ -289,6 +301,10 @@ if (process.platform === 'darwin' && app.dock && env.name === 'production') {
 }
 
 function startSync() {
+  if(!sync) {
+    sync = SyncCtrl(env, tray);
+  }
+
   if(clientConfig.get('onLineState') === true) {
     sync.start();
   } else {
