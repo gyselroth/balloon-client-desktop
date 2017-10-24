@@ -45,7 +45,7 @@ module.exports = function(env, clientConfig, sync) {
       resizable: false,
       transparent: false,
       skipTaskbar: false,
-      icon: __dirname+'/../../img/taskbar_black.png'
+      icon: __dirname+'/../../img/logo-512x512.png'
     });
 
     feedbackWindow.loadURL(url.format({
@@ -80,7 +80,7 @@ module.exports = function(env, clientConfig, sync) {
 
     return feedbackWindow;
   }
-    
+
   ipcMain.on('feedback-send', (event, text, file) => {
     send(text, file).then(function(reportDir, reportPath) {
       logger.error('feedback: sending feedback successfull');
