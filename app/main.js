@@ -104,7 +104,7 @@ function unlinkAccount() {
   return Promise.all([
     auth.logout(),
     (function() {
-      if(!sync || env.name === 'development') return Promise.resolve();
+      if(!sync) return Promise.resolve();
 
       return sync.pause(true);
     }())
