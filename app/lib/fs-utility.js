@@ -45,14 +45,14 @@ module.exports = {
           path.resolve(resourcesPath, 'resources/diricon/osx'),
           'set',
           balloonDir,
-          path.resolve(resourcesPath, 'resources/logo.png')
+          path.resolve(resourcesPath, 'resources/diricon/icon.png')
         ].join(' '));
       break;
       case 'win32':
         exec([
           path.resolve(resourcesPath, 'resources/diricon/win.cmd'),
           balloonDir,
-          path.resolve(resourcesPath, 'resources/logo.png')
+          path.resolve(resourcesPath, 'resources/diricon/icon.ico')
         ].join(' '));
       break;
       case 'linux':
@@ -60,7 +60,7 @@ module.exports = {
           'gvfs-set-attribute',
           balloonDir,
           'metadata::custom-icon',
-          'file://'+path.resolve(resourcesPath, 'resources/logo.png')
+          'file://'+path.resolve(resourcesPath, 'resources/diricon/icon.png')
         ].join(' '));
       break;
     }
