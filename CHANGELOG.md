@@ -1,15 +1,17 @@
-## 0.0.31
+## 0.0.31 [unreleased]
 **Maintainer**: balloon-team <maint@gyselroth.com>\
-**Date**: Thu October 19 16:20:18 CEST 2017 \
+**Date**:
 
-* UI: [CHANGE] New balloon (tray) icon for all operating systems
+* UI: [CHANGE] New balloon (tray) logo for all operating systems
 * UI: [CHANGE] New startup/about balloon teaser image
+* UI: [CHANGE] Implemented new logo for window and folder icons
 * CORE: [FIX] Reauthentication does not get triggered if last authentication failed with network error
 * CORE: [FIX] Fix (static) third party version for all dependencies
 * CORE: [FIX] Startup wizard now shows an offline message even a server url has been configured within the env (before build) if the client can not reach the api server
 * CORE: [FIX] Auth prompt does not open after the client closed network connection before the offline event was triggered, the reauthentication prompt now only opens if the api returns 401.
 * CORE: [FIX] Fixed unlink account and pause sync, unlink now halts the sync as well instead triggered by the ui
 * CORE: [FIX] User gets now unlinked correctly if account is not authenticated
+* CORE: [FIX] App tray starts correctly even no connection to the api server can be established
 * PACKAGING: [FEATURE] Deb packages get deployed to bintray (apt repository), unstable&stable
 
 
