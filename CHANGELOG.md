@@ -1,6 +1,6 @@
-## 0.0.31 [unreleased]
-**Maintainer**: balloon-team <maint@gyselroth.com>\
-**Date**:
+## 0.0.31
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Wed October 25 11:08:33 CEST 2017
 
 * UI: [CHANGE] New balloon (tray) logo for all operating systems
 * UI: [CHANGE] New startup/about balloon teaser image
@@ -16,7 +16,7 @@
 
 
 ## 0.0.30
-**Maintainer**: balloon-team <maint@gyselroth.com>\
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu September 28 13:30:20 CEST 2017
 
 * UI: [CHANGE] migrated fonts to ubuntu-font package #14
@@ -26,7 +26,7 @@
 
 
 ## 0.0.29
-**Maintainer**: balloon-team <maint@gyselroth.com>\
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu September 28 11:19:20 CEST 2017
 
 * CORE: [FEATURE] Add migration framework
@@ -40,7 +40,7 @@
 
 
 ## 0.0.28
-**Maintainer**: balloon-team <maint@gyselroth.com>\
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Wed September 6 15:15:29 WEST 2017
 
 * CORE: [FIX] It is now possible to use localhost or an IP as bln url
@@ -49,7 +49,7 @@
 
 
 ## 0.0.27
-**Maintainer**: balloon-team <maint@gyselroth.com>\
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Wed Augist 30 15:04:32 CEST 2017
 
 * CORE: [FIX] Auto startup is now the default if builded with nothing set for enableAutoLaunch
