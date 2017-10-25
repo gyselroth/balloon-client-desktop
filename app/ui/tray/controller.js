@@ -30,7 +30,7 @@ const Icons = {
     sync: {
       path: 'icon-tray-white-16x16-frame%d.png',
       animate: true,
-      frames: 8,
+      frames: 10,
       template: false
     },
     error: {
@@ -53,7 +53,7 @@ const Icons = {
     sync: {
       path: 'icon-tray-black-16x16-frame%d.png',
       animate: true,
-      frames: 8,
+      frames: 10,
       template: true
     },
     error: {
@@ -76,7 +76,7 @@ const Icons = {
     sync: {
       path: 'icon-tray-blue-16x16-frame%d.png',
       animate: true,
-      frames: 8,
+      frames: 10,
       template: false
     },
     error: {
