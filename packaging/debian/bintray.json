@@ -1,0 +1,34 @@
+{
+    "package": {
+        "name": "balloon-client-desktop",
+        "repo": "balloon",
+        "subject": "gyselroth",
+        "desc": "balloon desktop client",
+        "website_url": "https://github.com/gyselroth/balloon-client-desktop",
+        "issue_tracker_url": "https://github.com/gyselroth/balloon-client-desktop/issues",
+        "vcs_url": "https://github.com/gyselroth/balloon-client-desktop.git",
+        "github_use_tag_release_notes": true,
+        "github_release_notes_file": "CHANGELOG.md",
+        "licenses": ["GPL-3.0"],
+        "labels": ["balloon", "cloud", "client", "desktop", "electron", "nodejs"],
+        "public_download_numbers": true,
+        "public_stats": true
+    },
+
+    "version": {
+        "name": "{version}",
+        "released": "{date}",
+        "gpgSign": false
+    },
+
+    "files": [
+        {"includePattern": "dist/(.*\.deb)", "uploadPattern": "$1",
+        "matrixParams": {
+            "deb_distribution": "{deb_distribution}",
+            "deb_component": "main",
+            "deb_architecture": "all",
+            "override": 1}
+        }
+    ],
+    "publish": true
+}
