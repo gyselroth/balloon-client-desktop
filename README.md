@@ -8,7 +8,7 @@ This is the desktop client for the [balloon](https://github.com/gyselroth/balloo
 [![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/gyselroth/balloon-client-desktop/master/LICENSE) 
  [ ![Download](https://api.bintray.com/packages/gyselroth/balloon-stable/balloon-client-desktop/images/download.svg) ](https://bintray.com/gyselroth/balloon-stable/balloon-client-desktop/_latestVersion) 
 
-balloon is both a cloud server and document management system.
+balloon is both a cloud server and a document management system.
 
 ## Features
 
