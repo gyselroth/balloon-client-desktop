@@ -19,12 +19,22 @@ try {
   ipcRenderer.once('secret', function(event, type, secret) {
     var config = clientConfig.getAll(true);
     config[type] = secret;
-    
+
     if(env.sync && env.sync.maxConcurentConnections) {
       config['maxConcurentConnections'] = env.sync.maxConcurentConnections;
     }
 
     sync = syncFactory(config, standardLogger);
+
+    sync.on('transfer-start', function(event) {
+      ipcRenderer.send('sync-transfer-start');
+      logger.info('Sync transfer started');
+    });
+
+    sync.on('transfer-end', function(event) {
+      ipcRenderer.send('sync-transfer-end');
+      logger.info('Sync transfer ended');
+    });
 
     sync.start((err, results) => {
       if(err) {

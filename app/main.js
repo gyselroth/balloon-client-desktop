@@ -184,6 +184,14 @@ ipcMain.on('sync-complete', () => {
   endSync();
 });
 
+ipcMain.on('sync-transfer-start', () => {
+  tray.syncTransferStarted();
+});
+
+ipcMain.on('sync-transfer-end', () => {
+  tray.syncTransferEnded();
+});
+
 ipcMain.on('sync-toggle-pause', () => {
   if(env.name === 'development') return;
 

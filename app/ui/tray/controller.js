@@ -290,6 +290,9 @@ module.exports = function(env, clientConfig) {
 
   function syncStarted() {
     trayWindow.webContents.send('sync-started');
+  }
+
+  function syncTransferStarted() {
     toggleState('sync', true);
   }
 
@@ -298,6 +301,10 @@ module.exports = function(env, clientConfig) {
       trayWindow.webContents.send('sync-ended');
     }
 
+    toggleState('sync', false);
+  }
+
+  function syncTransferEnded() {
     toggleState('sync', false);
   }
 
@@ -316,7 +323,9 @@ module.exports = function(env, clientConfig) {
     hide,
     show,
     syncStarted,
+    syncTransferStarted,
     syncEnded,
+    syncTransferEnded,
     syncPaused,
     toggleState,
     updateSecret,
