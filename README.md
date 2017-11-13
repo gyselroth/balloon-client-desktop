@@ -12,12 +12,12 @@ balloon is both a cloud server and a document management system.
 
 ## Features
 
-* NodeJS application which is compatible with all popular operating systems including (OS X, Windows and Linux)
+* NodeJS application, which is compatible with all popular operating systems (e.g. OS X, Windows and Linux)
 * Synchronize your cloud with your desktop!
-* Multilangual (And locale based)
+* Multilingual (and locale based)
 * HTTP basic authentication and/or support for (multiple) OpenID-Connect provider
 * Integrated auto-update mechanism
-* Superfast and operates in the background
+* Superfast and operating in the background
 * Settings/Status available via tray
 * Support for unlink/link instances from multiple balloon server/accounts
 * Selective synchronization (Choose what you want)
@@ -51,10 +51,10 @@ See [Releases](https://github.com/gyselroth/balloon-client-desktop/releases) to 
 </br>
 
 ## Requirements
-You need a running balloon server to operate the balloon web client. Please see [balloon](https://github.com/gyselroth/balloon) for further information.
+You need a running balloon server to operate a balloon web client. Please see [balloon](https://github.com/gyselroth/balloon) for further information.
 
 ## Changelog
 A changelog is available [here](https://github.com/gyselroth/balloon-client-desktop/blob/master/CHANGELOG.md).
 
 ## Contribute
-We are glad that you would like to contribute to this project. Please follow the given [terms](https://github.com/gyselroth/balloon-client-desktop/blob/master/CONTRIBUTING.md).
+We are glad that you would like to contribute to this project. Please observe the following [terms](https://github.com/gyselroth/balloon-client-desktop/blob/master/CONTRIBUTING.md).
