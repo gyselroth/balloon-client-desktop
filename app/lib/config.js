@@ -2,7 +2,13 @@ const fs = require('graceful-fs');
 const path = require('path');
 
 const electron = require('electron');
-const settings = require('electron-settings');
+
+if(process.type === 'browser') {
+  var settings = require('electron-settings');
+} else {
+  var settings = electron.remote.require('electron-settings');
+}
+
 const app = electron.app || electron.remote.app;
 const keytar = require('keytar');
 
@@ -34,6 +40,7 @@ function initialize(syncMemory, mainSync) {
   if(activeInstance) {
     var instanceDir = paths.getInstanceDir(activeInstance);
     var configFile  = path.join(instanceDir, env.configFileName || 'config-'+env.name+'.json');
+
     configExists = fs.existsSync(configFile);
 
     if(!fs.existsSync(instanceDir)) {
@@ -45,8 +52,6 @@ function initialize(syncMemory, mainSync) {
 
     newSettings.configFile  = configFile;
     newSettings.instanceDir = instanceDir;
-  } else {
-    configExists = false;
   }
 
   newSettings.configDir  = newSettings.configDir || configDir;
@@ -64,7 +69,7 @@ function initialize(syncMemory, mainSync) {
     }
   }
 
-  //only write default or startup settings in <main>  
+  //only write default or startup settings in <main>
   if(activeInstance) {
     if(process.type === 'browser') {
       settings.setAll(newSettings);
@@ -84,14 +89,14 @@ function initialize(syncMemory, mainSync) {
 module.exports = function() {
   initialize();
 
-  function getSecretType() { 
+  function getSecretType() {
     var method;
     if(activeInstance) {
       method = settings.get('authMethod');
     } else {
       method = memorySettings['authMethod'];
     }
-      
+
     if(method === 'basic') {
       return 'password';
     } else if(method === 'oidc') {
@@ -108,7 +113,7 @@ module.exports = function() {
       memorySettings[key] = value;
     }
   }
-    
+
   function get(key) {
     if(activeInstance) {
       return settings.get(key);
@@ -130,10 +135,11 @@ module.exports = function() {
       } else {
         var conf = memorySettings;
       }
-      
+
       if(include_secret === true && getSecretType()) {
-        conf[getSecretType()] = secret; 
+        conf[getSecretType()] = secret;
       }
+
       return conf;
     },
     get,
