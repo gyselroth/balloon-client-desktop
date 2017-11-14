@@ -52,6 +52,8 @@ function initialize(syncMemory, mainSync) {
 
     newSettings.configFile  = configFile;
     newSettings.instanceDir = instanceDir;
+  } else {
+    configExists = false;
   }
 
   newSettings.configDir  = newSettings.configDir || configDir;
