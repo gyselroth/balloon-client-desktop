@@ -1,5 +1,6 @@
 var path = require('path');
 
+const electron = require('electron');
 const winston = require('winston');
 
 const env = require('../env.js');
@@ -12,6 +13,15 @@ module.exports = function(config, logfile) {
     const pathLogFile = path.join(config.configDir, logfile || 'error.log');
     const logConfig = env.log || {};
     logger = new (winston.Logger)({levels: logLevels});
+    var winstonConfig = winston.config;
+
+    var getThreadName = function() {
+      if(electron.remote) {
+        return '<'+electron.remote.getCurrentWindow().id+'>';
+      } else {
+        return '<main>';
+      }
+    };
 
     if(env.context !== 'test') {
       logger.add(winston.transports.File, {
@@ -22,7 +32,7 @@ module.exports = function(config, logfile) {
         json: true,
         showLevel: true,
         tailable: true,
-        zippedArchive: true
+        zippedArchive: true,
       });
     }
 
@@ -31,10 +41,23 @@ module.exports = function(config, logfile) {
         level: 'debug',
         prettyPrint: true,
         depth: 6,
-        humanReadableUnhandledException: true
+        humanReadableUnhandledException: true,
+        colorize: true,
+        formatter: function(options) {
+          var category = 'unknown';
+          if(options.meta && options.meta.category) {
+            category = options.meta.category;
+            delete options.meta.category;
+          }
+
+          return winstonConfig.colorize(options.level, options.level.toUpperCase()) + ' ' +
+            getThreadName() + ' ' +
+            '[' +category+ ']: ' +
+            (options.message ? options.message : '') +
+            (options.meta && Object.keys(options.meta).length ? ' ('+ JSON.stringify(options.meta)+ ')' : '' );
+        }
       });
     }
-
   }
 
   return logger;
