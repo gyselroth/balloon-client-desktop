@@ -21,12 +21,12 @@ module.exports = function(env, clientConfig, sync) {
   windowStates = windowStatesFactory(env);
 
   function close() {
-    logger.info('feedback: close requested');
+    logger.info('close window requested', {category: 'feedback'});
     if(feedbackWindow) feedbackWindow.close();
   }
 
   function open() {
-    logger.info('feedback: open requested');
+    logger.info('open window requested', {category: 'feedback'});
     if(!feedbackWindow) feedbackWindow = createWindow();
 
     feedbackWindow.show();
@@ -61,13 +61,13 @@ module.exports = function(env, clientConfig, sync) {
 
       windowStates.closed('feedback');
 
-      logger.info('Feedback: closed');
+      logger.debug('window closed', {category: 'feedback'});
     });
 
     feedbackWindow.on('show', (event) => {
       windowStates.opened('feedback');
 
-      logger.info('feedback: opened');
+      logger.debug('window opened', {category: 'feedback'});
     });
 
     feedbackWindow.on('focus', (event) => {
@@ -83,24 +83,34 @@ module.exports = function(env, clientConfig, sync) {
 
   ipcMain.on('feedback-send', (event, text, file) => {
     send(text, file).then(function(reportDir, reportPath) {
-      logger.error('feedback: sending feedback successfull');
+      logger.info('sending feedback was successfull', {category: 'feedback'});
       event.sender.send('feedback-send-result', true);
     }).catch(function(err) {
-      logger.error('feedback: got error while sending feedback', {err});
+      logger.error('got error while sending feedback', {
+        category: 'feedback',
+        error: err
+      });
+
       event.sender.send('feedback-send-result', false);
     });
   });
 
 
   function send(text, file) {
-    logger.info('feedback: sending error report triggered');
+    logger.info('sending feedback triggered', {
+      category: 'feedback'
+    });
 
     return new Promise(function(resolve, reject) {
       var reportName = [clientConfig.get('username'), Math.floor(new Date().getTime() / 1000)].join('_');
       var archive = archiver('zip', {zlib: { level: 9 }});
 
       archive.on('error', function(err) {
-        logger.error('feedback: sending error report failed', err);
+        logger.error('sending feedback failed', {
+          category: 'feedback',
+          error: err
+        });
+
         reject(err);
       });
 
@@ -108,22 +118,37 @@ module.exports = function(env, clientConfig, sync) {
       var req = request.put(url+'/' + reportName+'?feedback='+encodeURIComponent(text));
 
       req.on('error', function(err) {
-        logger.error('feedback: sending error report failed', err);
+        logger.error('sending feedback failed', {
+          category: 'feedback',
+          error: err
+        });
+
         reject(err);
       });
 
       req.on('response', function(response) {
         if(response.statusCode === 200) {
-          logger.info('feedback: got response ', {response});
+          logger.info('got response ', {
+            category: 'feedback',
+            response
+          });
           resolve(reportName);
         } else {
-          logger.error('feedback: got response ', {response});
+          logger.error('got response ', {
+            category: 'feedback',
+            response
+          });
+
           reject();
         }
       });
 
       req.on('aborted', function(err) {
-        logger.error('feedback: request has been aborted by the server', err);
+        logger.error('request has been aborted by the server', {
+          category: 'feedback',
+          error: err
+        });
+
         reject(err);
       });
 

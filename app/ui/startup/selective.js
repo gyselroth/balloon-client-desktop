@@ -8,6 +8,11 @@ const request = require('request');
 
 const clientConfig = require('../../lib/config.js');
 
+const logger = require('../../lib/logger.js');
+const loggerFactory = require('../../lib/logger-factory.js');
+var standardLogger = new loggerFactory(clientConfig.getAll());
+logger.setLogger(standardLogger);
+
 const i18n = require('../../lib/i18n.js');
 const env = require('../../env.js');
 const app = electron.remote.app;

@@ -12,6 +12,11 @@ const clientConfig = require('../../lib/config.js');
 const i18n = require('../../lib/i18n.js');
 const app = electron.remote.app;
 
+const logger = require('../../lib/logger.js');
+const loggerFactory = require('../../lib/logger-factory.js');
+var standardLogger = new loggerFactory(clientConfig.getAll());
+logger.setLogger(standardLogger);
+
 handlebars.registerHelper('i18n', function(key) {
   var translation = i18n.__(key);
 
@@ -26,7 +31,7 @@ $(document).ready(function() {
       $(this).hide();
       ipcRenderer.send('check-for-update');
     });
-  
+
     var $install = $('#about-version-install').click(function(){
       ipcRenderer.send('install-update');
     });

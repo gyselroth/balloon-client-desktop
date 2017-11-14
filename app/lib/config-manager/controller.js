@@ -10,7 +10,7 @@ module.exports = function(clientConfig) {
   const instanceDir = clientConfig.get('instanceDir');
 
   function reset() {
-    logger.debug('Reset initalized');
+    logger.debug('reset initalized', {category: 'config-manager'});
 
     return new Promise(function(resolve, reject) {
       async.parallel([
@@ -21,10 +21,14 @@ module.exports = function(clientConfig) {
         removeLocalFiles
       ], (err, results) => {
         if(err) {
-          logger.error('Reset failed', err);
+          logger.error('reset failed', {
+            category: 'config-manager',
+            error: err
+          });
+
           reject(err);
         } else {
-          logger.debug('Reset successfull');
+          logger.debug('reset was successfull', {category: 'config-manager'});
           resolve();
         }
       });
@@ -32,7 +36,7 @@ module.exports = function(clientConfig) {
   }
 
   function resetCursorAndDb() {
-    logger.debug('resetCursorAndDb initalized');
+    logger.debug('reseting cursor and sync db initalized',  {category: 'config-manager'});
 
     return new Promise(function(resolve, reject) {
       async.parallel([
@@ -42,10 +46,13 @@ module.exports = function(clientConfig) {
         resetTransferDb
       ], (err, results) => {
         if(err) {
-          logger.error('resetCursorAndDb failed', err);
+          logger.error('reset cursor and sync db failed', {
+            category: 'config-manager',
+            error: err
+          });
           reject(err);
         } else {
-          logger.debug('resetCursorAndDb successfull');
+          logger.debug('reset cursor and sync db was successfull', {category: 'config-manager'});
           resolve();
         }
       });
@@ -73,7 +80,7 @@ module.exports = function(clientConfig) {
 
   function resetLastCursor(callback) {
     if(!instanceDir) {
-      return callback(null) 
+      return callback(null)
     }
 
     fs.unlink(path.join(instanceDir, 'last-cursor'), (err) => {
@@ -88,7 +95,7 @@ module.exports = function(clientConfig) {
 
   function resetSyncDb(callback) {
     if(!instanceDir) {
-      return callback(null) 
+      return callback(null)
     }
 
     fs.unlink(path.join(instanceDir, 'db/nodes.db'), (err) => {
@@ -103,7 +110,7 @@ module.exports = function(clientConfig) {
 
   function resetQueueErrorDb(callback) {
     if(!instanceDir) {
-      return callback(null) 
+      return callback(null)
     }
 
     fs.unlink(path.join(instanceDir, 'db/api-error-queue.db'), (err) => {
@@ -118,7 +125,7 @@ module.exports = function(clientConfig) {
 
   function resetTransferDb(callback) {
     if(!instanceDir) {
-      return callback(null) 
+      return callback(null)
     }
 
     fs.unlink(path.join(instanceDir, 'db/transfer.db'), (err) => {

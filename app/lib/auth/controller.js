@@ -14,7 +14,7 @@ module.exports = function(env, clientConfig) {
   var oidc = OidcCtrl(env, clientConfig);
 
   function logout() {
-    logger.info('AUTH: logout initialized');
+    logger.info('logout initialized', {category: 'auth'});
 
     return new Promise(function(resolve, reject) {
       if(clientConfig.get('authMethod') === 'oidc' && clientConfig.get('oidcProvider')) {
@@ -27,33 +27,45 @@ module.exports = function(env, clientConfig) {
         instance.unlink(clientConfig);
         resolve();
       };
-      
+
       clientConfig.destroySecret(clientConfig.getSecretType()).then(_logout
       ).catch(error => {
-        logger.error("failed to destroy secret, but user gets logged out anyways", {error})
+        logger.error("failed to destroy secret, but user gets logged out anyways", {
+          category: 'auth',
+          error: error
+        });
+
         _logout();
       })
    });
   }
-  
+
   function basicAuth(username, password) {
     clientConfig.set('authMethod', 'basic');
     clientConfig.set('username', username);
-    
+
     return new Promise(function(resolve, reject){
       clientConfig.storeSecret('password', password).then(() => {
         verifyNewLogin().then((username) => {
           resolve();
         }).catch((error) => {
-          logger.error('AUTH: failed signin via basic auth', {error});
+          logger.error('failed signin via basic auth', {
+            category: 'auth',
+            error: error
+          });
+
           reject(error)
         });
       }).catch((error) => {
-        logger.error('AUTH: failed store secret in keystore', {error});
+        logger.error('failed store secret in keystore', {
+          category: 'auth',
+          error: error
+        });
+
         reject(error)
       });
     });
-  } 
+  }
 
   function oidcAuth(idpConfig) {
     return new Promise(function(resolve, reject) {
@@ -63,7 +75,11 @@ module.exports = function(env, clientConfig) {
             resolve();
           }).catch((error) => {
             clientConfig.set('oidcProvider', undefined);
-            logger.error('AUTH: failed signin new authorization via oidc', {error});
+            logger.error('failed signin new authorization via oidc', {
+              category: 'auth',
+              error: error
+            });
+
             reject(error)
           });
         } else {
@@ -71,18 +87,22 @@ module.exports = function(env, clientConfig) {
             resolve();
           }).catch((error) => {
             clientConfig.set('oidcProvider', undefined);
-            logger.error('AUTH: failed signin via oidc', {error});
+            logger.error('failed signin via oidc', {
+              category: 'auth',
+              error: error
+            });
+
             reject(error)
           });
         }
       });
     });
-  } 
-  
+  }
+
   function retrieveLoginSecret() {
     return new Promise(function(resolve) {
       if(!clientConfig.get('authMethod')) {
-        logger.info('AUTH: no authentication method set yet');
+        logger.info('no authentication method set yet', {category: 'auth'});
         return resolve();
       }
 
@@ -90,17 +110,25 @@ module.exports = function(env, clientConfig) {
         clientConfig.setSecret(secret)
         resolve();
       }).catch((error) => {
-        logger.error('AUTH: failed retrieve secret from keystore', {error});
+        logger.error('failed retrieve secret from keystore', {
+          category: 'auth',
+          error: error
+        });
+
         resolve();
       })
     });
   }
 
   function login(startup) {
-    logger.info('AUTH: login initialized');
+    logger.info('login initialized', {category: 'auth'});
+
     return new Promise(function (resolve, reject) {
       verifyAuthentication().then(resolve).catch((err) => {
-        logger.info('AUTH: login failed', {code: err.code, message: err.message, stack: err.stack});
+        logger.info('login failed', {
+          category: 'auth',
+          code: err.code, message: err.message, stack: err.stack
+        });
 
         if(!err.code || err.code !== 'E_BLN_API_REQUEST_UNAUTHORIZED') {
           // assume there is a network problem, should retry later
@@ -111,18 +139,21 @@ module.exports = function(env, clientConfig) {
           var oidcProvider = clientConfig.get('oidcProvider');
 
           if(oidcProvider === undefined) {
-            logger.info('AUTH: login no oidc provider, open startup configuration');
+            logger.info('login no oidc provider, open startup configuration', {category: 'auth'});
             startup().then(resolve).catch(reject);
           } else {
             var idpConfig = getIdPByProviderUrl(oidcProvider);
             oidcAuth(idpConfig).then(resolve).catch((err) => {
-              logger.info('AUTH: login oidc login failed, open startup configuration', {err});
+              logger.info('login oidc login failed, open startup configuration', {
+                category: 'auth',
+                error: err
+              });
 
               startup().then(resolve).catch(reject);
             });
           }
         } else {
-          logger.info('AUTH: login method not oidc, starting startup configuration');
+          logger.info('login method not oidc, starting startup configuration', {category: 'auth'});
           startup().then(resolve).catch(reject);
         }
       });
@@ -144,21 +175,34 @@ module.exports = function(env, clientConfig) {
       var config = clientConfig.getAll(true);
 
       if((config.authMethod === 'oidc' && !config.accessToken) || (config.authMethod === 'basic' && !config.password)) {
-        logger.error('AUTH: verifyAuthentication secret not set');
+        logger.error('can not verify credentials, no secret available', {category: 'auth'});
         reject(new Error('Secret not set'));
       }
 
       var sync = syncFactory(config, logger);
 
-      logger.info('AUTH: verifyAuthentication', {authMethod: config.authMethod, username: config.username});
+      logger.info('verify authentication via whoami api call', {
+        category: 'auth',
+        authMethod: config.authMethod,
+        username: config.username
+      });
 
       sync.blnApi.whoami(function(err, username) {
         if(err) {
-          logger.info('AUTH: verifyAuthentication whoami failed', {err, username});
+          logger.info('verify authentication failed', {
+            category: 'auth',
+            error: err,
+            username: username
+          });
+
           clientConfig.set('loggedin', false);
           reject(err);
         } else {
-          logger.info('AUTH: verifyAuthentication whoami successfull', {username});
+          logger.info('successfully verifed user credentials', {
+            category: 'auth',
+            username: username
+          });
+
           clientConfig.set('loggedin', true);
           resolve();
         }
@@ -171,15 +215,23 @@ module.exports = function(env, clientConfig) {
       var sync = syncFactory(clientConfig.getAll(true), logger);
       sync.blnApi.whoami(function(err, username) {
         if(err) {
-          logger.error('failed verify authentication', {err});
+          logger.error('failed verify new user credentials', {
+            category: 'auth',
+            error: err
+          });
+
           clientConfig.set('oidcProvider', undefined);
           return reject(err);
         }
- 
-        logger.info('successfully verified authentication', {username});
+
+        logger.info('successfully verified authentication', {
+          category: 'auth',
+          username: username
+        });
+
         clientConfig.set('loggedin', true);
         clientConfig.set('username', username);
- 
+
         if(!instance.getInstances()) {
           instance.setNewInstance(clientConfig);
           resolve();
@@ -216,7 +268,7 @@ module.exports = function(env, clientConfig) {
     logout,
     login,
     basicAuth,
-    oidcAuth, 
+    oidcAuth,
     getIdPByProviderUrl,
     retrieveLoginSecret
   }

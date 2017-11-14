@@ -7,6 +7,11 @@ const uuid4 = require('uuid4');
 
 const clientConfig = require('../../lib/config.js');
 
+const logger = require('../../lib/logger.js');
+const loggerFactory = require('../../lib/logger-factory.js');
+var standardLogger = new loggerFactory(clientConfig.getAll());
+logger.setLogger(standardLogger);
+
 const i18n = require('../../lib/i18n.js');
 const app = electron.remote.app;
 
@@ -23,7 +28,7 @@ $(document).ready(function() {
   $feedback.find('button').click(function(){
     var file = $feedback.find('input').is(':checked');
     var text = $feedback.find('textarea').val();
-    var $loader = $feedback.find('.loader');      
+    var $loader = $feedback.find('.loader');
 
     if($loader.is(':visible')) {
       return;
@@ -39,7 +44,7 @@ $(document).ready(function() {
       ipcRenderer.send('feedback-send', text, file);
     }
   })
-    
+
   ipcRenderer.on('feedback-send-result', function(event, result){
     if(result === false) {
       $('#feedback-success').hide();

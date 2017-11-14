@@ -35,7 +35,7 @@ module.exports = function migrate() {
   let previousVersion = globalConfig.get('version');
   const currentVersion = app.getVersion();
 
-  logger.info('Checking for migration');
+  logger.info('Checking for migration', {category: 'migration'});
 
   if(previousVersion === undefined) {
     const instanceDir = clientConfig.get('instanceDir');
@@ -45,14 +45,18 @@ module.exports = function migrate() {
       //default previousVersion to 0.0.28 which is the version before migrations have been implemented
       previousVersion ='0.0.28';
     } else {
-      logger.info('Previous version not set, assuming fresh install. No migration will run');
+      logger.info('Previous version not set, assuming fresh install. No migration will run', {
+        category: 'migration'
+      });
       globalConfig.set('version', currentVersion);
       return Promise.resolve();
     }
   }
 
   if(previousVersion === currentVersion) {
-    logger.info('No migration necessary as previous and current Version are equal');
+    logger.info('No migration necessary as previous and current Version are equal', {
+        category: 'migration'
+    });
     return Promise.resolve({});
   }
 

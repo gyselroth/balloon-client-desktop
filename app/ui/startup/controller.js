@@ -25,7 +25,7 @@ var balloonAutoLauncher = new autoLaunch({
     isHidden: true
 });
 
-var logger = require('../../lib/logger.js');
+const logger = require('../../lib/logger.js');
 
 module.exports = function(env, clientConfig) {
   var startupWindow;
@@ -35,8 +35,14 @@ module.exports = function(env, clientConfig) {
 
   function enableAutoLaunch() {
     return new Promise(function(resolve, reject) {
-      if(env.enableAutoLaunch === false) return resolve();
+      if(env.enableAutoLaunch === false) {
+        logger.debug('autolaunch is disabled, skip enabling autolaunch', {
+          category: 'startup'
+        });
+        return resolve();
+      }
 
+      logger.debug('verify that autolaunch is enabled', {category: 'startup'});
       balloonAutoLauncher.isEnabled().then(function(isEnabled) {
         if(!isEnabled) {
           balloonAutoLauncher.enable().then(function(isEnabled) {
@@ -59,7 +65,6 @@ module.exports = function(env, clientConfig) {
 
   function checkConfig() {
     return Promise.all([
-      firstTimeStart(),
       makeSureBalloonDirExists(),
       enableAutoLaunch(),
       authenticate(),
@@ -70,24 +75,19 @@ module.exports = function(env, clientConfig) {
     return makeSureBalloonDirExists();
   }
 
-  function firstTimeStart() {
-    if(!clientConfig.get('blnUrl') || !clientConfig.get('apiUrl') || !clientConfig.hadConfig()
-     || !clientConfig.isActiveInstance()) {
-      return firstTimeWizard();
-    } else {
-      return Promise.resolve();
-    }
-  }
-
   function makeSureBalloonDirExists() {
     return new Promise(function(resolve, reject) {
       var balloonDir = clientConfig.get('balloonDir');
+      logger.debug('verify that balloonDir exists', {category: 'startup'});
 
       //make sure balloonDir dir exists
       //TODO pixtron - can this be combined with config-manager?
       fs.exists(balloonDir, (exists) => {
         if(exists === false) {
-          logger.info('Startup: BalloonDir does not exist. Reseting db, last-cursor and creating BalloonDir');
+          logger.info('BalloonDir does not exist. Reseting db, last-cursor and creating BalloonDir', {
+            category: 'startup'
+          });
+
           //when balloonDir does not exist, cursor and db have to be reset too
           return Promise.all([
             configManager.resetCursorAndDb(),
@@ -104,10 +104,17 @@ module.exports = function(env, clientConfig) {
     return new Promise(function(resolve, reject) {
       fsUtility.createBalloonDir(clientConfig.get('balloonDir'), clientConfig.get('homeDir'), (err) => {
         if(err) {
-          logger.error('Startup:', {err});
+          logger.error('failed create ballon dir', {
+            category: 'startup',
+            error: err
+          });
+
           reject(err);
         } else {
-          logger.info('Startup: balloonDir created');
+          logger.info('balloonDir created', {
+            category: 'startup'
+          });
+
           resolve();
         }
       });
@@ -115,8 +122,7 @@ module.exports = function(env, clientConfig) {
   }
 
   function authenticate() {
-    return new Promise(function(resolve, reject) {
-      if(!clientConfig.get('blnUrl')
+    if(!clientConfig.get('blnUrl')
         ||
         !clientConfig.get('apiUrl')
         ||
@@ -125,10 +131,15 @@ module.exports = function(env, clientConfig) {
         !clientConfig.hadConfig()
         ||
         !clientConfig.isActiveInstance()
-      ) {
-        return resolve();
-      }
+    ) {
+      logger.debug('skip startup authentication, first time wizard needs to be executed first', {
+          category: 'startup'
+      });
+      return firstTimeWizard();
+    }
 
+    return new Promise(function(resolve, reject) {
+      logger.debug('verify authentication', {category: 'startup'});
       auth.login(askCredentials).then(() => {
         resolve();
       }).catch((error) => {
@@ -139,7 +150,10 @@ module.exports = function(env, clientConfig) {
 
   function askCredentials() {
     return new Promise(function(resolve, reject) {
+      logger.debug('ask user for authentication credentials', {category: 'startup'});
+
       if(!clientConfig.isActiveInstance() && clientConfig.get('onLineState') === true) {
+        logger.debug('waiting for user action', {category: 'startup'});
         if(!startupWindow) startupWindow = createStartupWindow();
 
         startupWindow.webContents.executeJavaScript(`switchView('auth')`);
@@ -156,7 +170,11 @@ module.exports = function(env, clientConfig) {
 
         ipcMain.removeAllListeners('startup-basic-auth');
         ipcMain.on('startup-basic-auth', function(event, username, password) {
-          logger.info('requested basic authentication', {username});
+          logger.info('requested basic authentication', {
+            category: 'startup',
+            username: username
+          });
+
           startupWindow.removeListener('closed', windowClosedByUserHandler);
           auth.basicAuth(username, password).then(() => {
             if(!clientConfig.hadConfig()) {
@@ -175,7 +193,11 @@ module.exports = function(env, clientConfig) {
         ipcMain.removeAllListeners('auth-oidc-signin');
         ipcMain.on('auth-oidc-signin', function(event, idp) {
           var idpConfig = env.auth.oidc[idp];
-          logger.info('requested oidc signin', {idpConfig});
+          logger.info('requested oidc signin', {
+            category: 'startup',
+            idp: idpConfig
+          });
+
           startupWindow.removeListener('closed', windowClosedByUserHandler);
           auth.oidcAuth(idpConfig).then(() => {
             if(!clientConfig.hadConfig()) {
@@ -191,6 +213,9 @@ module.exports = function(env, clientConfig) {
           });
         });
       } else {
+        logger.debug('can not ask for authentication credentials, there is an active instance ongoing', {
+            category: 'startup'
+        });
         resolve();
       }
     });
@@ -203,7 +228,7 @@ module.exports = function(env, clientConfig) {
   }
 
   function welcomeWizard() {
-    logger.info('Startup settings: open requested');
+    logger.info('Startup settings: open requested', {category: 'startup'});
 
     return new Promise(function(resolve, reject) {
       if(!startupWindow) startupWindow = createStartupWindow();
@@ -228,7 +253,8 @@ module.exports = function(env, clientConfig) {
 
       ipcMain.removeAllListeners('startup-change-dir');
       ipcMain.on('startup-change-dir', function(event) {
-        logger.info('Startup Settings: change balloon dir');
+        logger.info('change balloon data directory', {category: 'startup'});
+
         dialog.showOpenDialog({
           title: 'Select balloon directory',
           defaultPath: clientConfig.balloonDir,
@@ -244,16 +270,22 @@ module.exports = function(env, clientConfig) {
 
       ipcMain.removeAllListeners('startup-selective-sync');
       ipcMain.on('startup-selective-sync', function(event) {
-        logger.info('Startup Settings: selective sync');
+        logger.info('open selective sync window', {category: 'startup'});
         openSelectiveSync();
       });
     });
   }
 
   function firstTimeWizard() {
-    logger.info('Startup settings: open requested');
+    logger.info('start first time wizard', {category: 'startup'});
 
     return new Promise(function(resolve, reject) {
+
+      if(clientConfig.isActiveInstance()) {
+        logger.info('first time wizard unlinked active instance', {category: 'startup'});
+        auth.logout();
+      }
+
       if(!startupWindow) startupWindow = createStartupWindow();
 
       startupWindow.webContents.executeJavaScript(`switchView('server')`);
@@ -272,13 +304,22 @@ module.exports = function(env, clientConfig) {
         clientConfig.set('onLineState', true);
 
         if(!env.blnUrl) {
-          logger.info('Startup Settings: change blnUrl', {blnUrl});
+          logger.info('change url to server', {
+            category: 'startup',
+            url: blnUrl
+          });
+
           clientConfig.setBlnUrl(blnUrl);
         }
 
         askCredentials().then(() => {
           resolve();
         }).catch((error) => {
+          logger.error('failed ask for credentials', {
+            category: 'startup',
+            error: error
+          });
+
           reject(error);
         });
 
@@ -288,7 +329,7 @@ module.exports = function(env, clientConfig) {
   }
 
   function openSelectiveSync() {
-    logger.info('Startup settings: open selective sync requested');
+    logger.info('Startup settings: open selective sync requested', {category: 'startup'});
 
     return new Promise(function(resolve, reject) {
       if(!selectiveWindow) selectiveWindow = createSelectiveWindow();
@@ -301,7 +342,10 @@ module.exports = function(env, clientConfig) {
 
       ipcMain.removeAllListeners('selective-apply');
       ipcMain.on('selective-apply', function(event, ids) {
-        logger.info('Startup Settings: apply selective sync', {ids});
+        logger.info('apply selective sync settings', {
+          category: 'startup',
+          data: ids
+        });
 
         clientConfig.ignoreNode(ids);
 
@@ -310,7 +354,7 @@ module.exports = function(env, clientConfig) {
 
       ipcMain.removeAllListeners('selective-cancel');
       ipcMain.on('selective-cancel', function(event) {
-        logger.info('Startup Settings: cancel selective sync');
+        logger.info('cancel selective sync settings', {category: 'startup'});
         selectiveWindow.close();
       });
     });
@@ -380,13 +424,13 @@ module.exports = function(env, clientConfig) {
 
       windowStates.closed('startup-settings');
 
-      logger.info('Startup settings: closed');
+      logger.debug('startup window closed', {category: 'startup'});
     });
 
     startupWindow.on('show', (event) => {
       windowStates.opened('startup-settings');
 
-      logger.info('Startup settings: opened');
+      logger.debug('startup window opened', {category: 'startup'});
     });
 
     if(env.name === 'development') {
@@ -400,6 +444,5 @@ module.exports = function(env, clientConfig) {
     checkConfig,
     preSyncCheck,
     showBalloonDir,
-    askCredentials
   }
 }

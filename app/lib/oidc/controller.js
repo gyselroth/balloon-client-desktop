@@ -31,7 +31,10 @@ module.exports = function (env, clientConfig) {
 
         if(oidcAuth) {
           clientConfig.retrieveSecret('refreshToken').then((secret) => {
-            logger.info('found refreshToken, trying to request new access token')
+            logger.info('found refreshToken, trying to request new access token', {
+              category: 'openid-connect'
+            });
+
             makeAccessTokenRequest(configuration, secret).then((response) => {
               clientConfig.storeSecret('accessToken', response.accessToken).then(() => {
                 clientConfig.set('accessTokenExpires', response.issuedAt + response.expiresIn);
@@ -40,23 +43,39 @@ module.exports = function (env, clientConfig) {
                 reject(error)
               });
             }).catch((error) => {
-              logger.info('failed to retrieve accessToken, request new refreshToken', {error});
+              logger.info('failed to retrieve accessToken, request new refreshToken', {
+                category: 'openid-connect',
+                error: error
+              });
+
               makeAuthorizationRequest(config).then((error) => {
                 resolve(true);
               }).catch((error) => {
-                logger.info('failed to retrieve refreshToken', {error});
+                logger.error('failed to retrieve refreshToken', {
+                  category: 'openid-connect',
+                  error: error
+                });
+
                 reject(error);
               });
             });
           }).catch((error) => {
-            logger.info('failed to read refreshToken from secret store', {error});
+            logger.error('failed to read refreshToken from secret store', {
+              category: 'openid-connect',
+              error: error
+            });
+
             reject(error);
           });
         } else {
           makeAuthorizationRequest(config).then((respone) => {
             resolve(true);
           }).catch((error) => {
-            logger.info('failed to retrieve refreshToken', {error});
+            logger.error('failed to retrieve refreshToken', {
+              category: 'openid-connect',
+              error: error
+            });
+
             reject(error);
           });
         }
@@ -84,16 +103,22 @@ module.exports = function (env, clientConfig) {
         .then(response => {
           return response;
         });
-   } 
+   }
 
   function makeAuthorizationRequest(AuthorizationServiceConfiguration) {
     return new Promise(function(resolve, reject) {
       notifier.setAuthorizationListener((request, response, error) => {
-        logger.info('Authorization request complete ', {request, response, error});
+        logger.info('Authorization request complete ', {
+          category: 'openid-connect',
+          request: request,
+          response: response,
+          error: error
+        });
+
         if (response) {
           makeRefreshTokenRequest(configuration, response.code)
             .then((result) => {
-              clientConfig.storeSecret('refreshToken', result.refreshToken).then(() => { 
+              clientConfig.storeSecret('refreshToken', result.refreshToken).then(() => {
                 clientConfig.set('authMethod', 'oidc');
                 clientConfig.set('oidcProvider', idpConfig.providerUrl);
                 makeAccessTokenRequest(configuration, result.refreshToken).then((access) => {
@@ -119,7 +144,12 @@ module.exports = function (env, clientConfig) {
         undefined, /* state */
         {'prompt': 'consent', 'access_type': 'offline'});
 
-    logger.info('making oauth2 authorization request', {configuration, request});
+    logger.info('oauth2 authorization request', {
+      category: 'openid-connect',
+      config: configuration,
+      request: request
+    });
+
     authorizationHandler.performAuthorizationRequest(configuration, request);
    });
   }
@@ -130,7 +160,7 @@ module.exports = function (env, clientConfig) {
         idpConfig.clientId, idpConfig.redirectUri, GRANT_TYPE_AUTHORIZATION_CODE, code, undefined, {'client_secret': idpConfig.clientSecret});
 
     return tokenHandler.performTokenRequest(configuration, request).then(response => {
-      logger.info('retrieved oauth2 refresh token');
+      logger.info('retrieved oauth2 refresh token', {category: 'openid-connect'});
       return response;
     });
   }
@@ -140,7 +170,7 @@ module.exports = function (env, clientConfig) {
         idpConfig.clientId, idpConfig.redirectUri, GRANT_TYPE_REFRESH_TOKEN, undefined, refreshToken, {'client_secret': idpConfig.clientSecret});
 
     return tokenHandler.performTokenRequest(configuration, request).then(response => {
-      logger.info('retrieved oauth2 access token');
+      logger.info('retrieved oauth2 access token', {category: 'openid-connect'});
       return response;
     });
   }
@@ -153,7 +183,7 @@ module.exports = function (env, clientConfig) {
     }
 
     return tokenHandler.performRevokeTokenRequest(configuration, request).then(response => {
-      logger.info('revoked refreshToken');
+      logger.info('revoked refreshToken', {category: 'openid-connect'});
       return response;
     });
   }
@@ -165,21 +195,29 @@ module.exports = function (env, clientConfig) {
         configuration = config;
         initIdp();
         clientConfig.retrieveSecret('refreshToken').then((secret) => {
-          logger.info('found refreshToken to revoke')
+          logger.debug('found refreshToken to revoke', {category: 'openid-connect'})
           makeRevokeTokenRequest(configuration, secret).then((response) => {
             resolve();
           }).catch((error) => {
-            logger.info('failed to revoke refreshToken', {error});
+            logger.info('failed to revoke refreshToken', {
+              category: 'openid-connect',
+              error: error
+            });
+
             reject(error);
           });
         }).catch((error) => {
-          logger.info('failed to read refreshToken from secret store', {error});
+          logger.error('can not revoke token, token can not be fetched from secret storage', {
+            category: 'openid-connect',
+            error: error
+          });
+
           reject(error);
         });
       });
     });
   }
-  
+
   return {
     signin,
     revokeToken

@@ -81,24 +81,32 @@ module.exports = function(env, tray) {
 
   function start() {
     //return if no user is logged in
-    if(clientConfig.get('loggedin') === false) return logger.info('Sync: not starting sync because no user logged in');
+    if(clientConfig.get('loggedin') === false) {
+      return logger.info('not starting sync because no user logged in', {category: 'sync'});
+    }
 
     //return if no network available
-    if(clientConfig.get('onLineState') === false) return logger.info('Sync: not starting because no network available');
+    if(clientConfig.get('onLineState') === false) {
+      return logger.info('not starting because no network available', {category: 'sync'});
+    }
 
     //return if sync has been paused
-    if(syncPaused) return logger.info('Sync: not starting sync because it has been paused')
+    if(syncPaused) {
+      return logger.info('Sync: not starting sync because it has been paused', {category: 'sync'});
+    }
 
     //return if sync is already running
-    if(syncWindow) return logger.info('Sync: not starting sync because it is already running');
+    if(syncWindow) {
+      return logger.info('Sync: not starting sync because it is already running', {category: 'sync'});
+    }
 
-    logger.info('Sync: starting sync');
+    logger.info('starting sync', {category: 'sync'});
     tray.syncStarted();
 
     startPowerSaveBlocker();
 
     startup.preSyncCheck().then(result => {
-      logger.info('Sync: pre sync check successfull');
+      logger.info('pre sync check successfull', {category: 'sync'});
 
       syncWindow = new BrowserWindow({
           width: 1000,
@@ -135,7 +143,11 @@ module.exports = function(env, tray) {
         tray.syncEnded();
       });
     }).catch(err => {
-      logger.error('Sync: pre sync check failed', err);
+      logger.error('pre sync check failed', {
+        category: 'sync',
+        error: err
+      });
+
       tray.syncEnded();
       end(true);
     });

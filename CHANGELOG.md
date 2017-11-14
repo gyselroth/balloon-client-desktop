@@ -1,3 +1,14 @@
+## 0.0.32-dev
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**:
+
+* CORE: [FIX] fixed random start errors which lead to a unusable state #28
+* CORE: [CHANGE] log messages do now contain a category and a thread id #27
+* CORE: [FIX] fixed various log level errors #27
+* CORE: [FIX] simplified startup config check
+* UI: [CHANGE] balloon icon does now only spin if there is data exchanging between server and client
+
+
 ## 0.0.31
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Wed October 25 11:08:33 CEST 2017
