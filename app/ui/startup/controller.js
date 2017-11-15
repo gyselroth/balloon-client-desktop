@@ -152,7 +152,7 @@ module.exports = function(env, clientConfig) {
     return new Promise(function(resolve, reject) {
       logger.debug('ask user for authentication credentials', {category: 'startup'});
 
-      if(!clientConfig.isActiveInstance() && clientConfig.get('onLineState') === true) {
+      if(clientConfig.get('onLineState') === true) {
         logger.debug('waiting for user action', {category: 'startup'});
         if(!startupWindow) startupWindow = createStartupWindow();
 
@@ -213,7 +213,7 @@ module.exports = function(env, clientConfig) {
           });
         });
       } else {
-        logger.debug('can not ask for authentication credentials, there is an active instance ongoing', {
+        logger.error('can not ask for authentication credentials, there is an active instance ongoing', {
             category: 'startup'
         });
         resolve();

@@ -26,7 +26,7 @@ module.exports = function(config, logfile) {
     if(env.context !== 'test') {
       logger.add(winston.transports.File, {
         filename: pathLogFile,
-        level: logConfig.logLevel || 'info',
+        level: logConfig.logLevel || 'debug',
         maxsize: logConfig.maxsize || 10000000,
         maxFiles: logConfig.maxFiles || 10,
         json: true,

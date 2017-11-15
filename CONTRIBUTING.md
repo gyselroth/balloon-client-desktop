@@ -124,7 +124,7 @@ The following configuration options are available
 * `configFileName` String (optional) - name of the configuration file inside `configDirName`. Default: `config.json`
 * `balloonDir` String (optional) - default path to the directory where the synced files are saved. You can use {home}/{username} which gets replaced with the current home directory/local username. Default: `{home}/Balloon`
 * `log` Object (optional) - logging configuration
-  * `level` String (optional) - Maximum level that should be logged. Default: `info`. Available levels: `{error: 3, warning: 4, notice: 5, info: 6, debug: 7}`
+  * `level` String (optional) - Maximum level that should be logged. Default: `debug`. Available levels: `{error: 3, warning: 4, notice: 5, info: 6, debug: 7}`
   * `maxsize` Integer (optional) - max size of a single lg file. Default: `10000000`
   * `maxFiles` Integer (optional) - maximum number of log files. Default: `10`
 * `sync`: Object (optional) - sync configuration
