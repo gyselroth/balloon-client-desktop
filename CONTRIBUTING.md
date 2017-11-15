@@ -128,7 +128,7 @@ The following configuration options are available
   * `maxsize` Integer (optional) - max size of a single lg file. Default: `10000000`
   * `maxFiles` Integer (optional) - maximum number of log files. Default: `10`
 * `sync`: Object (optional) - sync configuration
-  * `interval` Integer (optional) - interval in which syncs run in production context. Default: `20`
+  * `interval` Integer (optional) - interval in which syncs run in production context. Default: `5`
   * `maxConcurentConnections` Integer (optional) - maximum simultaneous connections for file up- and downloads
 * `enableAutoLaunch` Boolean (optional) - if app should be launched on system startup. Default: true
 * `update` Object (optional) - update configuration

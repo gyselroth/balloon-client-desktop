@@ -160,7 +160,7 @@ module.exports = function(env, tray) {
       //do not set timeout when sync has been paused
       syncTimeout = setTimeout(() => {
         start();
-      }, ((env.sync && env.sync.interval) || 30) * 1000);
+      }, ((env.sync && env.sync.interval) || 5) * 1000);
     }
 
     if(syncWindow) syncWindow.close();

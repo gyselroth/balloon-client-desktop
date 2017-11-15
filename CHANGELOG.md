@@ -1,12 +1,14 @@
-## 0.0.32-dev
+## 0.0.32
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**:
+**Date**: Wed November 15 13:55:43 CET 2017
 
 * CORE: [FIX] fixed random start errors which lead to a unusable state #28
 * CORE: [CHANGE] log messages do now contain a category and a thread id #27
 * CORE: [FIX] fixed various log level errors #27
 * CORE: [FIX] simplified startup config check
 * CORE: [FIX] the default interval to check for an update is now 4 hours (instead 7 days) #30
+* CORE: [FIX] added migration script to set bookmark and folder icon (which have been replaced in 0.0.31)
+* CORE: [CHANGE] changed sync interval to 5s
 * UI: [CHANGE] balloon icon does now only spin if there is data exchanging between server and client
 
 
@@ -62,7 +64,7 @@
 
 ## 0.0.27
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Wed Augist 30 15:04:32 CEST 2017
+**Date**: Wed August 30 15:04:32 CEST 2017
 
 * CORE: [FIX] Auto startup is now the default if builded with nothing set for enableAutoLaunch
 * CORE: [FEATURE] Adds balloon folder icon on linux

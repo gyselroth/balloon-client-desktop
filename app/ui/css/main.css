@@ -403,6 +403,10 @@ input[type="radio"], input[type="checkbox"] {
     color: #999;
 }
 
+#selective-sync {
+    margin: 10px;
+}
+
 #selective-sync div {
     height: 310px;
     overflow-x: hidden;
