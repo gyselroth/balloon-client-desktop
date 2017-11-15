@@ -133,7 +133,7 @@ The following configuration options are available
 * `enableAutoLaunch` Boolean (optional) - if app should be launched on system startup. Default: true
 * `update` Object (optional) - update configuration
   * `enable` Boolean (optional) - Enables automatic (and manual) updates - Default: `true`
-  * `checkInterval` Integer (optional) - Interval in days the client should check for updates. A first check is always done on app start. Default: `7`
+  * `checkInterval` Integer (optional) - Interval in hours the client should check for updates. A first check is always done on app start. Default: `4`
 * `auth`: Object (optional) - authentication configuration
   * `secretStorage` String (optional) - Credential storage, Either config or keytar (OS keychain). Default: `keytar`
   * `basic` Boolean (optional) - Enabled basic authentication (username/password), be sure that your server has basic authentication enabled

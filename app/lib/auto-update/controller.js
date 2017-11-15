@@ -83,17 +83,17 @@ module.exports = function(env, clientConfig, tray, about) {
   function setUpdateCheckInterval() {
     if(shouldCheckForUpdates() === false) return;
 
-    var intervalD = 7;
-    if(env.update && env.updateCheckInterval) {
-      intervalD = env.update.updateCheckInterval;
+    var intervalHours = 4;
+    if(env.update && env.update.checkInterval) {
+      intervalHours = env.update.checkInterval;
     }
 
-    var intervalMs = intervalD * 24 * 60 * 60 * 1000;
+    var intervalMs = intervalHours * 60 * 60 * 1000;
 
     logger.info('setting update check interval', {
       category: 'autoupdate',
-      minutes: intervalMs,
-      days: intervalD
+      interval: intervalMs,
+      hours: intervalHours
     });
 
     setInterval(checkForUpdate, intervalMs);

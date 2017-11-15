@@ -6,6 +6,7 @@
 * CORE: [CHANGE] log messages do now contain a category and a thread id #27
 * CORE: [FIX] fixed various log level errors #27
 * CORE: [FIX] simplified startup config check
+* CORE: [FIX] the default interval to check for an update is now 4 hours (instead 7 days) #30
 * UI: [CHANGE] balloon icon does now only spin if there is data exchanging between server and client
 
 
