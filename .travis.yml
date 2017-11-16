@@ -28,7 +28,7 @@ before_deploy:
       cp packaging/debian/bintray.json bintray.json;
       sed -i s/'{version}'/$version/g bintray.json;
       sed -i s/'{date}'/$date/g bintray.json;
-      sed -i s/'{deb_distribution}'/$deb_distribution/g bintray.json
+      sed -i s/'{deb_distribution}'/$deb_distribution/g bintray.json;
     fi
 deploy:
   - provider: bintray
