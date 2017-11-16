@@ -10,6 +10,8 @@
 * CORE: [FIX] added migration script to set bookmark and folder icon (which have been replaced in 0.0.31)
 * CORE: [CHANGE] changed sync interval to 5s
 * UI: [CHANGE] balloon icon does now only spin if there is data exchanging between server and client
+* UI: [FIX] fixed de-CH typo on the startup screen
+* PACKAGING: [FEATURE] Deb packages are now gpg signed and available on bintray, consult the wiki for more information how to install via apt
 
 
 ## 0.0.31

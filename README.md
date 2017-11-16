@@ -23,7 +23,7 @@ balloon is both a cloud server and a document management system.
 * Selective synchronization (Choose what you want)
 
 ## Download
-See [Releases](https://github.com/gyselroth/balloon-client-desktop/releases) to download your Windows/Mac OS X/Linux balloon desktop client.
+See [Releases](https://github.com/gyselroth/balloon-client-desktop/releases) to download your Windows/Mac OS X/Linux balloon desktop client or visit the [wiki](https://github.com/gyselroth/balloon-client-desktop/wiki/Installation) to get further information on how to install the balloon client on your platform.
 
 [<img align="left" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/NewTux.svg/256px-NewTux.svg.png" alt="NewTux" width="75" />]
 
