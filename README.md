@@ -6,7 +6,7 @@ This is the desktop client for the [balloon](https://github.com/gyselroth/balloo
 [![Build Status](https://travis-ci.org/gyselroth/balloon-client-desktop.svg?branch=master)](https://travis-ci.org/gyselroth/balloon-client-desktop)
 [![GitHub release](https://img.shields.io/github/release/gyselroth/balloon-client-desktop.svg)](https://github.com/gyselroth/balloon-client-desktop/releases)
 [![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/gyselroth/balloon-client-desktop/master/LICENSE) 
- [ ![Download](https://api.bintray.com/packages/gyselroth/balloon-stable/balloon-client-desktop/images/download.svg) ](https://bintray.com/gyselroth/balloon-stable/balloon-client-desktop/_latestVersion) 
+ [ ![Download](https://api.bintray.com/packages/gyselroth/balloon/balloon-client-desktop/images/download.svg) ](https://bintray.com/gyselroth/balloon/balloon-client-desktop/_latestVersion) 
 
 balloon is both a cloud server and a document management system.
 
