@@ -1,3 +1,10 @@
+## 0.0.33
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Thu November 17 14:14:43 CET 2017
+
+* PACKAGING: [FIX] bintray deployment in stable branch 
+
+
 ## 0.0.32
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu November 16 11:14:43 CET 2017
