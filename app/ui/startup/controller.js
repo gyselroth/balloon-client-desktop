@@ -8,6 +8,7 @@ var autoLaunch = require('auto-launch');
 const env = require('../../env.js');
 const fsUtility = require('../../lib/fs-utility.js');
 const AuthCtrl = require('../../lib/auth/controller.js');
+const NodeSettingsCtrl = require('../node-settings/controller.js');
 
 const configManagerCtrl = require('../../lib/config-manager/controller.js');
 
@@ -61,6 +62,7 @@ module.exports = function(env, clientConfig) {
     return Promise.all([
       firstTimeStart(),
       makeSureBalloonDirExists(),
+      makeSureContextMenuExists(),
       enableAutoLaunch(),
       authenticate(),
     ]);
@@ -108,6 +110,20 @@ module.exports = function(env, clientConfig) {
           reject(err);
         } else {
           logger.info('Startup: balloonDir created');
+          resolve();
+        }
+      });
+    });
+  }
+
+  function makeSureContextMenuExists() {
+    return new Promise(function(resolve, reject) {
+      fsUtility.createContextMenu(clientConfig.get('balloonDir'), clientConfig.get('homeDir'), (err) => {
+        if(err) {
+          logger.error('Startup:', {err});
+          reject(err);
+        } else {
+          logger.info('Startup: contextMenu created');
           resolve();
         }
       });
@@ -200,6 +216,20 @@ module.exports = function(env, clientConfig) {
     if(isAutoLaunch() === false) {
       shell.openItem(clientConfig.get('balloonDir'));
     }
+  }
+
+  function showNodeSettingsWindow(nodePath) {
+      if (nodePath) {
+        logger.info('nodePath: ' + nodePath);
+
+        if (app.isReady()) {
+            NodeSettingsCtrl(env).open(nodePath);
+        } else {
+          app.on('ready', function () {
+              NodeSettingsCtrl(env).open(nodePath);
+          });
+        }
+      }
   }
 
   function welcomeWizard() {
@@ -400,6 +430,7 @@ module.exports = function(env, clientConfig) {
     checkConfig,
     preSyncCheck,
     showBalloonDir,
+    showNodeSettingsWindow,
     askCredentials
   }
 }

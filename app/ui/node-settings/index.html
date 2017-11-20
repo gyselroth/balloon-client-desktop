@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link href="../../../node_modules/ubuntu-fontface/ubuntu.css" rel="stylesheet" type="text/css">
+        <link href="../css/main.css" rel="stylesheet" type="text/css">
+        <script>$ = require('jquery')</script>
+        <!--<script>require("kendo-ui-web")</script>-->
+
+        <!--<script>require('kendo-ui-core/src/kendo.AutoComplete.js').ui.AutoComplete</script>-->
+        <!--<script>require('kendo-ui-core')</script>-->
+
+        <script src="browser.js"></script>
+
+        <link href="../../../node_modules/kendo-ui-core/css/web/kendo.common.core.min.css" rel="stylesheet" />
+        <link href="../../../node_modules/kendo-ui-core/css/web/kendo.default.min.css" rel="stylesheet" />
+        <script src="../../../node_modules/kendo-ui-web/scripts/jquery.min.js"></script>
+        <script src="../../../node_modules/kendo-ui-web/scripts/kendo.web.min.js"></script>
+    </head>
+    <body id="node-settings">
+        <script id="template-content" type="text/x-handlebars-template">
+            <div id="node-settings-content-data">
+                <div id="node-settings-content-data-error">{{i18n 'node-settings.error.message'}}</div>
+
+                <div id="node-settings-content-data-header">
+                    <p><strong>Titel</strong><br>Geändert heute blabla</p>
+                </div>
+
+                <div id="node-settings-preview-properties">
+                    <div>
+                        <div id="node-settings-preview-properties-tag">{{i18n 'node-settings.tags'}}</div>
+                        <div id="node-settings-preview-add-tag"><input type="text" name="add_tag"/></div>
+                        <div class="node-settings-add gr-icon gr-i-add">+</div>
+                        <div id="node-settings-properties-meta-tags">
+                            <ul></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="node-settings-preview-properties-button">
+                    <button class="Abbrechen">Abbrechen</button><button class="Speichern">Speichern</button>
+                </div>
+
+
+
+            </div>
+        </script>
+        <div id="contentWrapper"></div>
+    </body>
+</html>

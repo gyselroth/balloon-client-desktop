@@ -13,6 +13,7 @@ const AuthCtrl = require('./lib/auth/controller.js');
 const AutoUpdateCtrl = require('./lib/auto-update/controller.js');
 const FeedbackCtrl = require('./ui/feedback/controller.js');
 const AboutCtrl = require('./ui/about/controller.js');
+const NodeSettingsCtrl = require('./ui/node-settings/controller.js');
 const setMenu = require('./lib/menu.js');
 
 const logger = require('./lib/logger.js');
@@ -34,11 +35,18 @@ process.on('uncaughtException', function(exception) {
   logger.error('Main: uncaught exception', exception);
 });
 
-var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
+var shouldQuit       = app.makeSingleInstance((cmd, cwd) => {}),
+    absoluteNodePath = getParamValueByParamName('--nodePath'),
+    relativeNodePath = absoluteNodePath ? absoluteNodePath.toString().replace(clientConfig.get('balloonDir'), '') : false
 
 if(shouldQuit === true) {
-  startup.showBalloonDir();
-  app.quit();
+  if (relativeNodePath) {
+    startup.showNodeSettingsWindow(relativeNodePath);
+  } else {
+    startup.showBalloonDir();
+    app.quit();
+  }
+
   return;
 }
 
@@ -63,6 +71,10 @@ function startApp() {
 
         if(env.name === 'production') {
           startSync();
+        }
+
+        if (relativeNodePath) {
+            startup.showNodeSettingsWindow(relativeNodePath);
         }
 
         electron.powerMonitor.on('suspend', () => {
@@ -95,6 +107,7 @@ function startApp() {
     tray = TrayCtrl(env, clientConfig);
     settings = SettingsCtrl(env);
     about = AboutCtrl(env, clientConfig);
+    nodeSettings = NodeSettingsCtrl(env);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray, about);
     feedback = FeedbackCtrl(env, clientConfig, sync);
   });
@@ -211,6 +224,10 @@ ipcMain.on('about-open', (event) => {
   about.open();
 });
 
+ipcMain.on('node-settings-close', () => {
+  nodeSettings.close()
+})
+
 ipcMain.on('unlink-account', (event) => {
   logger.info('Main: logout requested');
 
@@ -314,4 +331,16 @@ function startSync() {
 
 function endSync() {
   sync.end();
+}
+
+function getParamValueByParamName(paramName) {
+    var paramValue;
+    process.argv.forEach(function (value, index) {
+        if (paramName === value) {
+            paramValue = process.argv[index + 1];
+            return false;
+        }
+    });
+
+    return paramValue;
 }

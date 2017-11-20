@@ -61,7 +61,7 @@ module.exports = function(env, clientConfig, sync) {
 
       windowStates.closed('about');
 
-      logger.info('Feedback: closed');
+      logger.info('about: closed');
     });
 
     aboutWindow.on('show', (event) => {

@@ -44,6 +44,9 @@
   "feedback.error.send": "Wir haben einen Fehler beim senden deines Feedbacks festgestellt, bitte versuche es später erneut!",
   "feedback.error.empty": "Bitte fühle das Feedback vor dem senden aus!",
 
+  "node-settings.error.message": "Bitte starten Sie die Synchronisation",
+  "node-settings.tags": "Tags",
+
   "settings.title": "Settings",
   "settings.account.loggedout": "Aktuell ist kein Account mit diesem Computer verknüpft",
   "settings.account.title": "Account",
@@ -85,5 +88,5 @@
   "error.blnUrl.notreachable": "Der eingegebene Server kann nicht erreicht werden. Bitte prüfen Sie den Server",
   "error.blnUrl.offline": "Es besteht keine Internetverbindung. Für die Konfiguration ist eine Internetverbindung notwendig.",
   "error.auth.basic": "Authentifizierung fehlgeschlagen",
-  "error.auth.oidc": "Die Authentifzierung mit dem ausgewählen Identity Provider ist fehlgeschlagen."
+  "error.auth.oidc": "Die Authentifizierung mit dem ausgewählten Identity Provider ist fehlgeschlagen."
 }
