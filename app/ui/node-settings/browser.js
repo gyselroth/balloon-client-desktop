@@ -246,9 +246,6 @@
   }
 
   function closeNodeSettingsWindow () {
-    console.log('ipcRenderer', ipcRenderer)
-
-    //todo does not work in the sub process
     ipcRenderer.send('node-settings-close');
   }
 
@@ -267,7 +264,7 @@
         nodeChangeMonthDay : nodeChange.getDate(),
         nodeChangeMonthLong: nodeChange.toLocaleDateString(locale, {month: 'long'}),
         nodeChangeYear     : nodeChange.toLocaleDateString(locale, {year: 'numeric'}),
-        nodeChangeTime     : nodeChange.getHours() + ':' + nodeChange.getMinutes(),
+        nodeChangeTime     : nodeChange.getHours() + ':' + (nodeChange.getMinutes() < 10? '0' : '') + nodeChange.getMinutes(),
       }
     }
 

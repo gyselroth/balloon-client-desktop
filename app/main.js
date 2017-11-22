@@ -41,6 +41,7 @@ var shouldQuit       = app.makeSingleInstance((cmd, cwd) => {}),
 
 if(shouldQuit === true) {
   if (relativeNodePath) {
+    initNodeSettingsClose()
     startup.showNodeSettingsWindow(relativeNodePath);
   } else {
     startup.showBalloonDir();
@@ -107,7 +108,6 @@ function startApp() {
     tray = TrayCtrl(env, clientConfig);
     settings = SettingsCtrl(env);
     about = AboutCtrl(env, clientConfig);
-    nodeSettings = NodeSettingsCtrl(env);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray, about);
     feedback = FeedbackCtrl(env, clientConfig, sync);
   });
@@ -224,9 +224,7 @@ ipcMain.on('about-open', (event) => {
   about.open();
 });
 
-ipcMain.on('node-settings-close', () => {
-  nodeSettings.close()
-})
+initNodeSettingsClose()
 
 ipcMain.on('unlink-account', (event) => {
   logger.info('Main: logout requested');
@@ -343,4 +341,10 @@ function getParamValueByParamName(paramName) {
     });
 
     return paramValue;
+}
+
+function initNodeSettingsClose () {
+  ipcMain.on('node-settings-close', () => {
+    NodeSettingsCtrl(env).close()
+  })
 }
