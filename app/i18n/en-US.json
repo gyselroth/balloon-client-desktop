@@ -45,7 +45,11 @@
   "feedback.error.empty": "Please provide a feedback message before sending!",
 
   "node-settings.error.message": "Please start the synchronization",
+  "node-settings.changed": "Changed",
+  "node-settings.at": "at",
   "node-settings.tags": "Tags",
+  "node-settings.button.cancel": "Cancel",
+  "node-settings.button.save": "Save",
 
   "settings.title": "Settings",
   "settings.account.title": "Account",

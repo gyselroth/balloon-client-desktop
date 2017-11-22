@@ -149,8 +149,6 @@ module.exports = {
             balloonAppleScriptCommand,
             balloonAppleScriptCommandParam = ' --nodePath " &amp; "\'" &amp; nodePath &amp; "\''
 
-
-        logger.info('env: ' + env.name);
         switch (env.name) {
           case 'development':
             balloonAppleScriptCommand = 'cd ' + resourcesPath + '/node_modules/electron &amp;&amp; /usr/local/bin/node cli.js ../../app/main.js' + balloonAppleScriptCommandParam
@@ -182,7 +180,7 @@ module.exports = {
                                        'return input\n' +
                                      'end run\n'
 
-            fs.writeFile(balloonServiceFile, data.replace('BALLOON_APPLE_SCRIPT', balloonAppleScript), 'utf8', (err) => {
+            fs.writeFile(balloonServiceFile, data.replace('{balloon_apple_script}', balloonAppleScript), 'utf8', (err) => {
               if (err) return logger.error(err)
               // move to services
               exec([

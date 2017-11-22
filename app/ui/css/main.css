@@ -313,60 +313,38 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 /*-----Node-Settings----------*/
-/*zeplin start*/
-/*header*/
-#node-settings-content-data-error-header {
-    /*width: 400px;*/
+
+#node-settings-content-error-header {
     height: 1px;
     background-color: #dfdfdf;
 }
 
-.material-Gendert-H {
-    width: 275px;
-    height: 60px;
-    font-family: Ubuntu;
-    font-size: 13px;
-    line-height: 1.31;
-    text-align: left;
-    color: #999999;
-}
-
-.material-Gendert-H .text-style-1 {
+#node-settings-header-node-path {
     font-size: 15px;
     font-weight: bold;
     line-height: 1.13;
     color: #333333;
 }
 
-/*header end*/
-/*body*/
-#node-settings-content-data > div{
-    padding: 20px;
-    border-top: solid 1px #eaeaea;
-
-}
-
-#node-settings-content-data {
-
-    border-radius: 8px;
-    background-color: #ffffff;
-    box-shadow: 0 10px 50px 0 rgba(0, 0, 0, 0.1);
-    border: solid 1px #dddddd;
-}
-
-.Tags {
-    width: 260px;
-    height: 17px;
+#node-settings-header-node-created {
     font-family: Ubuntu;
     font-size: 13px;
     line-height: 1.31;
-    letter-spacing: 0.5px;
     text-align: left;
     color: #999999;
 }
 
-.Tags .text-style-1 {
-    letter-spacing: normal;
+#node-settings-content > div{
+    padding: 20px;
+    border-top: solid 1px #eaeaea;
+}
+
+#node-settings-content {
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 10px 50px 0 rgba(0, 0, 0, 0.1);
+    border: solid 1px #dddddd;
+    height: 100vh;
 }
 
 .k-animation-container {
@@ -387,30 +365,27 @@ input[type="radio"], input[type="checkbox"] {
 #node-settings-properties-meta-tags li {
     margin: 5px 5px 0 0;
     font-size: 15px;
-    background-color: #f4f4f4;
     padding: 5px;
     float: left;
     border-radius: 4px;
     background-color: #f4f4f4;
     border: solid 1px #dddddd;
     padding-left: 11px;
-
 }
-/*body end*/
-/*footer*/
 
-#node-settings-preview-properties-button {
+#node-settings-button {
     text-align: right;
 }
 
-#node-settings-preview-properties-button button {
+#node-settings-button button {
     display: inline-block;
     margin:0;
 }
-#node-settings-preview-properties-button button:first-child{
+#node-settings-button button:first-child{
     margin-right:5px;
 }
-.Abbrechen {
+
+#node-settings-button-cancel {
     width: 95px;
     height: 30px;
     font-family: Helvetica;
@@ -418,11 +393,10 @@ input[type="radio"], input[type="checkbox"] {
     text-align: center;
     color: #333333 !important;
     background: #ffffff !important;
-    /*border: #333333 !important;*/
     border: solid 1px #333333 !important;
 }
 
-.Speichern {
+#node-settings-button-save {
     width: 95px;
     height: 30px;
     font-family: Helvetica;
@@ -431,24 +405,8 @@ input[type="radio"], input[type="checkbox"] {
     color: #ffffff !important;
     background: #0c80ff !important;
 }
-/*footer end*/
-/*zeplin end*/
 
-/*#node-settings-content-data {*/
-    /*height: 100%;*/
-    /*background-color: #f4f4f4;*/
-    /*padding: 20px;*/
-
-    /*height: calc(100% - 100px);*/
-    /*overflow-x: hidden;*/
-    /*overflow-y: auto;*/
-
-    /*box-sizing: border-box;*/
-    /*-moz-box-sizing: border-box;*/
-/*}*/
-
-
-#node-settings-preview-properties > div {
+#node-settings-properties > div {
     width: 100%;
     clear: both;
 
@@ -456,21 +414,20 @@ input[type="radio"], input[type="checkbox"] {
     overflow: hidden;
 }
 
-#node-settings-preview-properties > div > div:first-child {
+#node-settings-properties > div > div:first-child {
     display: inline-block;
     width: 9%;
 }
 
 
-#node-settings-preview-properties span.k-autocomplete {
+#node-settings-properties span.k-autocomplete {
     width: 100%;
-    margin-top: 5px;
     background: none;
     border: none;
     box-shadow: none;
 }
 
-#node-settings-preview-properties input[name=add_tag] {
+#node-settings-properties input[name=add_tag] {
     font-size: 15px;
     margin: 0;
     padding: 4px;
@@ -480,31 +437,31 @@ input[type="radio"], input[type="checkbox"] {
     width: 100%;
 }
 
-#node-settings-preview-properties .node-settings-add {
+#node-settings-properties .node-settings-properties-add {
     float: right;
     width: 30px;
     height: 30px;
     background-size: 24px;
     color: #39a5ff;
-    font-size: xx-large;
+    font-size: 26px;
     border-radius: 4px;
     border: solid 1px #dddddd !important;
     margin-right: 10px;
-    padding-left: 11px;
-    padding-bottom: 6px;
     padding-top: 0px;
+    padding-bottom: 9px;
+    box-sizing: border-box;
+    padding-left: 7px;
 }
 
-.fs-delete:hover, .node-settings-add:hover{
+.fs-delete:hover, .node-settings-properties-add:hover{
     cursor: pointer;
 }
 
-#node-settings-preview-properties-tag {
+#node-settings-properties-tag {
     color: #999999;
 }
 
-#node-settings-preview-add-tag {
-    width: 80%;
+#node-settings-properties-add-tag {
     display: inline-block;
 }
 
@@ -536,12 +493,9 @@ input[type="radio"], input[type="checkbox"] {
 
 
 #node-settings-properties-meta-tags .fs-delete {
-    /*border-radius: 50%;*/
     padding: 0 5px;
     margin: 3px 0 0 10px;
-    /*border: solid #999 1px;*/
     float: right;
-
     margin-top: 0px;
     width: 7.7px;
     height: 7.7px;
@@ -554,7 +508,6 @@ input[type="radio"], input[type="checkbox"] {
     display: inline-block;
     vertical-align: middle;
     font-family: Ubuntu;
-    /*font-size: 13px;*/
     line-height: 1.31;
     letter-spacing: 0.5px;
     text-align: left;
@@ -582,14 +535,13 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 .fs-select-tags {
-    border: solid 1px #999;
     background: none repeat scroll 0 0 #f0f0f0;
     border: 1px solid #aaa;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 1) inset;
     padding: 0;
 }
 
-#node-settings-content-data-error {
+#node-settings-error {
     color: red;
 }
 

@@ -11,14 +11,14 @@
   const electron = require('electron');
   const ipcRenderer = electron.ipcRenderer;
 
-  handlebars.registerHelper('i18n', function (key) {
+  handlebars.registerHelper('i18n', (key) => {
     var translation = i18n.__(key);
 
     return new handlebars.SafeString(translation);
   })
 
   var sync,
-      promise = new Promise(function (resolve) {
+      promise = new Promise((resolve) => {
         if (!clientConfig.get('authMethod')) {
           logger.info('AUTH: no authentication method set yet');
           return resolve();
@@ -40,31 +40,27 @@
   function initNodeSettings() {
     sync = syncFactory(clientConfig.getAll(true), logger);
 
-    $(document).ready(function () {
-      compileTemplates();
-      $('#node-settings-content-data-error').hide();
-
-      var localNode = sync.lstatSync(clientConfig.get('nodePath'));
+    $(document).ready(() => {
+      var localNode = sync.lstatSync(clientConfig.get('nodePath'))
       sync.find({ino: localNode.ino}, (err, syncedNode) => {
         if (syncedNode && syncedNode[0]) {
-          $('#node-settings-content-data-error').hide();
-          sync.blnApi.getAttributes({id: syncedNode[0].remoteId, useId: true}, ['id', 'path', 'meta.tags'], (err, data) => {
-            logger.info('attributes: ' + JSON.stringify(data));
-
+          sync.blnApi.getAttributes({id: syncedNode[0].remoteId, useId: true}, ['id', 'path', 'meta.tags', 'changed'], (err, data) => {
+            logger.info('attributes: ' + JSON.stringify(data))
             var view       = 'preview',
                 properties = 'tags',
                 error      = !!err,
-                nodeData   = error ? {} : data;
-
+                nodeData   = error ? {} : data
+            nodeSettingsCompileTemplates(nodeData)
+            initNodeSettingsButtons(nodeData)
             switch (view) {
               case 'preview':
-                viewPreview();
+                nodeSettingsViewPreview()
                 switch (properties) {
                   case 'tags':
                     if (error) {
-                      showErrorMessage();
+                      nodeSettingsShowErrorMessage()
                     } else {
-                      propertiesTags(nodeData, {data: nodeData});
+                      nodeSettingsPropertiesTags(nodeData, {data: nodeData})
                     }
                     break
                   default:
@@ -76,25 +72,31 @@
             }
           })
         } else {
-          showErrorMessage();
+          nodeSettingsCompileTemplates()
+          initNodeSettingsButtons()
+          nodeSettingsShowErrorMessage()
         }
-      });
-    })
-
-    $('.Abbrechen').click(function () {
-      closeNodeSettingsWindow();
+      })
     })
   }
 
-  function showErrorMessage () {
-    $('#node-settings-content-data-error').show();
+  function nodeSettingsShowErrorMessage (errorMessage) {
+    if (errorMessage) {
+      $('#node-settings-error').html(errorMessage).show()
+    } else {
+      $('#node-settings-error').show()
+    }
+
+    $('#node-settings-header').hide()
+    $('#node-settings-properties').hide()
+    $('#node-settings-button-save').hide()
   }
 
-  function viewPreview () {
+  function nodeSettingsViewPreview () {
     var $fs_meta_tags = $('#node-settings-properties-meta-tags')
     $fs_meta_tags.hide().find('li').remove();
 
-    var $fs_preview_add_tag = $('#node-settings-preview-add-tag'),
+    var $fs_preview_add_tag = $('#node-settings-properties-add-tag'),
         $add                = $fs_preview_add_tag.find('input'),
         $k_add              = $add.data('kendoAutoComplete');
 
@@ -102,8 +104,6 @@
       $k_add.destroy();
     }
 
-    //todo show -> for fix height
-    // $fs_preview_add_tag.html('<input type="text" name="add_tag"/>').show();
     $fs_preview_add_tag.html('<input type="text" name="add_tag"/>');
     $('#fs-properties-meta-color').find('.fs-color-selected').removeClass('fs-color-selected');
     var $fs_preview_thumb = $('#fs-preview-thumb');
@@ -112,16 +112,16 @@
     $fs_preview_thumb.find('div').html('');
   }
 
-  function propertiesTags (node, data) {
+  function nodeSettingsPropertiesTags (node, data) {
     var $fs_prop_tags = $('#node-settings-properties-meta-tags').show();
 
     var success = function (data) {
       var children             = [],
           $fs_prop_tags_parent = $fs_prop_tags.parent();
 
-      initMetaTagCompletion();
-      $fs_prop_tags_parent.find('.node-settings-add').unbind('click').bind('click', function () {
-        $('#node-settings-preview-add-tag').show();
+      nodeSettingsInitMetaTagCompletion();
+      $fs_prop_tags_parent.find('.node-settings-properties-add').unbind('click').bind('click', function () {
+        $('#node-settings-properties-add-tag').show();
         $fs_prop_tags_parent.find('input:text').focus().data('kendoAutoComplete').search();
       })
 
@@ -131,7 +131,7 @@
       }
       $fs_prop_tags.find('ul').html(children.join(''));
 
-      handleTags(node);
+      nodeSettingsHandleTags(node);
     }
     if (data !== undefined) {
       success(data);
@@ -139,7 +139,7 @@
     }
   }
 
-  function handleTags (node) {
+  function nodeSettingsHandleTags (node) {
     var last_tag,
         $fs_prop_tags        = $('#node-settings-properties-meta-tags'),
         $fs_prop_tags_parent = $fs_prop_tags.parent();
@@ -147,43 +147,21 @@
     $fs_prop_tags.unbind('click').on('click', 'li', function (e) {
       if ($(e.target).attr('class') == 'fs-delete') {
         $(this).remove();
-
-        var tags = $fs_prop_tags.find('li').map(function () {
-          return $(this).find('.tag-name').text();
-        }).get();
-
-        if (tags.length === 0) {
-          tags = '';
-        }
-
-        saveMetaAttributes(node, {tags: tags});
         return;
       }
     })
 
     $fs_prop_tags_parent.find('input[name=add_tag]').unbind('keypress').keypress(function (e) {
       $(document).unbind('click').click(function (e) {
-        return metaTagHandler(node, e, last_tag);
+        return nodeSettingsMetaTagHandler(node, e, last_tag);
       });
 
       last_tag = $(this);
-      return metaTagHandler(node, e, last_tag);
+      return nodeSettingsMetaTagHandler(node, e, last_tag);
     })
   }
 
-  function saveMetaAttributes(node, meta) {
-    sync.blnApi.createMetaAttributes(node.id, {tags: meta.tags}, (err, data) => {
-      for (var attr in meta) {
-        if (meta[attr] == '') {
-          delete node.meta[attr];
-        } else {
-          node.meta[attr] = meta[attr];
-        }
-      }
-    })
-  }
-
-  function metaTagHandler(node, e, $last_tag) {
+  function nodeSettingsMetaTagHandler(node, e, $last_tag) {
     var code    = (!e.charCode ? e.which : e.charCode),
         strcode = String.fromCharCode(!e.charCode ? e.which : e.charCode);
 
@@ -213,9 +191,6 @@
       }).get()
 
       $(document).unbind('click');
-
-      saveMetaAttributes(node, {tags: tags});
-
       e.preventDefault();
     }
 
@@ -228,7 +203,7 @@
     return false;
   }
 
-  function initMetaTagCompletion() {
+  function nodeSettingsInitMetaTagCompletion() {
     var $meta_tags        = $('#node-settings-properties-meta-tags'),
         $meta_tags_parent = $meta_tags.parent(),
         $input            = $meta_tags_parent.find('input');
@@ -240,8 +215,12 @@
         transport: {
           read: function (operation) {
             sync.blnApi.getNodeAttributeSummary({attributes: ['meta.tags']}, (err, data) => {
-              data['meta.tags'].sort();
-              operation.success(data['meta.tags']);
+              if (err) {
+                nodeSettingsShowErrorMessage(err.message);
+              } else {
+                data['meta.tags'].sort();
+                operation.success(data['meta.tags']);
+              }
             })
 
           }
@@ -266,16 +245,65 @@
     })
   }
 
-  function closeNodeSettingsWindow() {
-    //todo ipcMain not found running on sub process?!
+  function closeNodeSettingsWindow () {
+    console.log('ipcRenderer', ipcRenderer)
+
+    //todo does not work in the sub process
     ipcRenderer.send('node-settings-close');
   }
 
-  function compileTemplates () {
-    var templateContentHtml = $('#template-content').html();
-    var $placeholderContent = $('#contentWrapper');
+  function nodeSettingsCompileTemplates (node) {
+    var templateContentHtml = $('#node-settings-template-content').html();
+    var $placeholderContent = $('#node-settings-contentWrapper');
     var templateContent     = handlebars.compile(templateContentHtml);
 
-    $placeholderContent.html(templateContent());
+    var context = {}
+    if (node) {
+      var locale     = i18n.getCurrentLocale(),
+          nodeChange = new Date(node.changed.sec * 1000)
+      context        = {
+        nodePath           : node.path,
+        nodeChangeDayLong  : nodeChange.toLocaleString(locale, {weekday: 'long'}),
+        nodeChangeMonthDay : nodeChange.getDate(),
+        nodeChangeMonthLong: nodeChange.toLocaleDateString(locale, {month: 'long'}),
+        nodeChangeYear     : nodeChange.toLocaleDateString(locale, {year: 'numeric'}),
+        nodeChangeTime     : nodeChange.getHours() + ':' + nodeChange.getMinutes(),
+      }
+    }
+
+    $placeholderContent.html(templateContent(context))
+    $('#node-settings-error').hide()
+  }
+
+  function initNodeSettingsButtons(node) {
+    $('#node-settings-button-cancel').click(function () {
+      console.log('cancel')
+      closeNodeSettingsWindow();
+    })
+
+    $('#node-settings-button-save').click(function () {
+      console.log('save')
+      var tags = $('#node-settings-properties-meta-tags').find('li').map(function () {
+        return $(this).find('.tag-name').text();
+      }).get()
+
+      var meta = {
+        tags: tags.length === 0 ? null : tags
+      }
+      sync.blnApi.createMetaAttributes(node.id, {tags: meta.tags}, (err, data) => {
+        if (err) {
+          nodeSettingsShowErrorMessage(err.message);
+        } else {
+          for (var attr in meta) {
+            if (meta[attr] == '') {
+              delete node.meta[attr];
+            } else {
+              node.meta[attr] = meta[attr];
+            }
+          }
+          closeNodeSettingsWindow();
+        }
+      })
+    })
   }
 }())

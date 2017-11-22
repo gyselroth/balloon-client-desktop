@@ -335,7 +335,7 @@ function endSync() {
 
 function getParamValueByParamName(paramName) {
     var paramValue;
-    process.argv.forEach(function (value, index) {
+    process.argv.forEach((value, index) => {
         if (paramName === value) {
             paramValue = process.argv[index + 1];
             return false;
