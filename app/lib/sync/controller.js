@@ -11,6 +11,7 @@ const clientConfig = require('../config.js');
 var startup = StartupCtrl(env, clientConfig);
 
 var syncTimeout;
+var syncStartup = false;
 
 module.exports = function(env, tray) {
   var syncWindow;
@@ -80,6 +81,14 @@ module.exports = function(env, tray) {
   }
 
   function start() {
+
+    //return if sync is already running or is starting up
+    if(syncWindow || syncStartup) {
+      return logger.info('Sync: not starting sync because it is already running', {category: 'sync'});
+    }
+
+    syncStartup = true;
+
     //return if no user is logged in
     if(clientConfig.get('loggedin') === false) {
       return logger.info('not starting sync because no user logged in', {category: 'sync'});
@@ -93,11 +102,6 @@ module.exports = function(env, tray) {
     //return if sync has been paused
     if(syncPaused) {
       return logger.info('Sync: not starting sync because it has been paused', {category: 'sync'});
-    }
-
-    //return if sync is already running
-    if(syncWindow) {
-      return logger.info('Sync: not starting sync because it is already running', {category: 'sync'});
     }
 
     logger.info('starting sync', {category: 'sync'});
@@ -118,6 +122,8 @@ module.exports = function(env, tray) {
           transparent: false,
           skipTaskbar: true
       });
+
+      syncStartup = false;
 
       syncWindow.loadURL(url.format({
           pathname: path.join(__dirname, 'index.html'),
@@ -149,6 +155,7 @@ module.exports = function(env, tray) {
       });
 
       tray.syncEnded();
+      syncStartup = false;
       end(true);
     });
   }
