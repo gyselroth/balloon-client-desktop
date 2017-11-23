@@ -24,24 +24,22 @@ module.exports = function (env) {
 
   function open (nodePath) {
     clientConfig.set('nodePath', nodePath)
-    logger.info('node-settings: open requested ' + nodePath)
-    if (!nodeSettingsWindow) nodeSettingsWindow = createWindow(nodePath)
+    if (!nodeSettingsWindow) nodeSettingsWindow = createWindow()
 
     nodeSettingsWindow.show()
     nodeSettingsWindow.focus()
   }
 
-  function createWindow (nodePath) {
+  function createWindow () {
     if (nodeSettingsWindow) return nodeSettingsWindow
 
     nodeSettingsWindow = new BrowserWindow({
-      title         : nodePath,
-      width         : 400,
-      minWidth      : 400,
-      height        : 280,
-      minHeight     : 280,
-      // width: 1600,
-      // height: 800,
+      // width         : 400,
+      // minWidth      : 400,
+      // height        : 280,
+      // minHeight     : 280,
+      width: 1600,
+      height: 800,
       show          : true,
       frame         : false,
       fullscreenable: false,
@@ -79,7 +77,7 @@ module.exports = function (env) {
     })
 
     // if (env.name === 'development') {
-    //   nodeSettingsWindow.openDevTools()
+      nodeSettingsWindow.openDevTools()
     // }
 
     return nodeSettingsWindow

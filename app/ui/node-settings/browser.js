@@ -43,7 +43,11 @@
     $(document).ready(() => {
       var localNode = sync.lstatSync(clientConfig.get('nodePath'))
       sync.find({ino: localNode.ino}, (err, syncedNode) => {
-        if (syncedNode && syncedNode[0]) {
+        if (!syncedNode) {
+          return;
+        }
+
+        if (syncedNode.length) {
           sync.blnApi.getAttributes({id: syncedNode[0].remoteId, useId: true}, ['id', 'path', 'meta.tags', 'changed'], (err, data) => {
             logger.info('attributes: ' + JSON.stringify(data))
             var view       = 'preview',

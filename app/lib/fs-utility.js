@@ -113,84 +113,91 @@ module.exports = {
 
     switch(process.platform) {
       case 'win32':
-        var balloonAppPath,
-            balloonContextMenuName;
+        var balloonContextMenuCommand = path.resolve(resourcesPath, 'resources/context_menu/win32/contextmenu.cmd'),
+            balloonIcon               = path.resolve(resourcesPath, 'resources/diricon/icon.ico'),
+            // todo: correct regex... balloonAppliesTo   = 'System.ItemFolderPathDisplay:"' + balloonDir + '*"',
+            balloonAppliesTo          = 'System.ItemFolderPathDisplay:"*\Balloon*"',
+            balloonCommandParam       = ' --nodePath \"%D\""',
+            balloonContextMenuName, balloonCommand
 
         switch (env.name) {
           case 'development':
             balloonContextMenuName = 'balloon_dev'
-            balloonAppPath         = resourcesPath + '\\node_modules\\.bin\\electron ' + resourcesPath + '/app/main.js'
+            balloonCommand         = resourcesPath + '\\node_modules\\.bin\\electron ' + resourcesPath + '/app/main.js' + balloonCommandParam
             break;
           default:
             balloonContextMenuName = 'balloon'
-            balloonAppPath         = path.resolve(resourcesPath, '../Balloon.exe');
+            balloonCommand         = path.resolve(resourcesPath, '../Balloon.exe') + balloonCommandParam;
             break;
         }
 
-        var balloonContextMenu = path.resolve(resourcesPath, 'resources/context_menu/win32/contextmenu.cmd'),
-            // balloonAppliesTo   = 'System.ItemFolderPathDisplay:"' + balloonDir + '*"',
-            balloonAppliesTo   = 'System.ItemFolderPathDisplay:"*\Balloon*"',
-            balloonCommand     = balloonAppPath + ' --nodePath \"%D\""',
-            balloonIcon        = path.resolve(resourcesPath, 'resources/diricon/icon.ico')
-
         exec([
-          balloonContextMenu,
+          balloonContextMenuCommand,
           balloonContextMenuName,
           balloonAppliesTo,
           balloonCommand,
           balloonIcon
-        ].join(' '));
-
+        ].join(' '))
         break;
       case 'darwin':
-        var balloonContextMenuOriginal = path.resolve(resourcesPath, 'resources/context_menu/darwin/balloon.workflow'),
-            balloonContextMenuTmp      = path.resolve(resourcesPath, 'resources/context_menu/darwin/tmp'),
-            balloonService             = path.resolve(homeDir, 'Library/Services'),
-            balloonAppleScriptCommand,
-            balloonAppleScriptCommandParam = ' --nodePath " &amp; "\'" &amp; nodePath &amp; "\''
+        var balloonContextMenu             = path.resolve(resourcesPath, 'resources/context_menu/darwin/balloon.workflow'),
+            balloonContextMenuTmp          = path.resolve(resourcesPath, 'resources/context_menu/darwin/tmp'),
+            balloonServicePath             = path.resolve(homeDir, 'Library/Services'),
+            balloonAppleScriptCommandParam = ' --nodePath " &amp; "\'" &amp; nodePath &amp; "\'',
+            balloonServiceName, balloonAppleScriptCommand
 
         switch (env.name) {
           case 'development':
+            balloonServiceName        = 'balloon_dev.workflow'
             balloonAppleScriptCommand = 'cd ' + resourcesPath + '/node_modules/electron &amp;&amp; /usr/local/bin/node cli.js ../../app/main.js' + balloonAppleScriptCommandParam
-            balloonContextMenuTmp     = path.join(balloonContextMenuTmp, 'balloon_dev.workflow')
             break;
           default:
+            balloonServiceName        = 'balloon.workflow'
             balloonAppleScriptCommand = '/Applications/Balloon.app/Contents/MacOS/Balloon' + balloonAppleScriptCommandParam
-            balloonContextMenuTmp     = path.join(balloonContextMenuTmp, 'balloon.workflow')
             break;
         }
 
-        // copy service
+        balloonContextMenuTmp = path.join(balloonContextMenuTmp, balloonServiceName)
+
+        // todo: use bash script
+        // check if service exists
         exec([
-          'cp -r',
-          balloonContextMenuOriginal,
-          balloonContextMenuTmp
-        ].join(' '), exec.ExecOptionsWithStringEncoding, (err) => {
-          if (err) {
-            return logger.error(err)
-          }
-
-          var balloonServiceFile = path.join(balloonContextMenuTmp, 'Contents/document.wflow');
-          fs.readFile(balloonServiceFile, 'utf-8', (err, data) => {
-            if (err) return logger.error(err)
-            // modify service
-            var balloonAppleScript = 'on run {input, parameters}\n' +
-                                       'set nodePath to (the POSIX path of input)\n' +
-                                       'do shell script "' + balloonAppleScriptCommand + '"\n' +
-                                       'return input\n' +
-                                     'end run\n'
-
-            fs.writeFile(balloonServiceFile, data.replace('{balloon_apple_script}', balloonAppleScript), 'utf8', (err) => {
+          'ls -la',
+          path.join(balloonServicePath, balloonServiceName)
+        ].join(' '), (err, service) => {
+          if (err) return logger.error(err)
+          // create service
+          if (!service) {
+            // copy service
+            exec([
+              'cp -r',
+              balloonContextMenu,
+              balloonContextMenuTmp
+            ].join(' '), exec.ExecOptionsWithStringEncoding, (err) => {
               if (err) return logger.error(err)
-              // move to services
-              exec([
-                'mv',
-                balloonContextMenuTmp,
-                balloonService
-              ].join(' '));
-            })
-          })
-        });
+              var balloonServiceFile = path.join(balloonContextMenuTmp, 'Contents/document.wflow');
+              fs.readFile(balloonServiceFile, 'utf-8', (err, data) => {
+                if (err) return logger.error(err)
+                // modify service
+                var balloonAppleScript = 'on run {input, parameters}\n' +
+                                          'set nodePath to (the POSIX path of input)\n' +
+                                          'do shell script "' + balloonAppleScriptCommand + '"\n' +
+                                          'return input\n' +
+                                         'end run\n'
+
+                fs.writeFile(balloonServiceFile, data.replace('{balloon_apple_script}', balloonAppleScript), 'utf8', (err) => {
+                  if (err) return logger.error(err)
+                  // move to services
+                  exec([
+                    'mv',
+                    balloonContextMenuTmp,
+                    balloonServicePath
+                  ].join(' '));
+                })
+              })
+            });
+          }
+        })
         break;
       case 'linux':
         break;
