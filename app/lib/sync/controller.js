@@ -61,7 +61,7 @@ module.exports = function(env, tray) {
         syncWindow.webContents.send('sync-stop', forceQuit);
 
         ipcMain.once('sync-stop-result', (event, err) => {
-          end();
+          end(false);
 
           if(err) return reject(err);
 
@@ -69,7 +69,7 @@ module.exports = function(env, tray) {
         });
 
         ipcMain.once('sync-error', (event, error, url, line) => {
-          end();
+          end(false);
 
           resolve();
         });
@@ -160,17 +160,22 @@ module.exports = function(env, tray) {
     });
   }
 
-  function end(forceNextSync) {
-    if(!syncWindow && !forceNextSync) return;
+  function end(scheduleNextSync) {
+    if(syncTimeout) {
+      clearTimeout(syncTimeout);
+      syncTimeout = undefined;
+    }
 
-    if(env.name === 'production' && syncPaused !== true) {
+    if(env.name === 'production' && syncPaused !== true && scheduleNextSync === true) {
       //do not set timeout when sync has been paused
       syncTimeout = setTimeout(() => {
         start();
       }, ((env.sync && env.sync.interval) || 5) * 1000);
     }
 
-    if(syncWindow) syncWindow.close();
+    if(syncWindow) {
+      syncWindow.close();
+    }
 
     stopPowerSaveBlocker();
   }
