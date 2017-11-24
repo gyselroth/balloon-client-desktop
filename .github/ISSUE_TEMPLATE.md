@@ -1,6 +1,12 @@
+#### Description
+**Is**:
 <!-- Please provide a description here. -->
 
-<!-- Please provide information about your environement, you can leave this out if you are opening a feature request. -->
+**Should**:
+<!-- Please provide a description here. -->
+
+
+<!-- Please provide information about your environment, you can leave this out if you are opening a feature request. -->
 
 #### balloon desktop version
 <!-- version goes here: example: 0.0.29 -->

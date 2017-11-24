@@ -36,11 +36,11 @@ module.exports = function() {
     return new Promise(function(resolve, reject) {
       var instance = instances.lastActive;
       if(!instance) {
-        logger.info('INSTANCE: nothing to archive');
+        logger.debug('nothing to archive', {category: 'instance'});
         resolve();
       }
 
-      logger.info('INSTANCE: archiveDataDir initialized');
+      logger.info('archive current data directory', {category: 'instance'});
 
       var balloonDir = clientConfig.get('balloonDir');
       var balloonDirsyncStateArchivePath;
@@ -60,7 +60,10 @@ module.exports = function() {
       fs.rename(balloonDir, balloonDirsyncStateArchivePath, (err) => {
         if(err) return reject(err);
 
-        logger.info('INSTANCE: archiveDataDir finished', {balloonDirsyncStateArchivePath});
+        logger.info('successfully archived data directory', {
+          category: 'instance',
+          archive: balloonDirsyncStateArchivePath
+        });
 
         instances.instances[instance].balloonDir = balloonDirsyncStateArchivePath;
         instances.instances[instance].balloonDirIno = fs.lstatSync(balloonDirsyncStateArchivePath).ino;
@@ -69,20 +72,23 @@ module.exports = function() {
       });
     });
   }
-    
+
   function createDataDir(balloonDir, homeDir) {
     return new Promise(function(resolve, reject) {
       fsUtility.createBalloonDir(balloonDir, homeDir, (err) => {
         if(err) return reject(err);
 
-        logger.info('INSTANCE: createDataDir finished');
+        logger.info('data directory has been created', {category: 'instance'});
         resolve();
       });
     });
   }
 
   function unarchiveDataDir(archiveDir, balloonDir, homeDir) {
-    logger.info('INSTANCE: unarchiveBalloonDir initialized', {archiveDir});
+    logger.info('starting to extract archived data directory', {
+      category: 'instance',
+      archive: archiveDir
+    });
 
     return new Promise(function(resolve, reject) {
       if(fs.existsSync(archiveDir) === false) return createDataDir(balloonDir, homeDir)
@@ -90,7 +96,10 @@ module.exports = function() {
       fs.rename(archiveDir, balloonDir, (err) => {
         if(err) return reject(err);
 
-        logger.info('INSTANCE: unarchiveDataDir finished', {balloonDir});
+        logger.info('successfully extracted archived data dir', {
+          category: 'instance',
+          archive: balloonDir
+        });
         resolve();
       });
     });
@@ -126,7 +135,7 @@ module.exports = function() {
     getInstance: function(clientConfig) {
       if(instances.instances) {
         for(instance in instances.instances) {
-          if(instances.instances[instance].server === clientConfig.get('blnUrl') 
+          if(instances.instances[instance].server === clientConfig.get('blnUrl')
            && instances.instances[instance].username === clientConfig.get('username')) {
             return instance;
           }
@@ -141,7 +150,7 @@ module.exports = function() {
         instances.active = name;
         instances.instances[instance].balloonDir = undefined;
         instances.instances[instance].balloonDirIno = undefined;
-        persist(); 
+        persist();
         clientConfig.initialize();
       };
 
@@ -168,8 +177,8 @@ module.exports = function() {
     setNewInstance: function(clientConfig) {
       if(!instances.instances) {
         instances.instances = {};
-      } 
-      
+      }
+
       var name = getNewInstanceName();
       instances.instances[name] = {
         server: clientConfig.get('blnUrl'),

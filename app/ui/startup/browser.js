@@ -13,6 +13,12 @@ const env = require('../../env.js');
 const app = electron.remote.app;
 
 
+const logger = require('../../lib/logger.js');
+const loggerFactory = require('../../lib/logger-factory.js');
+var standardLogger = new loggerFactory(clientConfig.getAll());
+logger.setLogger(standardLogger);
+
+
 handlebars.registerHelper('i18n', function(key) {
   var translation = i18n.__(key);
 
@@ -125,7 +131,7 @@ function auth() {
   }
 
   var $container = $('#startup-auth-oidc');
-  $container.find('> img').remove(); 
+  $container.find('> img').remove();
 
   if(env.auth && env.auth.oidc) {
     var i=0;
@@ -139,12 +145,12 @@ function auth() {
   $container.on('click', 'img', function(){
     ipcRenderer.send('auth-oidc-signin', $(this).attr('alt'));
   });
-  
+
   ipcRenderer.on('startup-auth-error', function (event, type) {
     $('#startup-auth-error').find('> div').hide()
     $('#startup-auth-error-'+type).show();
   });
-  
+
   function basicAuth() {
     var username = $('#startup-view-auth').find('input[name=username]').val();
     var password = $('#startup-view-auth').find('input[name=password]').val();
@@ -169,7 +175,7 @@ function switchView(view) {
     $("#startup-view").find("> div").hide();
     $("#startup-view-"+view).show()
      .find('input,textarea,select,button').filter(':visible:first').focus();
-    
+
     if(view in window) {
       window[view]();
     }

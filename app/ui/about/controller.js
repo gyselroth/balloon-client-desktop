@@ -21,12 +21,13 @@ module.exports = function(env, clientConfig, sync) {
   windowStates = windowStatesFactory(env);
 
   function close() {
-    logger.info('about: close requested');
+    logger.info('close window requested', {category: 'about'});
+
     if(aboutWindow) aboutWindow.close();
   }
 
   function open() {
-    logger.info('about: open requested');
+    logger.info('open window requested', {category: 'about'});
     if(!aboutWindow) aboutWindow = createWindow();
 
     aboutWindow.show();
@@ -61,13 +62,13 @@ module.exports = function(env, clientConfig, sync) {
 
       windowStates.closed('about');
 
-      logger.info('about: closed');
+      logger.debug('window closed', {category: 'about'});
     });
 
     aboutWindow.on('show', (event) => {
       windowStates.opened('about');
 
-      logger.info('about: opened');
+      logger.info('window opened', {category: 'about'});
     });
 
     aboutWindow.on('focus', (event) => {
@@ -77,16 +78,6 @@ module.exports = function(env, clientConfig, sync) {
     if(env.name === 'development') {
       //aboutWindow.openDevTools();
     }
-
-    ipcMain.on('about-send', (event, text, file) => {
-      send(text, file).then(function(reportDir, reportPath) {
-        logger.error('about: sending about successfull');
-        event.sender.send('about-send-result', true);
-      }).catch(function(err) {
-        logger.error('about: got error while sending about', {err});
-        event.sender.send('about-send-result', false);
-      });
-    });
 
     return aboutWindow;
   }

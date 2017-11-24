@@ -32,7 +32,10 @@ clientConfig.set('updateAvailable', false);
 logger.setLogger(standardLogger);
 
 process.on('uncaughtException', function(exception) {
-  logger.error('Main: uncaught exception', exception);
+  logger.error('uncaught exception', {
+    category: 'bootstrap',
+    exception: exception
+  });
 });
 
 var shouldQuit       = app.makeSingleInstance((cmd, cwd) => {}),
@@ -59,10 +62,16 @@ function startApp() {
         autoUpdate.checkForUpdate();
       }
 
-      logger.info('Main: initial online state', {state});
+      logger.info('initial online state', {
+        category: 'bootstrap',
+        state: state
+      });
+
       clientConfig.set('onLineState', state);
       startup.checkConfig().then(() => {
-        logger.info('startup checkconfig successfull');
+        logger.info('startup checkconfig successfull', {
+          category: 'bootstrap',
+        });
 
         if(!tray.isRunning()) {
           tray.create();
@@ -79,21 +88,28 @@ function startApp() {
         }
 
         electron.powerMonitor.on('suspend', () => {
-          logger.info('The system is going to sleep');
+          logger.info('The system is going to sleep', {
+            category: 'bootstrap',
+          });
 
           //abort a possibly active sync if not already paused
           if(sync && sync.isPaused() === false) sync.pause(true);
         });
 
         electron.powerMonitor.on('resume', () => {
-          logger.info('The system is resuming');
+          logger.info('The system is resuming', {
+            category: 'bootstrap',
+          });
 
           if(env.name === 'production') {
             startSync();
           }
         });
       }).catch((error) => {
-        logger.error('startup checkconfig', {error});
+        logger.error('startup checkconfig', {
+            category: 'bootstrap',
+            error: error
+        });
 
         switch(error.code) {
           case 'E_BLN_CONFIG_CREDENTIALS':
@@ -122,25 +138,37 @@ function unlinkAccount() {
       return sync.pause(true);
     }())
   ]).then(() => {
-    logger.info('Main: logout successfull');
+    logger.info('logout successfull', {
+      category: 'bootstrap',
+    });
 
     tray.emit('unlink-account-result', true);
     tray.toggleState('loggedout', true);
-  }).catch((err) => {
-    logger.error('Main: logout not successfull', err);
+  }).catch((error) => {
+    logger.error('logout not successfull', {
+      category: 'bootstrap',
+      error: error
+    });
+
     tray.emit('unlink-account-result', false);
   });
 }
 
 app.on('ready', function () {
-  logger.info('App ready');
+  logger.info('App ready', {
+      category: 'bootstrap',
+  });
 
   setMenu();
 
   migrate().then(result => {
     startApp();
   }).catch(err => {
-    logger.error('Main: error during migration, quitting app', {err: err});
+    logger.error('error during migration, quitting app', {
+      category: 'bootstrap',
+      error: err
+    });
+
     app.quit();
   })
 });
@@ -164,7 +192,11 @@ ipcMain.on('tray-show', function() {
 });
 
 ipcMain.on('tray-online-state-changed', function(event, state) {
-  logger.info('Main: online state changed', {state});
+  logger.info('online state changed', {
+    category: 'bootstrap',
+    state: state
+  });
+
   clientConfig.set('onLineState', state);
   if(state === false) {
     //abort a possibly active sync if not already paused
@@ -179,12 +211,18 @@ ipcMain.on('tray-online-state-changed', function(event, state) {
 
 /** Auto update **/
 ipcMain.on('install-update', function() {
-  logger.info('Main: install-update triggered');
+  logger.info('install-update triggered', {
+    category: 'bootstrap',
+  });
+
   autoUpdate.quitAndInstall();
 });
 
 ipcMain.on('check-for-update', function() {
-  logger.info('Main: check-for-update triggered');
+  logger.info('check-for-update triggered', {
+      category: 'bootstrap',
+  });
+
   autoUpdate.checkForUpdate();
 });
 
@@ -195,6 +233,14 @@ ipcMain.on('sync-start', () => {
 
 ipcMain.on('sync-complete', () => {
   endSync();
+});
+
+ipcMain.on('sync-transfer-start', () => {
+  tray.syncTransferStarted();
+});
+
+ipcMain.on('sync-transfer-end', () => {
+  tray.syncTransferEnded();
 });
 
 ipcMain.on('sync-toggle-pause', () => {
@@ -227,16 +273,19 @@ ipcMain.on('about-open', (event) => {
 initNodeSettingsClose()
 
 ipcMain.on('unlink-account', (event) => {
-  logger.info('Main: logout requested');
-
+  logger.info('logout requested', {category: 'bootstrap'});
   unlinkAccount();
 });
 
 ipcMain.on('link-account', (event, id) => {
-  logger.info('Main: login requested');
+  logger.info('login requested', {category: 'bootstrap'});
 
   startup.checkConfig().then(() => {
-    logger.info('Main: login successfull', clientConfig.getMulti(['username', 'loggedin']));
+    logger.info('login successfull', {
+      category: 'bootstrap',
+      data: clientConfig.getMulti(['username', 'loggedin'])
+    });
+
     clientConfig.updateTraySecret();
 
     tray.toggleState('loggedout', false);
@@ -244,9 +293,14 @@ ipcMain.on('link-account', (event, id) => {
     event.sender.send('link-account-result', true);
   }).catch((err) => {
     if(err.code !== 'E_BLN_OAUTH_WINDOW_OPEN') {
-      logger.error('Main: login not successfull', {err});
+      logger.error('login not successfull', {
+        category: 'bootstrap',
+        error: err
+      });
     } else {
-      logger.info('Main: login aborted as there is already a login window open');
+      logger.info('login aborted as there is already a login window open', {
+        category: 'bootstrap',
+      });
     }
 
     event.sender.send('link-account-result', false);
@@ -256,13 +310,16 @@ ipcMain.on('link-account', (event, id) => {
 ipcMain.on('sync-error', (event, error, url, line) => {
   switch(error.code) {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
-      logger.info('Main: got 401, end sync and unlink account');
+      logger.info('got 401, end sync and unlink account', {category: 'bootstrap'});
 
       endSync();
       unlinkAccount();
     break;
     case 'E_BLN_CONFIG_CREDENTIALS':
-      logger.error('Main: credentials not set', {code: error.code});
+      logger.error('credentials not set', {
+        category: 'bootstrap',
+        code: error.code
+      });
 
       endSync();
       unlinkAccount();
@@ -271,17 +328,29 @@ ipcMain.on('sync-error', (event, error, url, line) => {
     case 'E_BLN_CONFIG_CONFIGDIR':
     case 'E_BLN_CONFIG_CONFIGDIR_NOTEXISTS':
       //this should only happen, when user deletes the configuation, while the application is running
-      logger.info('Main: reinitializing config. Error was:', {code: error.code});
+      logger.info('reinitializing config. Error was:', {
+        category: 'bootstrap',
+        code: error.code
+      });
+
       clientConfig.initialize();
       endSync();
       startSync();
     break;
     case 'E_BLN_CONFIG_CONFIGDIR_ACCES':
-      logger.error('Main: config dir not accesible.', {error});
+      logger.error('config dir not accesible.', {
+        category: 'bootstrap',
+        error: error
+      });
       endSync();
     break;
     default:
-      logger.error('Uncaught sync error. Resetting cursor and db', {error, url, line});
+      logger.error('Uncaught sync error. Resetting cursor and db', {
+        category: 'bootstrap',
+        error: error,
+        url: url,
+        line: line
+      });
 
       configManager.resetCursorAndDb().then(function() {
         if(env.name === 'production') {
@@ -323,7 +392,9 @@ function startSync() {
   if(clientConfig.get('onLineState') === true) {
     sync.start();
   } else {
-    logger.info('Not starting Sync because client is offline');
+    logger.info('Not starting Sync because client is offline', {
+      category: 'bootstrap',
+    });
   }
 }
 

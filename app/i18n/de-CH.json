@@ -67,7 +67,7 @@
   "settings.account.login": "Login",
 
   "startup.title": "Setup balloon",
-  "startup.server.title": "Wilkommen bei balloon",
+  "startup.server.title": "Willkommen bei balloon",
   "startup.server.message": "Bitte gebe die URL zu deinem Server ein:",
   "startup.welcome.title": "Gratulation!",
   "startup.welcome.message": "Dein balloon wurde erfolgreich installiert",

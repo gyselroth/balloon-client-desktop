@@ -5,16 +5,16 @@ const logger = require('../lib/logger.js');
 const paths = require('../lib/paths.js');
 
 module.exports = function(previousVersion, currentVersion, done) {
-  logger.info('Running migraton to 0.0.29');
+  logger.info('Running migraton to 0.0.29', {category: 'migration'});
 
   if(/^win/.test(process.platform) === false) {
-    logger.info('Migration to 0.0.29: not windows, no migration necessary');
+    logger.info('Migration to 0.0.29: not windows, no migration necessary', {category: 'migration'});
     return done(null, 'Not on windows, nothing to do');
   }
 
   const instancesFile = paths.getInstancesFile();
   if(!fs.existsSync(instancesFile)) {
-    logger.info('Migration to 0.0.29: not instances, no migration necessary');
+    logger.info('Migration to 0.0.29: no instances, no migration necessary', {category: 'migration'});
     return done(null, 'No instances, nothing to do.');
   }
 
@@ -53,6 +53,11 @@ module.exports = function(previousVersion, currentVersion, done) {
 
     done(null, 'Removed cursor and sync db');
   } catch(err) {
+    logger.error('failed migrate to 0.0.29', {
+      category: 'migration',
+      error: err
+    });
+
     done(err);
   }
 }

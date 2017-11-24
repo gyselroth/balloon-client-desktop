@@ -1,15 +1,14 @@
 # Contribute to balloon desktop client
-Did you find a bug or would you like to contribute a feature? You are certainly welcome to do so.
-Please always fill an [issue](https://github.com/gyselroth/balloon-client-desktop/issues/new) first to discuss the matter.
-Do not start development without an open issue otherwise we do not know what you are working on. 
+Did you find a bug or would you like to contribute a feature? You are more than welcome to do so.
+Please, always file an [issue](https://github.com/gyselroth/balloon-client-desktop/issues/new) first to discuss the matter at hand. Please, refrain from developing without an open issue; otherwise we will not know what you are working on. 
 
 ## Bug
-If you just want to fill a bug report, please open your [issue](https://github.com/gyselroth/balloon-client-desktop/issues/new).
-We are encouraged to fix your reported bug to provide best software for the opensource community.
+If you just want to file a bug report, please open your [issue](https://github.com/gyselroth/balloon-client-desktop/issues/new).
+We are always eager to fix your reported bug to provide best software for the opensource community.
 
 ## Security flaw
-Do not open an issue for a possible security vulnerability, to protect yourself and others please contact <opensource@gyselroth.net>
-to report your concern.
+Do not open an issue for a possible security vulnerability; in order to protect yourself and others please always contact <opensource@gyselroth.net>
+to report your concerns.
 
 ## Git
 You can clone the repository from:
@@ -18,7 +17,7 @@ git clone https://github.com/gyselroth/balloon-client-desktop.git
 ```
 
 ## Git commit 
-Please make sure that you always specify the number of your issue starting with a hastag (#) within any git commits.
+Please make sure that, within a git commit, you always specify the number of your issue starting with a hastag (#).
 
 ## Recommended setup for development
 
@@ -40,22 +39,21 @@ npm link @gyselroth/balloon-node-sync
 ```
 
 ## Pull Request
-You are absolutely welcome to submit a pull request which references an open issue. Please make sure you're follwing coding standards 
-and be sure all your modifications pass the build.
+You are more than welcome to submit a pull request which references an open issue. Please make sure you observe coding conventions 
+and ensure that all your modifications pass the build.
 [![Build Status](https://travis-ci.org/gyselroth/balloon-client-desktop.svg)](https://travis-ci.org/gyselroth/balloon-client-desktop)
 
 ## Code of Conduct
 Please note that this project is released with a [Contributor Code of Conduct](https://github.com/gyselroth/balloon-client-desktop/CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
 
 ## License
-This software is freely available under the terms of [GPL-3.0](https://github.com/gyselroth/balloon-client-desktop/LICENSE), please respect this license
-and do not contribute software which ist not compatible with GPL-3.0 or is not your work.
+This software is freely available under the terms of [GPL-3.0](https://github.com/gyselroth/balloon-client-desktop/LICENSE), please respect this license and do not contribute software which ist not compatible with GPL-3.0 or is not your work.
 
 ## Editor config
 This repository gets shipped with an .editorconfig configuration. For more information on how to configure your editor please visit [editorconfig](https://github.com/editorconfig).
 
 ## Code policy
-There are no javascript standards like PSR-1/2 for PHP, but please follow the following rules:
+There are no javascript standards like PSR-1/2 for PHP, but please observe the following rules:
 
 * Abstract classes named with an Abstract prefix: AbstractExample
 * Interfaces named with an Interface suffix: ExampleInterface
@@ -126,16 +124,16 @@ The following configuration options are available
 * `configFileName` String (optional) - name of the configuration file inside `configDirName`. Default: `config.json`
 * `balloonDir` String (optional) - default path to the directory where the synced files are saved. You can use {home}/{username} which gets replaced with the current home directory/local username. Default: `{home}/Balloon`
 * `log` Object (optional) - logging configuration
-  * `level` String (optional) - Maximum level that should be logged. Default: `info`. Available levels: `{error: 3, warning: 4, notice: 5, info: 6, debug: 7}`
+  * `level` String (optional) - Maximum level that should be logged. Default: `debug`. Available levels: `{error: 3, warning: 4, notice: 5, info: 6, debug: 7}`
   * `maxsize` Integer (optional) - max size of a single lg file. Default: `10000000`
   * `maxFiles` Integer (optional) - maximum number of log files. Default: `10`
 * `sync`: Object (optional) - sync configuration
-  * `interval` Integer (optional) - interval in which syncs run in production context. Default: `20`
+  * `interval` Integer (optional) - interval in which syncs run in production context. Default: `5`
   * `maxConcurentConnections` Integer (optional) - maximum simultaneous connections for file up- and downloads
 * `enableAutoLaunch` Boolean (optional) - if app should be launched on system startup. Default: true
 * `update` Object (optional) - update configuration
   * `enable` Boolean (optional) - Enables automatic (and manual) updates - Default: `true`
-  * `checkInterval` Integer (optional) - Interval in days the client should check for updates. A first check is always done on app start. Default: `7`
+  * `checkInterval` Integer (optional) - Interval in hours the client should check for updates. A first check is always done on app start. Default: `4`
 * `auth`: Object (optional) - authentication configuration
   * `secretStorage` String (optional) - Credential storage, Either config or keytar (OS keychain). Default: `keytar`
   * `basic` Boolean (optional) - Enabled basic authentication (username/password), be sure that your server has basic authentication enabled

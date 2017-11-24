@@ -4,12 +4,16 @@ const {ipcRenderer, shell, remote} = require('electron');
 const handlebars = require('handlebars');
 const request = require('request');
 
-const logger = require('../../lib/logger.js');
 const syncFactory = require('@gyselroth/balloon-node-sync');
 
 const i18n = require('../../lib/i18n.js');
 const instance = require('../../lib/instance.js');
 const clientConfig = require('../../lib/config.js');
+
+const logger = require('../../lib/logger.js');
+const loggerFactory = require('../../lib/logger-factory.js');
+var standardLogger = new loggerFactory(clientConfig.getAll());
+logger.setLogger(standardLogger);
 
 handlebars.registerHelper('i18n', function(key) {
   var translation = i18n.__(key);

@@ -1,7 +1,7 @@
 {
     "package": {
         "name": "balloon-client-desktop",
-        "repo": "balloon-unstable",
+        "repo": "balloon",
         "subject": "gyselroth",
         "desc": "balloon desktop client",
         "website_url": "https://github.com/gyselroth/balloon-client-desktop",
@@ -18,13 +18,13 @@
     "version": {
         "name": "{version}",
         "released": "{date}",
-        "gpgSign": false
+        "gpgSign": true
     },
 
     "files": [
         {"includePattern": "dist/(.*\.deb)", "uploadPattern": "$1",
         "matrixParams": {
-            "deb_distribution": "stable",
+            "deb_distribution": "{deb_distribution}",
             "deb_component": "main",
             "deb_architecture": "all",
             "override": 1}

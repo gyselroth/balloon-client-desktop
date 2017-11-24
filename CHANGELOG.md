@@ -1,3 +1,26 @@
+## 0.0.33
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Thu November 17 15:14:43 CET 2017
+
+* PACKAGING: [FIX] bintray deployment in stable branch 
+
+
+## 0.0.32
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Thu November 16 11:14:43 CET 2017
+
+* CORE: [FIX] fixed random start errors which lead to a unusable state #28
+* CORE: [CHANGE] log messages do now contain a category and a thread id #27
+* CORE: [FIX] fixed various log level errors #27
+* CORE: [FIX] simplified startup config check
+* CORE: [FIX] the default interval to check for an update is now 4 hours (instead 7 days) #30
+* CORE: [FIX] added migration script to set bookmark and folder icon (which have been replaced in 0.0.31)
+* CORE: [CHANGE] changed sync interval to 5s
+* UI: [CHANGE] balloon icon does now only spin if there is data exchanging between server and client
+* UI: [FIX] fixed de-CH typo on the startup screen
+* PACKAGING: [FEATURE] Deb packages are now gpg signed and available on bintray, consult the wiki for more information how to install via apt
+
+
 ## 0.0.31
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Wed October 25 11:08:33 CEST 2017
@@ -50,7 +73,7 @@
 
 ## 0.0.27
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Wed Augist 30 15:04:32 CEST 2017
+**Date**: Wed August 30 15:04:32 CEST 2017
 
 * CORE: [FIX] Auto startup is now the default if builded with nothing set for enableAutoLaunch
 * CORE: [FEATURE] Adds balloon folder icon on linux
