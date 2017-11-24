@@ -1,16 +1,10 @@
-const os   = require('os')
-const fs   = require('graceful-fs')
-const path = require('path')
-
-const {app, BrowserWindow} = require('electron')
-const async                = require('async')
-const archiver             = require('archiver')
-const request              = require('request')
-
-const logger              = require('../../lib/logger.js')
-const clientConfig        = require('../../lib/config.js')
-const url                 = require('url')
-const windowStatesFactory = require('../window-states.js')
+const path                          = require('path')
+const {app, BrowserWindow, ipcMain} = require('electron')
+const logger                        = require('../../lib/logger.js')
+const clientConfig                  = require('../../lib/config.js')
+const url                           = require('url')
+const windowStatesFactory           = require('../window-states.js')
+const AuthCtrl                      = require('../../lib/auth/controller')
 
 var nodeSettingsWindow
 
@@ -18,11 +12,13 @@ module.exports = function (env) {
   windowStates = windowStatesFactory(env)
 
   function close () {
-    logger.info('node-settings: close requested')
+    logger.info('close window requested', {category: 'node-settings'});
+
     if (nodeSettingsWindow) nodeSettingsWindow.close()
   }
 
   function open (nodePath) {
+    logger.info('open window requested', {category: 'node-settings'});
     clientConfig.set('nodePath', nodePath)
     if (!nodeSettingsWindow) nodeSettingsWindow = createWindow()
 
@@ -38,8 +34,6 @@ module.exports = function (env) {
       minWidth      : 400,
       height        : 280,
       minHeight     : 280,
-      // width: 1600,
-      // height: 800,
       show          : true,
       frame         : false,
       fullscreenable: false,
@@ -61,7 +55,7 @@ module.exports = function (env) {
 
       windowStates.closed('node-settings')
 
-      logger.info('node-settings: closed')
+      logger.debug('window closed', {category: 'node-settings'});
 
       app.quit();
     })
@@ -69,15 +63,22 @@ module.exports = function (env) {
     nodeSettingsWindow.on('show', (event) => {
       windowStates.opened('node-settings')
 
-      logger.info('node-settings: opened')
+      logger.info('window opened', {category: 'node-settings'});
     })
 
     nodeSettingsWindow.on('focus', (event) => {
       nodeSettingsWindow.webContents.send('update-window')
     })
 
+    ipcMain.once('node-settings-window-loaded', () => {
+      var authCtrl = AuthCtrl(env, clientConfig);
+      authCtrl.retrieveLoginSecret().then(() => {
+        nodeSettingsWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
+      });
+    });
+
     if (env.name === 'development') {
-    //   nodeSettingsWindow.openDevTools()
+      // nodeSettingsWindow.openDevTools()
     }
 
     return nodeSettingsWindow

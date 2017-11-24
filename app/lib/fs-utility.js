@@ -159,7 +159,6 @@ module.exports = {
 
         balloonContextMenuTmp = path.join(balloonContextMenuTmp, balloonServiceName)
 
-        // todo: use bash script
         // check if service exists
         exec([
           'ls -la',
@@ -198,8 +197,6 @@ module.exports = {
             });
           }
         })
-        break;
-      case 'linux':
         break;
     }
 

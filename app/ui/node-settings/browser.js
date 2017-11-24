@@ -1,15 +1,14 @@
 (function () {
   'use strict'
   const handlebars = require('handlebars')
-  const uuid4      = require('uuid4')
   const i18n       = require('../../lib/i18n.js')
 
-  const logger       = require('../../lib/logger.js');
-  const clientConfig = require('../../lib/config.js');
-  const syncFactory  = require('@gyselroth/balloon-node-sync');
+  const logger        = require('../../lib/logger.js')
+  const loggerFactory = require('../../lib/logger-factory.js')
+  const clientConfig  = require('../../lib/config.js')
+  const syncFactory   = require('@gyselroth/balloon-node-sync')
 
-  const electron = require('electron');
-  const ipcRenderer = electron.ipcRenderer;
+  const ipcRenderer = require('electron').ipcRenderer
 
   handlebars.registerHelper('i18n', (key) => {
     var translation = i18n.__(key);
@@ -17,70 +16,46 @@
     return new handlebars.SafeString(translation);
   })
 
-  var sync,
-      promise = new Promise((resolve) => {
-        if (!clientConfig.get('authMethod')) {
-          logger.info('AUTH: no authentication method set yet');
-          return resolve();
-        }
+  var standardLogger = new loggerFactory(clientConfig.getAll())
+  logger.setLogger(standardLogger);
 
-        clientConfig.retrieveSecret(clientConfig.getSecretType()).then((secret) => {
-          clientConfig.setSecret(secret);
-          resolve();
-        }).catch((error) => {
-          logger.error('AUTH: failed retrieve secret from keystore', {error});
-          resolve();
-        });
-      });
+  var sync;
 
-  promise.then(() => {
+  ipcRenderer.send('node-settings-window-loaded');
+  ipcRenderer.once('secret', function(event, type, secret) {
+    var config   = clientConfig.getAll(true)
+    config[type] = secret
+    sync         = syncFactory(config, standardLogger)
+
     initNodeSettings();
   });
 
   function initNodeSettings() {
-    sync = syncFactory(clientConfig.getAll(true), logger);
+    var localNode = sync.lstatSync(clientConfig.get('nodePath'))
+    sync.find({ino: localNode.ino}, (err, syncedNode) => {
+      if (!syncedNode) {
+        return;
+      }
 
-    $(document).ready(() => {
-      var localNode = sync.lstatSync(clientConfig.get('nodePath'))
-      sync.find({ino: localNode.ino}, (err, syncedNode) => {
-        if (!syncedNode) {
-          return;
-        }
+      if (syncedNode.length) {
+        sync.blnApi.getAttributes({id: syncedNode[0].remoteId, useId: true}, ['id', 'path', 'meta.tags', 'changed'], (err, data) => {
+          var nodeData = !!err ? {} : data
 
-        if (syncedNode.length) {
-          sync.blnApi.getAttributes({id: syncedNode[0].remoteId, useId: true}, ['id', 'path', 'meta.tags', 'changed'], (err, data) => {
-            logger.info('attributes: ' + JSON.stringify(data))
-            var view       = 'preview',
-                properties = 'tags',
-                error      = !!err,
-                nodeData   = error ? {} : data
-            nodeSettingsCompileTemplates(nodeData)
-            initNodeSettingsButtons(nodeData)
-            switch (view) {
-              case 'preview':
-                nodeSettingsViewPreview()
-                switch (properties) {
-                  case 'tags':
-                    if (error) {
-                      nodeSettingsShowErrorMessage()
-                    } else {
-                      nodeSettingsPropertiesTags(nodeData, {data: nodeData})
-                    }
-                    break
-                  default:
-                    break
-                }
-                break
-              default:
-                break
-            }
-          })
-        } else {
-          nodeSettingsCompileTemplates()
-          initNodeSettingsButtons()
-          nodeSettingsShowErrorMessage()
-        }
-      })
+          nodeSettingsCompileTemplates(nodeData)
+          initNodeSettingsButtons(nodeData)
+          nodeSettingsViewPreview()
+
+          if (!!err) {
+            nodeSettingsShowErrorMessage()
+          } else {
+            nodeSettingsPropertiesTags(nodeData, {data: nodeData})
+          }
+        })
+      } else {
+        nodeSettingsCompileTemplates()
+        initNodeSettingsButtons()
+        nodeSettingsShowErrorMessage()
+      }
     })
   }
 
@@ -259,16 +234,11 @@
     var templateContent     = handlebars.compile(templateContentHtml);
 
     var context = {}
-    if (node) {
-      var locale     = i18n.getCurrentLocale(),
-          nodeChange = new Date(node.changed.sec * 1000)
-      context        = {
-        nodePath           : node.path,
-        nodeChangeDayLong  : nodeChange.toLocaleString(locale, {weekday: 'long'}),
-        nodeChangeMonthDay : nodeChange.getDate(),
-        nodeChangeMonthLong: nodeChange.toLocaleDateString(locale, {month: 'long'}),
-        nodeChangeYear     : nodeChange.toLocaleDateString(locale, {year: 'numeric'}),
-        nodeChangeTime     : nodeChange.getHours() + ':' + (nodeChange.getMinutes() < 10? '0' : '') + nodeChange.getMinutes(),
+    if (node && node.changed) {
+      var nodeChanged = new Date(node.changed.sec * 1000)
+      context         = {
+        nodePath            : node.path,
+        nodeChangedDateTime : nodeChanged.toLocaleString(i18n.getCurrentLocale())
       }
     }
 
@@ -278,12 +248,10 @@
 
   function initNodeSettingsButtons(node) {
     $('#node-settings-button-cancel').click(function () {
-      console.log('cancel')
       closeNodeSettingsWindow();
     })
 
     $('#node-settings-button-save').click(function () {
-      console.log('save')
       var tags = $('#node-settings-properties-meta-tags').find('li').map(function () {
         return $(this).find('.tag-name').text();
       }).get()
@@ -291,6 +259,7 @@
       var meta = {
         tags: tags.length === 0 ? null : tags
       }
+
       sync.blnApi.createMetaAttributes(node.id, {tags: meta.tags}, (err, data) => {
         if (err) {
           nodeSettingsShowErrorMessage(err.message);

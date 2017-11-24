@@ -17,9 +17,7 @@
                 <div id="node-settings-header">
                     <div id="node-settings-header-node-path">{{nodePath}}</div><br>
                     <div id="node-settings-header-node-created">
-                        {{i18n 'node-settings.changed'}}:
-                        {{nodeChangeDayLong}}, {{nodeChangeMonthDay}}. {{nodeChangeMonthLong}}
-                        {{nodeChangeYear}} {{i18n 'node-settings.at'}} {{nodeChangeTime}}
+                        {{i18n 'node-settings.changed'}}: {{nodeChangedDateTime}}
                     </div>
                 </div>
                 <div id="node-settings-properties">
@@ -33,8 +31,8 @@
                     </div>
                 </div>
                 <div id="node-settings-button">
-                    <button id="node-settings-button-cancel">{{i18n 'node-settings.button.cancel'}}</button>
-                    <button id="node-settings-button-save">{{i18n 'node-settings.button.save'}}</button>
+                    <button id="node-settings-button-cancel">{{i18n 'button.cancel'}}</button>
+                    <button id="node-settings-button-save">{{i18n 'button.send'}}</button>
                 </div>
             </div>
         </script>

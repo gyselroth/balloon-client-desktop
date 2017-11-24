@@ -44,12 +44,9 @@
   "feedback.error.send": "Wir haben einen Fehler beim senden deines Feedbacks festgestellt, bitte versuche es später erneut!",
   "feedback.error.empty": "Bitte fühle das Feedback vor dem senden aus!",
 
-  "node-settings.error.message": "Bitte starten Sie die Synchronisation",
+  "node-settings.error.message": "Die Synchronisation ist noch nicht abgeschlossen.",
   "node-settings.changed": "Geändert",
-  "node-settings.at": "um",
   "node-settings.tags": "Tags",
-  "node-settings.button.cancel": "Abbrechen",
-  "node-settings.button.save": "Speichern",
 
   "settings.title": "Settings",
   "settings.account.loggedout": "Aktuell ist kein Account mit diesem Computer verknüpft",
