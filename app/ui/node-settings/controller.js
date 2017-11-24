@@ -34,12 +34,12 @@ module.exports = function (env) {
     if (nodeSettingsWindow) return nodeSettingsWindow
 
     nodeSettingsWindow = new BrowserWindow({
-      // width         : 400,
-      // minWidth      : 400,
-      // height        : 280,
-      // minHeight     : 280,
-      width: 1600,
-      height: 800,
+      width         : 400,
+      minWidth      : 400,
+      height        : 280,
+      minHeight     : 280,
+      // width: 1600,
+      // height: 800,
       show          : true,
       frame         : false,
       fullscreenable: false,
@@ -76,9 +76,9 @@ module.exports = function (env) {
       nodeSettingsWindow.webContents.send('update-window')
     })
 
-    // if (env.name === 'development') {
-      nodeSettingsWindow.openDevTools()
-    // }
+    if (env.name === 'development') {
+    //   nodeSettingsWindow.openDevTools()
+    }
 
     return nodeSettingsWindow
   }
