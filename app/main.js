@@ -339,6 +339,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
         code: error.code
       });
       endSync(false);
+      tray.emit('network-offline');
     break;
     default:
       logger.error('Uncaught sync error. Resetting cursor and db', {
