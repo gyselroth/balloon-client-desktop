@@ -84,7 +84,7 @@ module.exports = function(env, tray) {
 
     //return if sync is already running or is starting up
     if(syncWindow || syncStartup) {
-      return logger.info('Sync: not starting sync because it is already running', {category: 'sync'});
+      return logger.info('not starting sync because it is already running', {category: 'sync'});
     }
 
     syncStartup = true;
@@ -101,7 +101,7 @@ module.exports = function(env, tray) {
 
     //return if sync has been paused
     if(syncPaused) {
-      return logger.info('Sync: not starting sync because it has been paused', {category: 'sync'});
+      return logger.info('not starting sync because it has been paused', {category: 'sync'});
     }
 
     logger.info('starting sync', {category: 'sync'});
