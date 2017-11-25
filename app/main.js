@@ -332,6 +332,8 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
     case 'ETIMEDOUT':
     case 'ENETUNREACH':
     case 'EHOSTUNREACH':
+    case 'ECONNREFUSED':
+    case 'EHOSTDOWN':
       logger.error('sync terminated with networkproblems.', {
         category: 'bootstrap',
         code: error.code
