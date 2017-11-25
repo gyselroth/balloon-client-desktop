@@ -328,6 +328,16 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
       });
       endSync(false);
     break;
+    case 'ENOTFOUND':
+    case 'ETIMEDOUT':
+    case 'ENETUNREACH':
+    case 'EHOSTUNREACH':
+      logger.error('sync terminated with networkproblems.', {
+        category: 'bootstrap',
+        code: error.code
+      });
+      endSync(false);
+    break;
     default:
       logger.error('Uncaught sync error. Resetting cursor and db', {
         category: 'bootstrap',
