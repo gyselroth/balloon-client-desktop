@@ -126,8 +126,6 @@ module.exports = function(env, clientConfig) {
         ||
         !clientConfig.get('apiUrl')
         ||
-        clientConfig.get('onLineState') === false
-        ||
         !clientConfig.hadConfig()
         ||
         !clientConfig.isActiveInstance()
@@ -136,6 +134,9 @@ module.exports = function(env, clientConfig) {
           category: 'startup'
       });
       return firstTimeWizard();
+    } else if(clientConfig.get('onLineState') === false) {
+      // authentication is not possible, as client is offline
+      return Promise.resolve();
     }
 
     return new Promise(function(resolve, reject) {
