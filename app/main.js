@@ -13,6 +13,7 @@ const AuthCtrl = require('./lib/auth/controller.js');
 const AutoUpdateCtrl = require('./lib/auto-update/controller.js');
 const FeedbackCtrl = require('./ui/feedback/controller.js');
 const AboutCtrl = require('./ui/about/controller.js');
+const NodeSettingsCtrl = require('./ui/node-settings/controller.js');
 const setMenu = require('./lib/menu.js');
 
 const logger = require('./lib/logger.js');
@@ -37,11 +38,19 @@ process.on('uncaughtException', function(exception) {
   });
 });
 
-var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
+var shouldQuit       = app.makeSingleInstance((cmd, cwd) => {}),
+    absoluteNodePath = getParamValueByParamName('--nodePath'),
+    relativeNodePath = absoluteNodePath ? absoluteNodePath.toString().replace(clientConfig.get('balloonDir'), '') : false
 
 if(shouldQuit === true) {
-  startup.showBalloonDir();
-  app.quit();
+  if (relativeNodePath) {
+    initNodeSettingsClose()
+    startup.showNodeSettingsWindow(relativeNodePath);
+  } else {
+    startup.showBalloonDir();
+    app.quit();
+  }
+
   return;
 }
 
@@ -72,6 +81,10 @@ function startApp() {
 
         if(env.name === 'production') {
           startSync();
+        }
+
+        if (relativeNodePath) {
+            startup.showNodeSettingsWindow(relativeNodePath);
         }
 
         electron.powerMonitor.on('suspend', () => {
@@ -257,6 +270,8 @@ ipcMain.on('about-open', (event) => {
   about.open();
 });
 
+initNodeSettingsClose()
+
 ipcMain.on('unlink-account', (event) => {
   logger.info('logout requested', {category: 'bootstrap'});
   unlinkAccount();
@@ -396,4 +411,22 @@ function startSync() {
 
 function endSync(scheduleNextSync) {
   sync.end(scheduleNextSync);
+}
+
+function getParamValueByParamName(paramName) {
+    var paramValue;
+    process.argv.forEach((value, index) => {
+        if (paramName === value) {
+            paramValue = process.argv[index + 1];
+            return false;
+        }
+    });
+
+    return paramValue;
+}
+
+function initNodeSettingsClose () {
+  ipcMain.on('node-settings-close', () => {
+    NodeSettingsCtrl(env).close()
+  })
 }

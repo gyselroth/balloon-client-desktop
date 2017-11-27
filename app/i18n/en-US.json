@@ -44,6 +44,10 @@
   "feedback.error.send": "We encountered an error during sending your feedback, please try it again later!",
   "feedback.error.empty": "Please provide a feedback message before sending!",
 
+  "node-settings.error.message": "The synchronization has not been completed yet.",
+  "node-settings.changed": "Changed",
+  "node-settings.tags": "Tags",
+
   "settings.title": "Settings",
   "settings.account.title": "Account",
   "settings.user.loggedout": "Currently no account linked with this computer",

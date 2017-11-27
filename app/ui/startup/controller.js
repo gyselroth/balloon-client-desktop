@@ -8,6 +8,7 @@ var autoLaunch = require('auto-launch');
 const env = require('../../env.js');
 const fsUtility = require('../../lib/fs-utility.js');
 const AuthCtrl = require('../../lib/auth/controller.js');
+const NodeSettingsCtrl = require('../node-settings/controller.js');
 
 const configManagerCtrl = require('../../lib/config-manager/controller.js');
 
@@ -228,6 +229,23 @@ module.exports = function(env, clientConfig) {
     }
   }
 
+  function showNodeSettingsWindow(nodePath) {
+      if (nodePath) {
+        logger.info('open node-settings window', {
+          category: 'startup',
+          nodePath: nodePath
+        });
+
+        if (app.isReady()) {
+            NodeSettingsCtrl(env).open(nodePath);
+        } else {
+          app.on('ready', function () {
+              NodeSettingsCtrl(env).open(nodePath);
+          });
+        }
+      }
+  }
+
   function welcomeWizard() {
     logger.info('Startup settings: open requested', {category: 'startup'});
 
@@ -445,5 +463,6 @@ module.exports = function(env, clientConfig) {
     checkConfig,
     preSyncCheck,
     showBalloonDir,
+    showNodeSettingsWindow
   }
 }

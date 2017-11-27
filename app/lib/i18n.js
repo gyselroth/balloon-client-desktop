@@ -40,6 +40,10 @@ function getTranslation(key) {
   return translations[key] || key;
 }
 
+function getCurrentLocale() {
+  return currentLocale
+}
+
 //initialize localisations
 if(app.isReady()) {
   changeLanguage(app.getLocale());
@@ -51,5 +55,6 @@ if(app.isReady()) {
 
 module.exports = {
   '__': getTranslation,
-  changeLanguage
+  changeLanguage,
+  getCurrentLocale
 };
