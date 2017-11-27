@@ -28,7 +28,6 @@ handlebars.registerHelper('i18n', function(key) {
 
 $(document).ready(function() {
   var $html = $("html");
-  var pingUrl = clientConfig.get('blnUrl') || 'https://google.ch';
 
   $html.addClass(process.platform);
   compileTemplates();
