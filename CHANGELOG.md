@@ -1,6 +1,6 @@
-## 0.0.34-dev
+## 0.0.34
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**:
+**Date**: Mon November 27 17:02:33 CET 2017
 
 * CORE: [FIX] fixed multi sync threads running #34 
 * CORE: [FIX] fixed regex bug in sync library and resolve various network problems, bumping sync lib to 0.0.29 #34 
