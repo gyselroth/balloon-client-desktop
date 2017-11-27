@@ -435,7 +435,7 @@ module.exports = function(env, clientConfig) {
     });
 
     if(env.name === 'development') {
-      //startupWindow.openDevTools();
+      startupWindow.openDevTools();
     }
 
     return startupWindow;

@@ -83,7 +83,7 @@
   "error.errorReport": "Fehlerbericht konnte nicht gesendet werden. Prüfen Sie die Internet-Verbindung und versuchen Sie es erneut.",
   "error.blnUrl.invalid": "Bitte geben Sie eine gültige Server URL an (Bsp: https://example.org)",
   "error.blnUrl.notreachable": "Der eingegebene Server kann nicht erreicht werden. Bitte prüfen Sie den Server",
-  "error.blnUrl.offline": "Es besteht keine Internetverbindung. Für die Konfiguration ist eine Internetverbindung notwendig.",
+  "error.blnUrl.offline": "Der balloon Server kann nicht erreicht werden. Bitte stelle sicher, dass eine Internetverbindung besteht.",
   "error.auth.basic": "Authentifizierung fehlgeschlagen",
   "error.auth.oidc": "Die Authentifzierung mit dem ausgewählen Identity Provider ist fehlgeschlagen."
 }

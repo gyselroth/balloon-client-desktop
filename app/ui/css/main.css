@@ -288,8 +288,8 @@ input[type="radio"], input[type="checkbox"] {
     display: none;
 }
 
-#about .loader {
-    margin: auto;
+#about .loader, .view .loader {
+   margin: auto;
 }
 
 /*-----Feeedback-----*/
@@ -345,10 +345,26 @@ input[type="radio"], input[type="checkbox"] {
 #startup-view-server input {
     height: 40px;
     width: 75%;
+    padding-right: 45px;
 }
 
-#startup-view-server > div {
+#startup-view-server .view-content .loader {
+    position: relative;
+    top: -35px;
+    right: -150px;
+}
+
+#startup-view-server .view-content > div {
     display: none;
+}
+
+.view-content {
+    display: none;
+}
+
+#client-offline {
+    margin: 0 30px;
+    text-align: center;
 }
 
 #startup-adavanced-selective {
@@ -645,12 +661,4 @@ button:disabled,
 button[disabled] {
   color: #ccc;
   cursor: initial;
-}
-
-.client-offline .client-offline-hidden {
-  display: none !important;
-}
-
-.client-offline .client-offline-visible {
-  display: block !important;
 }

@@ -83,7 +83,7 @@
   "error.errorReport": "Error Report could not be sent, please check your internet connection and try it again.",
   "error.blnUrl.invalid": "Please enter a valid URL (Example: https://example.org)",
   "error.blnUrl.notreachable": "The Server entered can not be reached. Please make sure to enter the correct server.",
-  "error.blnUrl.offline": "There is not internet connection. Please go online to continue.",
+  "error.blnUrl.offline": "It looks like the balloon server can not be reached. Please make sure you have a valid internet connection.",
   "error.auth.basic": "Authentication failed",
   "error.auth.oidc": "There was an error authenticating your account with the choosen identity provider."
 }

@@ -31,17 +31,25 @@ $(document).ready(function() {
 
   $html.addClass(process.platform);
   compileTemplates();
+  var $loader = $('.loader').show();
+  var $offline = $('#client-offline');
+  var $content = $('.view-content');
 
   function updateOnLineState() {
     if(navigator.onLine === false) {
-      $html.addClass('client-offline');
+      $loader.hide();
+      $offline.show();
+      $content.hide();
     } else {
       checkIfHostReachable(clientConfig.get('blnUrl'), (result) => {
+        $loader.hide();
         if(result === false) {
-          $html.addClass('client-offline');
+          $offline.show();
+          $content.hide();
           window.setTimeout(updateOnLineState, 5000);
         } else {
-          $html.removeClass('client-offline');
+          $offline.hide();
+          $content.show();
         }
       });
     }
@@ -52,7 +60,7 @@ $(document).ready(function() {
   window.addEventListener('offline', updateOnLineState);
 
   if(!clientConfig.get('blnUrl')) {
-    $('#startup-view-server').find('> div').show();
+    $('#startup-view-server').find('.view-content').find('> div').show();
   }
 
   $('#startup-server-continue').bind('click', verifyServer);
@@ -101,7 +109,11 @@ function verifyServer() {
     blnUrl = 'https://' + blnUrl;
   }
 
+  var $loader = $('#startup-view-server').find('.view-content').find('.loader').show();
+
   pingApiServer(blnUrl, (result) => {
+    $loader.hide();
+
     if(result === false) {
       $blnUrlNotreachableMessage.show();
     } else {
