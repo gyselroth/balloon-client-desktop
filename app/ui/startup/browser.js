@@ -72,9 +72,7 @@ function checkIfHostReachable(blnUrl, callback) {
   if(blnUrl) {
     pingApiServer(blnUrl, callback);
   } else {
-    request.get('https://google.com', {timeout: 2000}, (err, result) => {
-      callback(!err && result.statusCode === 200);
-    });
+    callback(true);
   }
 }
 
