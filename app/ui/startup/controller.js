@@ -231,7 +231,10 @@ module.exports = function(env, clientConfig) {
 
   function showNodeSettingsWindow(nodePath) {
       if (nodePath) {
-        logger.info('nodePath: ' + nodePath);
+        logger.info('open node-settings window', {
+          category: 'startup',
+          nodePath: nodePath
+        });
 
         if (app.isReady()) {
             NodeSettingsCtrl(env).open(nodePath);

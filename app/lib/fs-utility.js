@@ -115,7 +115,6 @@ module.exports = {
       case 'win32':
         var balloonContextMenuCommand = path.resolve(resourcesPath, 'resources/context_menu/win32/contextmenu.cmd'),
             balloonIcon               = path.resolve(resourcesPath, 'resources/diricon/icon.ico'),
-            // todo: correct regex... balloonAppliesTo   = 'System.ItemFolderPathDisplay:"' + balloonDir + '*"',
             balloonAppliesTo          = 'System.ItemFolderPathDisplay:"*\Balloon*"',
             balloonCommandParam       = ' --nodePath \"%D\""',
             balloonContextMenuName, balloonCommand
