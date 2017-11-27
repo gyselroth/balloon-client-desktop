@@ -108,6 +108,88 @@ module.exports = {
     }
   },
 
+  createContextMenu: function (balloonDir, homeDir) {
+    var resourcesPath = process.defaultApp ? path.resolve(__dirname, '../../') : path.resolve(process.resourcesPath);
+
+    switch(process.platform) {
+      case 'win32':
+        var balloonContextMenuCommand = path.resolve(resourcesPath, 'resources/context_menu/win32/contextmenu.cmd'),
+            balloonIcon               = path.resolve(resourcesPath, 'resources/diricon/icon.ico'),
+            balloonAppliesTo          = 'System.ItemFolderPathDisplay:"*\Balloon*"',
+            balloonCommandParam       = ' --nodePath \"%D\""',
+            balloonContextMenuName, balloonCommand
+
+        switch (env.name) {
+          case 'development':
+            balloonContextMenuName = 'balloon_dev'
+            balloonCommand         = resourcesPath + '\\node_modules\\.bin\\electron ' + resourcesPath + '/app/main.js' + balloonCommandParam
+            break;
+          default:
+            balloonContextMenuName = 'balloon'
+            balloonCommand         = path.resolve(resourcesPath, '../Balloon.exe') + balloonCommandParam;
+            break;
+        }
+
+        exec([
+          balloonContextMenuCommand,
+          balloonContextMenuName,
+          balloonAppliesTo,
+          balloonCommand,
+          balloonIcon
+        ].join(' '))
+        break;
+      case 'darwin':
+        var balloonContextMenu             = path.resolve(resourcesPath, 'resources/context_menu/darwin/balloon.workflow'),
+            balloonContextMenuTmp          = path.resolve(resourcesPath, 'resources/context_menu/darwin/tmp'),
+            balloonServicePath             = path.resolve(homeDir, 'Library/Services'),
+            balloonAppleScriptCommandParam = ' --nodePath " &amp; "\'" &amp; nodePath &amp; "\'',
+            balloonServiceName, balloonAppleScriptCommand
+
+        switch (env.name) {
+          case 'development':
+            balloonServiceName        = 'balloon_dev.workflow'
+            balloonAppleScriptCommand = 'cd ' + resourcesPath + '/node_modules/electron &amp;&amp; /usr/local/bin/node cli.js ../../app/main.js' + balloonAppleScriptCommandParam
+            break;
+          default:
+            balloonServiceName        = 'balloon.workflow'
+            balloonAppleScriptCommand = '/Applications/Balloon.app/Contents/MacOS/Balloon' + balloonAppleScriptCommandParam
+            break;
+        }
+
+        balloonContextMenuTmp = path.join(balloonContextMenuTmp, balloonServiceName)
+
+        // copy service
+        exec([
+          'cp -r',
+          balloonContextMenu,
+          balloonContextMenuTmp
+        ].join(' '), exec.ExecOptionsWithStringEncoding, (err) => {
+          if (err) return logger.error(err)
+          var balloonServiceFile = path.join(balloonContextMenuTmp, 'Contents/document.wflow');
+          fs.readFile(balloonServiceFile, 'utf-8', (err, data) => {
+            if (err) return logger.error(err)
+            // modify service
+            var balloonAppleScript = 'on run {input, parameters}\n' +
+                                      'set nodePath to (the POSIX path of input)\n' +
+                                      'do shell script "' + balloonAppleScriptCommand + '"\n' +
+                                      'return input\n' +
+                                     'end run\n'
+
+            fs.writeFile(balloonServiceFile, data.replace('{balloon_apple_script}', balloonAppleScript), 'utf8', (err) => {
+              if (err) return logger.error(err)
+              // move to services
+              exec([
+                'mv',
+                balloonContextMenuTmp,
+                balloonServicePath
+              ].join(' '));
+            })
+          })
+        });
+        break;
+    }
+  },
+
   mkdirp: function(dir, callback) {
     mkdirp(dir, {fs}, callback);
   },
