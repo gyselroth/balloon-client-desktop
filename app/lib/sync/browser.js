@@ -70,10 +70,10 @@ window.onerror = function(message, url, line, column, error) {
 
   if(sync && sync.cleanup) {
     sync.cleanup((cleanupErr) => {
-      ipcRenderer.send('sync-error', error, url, line);
+      ipcRenderer.send('sync-error', error, url, line, message);
     });
   } else {
-    ipcRenderer.send('sync-error', error, url, line);
+    ipcRenderer.send('sync-error', error, url, line, message);
   }
 
 };

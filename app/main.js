@@ -232,7 +232,7 @@ ipcMain.on('sync-start', () => {
 });
 
 ipcMain.on('sync-complete', () => {
-  endSync();
+  endSync(true);
 });
 
 ipcMain.on('sync-transfer-start', () => {
@@ -307,12 +307,12 @@ ipcMain.on('link-account', (event, id) => {
   });
 });
 
-ipcMain.on('sync-error', (event, error, url, line) => {
+ipcMain.on('sync-error', (event, error, url, line, message) => {
   switch(error.code) {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
       logger.info('got 401, end sync and unlink account', {category: 'bootstrap'});
 
-      endSync();
+      endSync(false);
       unlinkAccount();
     break;
     case 'E_BLN_CONFIG_CREDENTIALS':
@@ -321,7 +321,7 @@ ipcMain.on('sync-error', (event, error, url, line) => {
         code: error.code
       });
 
-      endSync();
+      endSync(false);
       unlinkAccount();
     break;
     case 'E_BLN_CONFIG_BALLOONDIR':
@@ -334,33 +334,44 @@ ipcMain.on('sync-error', (event, error, url, line) => {
       });
 
       clientConfig.initialize();
-      endSync();
-      startSync();
+      endSync(true);
     break;
     case 'E_BLN_CONFIG_CONFIGDIR_ACCES':
       logger.error('config dir not accesible.', {
         category: 'bootstrap',
-        error: error
+        error
       });
-      endSync();
+      endSync(false);
+    break;
+    case 'ENOTFOUND':
+    case 'ETIMEDOUT':
+    case 'ENETUNREACH':
+    case 'EHOSTUNREACH':
+    case 'ECONNREFUSED':
+    case 'EHOSTDOWN':
+      logger.error('sync terminated with networkproblems.', {
+        category: 'bootstrap',
+        code: error.code
+      });
+      endSync(false);
+      tray.emit('network-offline');
     break;
     default:
       logger.error('Uncaught sync error. Resetting cursor and db', {
         category: 'bootstrap',
-        error: error,
-        url: url,
-        line: line
+        error,
+        url,
+        line,
+        errorMsg: message
       });
 
       configManager.resetCursorAndDb().then(function() {
         if(env.name === 'production') {
-          endSync();
-          startSync();
+          endSync(true);
         }
       }).catch(function(err) {
         if(env.name === 'production') {
-          endSync();
-          startSync();
+          endSync(true);
         }
       });
   }
@@ -398,8 +409,8 @@ function startSync() {
   }
 }
 
-function endSync() {
-  sync.end();
+function endSync(scheduleNextSync) {
+  sync.end(scheduleNextSync);
 }
 
 function getParamValueByParamName(paramName) {

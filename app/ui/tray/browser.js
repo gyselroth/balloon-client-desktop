@@ -268,6 +268,7 @@ function getOnLineState(callback) {
         if(err) {
           //if api is not reachable atm, check again in 5s
           window.setTimeout(updateOnLineState, 5000);
+          logger.error('Failed to ping server. Retry in 5s.', {code: err.code, category: 'tray'});
         }
       });
     } else {
@@ -289,6 +290,10 @@ getOnLineState(function(onLine) {
 
   window.addEventListener('online', updateOnLineState);
   window.addEventListener('offline', updateOnLineState);
+});
+
+ipcRenderer.on('network-offline', function() {
+  updateOnLineState();
 });
 
 }());
