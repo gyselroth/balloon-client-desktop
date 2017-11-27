@@ -28,6 +28,7 @@ handlebars.registerHelper('i18n', function(key) {
 
 $(document).ready(function() {
   var $html = $("html");
+
   $html.addClass(process.platform);
   compileTemplates();
 
@@ -35,7 +36,14 @@ $(document).ready(function() {
     if(navigator.onLine === false) {
       $html.addClass('client-offline');
     } else {
-      $html.removeClass('client-offline');
+      checkIfHostReachable(clientConfig.get('blnUrl'), (result) => {
+        if(result === false) {
+          $html.addClass('client-offline');
+          window.setTimeout(updateOnLineState, 5000);
+        } else {
+          $html.removeClass('client-offline');
+        }
+      });
     }
   }
 
@@ -58,6 +66,14 @@ $(document).ready(function() {
     ipcRenderer.send('startup-open-folder');
   });
 });
+
+function checkIfHostReachable(blnUrl, callback) {
+  if(blnUrl) {
+    pingApiServer(blnUrl, callback);
+  } else {
+    callback(true);
+  }
+}
 
 function compileTemplates() {
   var templateContentHtml = $('#template-content').html();
@@ -85,14 +101,20 @@ function verifyServer() {
     blnUrl = 'https://' + blnUrl;
   }
 
-  var apiPingUrl = blnUrl + (env.apiPath || '/api/v1');
-
-  request.get(apiPingUrl, {timeout: 2000}, (err, result) => {
-    if(err || result.statusCode !== 401) {
+  pingApiServer(blnUrl, (result) => {
+    if(result === false) {
       $blnUrlNotreachableMessage.show();
     } else {
       ipcRenderer.send('startup-server-continue', blnUrl);
     }
+  });
+}
+
+function pingApiServer(blnUrl, callback) {
+  var apiPingUrl = blnUrl + (env.apiPath || '/api/v1');
+
+  request.get(apiPingUrl, {timeout: 2000}, (err, result) => {
+    callback(!(err || result.statusCode !== 401));
   });
 }
 
