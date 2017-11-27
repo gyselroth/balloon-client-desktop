@@ -348,9 +348,14 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 .k-animation-container {
-    margin-left:-55px !important;
+    margin-left:-36px !important;
     width: auto !important;
     min-width: 200px;
+}
+
+.k-animation-container .k-item:hover {
+    background-color: #f4f4f4;
+    border-radius: 0px;
 }
 
 .k-list-container.k-popup.k-group.k-reset.k-state-border-up {
@@ -375,6 +380,10 @@ input[type="radio"], input[type="checkbox"] {
 
 #node-settings-button {
     text-align: right;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
 }
 
 #node-settings-button button {
@@ -409,9 +418,9 @@ input[type="radio"], input[type="checkbox"] {
 #node-settings-properties > div {
     width: 100%;
     clear: both;
-
     min-height: 20px;
-    overflow: hidden;
+    overflow: scroll;
+    height: 147px;
 }
 
 #node-settings-properties > div > div:first-child {

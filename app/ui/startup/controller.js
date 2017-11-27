@@ -67,7 +67,6 @@ module.exports = function(env, clientConfig) {
   function checkConfig() {
     return Promise.all([
       makeSureBalloonDirExists(),
-      makeSureContextMenuExists(),
       enableAutoLaunch(),
       authenticate(),
     ]);
@@ -117,20 +116,6 @@ module.exports = function(env, clientConfig) {
             category: 'startup'
           });
 
-          resolve();
-        }
-      });
-    });
-  }
-
-  function makeSureContextMenuExists() {
-    return new Promise(function(resolve, reject) {
-      fsUtility.createContextMenu(clientConfig.get('balloonDir'), clientConfig.get('homeDir'), (err) => {
-        if(err) {
-          logger.error('Startup:', {err});
-          reject(err);
-        } else {
-          logger.info('Startup: contextMenu created');
           resolve();
         }
       });

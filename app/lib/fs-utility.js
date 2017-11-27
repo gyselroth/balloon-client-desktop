@@ -108,7 +108,7 @@ module.exports = {
     }
   },
 
-  createContextMenu: function (balloonDir, homeDir, callback) {
+  createContextMenu: function (balloonDir, homeDir) {
     var resourcesPath = process.defaultApp ? path.resolve(__dirname, '../../') : path.resolve(process.resourcesPath);
 
     switch(process.platform) {
@@ -159,48 +159,36 @@ module.exports = {
 
         balloonContextMenuTmp = path.join(balloonContextMenuTmp, balloonServiceName)
 
-        // check if service exists
+        // copy service
         exec([
-          'ls -la',
-          path.join(balloonServicePath, balloonServiceName)
-        ].join(' '), (err, service) => {
+          'cp -r',
+          balloonContextMenu,
+          balloonContextMenuTmp
+        ].join(' '), exec.ExecOptionsWithStringEncoding, (err) => {
           if (err) return logger.error(err)
-          // create service
-          if (!service) {
-            // copy service
-            exec([
-              'cp -r',
-              balloonContextMenu,
-              balloonContextMenuTmp
-            ].join(' '), exec.ExecOptionsWithStringEncoding, (err) => {
-              if (err) return logger.error(err)
-              var balloonServiceFile = path.join(balloonContextMenuTmp, 'Contents/document.wflow');
-              fs.readFile(balloonServiceFile, 'utf-8', (err, data) => {
-                if (err) return logger.error(err)
-                // modify service
-                var balloonAppleScript = 'on run {input, parameters}\n' +
-                                          'set nodePath to (the POSIX path of input)\n' +
-                                          'do shell script "' + balloonAppleScriptCommand + '"\n' +
-                                          'return input\n' +
-                                         'end run\n'
+          var balloonServiceFile = path.join(balloonContextMenuTmp, 'Contents/document.wflow');
+          fs.readFile(balloonServiceFile, 'utf-8', (err, data) => {
+            if (err) return logger.error(err)
+            // modify service
+            var balloonAppleScript = 'on run {input, parameters}\n' +
+                                      'set nodePath to (the POSIX path of input)\n' +
+                                      'do shell script "' + balloonAppleScriptCommand + '"\n' +
+                                      'return input\n' +
+                                     'end run\n'
 
-                fs.writeFile(balloonServiceFile, data.replace('{balloon_apple_script}', balloonAppleScript), 'utf8', (err) => {
-                  if (err) return logger.error(err)
-                  // move to services
-                  exec([
-                    'mv',
-                    balloonContextMenuTmp,
-                    balloonServicePath
-                  ].join(' '));
-                })
-              })
-            });
-          }
-        })
+            fs.writeFile(balloonServiceFile, data.replace('{balloon_apple_script}', balloonAppleScript), 'utf8', (err) => {
+              if (err) return logger.error(err)
+              // move to services
+              exec([
+                'mv',
+                balloonContextMenuTmp,
+                balloonServicePath
+              ].join(' '));
+            })
+          })
+        });
         break;
     }
-
-    callback(null);
   },
 
   mkdirp: function(dir, callback) {

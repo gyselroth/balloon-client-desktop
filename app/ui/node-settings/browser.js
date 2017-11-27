@@ -101,7 +101,7 @@
       nodeSettingsInitMetaTagCompletion();
       $fs_prop_tags_parent.find('.node-settings-properties-add').unbind('click').bind('click', function () {
         $('#node-settings-properties-add-tag').show();
-        $fs_prop_tags_parent.find('input:text').focus().data('kendoAutoComplete').search();
+        $fs_prop_tags_parent.find('input:text').data('kendoAutoComplete').search();
       })
 
       $fs_prop_tags.find('li').remove();
@@ -190,6 +190,8 @@
     $input.kendoAutoComplete({
       minLength    : 0,
       dataTextField: '_id',
+      noDataTemplate: false,
+      highlightFirst: false,
       dataSource   : new kendo.data.DataSource({
         transport: {
           read: function (operation) {

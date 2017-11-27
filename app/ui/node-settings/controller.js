@@ -31,13 +31,11 @@ module.exports = function (env) {
 
     nodeSettingsWindow = new BrowserWindow({
       width         : 400,
-      minWidth      : 400,
-      height        : 280,
-      minHeight     : 280,
+      height        : 350,
       show          : true,
       frame         : false,
       fullscreenable: false,
-      resizable     : true,
+      resizable     : false,
       skipTaskbar   : true,
       icon          : __dirname + '/../../img/logo-512x512.png'
     })
