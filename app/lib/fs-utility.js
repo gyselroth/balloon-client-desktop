@@ -130,6 +130,14 @@ module.exports = {
             break;
         }
 
+        logger.debug('add context menu to win32 registry', {
+          category: 'fsutility',
+          data: {
+            menu: balloonContextMenuName,
+            cmd: balloonCommand
+          }
+        });
+
         exec([
           balloonContextMenuCommand,
           balloonContextMenuName,
@@ -158,17 +166,37 @@ module.exports = {
 
         balloonContextMenuTmp = path.join(balloonContextMenuTmp, balloonServiceName)
 
-        // copy service
+        logger.debug('add context menu applescript workflow', {
+          category: 'fsutility',
+          data: {
+            workflow: balloonContextMenu,
+            tmp: balloonContextMenuTmp,
+            service: balloonServicePath,
+            cmd: balloonAppleScriptCommandParam
+          }
+        });
+
         exec([
           'cp -r',
           balloonContextMenu,
           balloonContextMenuTmp
         ].join(' '), exec.ExecOptionsWithStringEncoding, (err) => {
-          if (err) return logger.error(err)
+          if (err) {
+            return logger.error('failed add applescript workflow', {
+              category: 'fsutility',
+              error: err
+            })
+          }
+
           var balloonServiceFile = path.join(balloonContextMenuTmp, 'Contents/document.wflow');
           fs.readFile(balloonServiceFile, 'utf-8', (err, data) => {
-            if (err) return logger.error(err)
-            // modify service
+            if(err) {
+              return logger.error('failed read applescript workflow', {
+                category: 'fsutility',
+                error: err
+              })
+            }
+
             var balloonAppleScript = 'on run {input, parameters}\n' +
                                       'set nodePath to (the POSIX path of input)\n' +
                                       'do shell script "' + balloonAppleScriptCommand + '"\n' +
@@ -176,8 +204,13 @@ module.exports = {
                                      'end run\n'
 
             fs.writeFile(balloonServiceFile, data.replace('{balloon_apple_script}', balloonAppleScript), 'utf8', (err) => {
-              if (err) return logger.error(err)
-              // move to services
+              if(err) {
+                return logger.error('failed modify applescript workflow', {
+                  category: 'fsutility',
+                  error: err
+                })
+              }
+
               exec([
                 'mv',
                 balloonContextMenuTmp,

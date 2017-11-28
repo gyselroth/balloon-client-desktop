@@ -13,7 +13,7 @@ module.exports = function (previousVersion, currentVersion, done) {
     if (fs.existsSync(balloonDir)) {
       fsUtility.createContextMenu(balloonDir, homeDir)
     } else {
-      logger.info('Migration to 0.0.34: no balloon data folder, nothing to do')
+      logger.info('Migration to 0.0.34: no balloon data folder, nothing to do', {category: 'migration'})
       return done(null, 'No balloon data folder, nothing to do.')
     }
 

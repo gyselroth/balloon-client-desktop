@@ -17,7 +17,7 @@ module.exports = function(previousVersion, currentVersion, done) {
       fsUtility.setDirIcon(balloonDir);
       fsUtility.setDirShortcut(balloonDir, homeDir);
     } else  {
-      logger.info('Migration to 0.0.32: no balloon data folder, nothing to do');
+      logger.info('Migration to 0.0.32: no balloon data folder, nothing to do', {category: 'migration'});
       return done(null, 'No balloon data folder, nothing to do.');
     }
 
