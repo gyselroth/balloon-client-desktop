@@ -20,12 +20,22 @@ test_script:
   - npm --version
   - SET PATH=C:\Program Files\Nodejs;%PATH%
 
+artifacts:
+  - path: dist/*.exe
+    name: exe
+
+  - path: dist/*.yml
+    name: latest
+
+  - path: dist/*.zip
+    name: zip
+
 deploy:
   release: $(package_version)
   provider: GitHub
   auth_token:
     secure: pUNwihH4K0Qy5dcJ8g3FFkvPyqwOcv5avZYU/JwoY4RVJljy/sq8FuOObDGkZ+Sx
-  artifact: /dist\/*\.exe,dist\/latest\.yml/
+  artifact: exe,latest,zip
   draft: true
   prerelease: false
   on:
