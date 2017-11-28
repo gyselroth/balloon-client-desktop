@@ -28,13 +28,6 @@
       "allowToChangeInstallationDirectory": true,
       "oneClick": false
     },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "gyselroth",
-        "repo": "balloon-client-desktop"
-      }
-    ]
   },
   "bugs": {
     "url": "https://github.com/gyselroth/balloon-client-desktop/issues"
@@ -48,9 +41,9 @@
     "build-win": "npm run prebuild && set BLN_ARTIFACT_APPENDIX='' && build --win --ia32 --x64 -p never",
     "build-linux": "npm run prebuild && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm zip -p never",
     "prerelease": "gulp build --env=production",
-    "release-osx": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --mac dmg zip",
-    "release-win": "npm run prerelease && set BLN_ARTIFACT_APPENDIX='' && build --win --ia32 --x64",
-    "release-linux": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm zip",
+    "release-osx": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --mac dmg zip -p never",
+    "release-win": "npm run prerelease && set BLN_ARTIFACT_APPENDIX='' && build --win --ia32 --x64 -p never",
+    "release-linux": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm zip -p never",
     "prepackdev": "gulp build --env=development",
     "packdev": "build --dir",
     "prebuilddev": "gulp build --env=development",
@@ -66,7 +59,6 @@
     "electron-builder": "19.46.9",
     "electron-mocha": "~3.5.0",
     "electron-rebuild": "1.6.0",
-    "electron-publish": "19.28.1",
     "gulp": "~3.9.1",
     "gulp-batch": "~1.0.5",
     "gulp-less": "~3.3.0",

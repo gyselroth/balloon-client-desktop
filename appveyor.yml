@@ -9,6 +9,7 @@ matrix:
   fast_finish: true
 
 install:
+  - ps: $env:package_version = (Get-Content -Raw -Path package.json | ConvertFrom-Json).version
   - ps: Install-Product node $env:nodejs_version x64
   - npm set progress=false
   - npm prune
@@ -19,3 +20,15 @@ test_script:
   - node --version
   - npm --version
   - SET PATH=C:\Program Files\Nodejs;%PATH%
+
+deploy:
+  release: $(package_version)
+  provider: GitHub
+  auth_token:
+    secure: pUNwihH4K0Qy5dcJ8g3FFkvPyqwOcv5avZYU/JwoY4RVJljy/sq8FuOObDGkZ+Sx
+  artifact: /dist\/*\.exe,dist\/latest\.yml/
+  draft: true
+  prerelease: false
+  on:
+    branch: master
+    appveyor_repo_tag: true
