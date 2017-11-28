@@ -66,6 +66,7 @@
     "electron-builder": "19.46.9",
     "electron-mocha": "~3.5.0",
     "electron-rebuild": "1.6.0",
+    "electron-publish": "19.28.1",
     "gulp": "~3.9.1",
     "gulp-batch": "~1.0.5",
     "gulp-less": "~3.3.0",
