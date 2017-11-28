@@ -15,6 +15,7 @@ module.exports = {
 
       this.setDirIcon(balloonDir);
       this.setDirShortcut(balloonDir, homeDir);
+	  this.createContextMenu(balloonDir, homeDir);
 
       callback(null);
     });
@@ -66,7 +67,7 @@ module.exports = {
     }
   },
 
-  setDirShortcut: function(balloonDir, homeDir) {
+  setDirShortcut: function(balloonDir, homeDir) {	  
     var resourcesPath;
     if(process.defaultApp) {
       resourcesPath = path.resolve(__dirname, '../../');
@@ -109,6 +110,7 @@ module.exports = {
   },
 
   createContextMenu: function (balloonDir, homeDir) {
+	  console.log(1);
     var resourcesPath = process.defaultApp ? path.resolve(__dirname, '../../') : path.resolve(process.resourcesPath);
 
     switch(process.platform) {
@@ -116,35 +118,34 @@ module.exports = {
         var balloonContextMenuCommand = path.resolve(resourcesPath, 'resources/context_menu/win32/contextmenu.cmd'),
             balloonIcon               = path.resolve(resourcesPath, 'resources/diricon/icon.ico'),
             balloonAppliesTo          = 'System.ItemFolderPathDisplay:"*\Balloon*"',
-            balloonCommandParam       = ' --nodePath \"%D\""',
+            balloonCommandParam       = ' --nodePath \"%D\"',
             balloonContextMenuName, balloonCommand
 
         switch (env.name) {
           case 'development':
             balloonContextMenuName = 'balloon_dev'
-            balloonCommand         = resourcesPath + '\\node_modules\\.bin\\electron ' + resourcesPath + '/app/main.js' + balloonCommandParam
+            balloonCommand         = '"'+resourcesPath + '\\node_modules\\.bin\\electron ' + resourcesPath + '/app/main.js' + balloonCommandParam+'"'
             break;
           default:
             balloonContextMenuName = 'balloon'
-            balloonCommand         = path.resolve(resourcesPath, '../Balloon.exe') + balloonCommandParam;
+            balloonCommand         = '"'+path.resolve(resourcesPath, '../Balloon.exe') + balloonCommandParam+'"';
             break;
         }
 
-        logger.debug('add context menu to win32 registry', {
-          category: 'fsutility',
-          data: {
-            menu: balloonContextMenuName,
-            cmd: balloonCommand
-          }
-        });
-
-        exec([
+		var cmd = [
           balloonContextMenuCommand,
           balloonContextMenuName,
           balloonAppliesTo,
           balloonCommand,
           balloonIcon
-        ].join(' '))
+        ].join(' ');
+
+        logger.debug('add context menu to win32 registry', {
+          category: 'fsutility',
+          cmd: cmd
+        });
+		
+        exec(cmd)
         break;
       case 'darwin':
         var balloonContextMenu             = path.resolve(resourcesPath, 'resources/context_menu/darwin/balloon.workflow'),
