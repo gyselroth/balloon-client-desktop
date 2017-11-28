@@ -27,7 +27,7 @@
       "artifactName": "${productName}-Setup-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}",
       "allowToChangeInstallationDirectory": true,
       "oneClick": false
-    },
+    }
   },
   "bugs": {
     "url": "https://github.com/gyselroth/balloon-client-desktop/issues"
