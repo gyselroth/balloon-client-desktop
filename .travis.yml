@@ -37,9 +37,9 @@ deploy:
     file_glob: true
     file: dist/*.deb,dist/*.yml,dist/*.dmg,dist/*.rpm
     skip_cleanup: true
-  on:
-    master: true
-    tags: true
+    on:
+      master: true
+      tags: true
   - provider: bintray
     file: bintray.json
     user: raffis
