@@ -63,7 +63,7 @@
   "devDependencies": {
     "chai": "3.5.0",
     "electron": "1.7.8",
-    "electron-builder": "19.27.3",
+    "electron-builder": "19.46.9",
     "electron-mocha": "~3.5.0",
     "electron-rebuild": "1.6.0",
     "gulp": "~3.9.1",
@@ -88,7 +88,7 @@
     "auto-launch": "5.0.1",
     "electron-settings": "3.1.1",
     "electron-traywindow-positioner": "0.0.1",
-    "electron-updater": "2.10.1",
+    "electron-updater": "2.16.1",
     "graceful-fs": "4.1.11",
     "handlebars": "4.0.10",
     "jquery": "<3.0.0",
