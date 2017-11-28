@@ -4,7 +4,6 @@ environment:
 
 version: "{build}"
 build: off
-deploy: off
 matrix:
   fast_finish: true
 
