@@ -8,7 +8,7 @@ matrix:
   fast_finish: true
 
 install:
-  - ps: $env:package_version = (Get-Content -Raw -Path package.json | Out-String | ConvertFrom-Json).version
+  - ps: $env:package_version = (Get-Content -Path package.json | Out-String | ConvertFrom-Json).version
   - ps: Install-Product node $env:nodejs_version x64
   - npm set progress=false
   - npm prune
