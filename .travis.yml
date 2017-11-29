@@ -27,7 +27,6 @@ before_deploy:
   bintray.json; sed -i s/'{version}'/$version/g bintray.json; sed -i s/'{date}'/$date/g
   bintray.json; sed -i s/'{deb_distribution}'/$deb_distribution/g bintray.json; fi
 deploy:
-  matrix:
   - provider: releases
     file_glob: true
     file: dist/*.deb,dist/*.yml,dist/*.dmg,dist/*.rpm
