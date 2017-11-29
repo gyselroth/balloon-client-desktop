@@ -27,15 +27,12 @@ artifacts:
   - path: dist/*.yml
     name: latest
 
-  - path: dist/*.zip
-    name: zip
-
 deploy:
   release: v$(package_version)
   provider: GitHub
   auth_token:
     secure: pUNwihH4K0Qy5dcJ8g3FFkvPyqwOcv5avZYU/JwoY4RVJljy/sq8FuOObDGkZ+Sx
-  artifact: exe,latest,zip
+  artifact: exe,latest
   draft: true
   prerelease: false
   force_update: true
