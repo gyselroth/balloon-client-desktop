@@ -34,7 +34,10 @@
 
   function initNodeSettings() {
     var localNode = sync.lstatSync(clientConfig.get('nodePath'))
+	console.log(clientConfig.get('nodePath'));
+	
     sync.find({ino: localNode.ino}, (err, syncedNode) => {
+		console.log(err,syncedNode);
       if (!syncedNode) {
         return;
       }
