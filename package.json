@@ -21,10 +21,10 @@
     ],
     "extraResources": "resources/**/*",
     "mac": {
-      "artifactName": "${os}/${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
+      "artifactName": "balloon-desktop-${version}.${ext}"
     },
     "nsis": {
-      "artifactName": "${productName}-Setup-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}",
+      "artifactName": "balloon-desktop-setup-${version}.${ext}",
       "allowToChangeInstallationDirectory": true,
       "oneClick": false
     }

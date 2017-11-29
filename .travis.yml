@@ -38,8 +38,7 @@ deploy:
     file: dist/*.deb,dist/*.yml,dist/*.dmg,dist/*.rpm
     skip_cleanup: true
     on:
-      master: true
-      tags: true
+      condition: $TRAVIS_BRANCH == "master"
   - provider: bintray
     file: bintray.json
     user: raffis
