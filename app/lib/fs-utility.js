@@ -117,7 +117,7 @@ module.exports = {
         var balloonContextMenuCommand = path.resolve(resourcesPath, 'resources/context_menu/win32/contextmenu.cmd'),
             balloonIcon               = path.resolve(resourcesPath, 'resources/diricon/icon.ico'),
             balloonAppliesTo          = 'System.ItemFolderPathDisplay:"*\Balloon*"',
-            balloonCommandParam       = ' --nodePath \"%D\"',
+            balloonCommandParam       = ' --nodePath \""%D\""',
             balloonContextMenuName, balloonCommand
 
 		if(process.defaultApp) {
