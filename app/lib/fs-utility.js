@@ -110,7 +110,6 @@ module.exports = {
   },
 
   createContextMenu: function (balloonDir, homeDir) {
-	  console.log(1);
     var resourcesPath = process.defaultApp ? path.resolve(__dirname, '../../') : path.resolve(process.resourcesPath);
 
     switch(process.platform) {
@@ -121,16 +120,13 @@ module.exports = {
             balloonCommandParam       = ' --nodePath \"%D\"',
             balloonContextMenuName, balloonCommand
 
-        switch (env.name) {
-          case 'development':
-            balloonContextMenuName = 'balloon_dev'
-            balloonCommand         = '"'+resourcesPath + '\\node_modules\\.bin\\electron ' + resourcesPath + '/app/main.js' + balloonCommandParam+'"'
-            break;
-          default:
-            balloonContextMenuName = 'balloon'
-            balloonCommand         = '"'+path.resolve(resourcesPath, '../Balloon.exe') + balloonCommandParam+'"';
-            break;
-        }
+		if(process.defaultApp) {
+		  balloonContextMenuName = 'balloon_dev'
+          balloonCommand         = '"'+resourcesPath + '\\node_modules\\.bin\\electron ' + resourcesPath + '/app/main.js' + balloonCommandParam+'"'
+		} else {
+	      balloonContextMenuName = 'balloon'
+          balloonCommand         = '"'+path.resolve(resourcesPath, '../Balloon.exe') + balloonCommandParam+'"';
+		}	
 
 		var cmd = [
           balloonContextMenuCommand,
@@ -154,15 +150,12 @@ module.exports = {
             balloonAppleScriptCommandParam = ' --nodePath " &amp; "\'" &amp; nodePath &amp; "\'',
             balloonServiceName, balloonAppleScriptCommand
 
-        switch (env.name) {
-          case 'development':
+        if(process.defaultApp) {
             balloonServiceName        = 'balloon_dev.workflow'
             balloonAppleScriptCommand = 'cd ' + resourcesPath + '/node_modules/electron &amp;&amp; /usr/local/bin/node cli.js ../../app/main.js' + balloonAppleScriptCommandParam
-            break;
-          default:
+		} else {
             balloonServiceName        = 'balloon.workflow'
             balloonAppleScriptCommand = '/Applications/Balloon.app/Contents/MacOS/Balloon' + balloonAppleScriptCommandParam
-            break;
         }
 
         balloonContextMenuTmp = path.join(balloonContextMenuTmp, balloonServiceName)

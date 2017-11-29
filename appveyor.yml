@@ -32,12 +32,11 @@ artifacts:
 
 deploy:
   release: $(package_version)
-  tag: master
   provider: GitHub
   auth_token:
     secure: pUNwihH4K0Qy5dcJ8g3FFkvPyqwOcv5avZYU/JwoY4RVJljy/sq8FuOObDGkZ+Sx
   artifact: exe,latest,zip
-  draft: true
+  draft: false
   prerelease: false
   force_update: true
   on:

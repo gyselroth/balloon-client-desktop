@@ -9,6 +9,8 @@
   const syncFactory   = require('@gyselroth/balloon-node-sync')
 
   const ipcRenderer = require('electron').ipcRenderer
+  const $ = require('jquery');
+  const kendoAutoComplete = require('kendo-ui-core/js/kendo.autocomplete');
 
   handlebars.registerHelper('i18n', (key) => {
     var translation = i18n.__(key);
@@ -232,7 +234,7 @@
 
   function nodeSettingsCompileTemplates (node) {
     var templateContentHtml = $('#node-settings-template-content').html();
-    var $placeholderContent = $('#node-settings-contentWrapper');
+    var $placeholderContent = $('#node-settings-content-wrapper');
     var templateContent     = handlebars.compile(templateContentHtml);
 
     var context = {}

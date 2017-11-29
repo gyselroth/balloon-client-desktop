@@ -33,10 +33,12 @@ module.exports = function (env) {
       width         : 400,
       height        : 350,
       show          : true,
-      frame         : false,
+      frame         : true,
       fullscreenable: false,
       resizable     : false,
       skipTaskbar   : true,
+	  
+	  title 		: 'balloon',
       icon          : __dirname + '/../../img/logo-512x512.png'
     })
 
@@ -76,7 +78,7 @@ module.exports = function (env) {
     });
 
     if (env.name === 'development') {
-      // nodeSettingsWindow.openDevTools()
+       nodeSettingsWindow.openDevTools()
     }
 
     return nodeSettingsWindow

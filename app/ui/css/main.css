@@ -313,6 +313,9 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 /*-----Node-Settings----------*/
+#node-settings {
+	overflow: hidden;
+}
 
 #node-settings-content-error-header {
     height: 1px;
@@ -324,10 +327,13 @@ input[type="radio"], input[type="checkbox"] {
     font-weight: bold;
     line-height: 1.13;
     color: #333333;
+    text-overflow: ellipsis;
+    max-width: 400px;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 #node-settings-header-node-created {
-    font-family: Ubuntu;
     font-size: 13px;
     line-height: 1.31;
     text-align: left;
@@ -340,10 +346,8 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 #node-settings-content {
-    border-radius: 8px;
     background-color: #ffffff;
     box-shadow: 0 10px 50px 0 rgba(0, 0, 0, 0.1);
-    border: solid 1px #dddddd;
     height: 100vh;
 }
 
@@ -397,7 +401,6 @@ input[type="radio"], input[type="checkbox"] {
 #node-settings-button-cancel {
     width: 95px;
     height: 30px;
-    font-family: Helvetica;
     font-size: 14px;
     text-align: center;
     color: #333333 !important;
@@ -408,7 +411,6 @@ input[type="radio"], input[type="checkbox"] {
 #node-settings-button-save {
     width: 95px;
     height: 30px;
-    font-family: Helvetica;
     font-size: 14px;
     text-align: center;
     color: #ffffff !important;
@@ -419,7 +421,7 @@ input[type="radio"], input[type="checkbox"] {
     width: 100%;
     clear: both;
     min-height: 20px;
-    overflow: scroll;
+    overflow-y: auto;
     height: 147px;
 }
 
