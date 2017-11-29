@@ -15,7 +15,7 @@ module.exports = {
 
       this.setDirIcon(balloonDir);
       this.setDirShortcut(balloonDir, homeDir);
-	  this.createContextMenu(balloonDir, homeDir);
+	    this.createContextMenu(balloonDir, homeDir);
 
       callback(null);
     });
@@ -112,7 +112,7 @@ module.exports = {
   createContextMenu: function (balloonDir, homeDir) {
     var resourcesPath = process.defaultApp ? path.resolve(__dirname, '../../') : path.resolve(process.resourcesPath);
 
-    switch(process.platform) {
+    switch (process.platform) {
       case 'win32':
         var balloonContextMenuCommand = path.resolve(resourcesPath, 'resources/context_menu/win32/contextmenu.cmd'),
             balloonIcon               = path.resolve(resourcesPath, 'resources/diricon/icon.ico'),
@@ -120,29 +120,29 @@ module.exports = {
             balloonCommandParam       = ' --nodePath \""%D\""',
             balloonContextMenuName, balloonCommand
 
-		if(process.defaultApp) {
-		  balloonContextMenuName = 'balloon_dev'
-          balloonCommand         = '"'+resourcesPath + '\\node_modules\\.bin\\electron ' + resourcesPath + '/app/main.js' + balloonCommandParam+'"'
-		} else {
-	      balloonContextMenuName = 'balloon'
-          balloonCommand         = '"'+path.resolve(resourcesPath, '../Balloon.exe') + balloonCommandParam+'"';
-		}	
+        if (process.defaultApp) {
+          balloonContextMenuName = 'balloon_dev'
+          balloonCommand         = '"' + resourcesPath + '\\node_modules\\.bin\\electron ' + resourcesPath + '/app/main.js' + balloonCommandParam + '"'
+        } else {
+          balloonContextMenuName = 'balloon'
+          balloonCommand         = '"' + path.resolve(resourcesPath, '../Balloon.exe') + balloonCommandParam + '"'
+        }
 
-		var cmd = [
+        var cmd = [
           balloonContextMenuCommand,
           balloonContextMenuName,
           balloonAppliesTo,
           balloonCommand,
           balloonIcon
-        ].join(' ');
+        ].join(' ')
 
         logger.debug('add context menu to win32 registry', {
           category: 'fsutility',
           cmd: cmd
         });
-		
+
         exec(cmd)
-        break;
+        break
       case 'darwin':
         var balloonContextMenu             = path.resolve(resourcesPath, 'resources/context_menu/darwin/balloon.workflow'),
             balloonContextMenuTmp          = path.resolve(resourcesPath, 'resources/context_menu/darwin/tmp'),
@@ -150,25 +150,25 @@ module.exports = {
             balloonAppleScriptCommandParam = ' --nodePath " &amp; "\'" &amp; nodePath &amp; "\'',
             balloonServiceName, balloonAppleScriptCommand
 
-        if(process.defaultApp) {
-            balloonServiceName        = 'balloon_dev.workflow'
-            balloonAppleScriptCommand = 'cd ' + resourcesPath + '/node_modules/electron &amp;&amp; /usr/local/bin/node cli.js ../../app/main.js' + balloonAppleScriptCommandParam
-		} else {
-            balloonServiceName        = 'balloon.workflow'
-            balloonAppleScriptCommand = '/Applications/Balloon.app/Contents/MacOS/Balloon' + balloonAppleScriptCommandParam
+        if (process.defaultApp) {
+          balloonServiceName        = 'balloon_dev.workflow'
+          balloonAppleScriptCommand = 'cd ' + resourcesPath + '/node_modules/electron &amp;&amp; /usr/local/bin/node cli.js ../../app/main.js' + balloonAppleScriptCommandParam
+        } else {
+          balloonServiceName        = 'balloon.workflow'
+          balloonAppleScriptCommand = '/Applications/Balloon.app/Contents/MacOS/Balloon' + balloonAppleScriptCommandParam
         }
 
         balloonContextMenuTmp = path.join(balloonContextMenuTmp, balloonServiceName)
 
         logger.debug('add context menu applescript workflow', {
           category: 'fsutility',
-          data: {
+          data    : {
             workflow: balloonContextMenu,
-            tmp: balloonContextMenuTmp,
-            service: balloonServicePath,
-            cmd: balloonAppleScriptCommandParam
+            tmp     : balloonContextMenuTmp,
+            service : balloonServicePath,
+            cmd     : balloonAppleScriptCommand
           }
-        });
+        })
 
         exec([
           'cp -r',
@@ -178,16 +178,16 @@ module.exports = {
           if (err) {
             return logger.error('failed add applescript workflow', {
               category: 'fsutility',
-              error: err
+              error   : err
             })
           }
 
-          var balloonServiceFile = path.join(balloonContextMenuTmp, 'Contents/document.wflow');
+          var balloonServiceFile = path.join(balloonContextMenuTmp, 'Contents/document.wflow')
           fs.readFile(balloonServiceFile, 'utf-8', (err, data) => {
-            if(err) {
+            if (err) {
               return logger.error('failed read applescript workflow', {
                 category: 'fsutility',
-                error: err
+                error   : err
               })
             }
 
@@ -198,10 +198,10 @@ module.exports = {
                                      'end run\n'
 
             fs.writeFile(balloonServiceFile, data.replace('{balloon_apple_script}', balloonAppleScript), 'utf8', (err) => {
-              if(err) {
+              if (err) {
                 return logger.error('failed modify applescript workflow', {
                   category: 'fsutility',
-                  error: err
+                  error   : err
                 })
               }
 
@@ -209,11 +209,34 @@ module.exports = {
                 'mv',
                 balloonContextMenuTmp,
                 balloonServicePath
-              ].join(' '));
+              ].join(' '), exec.ExecOptionsWithStringEncoding, (err) => {
+                if (err) {
+                  exec([
+                    'rm -rf',
+                    balloonContextMenuTmp
+                  ].join(' '), exec.ExecOptionsWithStringEncoding, (err) => {
+                    if (err) {
+                      return logger.error('failed remove applescript workflow', {
+                        category: 'fsutility',
+                        error   : err
+                      })
+                    }
+                  })
+                  return logger.info('applescript workflow exists', {
+                    category: 'fsutility',
+                    error   : err
+                  })
+                } else {
+                  return logger.info('moved applescript workflow', {
+                    category: 'fsutility',
+                    error   : err
+                  })
+                }
+              })
             })
           })
-        });
-        break;
+        })
+        break
     }
   },
 
