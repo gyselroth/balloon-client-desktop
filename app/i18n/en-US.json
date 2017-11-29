@@ -44,7 +44,8 @@
   "feedback.error.send": "We encountered an error during sending your feedback, please try it again later!",
   "feedback.error.empty": "Please provide a feedback message before sending!",
 
-  "node-settings.error.message": "The synchronization has not been completed yet.",
+  "node-settings.sync.error.message": "The synchronization has not been completed yet.",
+  "node-settings.error.message": "A general error has occurred.",
   "node-settings.changed": "Changed",
   "node-settings.tags": "Tags",
 

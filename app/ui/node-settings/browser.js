@@ -34,7 +34,7 @@
 
   function initNodeSettings() {
     var localNode = sync.lstatSync(clientConfig.get('nodePath'))
-	
+
     sync.find({ino: localNode.ino}, (err, syncedNode) => {
       if (!syncedNode) {
         return;
@@ -64,7 +64,11 @@
 
   function nodeSettingsShowErrorMessage (errorMessage) {
     if (errorMessage) {
-      $('#node-settings-error').html(errorMessage).show()
+      logger.error('failed add node settings', {
+        category: 'node-settings',
+        error: errorMessage
+      });
+      $('#node-settings-error').html(i18n.__('node-settings.error.message')).show()
     } else {
       $('#node-settings-error').show()
     }
@@ -262,14 +266,9 @@
       }).get()
 
       var meta = {
-        tags: tags.length === 0 ? null : tags
+        tags: tags.length === 0 ? (node.meta && node.meta.tags ? null : []) : tags
       }
-	  
-	  if(tags.length === 0 || !(tags instanceof Array)) {
-		tags = [];
-	  }
-
-      sync.blnApi.createMetaAttributes(node.id, {tags: tags}, (err, data) => {
+      sync.blnApi.createMetaAttributes(node.id, {tags: meta.tags}, (err, data) => {
         if (err) {
           nodeSettingsShowErrorMessage(err.message);
         } else {
