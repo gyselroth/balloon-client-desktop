@@ -31,7 +31,7 @@ artifacts:
     name: zip
 
 deploy:
-  release: $(package_version)
+  release: v$(package_version)
   provider: GitHub
   auth_token:
     secure: pUNwihH4K0Qy5dcJ8g3FFkvPyqwOcv5avZYU/JwoY4RVJljy/sq8FuOObDGkZ+Sx
