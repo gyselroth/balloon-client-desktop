@@ -34,10 +34,8 @@
 
   function initNodeSettings() {
     var localNode = sync.lstatSync(clientConfig.get('nodePath'))
-	console.log(clientConfig.get('nodePath'));
 	
     sync.find({ino: localNode.ino}, (err, syncedNode) => {
-		console.log(err,syncedNode);
       if (!syncedNode) {
         return;
       }
@@ -178,7 +176,7 @@
       e.preventDefault();
     }
 
-    var allowed = new RegExp('^[a-zA-Z0-9\-\_]+$');
+    var allowed = new RegExp('^[a-zA-Z0-9\.\-\_]+$');
     if (allowed.test(strcode) || code == 8) {
       return true;
     }
@@ -266,8 +264,12 @@
       var meta = {
         tags: tags.length === 0 ? null : tags
       }
+	  
+	  if(tags.length === 0 || !(tags instanceof Array)) {
+		tags = [];
+	  }
 
-      sync.blnApi.createMetaAttributes(node.id, {tags: meta.tags}, (err, data) => {
+      sync.blnApi.createMetaAttributes(node.id, {tags: tags}, (err, data) => {
         if (err) {
           nodeSettingsShowErrorMessage(err.message);
         } else {
