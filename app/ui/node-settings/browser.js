@@ -108,7 +108,7 @@
       nodeSettingsInitMetaTagCompletion();
       $fs_prop_tags_parent.find('.node-settings-properties-add').unbind('click').bind('click', function () {
         $('#node-settings-properties-add-tag').show();
-        $fs_prop_tags_parent.find('input:text').data('kendoAutoComplete').search();
+        $fs_prop_tags_parent.find('input:text').focus().data('kendoAutoComplete').search();
       })
 
       $fs_prop_tags.find('li').remove();
@@ -158,11 +158,15 @@
         return;
       }
 
-      if (node.meta.tags !== undefined && node.meta.tags.indexOf(value) != -1) {
+      var $fs_prop_tags = $('#node-settings-properties-meta-tags')
+      var tags          = $fs_prop_tags.find('li').map(function () {
+        return $(this).find('.tag-name').text()
+      }).get()
+
+      if (tags.indexOf(value) != -1) {
         return false;
       }
 
-      var $fs_prop_tags = $('#node-settings-properties-meta-tags');
       if ($last_tag.attr('name') == 'add_tag') {
         $fs_prop_tags.find('ul').append('<li><div class="fs-delete">x</div><div class="tag-name">' + value + '</div></li>');
         $last_tag.val('').focus();
@@ -171,10 +175,6 @@
         $last_tag.remove();
         $parent.html('<div class="tag-name">' + value + '</div><div class="fs-delete">x</div>');
       }
-
-      var tags = $fs_prop_tags.find('li').map(function () {
-        return $(this).find('.tag-name').text();
-      }).get()
 
       $(document).unbind('click');
       e.preventDefault();
@@ -199,6 +199,7 @@
       dataTextField: '_id',
       noDataTemplate: false,
       highlightFirst: false,
+      height: 165,
       dataSource   : new kendo.data.DataSource({
         transport: {
           read: function (operation) {
