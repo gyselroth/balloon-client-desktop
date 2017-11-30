@@ -33,7 +33,6 @@ clientConfig.set('updateAvailable', false);
 logger.setLogger(standardLogger);
 
 process.on('uncaughtException', function(exception) {
-console.log(exception);
   logger.error('uncaught exception', {
     category: 'bootstrap',
     exception: exception
