@@ -21,13 +21,20 @@
     ],
     "extraResources": "resources/**/*",
     "mac": {
-      "artifactName": "balloon-desktop-${version}.${ext}"
+      "artifactName": "${os}/${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
     },
     "nsis": {
-      "artifactName": "balloon-desktop-setup-${version}.${ext}",
+      "artifactName": "${productName}-Setup-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}",
       "allowToChangeInstallationDirectory": true,
       "oneClick": false
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "gyselroth",
+        "repo": "balloon-client-desktop"
+      }
+    ]
   },
   "bugs": {
     "url": "https://github.com/gyselroth/balloon-client-desktop/issues"
@@ -41,9 +48,9 @@
     "build-win": "npm run prebuild && set BLN_ARTIFACT_APPENDIX='' && build --win --ia32 --x64 -p never",
     "build-linux": "npm run prebuild && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm zip -p never",
     "prerelease": "gulp build --env=production",
-    "release-osx": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --mac dmg zip -p never",
-    "release-win": "npm run prerelease && set BLN_ARTIFACT_APPENDIX='' && build --win --ia32 --x64 -p never",
-    "release-linux": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm zip -p never",
+    "release-osx": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --mac dmg zip",
+    "release-win": "npm run prerelease && set BLN_ARTIFACT_APPENDIX='' && build --win --ia32 --x64",
+    "release-linux": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm zip",
     "prepackdev": "gulp build --env=development",
     "packdev": "build --dir",
     "prebuilddev": "gulp build --env=development",
@@ -56,7 +63,7 @@
   "devDependencies": {
     "chai": "3.5.0",
     "electron": "1.7.8",
-    "electron-builder": "19.46.9",
+    "electron-builder": "19.27.3",
     "electron-mocha": "~3.5.0",
     "electron-rebuild": "1.6.0",
     "gulp": "~3.9.1",
@@ -81,7 +88,7 @@
     "auto-launch": "5.0.1",
     "electron-settings": "3.1.1",
     "electron-traywindow-positioner": "0.0.1",
-    "electron-updater": "2.16.1",
+    "electron-updater": "2.10.1",
     "graceful-fs": "4.1.11",
     "handlebars": "4.0.10",
     "jquery": "<3.0.0",
