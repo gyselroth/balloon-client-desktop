@@ -96,10 +96,10 @@ Of course you can also building manually besides our CI tools.
 
 ### Windows
 **Requirements**
-* Microsoft Visual Studio 2015
+* Microsoft Visual Studio 2015 or [Visual c++ build tools 2015](http://landinghub.visualstudio.com/visual-cpp-build-tools)
 * npm install -g windows-build-tools
 
-If you do not want to sign your build you can also leave out CSC_LINK and CSC_LINK.
+If you do not want to sign your build you can also leave out CSC_LINK and CSC_KEY_PASSWORD.
 
 **Build only**\
 `CSC_LINK=/path/to/p12/cert CSC_KEY_PASSWORD=p12_key_password npm run build-win`
