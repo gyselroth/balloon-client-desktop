@@ -94,7 +94,6 @@ function startApp() {
           }
         });
       }).catch((error) => {
-	  console.log(error);
         logger.error('startup checkconfig', {
             category: 'bootstrap',
             error: error
