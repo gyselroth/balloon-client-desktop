@@ -11,6 +11,7 @@
   const ipcRenderer = require('electron').ipcRenderer
   const $ = require('jquery');
   const kendoAutoComplete = require('kendo-ui-core/js/kendo.autocomplete');
+  var nodePath;
 
   handlebars.registerHelper('i18n', (key) => {
     var translation = i18n.__(key);
@@ -22,18 +23,18 @@
   logger.setLogger(standardLogger);
 
   var sync;
-
   ipcRenderer.send('node-settings-window-loaded');
-  ipcRenderer.once('secret', function(event, type, secret) {
-    var config   = clientConfig.getAll(true)
+  ipcRenderer.once('node-settings-window-init', function(event, type, secret, path) {
+    var config = clientConfig.getAll(true)
     config[type] = secret
-    sync         = syncFactory(config, standardLogger)
+    sync = syncFactory(config, standardLogger)
+	nodePath = path;
 
-    initNodeSettings();
+    initNodeSettings(nodePath);
   });
 
-  function initNodeSettings() {
-    var localNode = sync.lstatSync(clientConfig.get('nodePath'))
+  function initNodeSettings(nodePath) {
+    var localNode = sync.lstatSync(nodePath)
 	
     sync.find({ino: localNode.ino}, (err, syncedNode) => {
       if (!syncedNode) {
@@ -229,8 +230,8 @@
     })
   }
 
-  function closeNodeSettingsWindow () {
-    ipcRenderer.send('node-settings-close');
+  function closeNodeSettingsWindow (nodePath) {
+    ipcRenderer.send('node-settings-close', nodePath);
   }
 
   function nodeSettingsCompileTemplates (node) {

@@ -15,6 +15,7 @@ const FeedbackCtrl = require('./ui/feedback/controller.js');
 const AboutCtrl = require('./ui/about/controller.js');
 const NodeSettingsCtrl = require('./ui/node-settings/controller.js');
 const setMenu = require('./lib/menu.js');
+const net = require('net');
 
 const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
@@ -32,26 +33,18 @@ clientConfig.set('updateAvailable', false);
 logger.setLogger(standardLogger);
 
 process.on('uncaughtException', function(exception) {
+console.log(exception);
   logger.error('uncaught exception', {
     category: 'bootstrap',
     exception: exception
   });
 });
 
-var shouldQuit       = app.makeSingleInstance((cmd, cwd) => {}),
-    absoluteNodePath = getParamValueByParamName('--nodePath'),
-    relativeNodePath = absoluteNodePath ? absoluteNodePath.toString().replace(clientConfig.get('balloonDir'), '') : false
+var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
 
 if(shouldQuit === true) {
-  if (relativeNodePath) {
-    initNodeSettingsClose()
-    startup.showNodeSettingsWindow(relativeNodePath);
-  } else {
-    startup.showBalloonDir();
-    app.quit();
-  }
-
-  return;
+  startup.showBalloonDir();
+  app.quit();
 }
 
 function startApp() {
@@ -83,10 +76,6 @@ function startApp() {
           startSync();
         }
 
-        if (relativeNodePath) {
-            startup.showNodeSettingsWindow(relativeNodePath);
-        }
-
         electron.powerMonitor.on('suspend', () => {
           logger.info('The system is going to sleep', {
             category: 'bootstrap',
@@ -106,6 +95,7 @@ function startApp() {
           }
         });
       }).catch((error) => {
+	  console.log(error);
         logger.error('startup checkconfig', {
             category: 'bootstrap',
             error: error
@@ -413,20 +403,30 @@ function endSync(scheduleNextSync) {
   sync.end(scheduleNextSync);
 }
 
-function getParamValueByParamName(paramName) {
-    var paramValue;
-    process.argv.forEach((value, index) => {
-        if (paramName === value) {
-            paramValue = process.argv[index + 1];
-            return false;
-        }
+if(process.platform === 'win32') {
+  var addr = '\\\\?\\pipe\\balloon-client';
+  net.createServer(function(client) {
+    logger.info('start named pipe', {
+  	  category: 'bootstrap',
+  	  pipe: addr
     });
 
-    return paramValue;
+    client.on('data', function(data) {
+	  var string = data.toString('utf8').replace(/(\r\n|\n|\r)/gm,"").trim();
+	
+	  logger.debug('received data on named pipe', {
+	    category: 'bootstrap',
+	    data: string
+	  });
+
+	  var path = string.replace(clientConfig.get('balloonDir'), '');
+	  NodeSettingsCtrl(env).open(path);
+    });
+  }.bind(this)).listen(addr);
 }
 
 function initNodeSettingsClose () {
-  ipcMain.on('node-settings-close', () => {
-    NodeSettingsCtrl(env).close()
+  ipcMain.on('node-settings-close', (nodePath) => {
+	NodeSettingsCtrl(env).close(nodePath)
   })
 }

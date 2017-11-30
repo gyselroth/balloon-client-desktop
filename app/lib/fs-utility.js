@@ -112,108 +112,23 @@ module.exports = {
   createContextMenu: function (balloonDir, homeDir) {
     var resourcesPath = process.defaultApp ? path.resolve(__dirname, '../../') : path.resolve(process.resourcesPath);
 
-    switch(process.platform) {
-      case 'win32':
-        var balloonContextMenuCommand = path.resolve(resourcesPath, 'resources/context_menu/win32/contextmenu.cmd'),
-            balloonIcon               = path.resolve(resourcesPath, 'resources/diricon/icon.ico'),
-            balloonAppliesTo          = 'System.ItemFolderPathDisplay:"*\Balloon*"',
-            balloonCommandParam       = ' --nodePath \""%D\""',
-            balloonContextMenuName, balloonCommand
+    if(process.platform === 'win32') {
+      var balloonContextMenuCommand = path.resolve(resourcesPath, 'resources/context_menu/win32/contextmenu.cmd');
+      var balloonIcon = path.resolve(resourcesPath, 'resources/diricon/icon.ico');
+      var balloonAppliesTo = 'System.ItemFolderPathDisplay:"*\Balloon*"';
+			
+	  var cmd = [
+        balloonContextMenuCommand,
+        balloonAppliesTo,
+        balloonIcon
+      ].join(' ');
 
-		if(process.defaultApp) {
-		  balloonContextMenuName = 'balloon_dev'
-          balloonCommand         = '"'+resourcesPath + '\\node_modules\\.bin\\electron ' + resourcesPath + '/app/main.js' + balloonCommandParam+'"'
-		} else {
-	      balloonContextMenuName = 'balloon'
-          balloonCommand         = '"'+path.resolve(resourcesPath, '../Balloon.exe') + balloonCommandParam+'"';
-		}	
-
-		var cmd = [
-          balloonContextMenuCommand,
-          balloonContextMenuName,
-          balloonAppliesTo,
-          balloonCommand,
-          balloonIcon
-        ].join(' ');
-
-        logger.debug('add context menu to win32 registry', {
-          category: 'fsutility',
-          cmd: cmd
-        });
+      logger.debug('add context menu to win32 registry', {
+        category: 'fsutility',
+        cmd: cmd
+      });
 		
-        exec(cmd)
-        break;
-      case 'darwin':
-        var balloonContextMenu             = path.resolve(resourcesPath, 'resources/context_menu/darwin/balloon.workflow'),
-            balloonContextMenuTmp          = path.resolve(resourcesPath, 'resources/context_menu/darwin/tmp'),
-            balloonServicePath             = path.resolve(homeDir, 'Library/Services'),
-            balloonAppleScriptCommandParam = ' --nodePath " &amp; "\'" &amp; nodePath &amp; "\'',
-            balloonServiceName, balloonAppleScriptCommand
-
-        if(process.defaultApp) {
-            balloonServiceName        = 'balloon_dev.workflow'
-            balloonAppleScriptCommand = 'cd ' + resourcesPath + '/node_modules/electron &amp;&amp; /usr/local/bin/node cli.js ../../app/main.js' + balloonAppleScriptCommandParam
-		} else {
-            balloonServiceName        = 'balloon.workflow'
-            balloonAppleScriptCommand = '/Applications/Balloon.app/Contents/MacOS/Balloon' + balloonAppleScriptCommandParam
-        }
-
-        balloonContextMenuTmp = path.join(balloonContextMenuTmp, balloonServiceName)
-
-        logger.debug('add context menu applescript workflow', {
-          category: 'fsutility',
-          data: {
-            workflow: balloonContextMenu,
-            tmp: balloonContextMenuTmp,
-            service: balloonServicePath,
-            cmd: balloonAppleScriptCommandParam
-          }
-        });
-
-        exec([
-          'cp -r',
-          balloonContextMenu,
-          balloonContextMenuTmp
-        ].join(' '), exec.ExecOptionsWithStringEncoding, (err) => {
-          if (err) {
-            return logger.error('failed add applescript workflow', {
-              category: 'fsutility',
-              error: err
-            })
-          }
-
-          var balloonServiceFile = path.join(balloonContextMenuTmp, 'Contents/document.wflow');
-          fs.readFile(balloonServiceFile, 'utf-8', (err, data) => {
-            if(err) {
-              return logger.error('failed read applescript workflow', {
-                category: 'fsutility',
-                error: err
-              })
-            }
-
-            var balloonAppleScript = 'on run {input, parameters}\n' +
-                                      'set nodePath to (the POSIX path of input)\n' +
-                                      'do shell script "' + balloonAppleScriptCommand + '"\n' +
-                                      'return input\n' +
-                                     'end run\n'
-
-            fs.writeFile(balloonServiceFile, data.replace('{balloon_apple_script}', balloonAppleScript), 'utf8', (err) => {
-              if(err) {
-                return logger.error('failed modify applescript workflow', {
-                  category: 'fsutility',
-                  error: err
-                })
-              }
-
-              exec([
-                'mv',
-                balloonContextMenuTmp,
-                balloonServicePath
-              ].join(' '));
-            })
-          })
-        });
-        break;
+      exec(cmd)
     }
   },
 
