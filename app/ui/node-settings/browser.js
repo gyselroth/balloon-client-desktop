@@ -22,18 +22,23 @@
   var standardLogger = new loggerFactory(clientConfig.getAll())
   logger.setLogger(standardLogger);
 
+  $(document).ready(function() {
+    nodeSettingsCompileTemplates();
+  });
+  
   var sync;
+  
   ipcRenderer.send('node-settings-window-loaded');
-  ipcRenderer.once('node-settings-window-init', function(event, type, secret, path) {
+  ipcRenderer.on('node-settings-window-init', function(event, type, secret, path) {
     var config = clientConfig.getAll(true)
     config[type] = secret
     sync = syncFactory(config, standardLogger)
 	nodePath = path;
 
-    initNodeSettings(nodePath);
+    initNodeSettings();
   });
 
-  function initNodeSettings(nodePath) {
+  function initNodeSettings() {
     var localNode = sync.lstatSync(nodePath)
 	
     sync.find({ino: localNode.ino}, (err, syncedNode) => {
@@ -41,35 +46,31 @@
         return;
       }
 
-      if (syncedNode.length) {
+      if (syncedNode.length) {		  
         sync.blnApi.getAttributes({id: syncedNode[0].remoteId, useId: true}, ['id', 'path', 'meta.tags', 'changed'], (err, data) => {
           var nodeData = !!err ? {} : data
-
-          nodeSettingsCompileTemplates(nodeData)
+		  var nodeChanged = new Date(nodeData.changed.sec * 1000).toLocaleString(i18n.getCurrentLocale());
+          $('#node-settings-header-node-path').html(nodeData.path);
+          $('#node-settings-header-node-changed').find('span').html(nodeChanged);
+		  
           initNodeSettingsButtons(nodeData)
           nodeSettingsViewPreview()
 
-          if (!!err) {
+          if (err) {
             nodeSettingsShowErrorMessage()
           } else {
             nodeSettingsPropertiesTags(nodeData, {data: nodeData})
           }
         })
       } else {
-        nodeSettingsCompileTemplates()
         initNodeSettingsButtons()
         nodeSettingsShowErrorMessage()
       }
     })
   }
 
-  function nodeSettingsShowErrorMessage (errorMessage) {
-    if (errorMessage) {
-      $('#node-settings-error').html(errorMessage).show()
-    } else {
-      $('#node-settings-error').show()
-    }
-
+  function nodeSettingsShowErrorMessage() {
+    $('#node-settings-error').show()
     $('#node-settings-header').hide()
     $('#node-settings-properties').hide()
     $('#node-settings-button-save').hide()
@@ -191,7 +192,7 @@
         $meta_tags_parent = $meta_tags.parent(),
         $input            = $meta_tags_parent.find('input');
 
-    $input.kendoAutoComplete({
+		$input.kendoAutoComplete({
       minLength    : 0,
       dataTextField: '_id',
       noDataTemplate: false,
@@ -201,7 +202,7 @@
           read: function (operation) {
             sync.blnApi.getNodeAttributeSummary({attributes: ['meta.tags']}, (err, data) => {
               if (err) {
-                nodeSettingsShowErrorMessage(err.message);
+                nodeSettingsShowErrorMessage();
               } else {
                 data['meta.tags'].sort();
                 operation.success(data['meta.tags']);
@@ -230,34 +231,25 @@
     })
   }
 
-  function closeNodeSettingsWindow (nodePath) {
+  function closeNodeSettingsWindow() {
     ipcRenderer.send('node-settings-close', nodePath);
   }
 
-  function nodeSettingsCompileTemplates (node) {
+  function nodeSettingsCompileTemplates () {
     var templateContentHtml = $('#node-settings-template-content').html();
     var $placeholderContent = $('#node-settings-content-wrapper');
     var templateContent     = handlebars.compile(templateContentHtml);
 
-    var context = {}
-    if (node && node.changed) {
-      var nodeChanged = new Date(node.changed.sec * 1000)
-      context         = {
-        nodePath            : node.path,
-        nodeChangedDateTime : nodeChanged.toLocaleString(i18n.getCurrentLocale())
-      }
-    }
-
-    $placeholderContent.html(templateContent(context))
+    $placeholderContent.html(templateContent({}))
     $('#node-settings-error').hide()
   }
 
   function initNodeSettingsButtons(node) {
-    $('#node-settings-button-cancel').click(function () {
+    $('#node-settings-button-cancel').off('click').click(function () {
       closeNodeSettingsWindow();
     })
 
-    $('#node-settings-button-save').click(function () {
+    $('#node-settings-button-save').off('click').click(function () {
       var tags = $('#node-settings-properties-meta-tags').find('li').map(function () {
         return $(this).find('.tag-name').text();
       }).get()

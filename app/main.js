@@ -35,7 +35,9 @@ logger.setLogger(standardLogger);
 process.on('uncaughtException', function(exception) {
   logger.error('uncaught exception', {
     category: 'bootstrap',
-    exception: exception
+    error: {
+		message: exception.message
+	}	
   });
 });
 
@@ -424,7 +426,8 @@ if(process.platform === 'win32') {
 }
 
 function initNodeSettingsClose () {
-  ipcMain.on('node-settings-close', (nodePath) => {
+  ipcMain.on('node-settings-close', (event, nodePath) => {
+	  console.log(nodePath);
 	NodeSettingsCtrl(env).close(nodePath)
   })
 }

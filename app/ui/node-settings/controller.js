@@ -20,18 +20,18 @@ module.exports = function (env) {
     nodeSettingsWindow[nodePath].focus()
   }
 
-  function createWindow (nodePath) {
+  function createWindow (nodePath) {	  
     if (nodeSettingsWindow[nodePath]) return nodeSettingsWindow[nodePath]
 
     nodeSettingsWindow[nodePath] = new BrowserWindow({
       width         : 400,
       height        : 350,
-      show          : true,
+      show          : false,
       frame         : true,
       fullscreenable: false,
       resizable     : false,
       skipTaskbar   : true,	  
-	  title 		: 'balloon',
+	  title 		: nodePath,
       icon          : __dirname + '/../../img/logo-512x512.png'
     })
 
@@ -57,12 +57,12 @@ module.exports = function (env) {
       nodeSettingsWindow[nodePath].webContents.send('update-window')
     })
 
-    ipcMain.on('node-settings-window-loaded', () => {
-		nodeSettingsWindow[nodePath].webContents.send('node-settings-window-init', clientConfig.getSecretType(), clientConfig.getSecret(), nodePath);
+    ipcMain.on('node-settings-window-loaded', (event) => {
+     event.sender.send('node-settings-window-init', clientConfig.getSecretType(), clientConfig.getSecret(), nodePath);
     });
 
     if (env.name === 'development') {
-       //nodeSettingsWindow[nodePath].openDevTools()
+       nodeSettingsWindow[nodePath].openDevTools()
     }
 
     return nodeSettingsWindow[nodePath]
