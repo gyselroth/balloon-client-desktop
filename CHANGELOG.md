@@ -1,13 +1,12 @@
 ## 0.0.34
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Mon November 27 17:02:33 CET 2017
+**Date**: Wed Dezember 06 08:50:23 CET 2017
 
 * CORE: [FIX] fixed multi sync threads running #34 
 * CORE: [FIX] fixed regex bug in sync library and resolve various network problems, bumping sync lib to 0.0.29 #34 
 * CORE: [FIX] added http request timeout, configurable via requestTimeout, default 10s, #29
 * CORE: [FIX] client now checks the api server in a 5s interval after a sync request resulted in a network error #39
 * CORE: [FIX] client does not unlink instance anymore if started with no connection to the server #40
-* CORE: [FEATURE] open node-settings window (edit tags) by context menu entry (mac/windows) #37
 * UI: [FIX] startup/auth wizard now show correctly an error message if server can not be reached, added loader gifs #40
 
 

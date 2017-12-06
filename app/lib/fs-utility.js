@@ -15,7 +15,6 @@ module.exports = {
 
       this.setDirIcon(balloonDir);
       this.setDirShortcut(balloonDir, homeDir);
-	  this.createContextMenu(balloonDir, homeDir);
 
       callback(null);
     });
@@ -67,7 +66,7 @@ module.exports = {
     }
   },
 
-  setDirShortcut: function(balloonDir, homeDir) {	  
+  setDirShortcut: function(balloonDir, homeDir) {
     var resourcesPath;
     if(process.defaultApp) {
       resourcesPath = path.resolve(__dirname, '../../');
@@ -106,29 +105,6 @@ module.exports = {
           env.winClsId
         ].join(' '));
       break;
-    }
-  },
-
-  createContextMenu: function (balloonDir, homeDir) {
-    var resourcesPath = process.defaultApp ? path.resolve(__dirname, '../../') : path.resolve(process.resourcesPath);
-
-    if(process.platform === 'win32') {
-      var balloonContextMenuCommand = path.resolve(resourcesPath, 'resources/context_menu/win32/contextmenu.cmd');
-      var balloonIcon = path.resolve(resourcesPath, 'resources/diricon/icon.ico');
-      var balloonAppliesTo = 'System.ItemFolderPathDisplay:"*\Balloon*"';
-			
-	  var cmd = [
-        balloonContextMenuCommand,
-        balloonAppliesTo,
-        balloonIcon
-      ].join(' ');
-
-      logger.debug('add context menu to win32 registry', {
-        category: 'fsutility',
-        cmd: cmd
-      });
-		
-      exec(cmd)
     }
   },
 

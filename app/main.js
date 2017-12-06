@@ -13,9 +13,7 @@ const AuthCtrl = require('./lib/auth/controller.js');
 const AutoUpdateCtrl = require('./lib/auto-update/controller.js');
 const FeedbackCtrl = require('./ui/feedback/controller.js');
 const AboutCtrl = require('./ui/about/controller.js');
-const NodeSettingsCtrl = require('./ui/node-settings/controller.js');
 const setMenu = require('./lib/menu.js');
-const net = require('net');
 
 const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
@@ -37,7 +35,7 @@ process.on('uncaughtException', function(exception) {
     category: 'bootstrap',
     error: {
 		message: exception.message
-	}	
+	}
   });
 });
 
@@ -260,8 +258,6 @@ ipcMain.on('about-open', (event) => {
   about.open();
 });
 
-initNodeSettingsClose()
-
 ipcMain.on('unlink-account', (event) => {
   logger.info('logout requested', {category: 'bootstrap'});
   unlinkAccount();
@@ -401,33 +397,4 @@ function startSync() {
 
 function endSync(scheduleNextSync) {
   sync.end(scheduleNextSync);
-}
-
-if(process.platform === 'win32') {
-  var addr = '\\\\?\\pipe\\balloon-client';
-  net.createServer(function(client) {
-    logger.info('start named pipe', {
-  	  category: 'bootstrap',
-  	  pipe: addr
-    });
-
-    client.on('data', function(data) {
-	  var string = data.toString('utf8').replace(/(\r\n|\n|\r)/gm,"").trim();
-	
-	  logger.debug('received data on named pipe', {
-	    category: 'bootstrap',
-	    data: string
-	  });
-
-	  var path = string.replace(clientConfig.get('balloonDir'), '');
-	  NodeSettingsCtrl(env).open(path);
-    });
-  }.bind(this)).listen(addr);
-}
-
-function initNodeSettingsClose () {
-  ipcMain.on('node-settings-close', (event, nodePath) => {
-	  console.log(nodePath);
-	NodeSettingsCtrl(env).close(nodePath)
-  })
 }
