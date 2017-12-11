@@ -2,8 +2,8 @@
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Mon Dezember 11 13:06:46 CET 2017
 
-* CORE: [FIX] sync lib to 0.0.30, fixes conflicting local folders
-* CORE: [FIX] sync 0.0.30 introduces a slighty different merge concept. conflicting folder do now get renamed into conflict as well instead beeing merged
+* CORE: [FIX] sync lib to 0.0.30 fixes conflicting local folders
+* CORE: [FIX] sync 0.0.30 introduces a slighty different merge concept. Conflicting folders do now get renamed as "conflict" as well, instead of being merged
 
 
 ## 0.0.34
@@ -11,11 +11,11 @@
 **Date**: Wed Dezember 06 08:50:23 CET 2017
 
 * CORE: [FIX] fixed multi sync threads running #34 
-* CORE: [FIX] fixed regex bug in sync library and resolve various network problems, bumping sync lib to 0.0.29 #34 
+* CORE: [FIX] fixed regex bug in sync library and various network problems resolved, bumping sync lib to 0.0.29 #34 
 * CORE: [FIX] added http request timeout, configurable via requestTimeout, default 10s, #29
 * CORE: [FIX] client now checks the api server in a 5s interval after a sync request resulted in a network error #39
 * CORE: [FIX] client does not unlink instance anymore if started with no connection to the server #40
-* UI: [FIX] startup/auth wizard now show correctly an error message if server can not be reached, added loader gifs #40
+* UI: [FIX] startup/auth wizard now shows an error message correctly if server cannot be reached, added loader gifs #40
 
 
 ## 0.0.33
@@ -29,16 +29,16 @@
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu November 16 11:14:43 CET 2017
 
-* CORE: [FIX] fixed random start errors which lead to a unusable state #28
+* CORE: [FIX] fixed random start errors which lead to an unusable state #28
 * CORE: [CHANGE] log messages do now contain a category and a thread id #27
 * CORE: [FIX] fixed various log level errors #27
 * CORE: [FIX] simplified startup config check
-* CORE: [FIX] the default interval to check for an update is now 4 hours (instead 7 days) #30
+* CORE: [FIX] the default interval to check for an update is now 4 hours (instead of 7 days) #30
 * CORE: [FIX] added migration script to set bookmark and folder icon (which have been replaced in 0.0.31)
 * CORE: [CHANGE] changed sync interval to 5s
-* UI: [CHANGE] balloon icon does now only spin if there is data exchanging between server and client
+* UI: [CHANGE] balloon icon does now only spin if data is exchanged between server and client
 * UI: [FIX] fixed de-CH typo on the startup screen
-* PACKAGING: [FEATURE] Deb packages are now gpg signed and available on bintray, consult the wiki for more information how to install via apt
+* PACKAGING: [FEATURE] Deb packages are now gpg-signed and available on bintray, please consult the wiki for more information on how to install via apt
 
 
 ## 0.0.31
