@@ -1,6 +1,6 @@
 # Contribute to balloon desktop client
 Did you find a bug or would you like to contribute a feature? You are more than welcome to do so.
-Please, always file an [issue](https://github.com/gyselroth/balloon-client-desktop/issues/new) first to discuss the matter at hand. Please, refrain from developing without an open issue; otherwise we will not know what you are working on. 
+Please, always file an [issue](https://github.com/gyselroth/balloon-client-desktop/issues/new) first in order to discuss the matter at hand. Please, refrain from developing without an open issue; otherwise we will not know what you are working on. 
 
 ## Bug
 If you just want to file a bug report, please open your [issue](https://github.com/gyselroth/balloon-client-desktop/issues/new).
