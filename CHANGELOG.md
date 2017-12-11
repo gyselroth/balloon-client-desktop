@@ -50,11 +50,11 @@
 * UI: [CHANGE] Implemented new logo for window and folder icons
 * CORE: [FIX] Reauthentication does not get triggered if last authentication failed with network error
 * CORE: [FIX] Fix (static) third party version for all dependencies
-* CORE: [FIX] Startup wizard now shows an offline message even a server url has been configured within the env (before build) if the client can not reach the api server
-* CORE: [FIX] Auth prompt does not open after the client closed network connection before the offline event was triggered, the reauthentication prompt now only opens if the api returns 401.
-* CORE: [FIX] Fixed unlink account and pause sync, unlink now halts the sync as well instead triggered by the ui
-* CORE: [FIX] User gets now unlinked correctly if account is not authenticated
-* CORE: [FIX] App tray starts correctly even no connection to the api server can be established
+* CORE: [FIX] Startup wizard now shows an offline message even if a server url has been configured within the env (before build) and if the client cannot reach the api server
+* CORE: [FIX] Auth prompt does not open after the client closed a network connection before the offline event was triggered, the reauthentication prompt now only opens if the api returns 401.
+* CORE: [FIX] Fixed unlink account and pause sync; unlink now halts the sync as well instead of being triggered by the ui
+* CORE: [FIX] User now gets unlinked correctly if account is not authenticated
+* CORE: [FIX] App tray starts correctly even if no connection to the api server can be established
 * PACKAGING: [FEATURE] Deb packages get deployed to bintray (apt repository), unstable&stable
 
 
@@ -74,12 +74,12 @@
 
 * CORE: [FEATURE] Add migration framework
 * CORE: [FIX] Fix ino collisions on windows
-* CORE: [FEATURE] Add Balloon dir shortcut in windows explorer left pane
-* CORE: [FIX] fixed memory config for threads at first start
+* CORE: [FEATURE] Add balloon dir shortcut in windows explorer left pane
+* CORE: [FIX] Fixed memory config for threads at first start
 * CORE: [FEATURE] Implemented support for refreshToken revocation
 * CORE: [FEATURE] Added new option revokeAuthenticatioRequired
 * CORE: [CHANGE] Removed useless oidc option
-* UI: [FIX] fixed de-CH locale
+* UI: [FIX] Fixed de-CH locale
 
 
 ## 0.0.28
@@ -95,13 +95,13 @@
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Wed August 30 15:04:32 CEST 2017
 
-* CORE: [FIX] Auto startup is now the default if builded with nothing set for enableAutoLaunch
+* CORE: [FIX] Auto startup is now the default if built with nothing set for enableAutoLaunch
 * CORE: [FEATURE] Adds balloon folder icon on linux
 * CORE: [FEATURE] Adds balloon bookmark on linux (.config/gtk-3.0/bookmarks, read by nautilus)
-* CORE: [FEATURE] credentials store can now be configured either to keytar or config via env.auth.secretStorage
-* CORE: [FIX] fixed initial config writes from multiple threads
-* CORE: [FIX] fixed renew accessToken if refreshToken is available
-* CORE: [FEATURE] added new variable {username} for env.balloonDir and env.configDir
+* CORE: [FEATURE] Credentials store can now be configured either to keytar or config via env.auth.secretStorage
+* CORE: [FIX] Fixed initial config writes from multiple threads
+* CORE: [FIX] Fixed renew accessToken if refreshToken is available
+* CORE: [FEATURE] Added new variable {username} for env.balloonDir and env.configDir
 * UI: [FIX] Update action is now visible again under menu/about
-* UI: [FIX] Increased about window height
-* DISTRIBUTION: [FEATURE] Builds for Mac OSX are now signed therefore autoupdate should for for it
+* UI: [FIX] Increased window height
+* DISTRIBUTION: [FEATURE] Builds for Mac OSX are now signed and therefore autoupdate should now work
