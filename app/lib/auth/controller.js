@@ -18,7 +18,16 @@ module.exports = function(env, clientConfig) {
 
     return new Promise(function(resolve, reject) {
       if(clientConfig.get('authMethod') === 'oidc' && clientConfig.get('oidcProvider')) {
-        oidc.revokeToken(getIdPByProviderUrl(clientConfig.get('oidcProvider')));
+        var idpConfig = getIdPByProviderUrl(clientConfig.get('oidcProvider'));
+
+        if(!idpConfig) {
+          logger.error("refreshToken can not be revoked, oidc configuration is not available anymore", {
+            category: 'auth',
+            oidcProvider: clientConfig.get('oidcProvider')
+          });
+        } else {
+          oidc.revokeToken(idpConfig);
+        }
       }
 
       var _logout = function() {
@@ -161,6 +170,10 @@ module.exports = function(env, clientConfig) {
   }
 
   function getIdPByProviderUrl(providerUrl) {
+    if(!env.auth || !env.auth.oidc) {
+      return undefined;
+    }
+
     for(var i=0; i<env.auth.oidc.length; i++) {
       if(env.auth.oidc[i].providerUrl === providerUrl) {
         return env.auth.oidc[i];
