@@ -1,9 +1,12 @@
 ## 0.0.36
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Thu Dezember 14 14:00:03 CET 2017
+**Date**: Thu Dezember 14 15:48:02 CET 2017
 
-* CORE: [FIX] fixed unlink does not work after update from custom build #62 
-* CORE: [FIX] fixed caught error is logged wrongly (exception logging) #60
+* CORE: [FIX] update custom build does overwrite custom env config #62
+* CORE: [FIX] caught error is logged wrongly (exception logging) #60
+* CORE: [FIX] unlink instance not possible if logout failed #61
+* CORE: [FIX] electron-traywindow-positioner includes different version of electron which cause the build size doubled #58
+* PACKAGING: [FIX] add linux application category #63
 
 
 ## 0.0.35
