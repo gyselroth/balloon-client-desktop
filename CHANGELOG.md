@@ -1,6 +1,6 @@
 ## 0.0.35
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Mon Dezember 11 13:06:46 CET 2017
+**Date**: Thu Dezember 14 09:33:46 CET 2017
 
 * CORE: [FIX] sync lib to 0.0.30 fixes conflicting local folders
 * CORE: [FIX] sync 0.0.30 introduces a slighty different merge concept. Conflicting folders do now get renamed as "conflict" as well, instead of being merged
