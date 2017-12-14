@@ -11,20 +11,17 @@ gulp.task('build', function () {
     var srcPath = path.join(__dirname, '../config/', `env_${envName}.json`);
     var destPath = path.join(__dirname, '../app/', 'env.json');
 
-    if(!fs.existsSync(srcPath)) {
-      //Try to fall back to defualt config
-      var defaultSrcPath = path.join(__dirname, '../config/', `default_${envName}.json`);
-
-      if(!fs.existsSync(defaultSrcPath)) {
-        throw new Error('Config does not exists, please create it at: ' + srcPath);
-      } else {
-        srcPath = defaultSrcPath;
+    if(fs.existsSync(srcPath)) {
+      if(fs.existsSync(destPath)) {
+        fs.truncateSync(destPath, 0);
       }
-    }
 
-    if(fs.existsSync(destPath)) {
-      fs.truncateSync(destPath, 0);
+      fs.createReadStream(srcPath).pipe(fs.createWriteStream(destPath));
+    } else if(envName !== 'production') {
+      fs.writeFile(destPath, '{"name": "'+envName+'"}', function(err) {
+        if(err) {
+          throw err;
+        }
+      });
     }
-
-    fs.createReadStream(srcPath).pipe(fs.createWriteStream(destPath));
 });

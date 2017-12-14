@@ -89,15 +89,20 @@ Of course, you can also build manually besides our CI tools.
 * XCode
 
 **Build only**\
-`npm run build-osx`
+`CSC_LINK=/path/to/apple_dev/cert CSC_KEY_PASSWORD=apple_key_password npm run build-osx`
 
 **Build and draft release to github**\
-`GH_TOKEN=xxx npm run release-osx`
+`GH_TOKEN=xxx CSC_LINK=/path/to/apple_dev/cert CSC_KEY_PASSWORD=apple_key_password npm run release-osx`
+
+If you do not want to sign your build, you can also leave out CSC_LINK and CSC_KEY_PASSWORD.
 
 ### Windows
 **Requirements**
 * Microsoft Visual Studio 2015 or [Visual c++ build tools 2015](http://landinghub.visualstudio.com/visual-cpp-build-tools)
 * npm install -g windows-build-tools
+
+**Hint**: Disable any antivirus scanner and Windows Defender if you encounter any error regarding certificate is locked or used by another programm.
+
 
 If you do not want to sign your build, you can also leave out CSC_LINK and CSC_KEY_PASSWORD.
 
@@ -135,6 +140,7 @@ The following configuration options are available:
 * `update` Object (optional) - update configuration
   * `enable` Boolean (optional) - enables automatic (and manual) updates - Default: `true`
   * `checkInterval` Integer (optional) - interval in hours the client should check for updates. A first check is always done on app start. Default: `4`
+* `winClsId` String (optional) - Windows explorer ClsId
 * `auth`: Object (optional) - authentication configuration
   * `secretStorage` String (optional) - credential storage, either config or keytar (OS keychain). Default: `keytar`
   * `basic` Boolean (optional) - enabled basic authentication (username/password), be sure that your server has basic authentication enabled

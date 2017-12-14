@@ -1,3 +1,10 @@
+## 0.0.36
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Thu Dezember 14 14:00:03 CET 2017
+
+* CORE: [FIX]  fixed unlink does not work after update from custom build #62 
+
+
 ## 0.0.35
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu Dezember 14 09:33:46 CET 2017

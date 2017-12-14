@@ -96,7 +96,16 @@ module.exports = {
         }
       break;
       case 'win32':
-        if(!env.winClsId) return;
+        var clsId = env.winClsId;
+        if(!clsId) {
+          if(env.name === 'production') {
+            clsId = '5410396b-e8fa-479c-af05-c0edf82fb954';
+          } else if(env.name === 'development') {
+            clsId = '48bafa8f-288a-411b-afbc-21a6ace29729';
+          } else {
+            return;
+          }
+        }
 
         exec([
           path.resolve(resourcesPath, 'resources/shortcut/win.cmd'),
