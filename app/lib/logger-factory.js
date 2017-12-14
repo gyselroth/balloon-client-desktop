@@ -2,6 +2,7 @@ var path = require('path');
 
 const electron = require('electron');
 const winston = require('winston');
+const mergeWith = require('lodash/mergeWith');
 
 const env = require('../env.js');
 
@@ -23,6 +24,25 @@ module.exports = function(config, logfile) {
       }
     };
 
+    logger.rewriters.push(function(level, msg, meta) {
+      return mergeWith({}, meta, function errorCloner(objValue, srcValue) {
+        if(srcValue instanceof Error) {
+          var clone = {};
+          // Make sure we clone both enumerable and non-enumerable properties on errors
+          Object.getOwnPropertyNames(srcValue).forEach(function(prop) {
+              var value = srcValue[prop];
+
+              clone[prop] = value && typeof value === 'object' ?
+                 // Recurse for objects, to handle inner exceptions
+                  _.mergeWith({}, value, errorCloner) :
+                  value;
+          });
+
+          return clone;
+        }
+      });
+    });
+
     if(env.context !== 'test') {
       logger.add(winston.transports.File, {
         filename: pathLogFile,
@@ -39,9 +59,10 @@ module.exports = function(config, logfile) {
     if(config.context === 'development') {
       logger.add(winston.transports.Console, {
         level: 'debug',
-        prettyPrint: true,
+        //prettyPrint: true,
         depth: 6,
-        humanReadableUnhandledException: true,
+        handleExceptions: false,
+        humanReadableUnhandledException: false,
         colorize: true,
         formatter: function(options) {
           var category = 'unknown';

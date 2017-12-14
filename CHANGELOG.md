@@ -2,7 +2,8 @@
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu Dezember 14 14:00:03 CET 2017
 
-* CORE: [FIX]  fixed unlink does not work after update from custom build #62 
+* CORE: [FIX] fixed unlink does not work after update from custom build #62 
+* CORE: [FIX] fixed caught error is logged wrongly (exception logging) #60
 
 
 ## 0.0.35

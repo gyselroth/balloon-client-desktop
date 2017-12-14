@@ -93,6 +93,7 @@
     "handlebars": "4.0.10",
     "jquery": "<3.0.0",
     "keytar": "4.0.4",
+    "lodash": "^4.17.4",
     "mkdirp": "0.5.1",
     "prepend-file": "1.3.1",
     "querystring": "0.2.0",
