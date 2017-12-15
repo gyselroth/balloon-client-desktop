@@ -1,3 +1,12 @@
+## 0.0.37
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri Dezember 15 16:50:00 CET 2017
+
+* CORE: [FIX] copy app env into userspace #64
+* PACKAGING: [CHANGE] copy env between nsis updates #64
+* PACKAGING: [CHANGE] added balloon bitmap and license to nsis installer #65
+
+
 ## 0.0.36
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu Dezember 14 15:48:02 CET 2017
