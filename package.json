@@ -29,7 +29,8 @@
     "nsis": {
       "artifactName": "${productName}-Setup-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}",
       "allowToChangeInstallationDirectory": true,
-      "oneClick": false
+      "oneClick": false,
+      "license": "LICENSE"
     },
     "publish": [
       {
