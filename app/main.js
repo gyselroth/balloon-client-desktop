@@ -33,9 +33,7 @@ logger.setLogger(standardLogger);
 process.on('uncaughtException', function(exception) {
   logger.error('uncaught exception', {
     category: 'bootstrap',
-    error: {
-		message: exception.message
-	}
+    error: exception
   });
 });
 
