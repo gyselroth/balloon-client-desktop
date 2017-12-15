@@ -2,7 +2,7 @@
   "name": "balloon-desktop",
   "productName": "Balloon",
   "description": "Balloon Desktop Client",
-  "version": "0.0.38",
+  "version": "0.0.37",
   "author": "gyselroth GmbH  <opensource@gyselroth.net>",
   "copyright": "© 2017, gyselroth GmbH",
   "homepage": "https://www.gyselroth.com",
@@ -25,6 +25,9 @@
     },
     "linux": {
       "category": "Network"
+    },
+    "deb": {
+      "fpm": ["--before-install=build/deb-preinstall.sh", "--after-upgrade=build/deb-postinstall.sh"]
     },
     "nsis": {
       "artifactName": "${productName}-Setup-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}",
@@ -51,6 +54,7 @@
     "build-osx": "npm run prebuild && BLN_ARTIFACT_APPENDIX='' build --mac dmg zip -p never",
     "build-win": "npm run prebuild && set BLN_ARTIFACT_APPENDIX='' && build --win --ia32 --x64 -p never",
     "build-linux": "npm run prebuild && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm zip -p never",
+    "build-linux-deb": "npm run prebuild && BLN_ARTIFACT_APPENDIX='' build --linux deb -p never",
     "prerelease": "gulp build --env=production",
     "release-osx": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --mac dmg zip",
     "release-win": "npm run prerelease && set BLN_ARTIFACT_APPENDIX='' && build --win --ia32 --x64",
