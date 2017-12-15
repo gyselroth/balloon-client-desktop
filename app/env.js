@@ -4,7 +4,7 @@ const mkdirp = require('mkdirp');
 
 let resourcesPath;
 if(process.defaultApp) {
-  resourcesPath = path.resolve(__dirname, '../resources');
+  resourcesPath = path.resolve(__dirname, '..');
 } else {
   resourcesPath = path.resolve(process.resourcesPath);
 }
@@ -12,7 +12,7 @@ if(process.defaultApp) {
 let homeDir = process.env[(/^win/.test(process.platform)) ? 'USERPROFILE' : 'HOME'];
 let configDir = path.join(homeDir, '.balloon');
 let userEnvPath = path.join(configDir, 'env.json');
-let appEnvPath = path.join(resourcesPath, 'env.json');
+let appEnvPath = path.join(resourcesPath, 'resources', 'env.json');
 let env;
 let userEnv;
 
