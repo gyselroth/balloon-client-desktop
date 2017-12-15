@@ -123,9 +123,10 @@ Add your configuration in `config/env_[CONTEXT].json`
 The following configuration options are available:
 
 * `name` String (optional) - the name of the context. `production` or `development`. Default: `production`
+* `version` Integer (optional) - version of this configuration (Increase if you want to update env configuration between build updates). Default: `0`
 * `blnUrl` String (optional) - the url under which your Balloon installation is running. If no set user is prompted to enter URL on first start (eg: `https://example-balloon.io`)
 * `apiPath` String (optional) - the path to the API Default: `'/api/v1/'`
-* `configDir` String (optional) - path to the directory where configuration is stored on the client. You can use {home}/{username} which gets replaced with the current home directory/local username. Default: `{home}/.balloon`
+* `configDir` String (optional) - path to the directory where configuration is stored on the client. You can use {home}/{username} which gets replaced with the current home directory/local username. This setting only works well if update.enable is set on `false`. Default: `{home}/.balloon`
 * `configFileName` String (optional) - name of the configuration file inside `configDirName`. Default: `config.json`
 * `balloonDir` String (optional) - default path to the directory where the synced files are saved. You can use {home}/{username} which gets replaced with the current home directory/local username. Default: `{home}/Balloon`
 * `log` Object (optional) - logging configuration
