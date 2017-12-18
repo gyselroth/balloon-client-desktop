@@ -27,7 +27,7 @@
       "category": "Network"
     },
     "pkg": {
-      "allowAnywhere": false
+      "allowCurrentUserHome": false
     },
     "deb": {
       "afterInstall": "build/fpm-scripts/postinstall"
