@@ -71,11 +71,11 @@ There are no javascript standards like PSR-1/2 for PHP, but please observe the f
 All builds are triggered automatically with commits into master. Windows builds are handled by [Appvoyer](https://ci.appveyor.com/project/raffis/balloon-client-desktop) whereas OSX and Linux builds are handled by [Travis-ci](https://travis-ci.org/gyselroth/balloon-client-desktop).
 
 ## Manually
-Of course, you can also build manually besides our CI tools.
+
+You need to build the client seperately on each OS. You need the latest [npm](https://nodejs.org/en/) version on each of them.
 
 ### Linux
 **Requirements**
-* nodejs LTS v6.x
 * libsecret-1-dev
 
 **Build only**\
@@ -113,12 +113,12 @@ If you do not want to sign your build, you can also leave out CSC_LINK and CSC_K
 `GH_TOKEN=xxx CSC_LINK=/path/to/p12/cert CSC_KEY_PASSWORD=p12_key_password npm run release-win`
 
 ## Release
-npm run release-* automatically drafts releases to github if you export a github oauth2 access token (GH_TOKEN), otherwise you can get your builds under ./dist. 
+npm run release-* automatically drafts releases to github if you export a github oauth2 access token (GH_TOKEN), otherwise you can get your builds from ./dist. 
 See balloon desktop client [releases](https://github.com/gyselroth/balloon-client-desktop/releases).
 
 
-# Configuration
-Add your configuration in `config/env_[CONTEXT].json`
+# Custom configuration
+Add your configuration in `config/env_[CONTEXT].json` (usuallly config/env_production.json)
 
 The following configuration options are available:
 
