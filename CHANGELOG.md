@@ -1,6 +1,8 @@
 ## 0.0.38
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Mon December 18 09:49:02 CET  2017
+**Date**: Mon December 18 18:38:01 CET  2017
+
+* PACKAGING: [FIX] fixed update on OS X #67
 
 
 ## 0.0.37
