@@ -1,9 +1,10 @@
 ## 0.0.37
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Fri Dezember 15 16:50:00 CET 2017
+**Date**: Mon December 18 09:49:02 CET  2017
 
-* CORE: [FIX] copy app env into userspace #64
 * PACKAGING: [CHANGE] copy env between nsis updates #64
+* PACKAGING: [CHANGE] Linux and OSX implement now a system wide env config in /etc/balloon-desktop #64
+* PACKAGING: [CHANGE] Migrated from dmg to pkg package for OSX #64
 * PACKAGING: [CHANGE] added balloon bitmap and license to nsis installer #65
 
 

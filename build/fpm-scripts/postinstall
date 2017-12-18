@@ -1,0 +1,4 @@
+if [ -f /opt/Balloon/resources/resources/env.json ]; then
+  mkdir /etc/balloon-desktop
+  cp /opt/Balloon/resources/resources/env.json /etc/balloon-desktop/env.json
+fi
