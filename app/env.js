@@ -2,7 +2,7 @@ const fs = require('graceful-fs');
 const path = require('path');
 
 var resourcesPath;
-if(process.defaultApp) {
+if(process.defaultApp || process.type !== 'browser') {
   resourcesPath = path.resolve(__dirname, '..');
 } else {
   resourcesPath = path.resolve(process.resourcesPath);

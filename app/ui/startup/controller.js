@@ -9,7 +9,7 @@ const env = require('../../env.js');
 const fsUtility = require('../../lib/fs-utility.js');
 const AuthCtrl = require('../../lib/auth/controller.js');
 const configManagerCtrl = require('../../lib/config-manager/controller.js');
-
+console.log(env);
 var appPath;
 
 if(process.platform === 'darwin') {
