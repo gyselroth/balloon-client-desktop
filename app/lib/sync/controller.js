@@ -13,7 +13,7 @@ var startup = StartupCtrl(env, clientConfig);
 var syncTimeout;
 var syncStartup = false;
 
-module.exports = function(env, tray) {
+module.exports = function(env, tray, auth) {
   var syncWindow;
   var syncPaused = false;
   var powerSaveBlockerId;

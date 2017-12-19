@@ -196,7 +196,7 @@ function animateIcon(curFrame=1, maxFrames=1) {
 }
 
 
-module.exports = function(env, clientConfig) {
+module.exports = function(env, clientConfig, auth) {
   var trayWindow = createWindow();
 
   function create() {
@@ -231,6 +231,9 @@ module.exports = function(env, clientConfig) {
 
   function show() {
     if(!trayWindow) trayWindow = createWindow();
+
+
+    //UPDATE ACCESS_TOKEN
 
     trayWindow.webContents.send('update-window');
     positioner.position(trayWindow, tray.getBounds());

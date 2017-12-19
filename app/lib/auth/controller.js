@@ -76,6 +76,50 @@ module.exports = function(env, clientConfig) {
     });
   }
 
+  function refreshAccessToken() {
+    return new Promise(function(resolve, reject) {
+      var oidcProvider = clientConfig.get('oidcProvider');
+      if(oidcProvider === undefined) {
+        logger.error('no oidc provider set', {category: 'auth'});
+        return reject();
+      } else {
+        var idpConfig = getIdPByProviderUrl(oidcProvider);
+      }
+
+      oidc.signin(idpConfig).then((authorization) => {
+        if(authorization === true)  {
+          logger.error('can not accept new authorization after refresh access_token', {
+            category: 'auth',
+          });
+
+          reject()
+        } else {
+          verifyAuthentication().then((username) => {
+            resolve();
+          }).catch((error) => {
+            logger.error('failed refresh access_token', {
+              category: 'auth',
+              error: error
+            });
+
+            reject(error)
+          });
+        }
+      });
+    });
+  }
+
+  function isValidAccessToken() {
+    if(clientConfig.get('authMethod') !== 'oidc') {
+      logger.debug('authMethod is not set for oidc auth, skip access token expiration check', {category: 'auth'});
+      return false;
+    }
+
+    var now = Math.floor(Date.now() / 1000) + 60;
+    var expires = clientConfig.get('accessTokenExpires');
+    return now < expires;
+  }
+
   function oidcAuth(idpConfig) {
     return new Promise(function(resolve, reject) {
       oidc.signin(idpConfig).then((authorization) => {
@@ -136,7 +180,7 @@ module.exports = function(env, clientConfig) {
       verifyAuthentication().then(resolve).catch((err) => {
         logger.info('login failed', {
           category: 'auth',
-          code: err.code, message: err.message, stack: err.stack
+          error: err
         });
 
         if(!err.code || err.code !== 'E_BLN_API_REQUEST_UNAUTHORIZED') {
@@ -282,6 +326,8 @@ module.exports = function(env, clientConfig) {
     login,
     basicAuth,
     oidcAuth,
+    isValidAccessToken,
+    refreshAccessToken,
     getIdPByProviderUrl,
     retrieveLoginSecret
   }

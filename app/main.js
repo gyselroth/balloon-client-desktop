@@ -67,7 +67,7 @@ function startApp() {
           tray.create();
         }
 
-        sync = SyncCtrl(env, tray);
+        sync = SyncCtrl(env, tray, auth);
 
         if(env.name === 'production') {
           startSync();
@@ -107,7 +107,7 @@ function startApp() {
       });
     });
 
-    tray = TrayCtrl(env, clientConfig);
+    tray = TrayCtrl(env, clientConfig, auth);
     settings = SettingsCtrl(env);
     about = AboutCtrl(env, clientConfig);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray, about);
@@ -294,10 +294,20 @@ ipcMain.on('link-account', (event, id) => {
 ipcMain.on('sync-error', (event, error, url, line, message) => {
   switch(error.code) {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
-      logger.info('got 401, end sync and unlink account', {category: 'bootstrap'});
-
-      endSync(false);
-      unlinkAccount();
+      if(clientConfig.get('authMethod') === 'basic') {
+        logger.info('got 401, end sync and unlink account', {category: 'bootstrap'});
+        endSync(false);
+        unlinkAccount();
+      } else {
+        logger.debug('got 401, refresh accessToken', {category: 'bootstrap'});
+        auth.refreshAccessToken().then(() => {
+          endSync(true);
+        }).catch(() => {
+          logger.error('could not refresh accessToken, unlink instance', {category: 'bootstrap'});
+          endSync(false);
+          unlinkAccount();
+        });
+      }
     break;
     case 'E_BLN_CONFIG_CREDENTIALS':
       logger.error('credentials not set', {
@@ -312,7 +322,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
     case 'E_BLN_CONFIG_CONFIGDIR':
     case 'E_BLN_CONFIG_CONFIGDIR_NOTEXISTS':
       //this should only happen, when user deletes the configuation, while the application is running
-      logger.info('reinitializing config. Error was:', {
+      logger.info('reinitializing config, config sync error occured', {
         category: 'bootstrap',
         code: error.code
       });
@@ -381,7 +391,7 @@ if (process.platform === 'darwin' && app.dock && env.name === 'production') {
 
 function startSync() {
   if(!sync) {
-    sync = SyncCtrl(env, tray);
+    sync = SyncCtrl(env, tray, auth);
   }
 
   if(clientConfig.get('onLineState') === true) {
