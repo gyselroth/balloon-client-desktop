@@ -1,13 +1,14 @@
 ## 0.0.38
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Mon December 18 18:38:01 CET  2017
+**Date**: Tue December 19 14:02:01 CET 2017
 
+* CORE: [FIX] fixes unlink instance if sync returns 401 and a refreshToken is present #68
 * PACKAGING: [FIX] fixed update on OS X #67
 
 
 ## 0.0.37
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Mon December 18 09:49:02 CET  2017
+**Date**: Mon December 18 09:49:02 CET 2017
 
 * PACKAGING: [CHANGE] copy env between nsis updates #64
 * PACKAGING: [CHANGE] Linux and OSX implement now a system wide env config in /etc/balloon-desktop #64
