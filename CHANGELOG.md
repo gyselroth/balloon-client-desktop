@@ -1,3 +1,10 @@
+## 0.0.39
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Tue December 19 16:01:01 CET 2017
+
+* CORE: [FIX] resource path in env.js is wrong in built windows env #75
+
+
 ## 0.0.38
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Tue December 19 14:02:01 CET 2017
