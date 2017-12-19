@@ -1,8 +1,9 @@
 const fs = require('graceful-fs');
 const path = require('path');
+const isDev = require('electron-is-dev');
 
 var resourcesPath;
-if(process.defaultApp || process.type !== 'browser') {
+if(isDev') {
   resourcesPath = path.resolve(__dirname, '..');
 } else {
   resourcesPath = path.resolve(process.resourcesPath);
