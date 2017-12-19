@@ -109,17 +109,6 @@ module.exports = function(env, clientConfig) {
     });
   }
 
-  function isValidAccessToken() {
-    if(clientConfig.get('authMethod') !== 'oidc') {
-      logger.debug('authMethod is not set for oidc auth, skip access token expiration check', {category: 'auth'});
-      return false;
-    }
-
-    var now = Math.floor(Date.now() / 1000) + 60;
-    var expires = clientConfig.get('accessTokenExpires');
-    return now < expires;
-  }
-
   function oidcAuth(idpConfig) {
     return new Promise(function(resolve, reject) {
       oidc.signin(idpConfig).then((authorization) => {
@@ -326,7 +315,6 @@ module.exports = function(env, clientConfig) {
     login,
     basicAuth,
     oidcAuth,
-    isValidAccessToken,
     refreshAccessToken,
     getIdPByProviderUrl,
     retrieveLoginSecret
