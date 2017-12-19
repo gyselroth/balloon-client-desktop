@@ -3,7 +3,7 @@ const path = require('path');
 const isDev = require('electron-is-dev');
 
 var resourcesPath;
-if(isDev') {
+if(isDev) {
   resourcesPath = path.resolve(__dirname, '..');
 } else {
   resourcesPath = path.resolve(process.resourcesPath);
