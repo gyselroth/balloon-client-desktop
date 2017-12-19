@@ -67,7 +67,7 @@ function startApp() {
           tray.create();
         }
 
-        sync = SyncCtrl(env, tray, auth);
+        sync = SyncCtrl(env, tray);
 
         if(env.name === 'production') {
           startSync();
@@ -107,7 +107,7 @@ function startApp() {
       });
     });
 
-    tray = TrayCtrl(env, clientConfig, auth);
+    tray = TrayCtrl(env, clientConfig);
     settings = SettingsCtrl(env);
     about = AboutCtrl(env, clientConfig);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray, about);
@@ -391,7 +391,7 @@ if (process.platform === 'darwin' && app.dock && env.name === 'production') {
 
 function startSync() {
   if(!sync) {
-    sync = SyncCtrl(env, tray, auth);
+    sync = SyncCtrl(env, tray);
   }
 
   if(clientConfig.get('onLineState') === true) {

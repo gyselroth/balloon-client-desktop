@@ -196,7 +196,7 @@ function animateIcon(curFrame=1, maxFrames=1) {
 }
 
 
-module.exports = function(env, clientConfig, auth) {
+module.exports = function(env, clientConfig) {
   var trayWindow = createWindow();
 
   function create() {
