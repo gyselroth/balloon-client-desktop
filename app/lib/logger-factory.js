@@ -59,10 +59,9 @@ module.exports = function(config, logfile) {
     if(config.context === 'development') {
       logger.add(winston.transports.Console, {
         level: 'debug',
-        //prettyPrint: true,
+        prettyPrint: true,
         depth: 6,
-        handleExceptions: false,
-        humanReadableUnhandledException: false,
+        humanReadableUnhandledException: true,
         colorize: true,
         formatter: function(options) {
           var category = 'unknown';
