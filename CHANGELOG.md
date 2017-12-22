@@ -1,3 +1,13 @@
+## 0.0.40
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Tue December 19 16:01:01 CET 2017
+
+* CORE: [FIX] set delta node limit to 100, partially fixed sync can end in endless loop ESOCKETTIMEDOUT #78
+* CORE: [FIX] removed remotedelta log db, fixes `Error: \"toString()\" failed\n at Buffer.toString (buffer.js:503 #85
+* CORE: [FIX] fixed sync error exception occurence in log file #60
+* CORE: [CHANGE] changed log format for log files #79
+
+
 ## 0.0.39
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Tue December 19 16:01:01 CET 2017

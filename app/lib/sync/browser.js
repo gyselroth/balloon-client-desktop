@@ -28,7 +28,7 @@ try {
 
     sync.on('transfer-start', function(event) {
       ipcRenderer.send('sync-transfer-start');
-      logger.info('Sync transfer started');
+      logger.info('transfer started', {category: 'sync'});
     });
 
     sync.on('transfer-end', function(event) {
@@ -38,10 +38,17 @@ try {
 
     sync.start((err, results) => {
       if(err) {
-        logger.error('Sync: finished with error', err);
+        logger.error('finished sync with error', {
+          category: 'sync',
+          error: err
+        });
+
         ipcRenderer.send('sync-error', err);
       } else {
-        logger.info('Sync: Finished successfully', results);
+        logger.info('finished sync successfully', {
+          category: 'sync',
+          results: results
+        });
       }
 
       syncCompleted = true;
@@ -61,7 +68,11 @@ try {
     });
   });
 } catch(err) {
-  logger.error(err);
+  logger.error('sync error occurred', {
+    category: 'sync',
+    error: err
+  });
+
   ipcRenderer.send('sync-error', err);
 }
 
