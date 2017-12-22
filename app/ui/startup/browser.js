@@ -37,8 +37,8 @@ $(document).ready(function() {
   function updateOnLineState() {
     if(navigator.onLine === false) {
       $loader.hide();
-      $offline.show();
       $content.hide();
+      $offline.show();
     } else {
       checkIfHostReachable(clientConfig.get('blnUrl'), (result) => {
         $loader.hide();
@@ -205,7 +205,7 @@ function auth() {
 
 function switchView(view) {
   $(document).ready(function(){
-    $("#startup-view").find("> div").hide();
+    $(".view").hide();
     $("#startup-view-"+view).show()
      .find('input,textarea,select,button').filter(':visible:first').focus();
 
