@@ -103,7 +103,7 @@
     "electron-updater": "2.10.1",
     "graceful-fs": "~4.1.11",
     "handlebars": "^4.0.11",
-    "jquery": "<3.0.0",
+    "jquery": "~3.0.0",
     "keytar": "^4.0.5",
     "lodash": "~4.17.4",
     "mkdirp": "~0.5.1",
