@@ -13,6 +13,7 @@
 * CORE: [FIX] set delta node limit to 100, partially fixed sync can end in endless loop ESOCKETTIMEDOUT #78
 * CORE: [FIX] removed remotedelta log db, fixes `Error: \"toString()\" failed\n at Buffer.toString (buffer.js:503 #85
 * CORE: [FIX] fixed sync error exception occurence in log file #60
+* CORE: [FIX] Reschedule nodes with ENOENT #84
 * CORE: [CHANGE] changed log format for log files #79
 * UI: [FIX] starting app without internet connection and no instance shows the wizard with no error message or loader #73
 
@@ -66,8 +67,8 @@
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Wed Dezember 06 08:50:23 CET 2017
 
-* CORE: [FIX] fixed multi sync threads running #34 
-* CORE: [FIX] fixed regex bug in sync library and various network problems resolved, bumping sync lib to 0.0.29 #34 
+* CORE: [FIX] fixed multi sync threads running #34
+* CORE: [FIX] fixed regex bug in sync library and various network problems resolved, bumping sync lib to 0.0.29 #34
 * CORE: [FIX] added http request timeout, configurable via requestTimeout, default 10s, #29
 * CORE: [FIX] client now checks the api server in a 5s interval after a sync request resulted in a network error #39
 * CORE: [FIX] client does not unlink instance anymore if started with no connection to the server #40
@@ -78,7 +79,7 @@
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu November 17 15:14:43 CET 2017
 
-* PACKAGING: [FIX] bintray deployment in stable branch 
+* PACKAGING: [FIX] bintray deployment in stable branch
 
 
 ## 0.0.32
