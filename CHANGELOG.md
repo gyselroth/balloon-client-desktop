@@ -1,8 +1,10 @@
 ## 0.0.41
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Mon Jan 22 13:35:01 CET 2018
+**Date**: Tue Jan 23 08:30:08 CET 2018
 
 * CORE: [FIX] Fixes Uncaught SyntaxError: Invalid regular expression #87
+* CORE: [FIX] All dependencies include now patched versions automatically (~) #70
+
 
 ## 0.0.40
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
