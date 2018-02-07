@@ -133,7 +133,7 @@ The following configuration options are available:
   * `level` String (optional) - maximum level that should be logged. Default: `debug`. Available levels: `{error: 3, warning: 4, notice: 5, info: 6, debug: 7}`
   * `maxsize` Integer (optional) - maximum size of a single lg file. Default: `10000000`
   * `maxFiles` Integer (optional) - maximum number of log files. Default: `10`
-* `requestTimeout` Integer (optional) - api request timeout in miliseconds. Default: `10000`
+* `requestTimeout` Integer (optional) - api request timeout in miliseconds. Default: `30000`
 * `sync`: Object (optional) - sync configuration
   * `interval` Integer (optional) - interval in which syncs run in production context. Default: `5`
   * `maxConcurentConnections` Integer (optional) - maximum simultaneous connections for file up- and downloads
