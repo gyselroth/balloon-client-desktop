@@ -221,9 +221,22 @@ module.exports = function(env, clientConfig) {
   }
 
   function showBalloonDir() {
-    if(isAutoLaunch() === false) {
-      shell.openItem(clientConfig.get('balloonDir'));
-    }
+    //if app is Launched through autolaunch do not open BalloonDir
+    if(isAutoLaunch()) return Promise.resolve();
+
+    return new Promise(function(resolve, reject) {
+      makeSureBalloonDirExists().then(function() {
+        shell.openItem(clientConfig.get('balloonDir'));
+        resolve();
+      }).catch((error) => {
+        logger.error('failed to open balloonDir', {
+          category: 'startup',
+          error: error
+        });
+
+        reject(error);
+      });
+    });
   }
 
   function welcomeWizard() {
@@ -246,8 +259,7 @@ module.exports = function(env, clientConfig) {
       ipcMain.on('startup-open-folder', function(event) {
         startupWindow.removeListener('closed', windowClosedByUserHandler);
         startupWindow.close();
-        showBalloonDir();
-        resolve();
+        showBalloonDir().then(resolve, reject);
       });
 
       ipcMain.removeAllListeners('startup-change-dir');
