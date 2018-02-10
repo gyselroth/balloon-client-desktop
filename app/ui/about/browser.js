@@ -8,6 +8,7 @@ const uuid4 = require('uuid4');
 
 const env = require('../../env.js');
 const clientConfig = require('../../lib/config.js');
+const appState = require('../../lib/state.js');
 
 const i18n = require('../../lib/i18n.js');
 const app = electron.remote.app;
@@ -37,7 +38,7 @@ $(document).ready(function() {
     });
 
     if(env.update && env.update.enable === true || !env.update || env.update.enable === undefined) {
-      if(clientConfig.get('updateAvailable')) {
+      if(appState.get('updateAvailable')) {
         $install.show();
         $check.hide();
       } else {

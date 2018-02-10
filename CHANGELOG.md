@@ -1,3 +1,9 @@
+## 0.0.42
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Not released
+
+* CORE: [CHANGE] introduced global app state, moved updateAvailable and onLineState to global app state #26
+
 ## 0.0.41
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Tue Jan 23 08:30:08 CET 2018

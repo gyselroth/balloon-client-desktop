@@ -6,6 +6,7 @@ const handlebars = require('handlebars');
 const uuid4 = require('uuid4');
 
 const clientConfig = require('../../lib/config.js');
+const appState = require('../../lib/state.js');
 
 const i18n = require('../../lib/i18n.js');
 const app = electron.remote.app;
@@ -70,8 +71,8 @@ $(document).ready(function() {
   }
 
   function toggleInstallUpdate() {
-    $installUpdate.toggle(clientConfig.get('updateAvailable'));
-    $checkForUpdate.toggle(!clientConfig.get('updateAvailable'));
+    $installUpdate.toggle(appState.get('updateAvailable'));
+    $checkForUpdate.toggle(!appState.get('updateAvailable'));
   }
 
   function updateWindow() {

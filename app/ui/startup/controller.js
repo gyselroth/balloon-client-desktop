@@ -6,6 +6,7 @@ const {app, BrowserWindow, ipcMain, shell, dialog} = require('electron');
 var autoLaunch = require('auto-launch');
 
 const env = require('../../env.js');
+const appState = require('../../lib/state.js');
 const fsUtility = require('../../lib/fs-utility.js');
 const AuthCtrl = require('../../lib/auth/controller.js');
 const configManagerCtrl = require('../../lib/config-manager/controller.js');
@@ -132,7 +133,7 @@ module.exports = function(env, clientConfig) {
           category: 'startup'
       });
       return firstTimeWizard();
-    } else if(clientConfig.get('onLineState') === false) {
+    } else if(appState.get('onLineState') === false) {
       // authentication is not possible, as client is offline
       return Promise.resolve();
     }
@@ -151,7 +152,7 @@ module.exports = function(env, clientConfig) {
     return new Promise(function(resolve, reject) {
       logger.debug('ask user for authentication credentials', {category: 'startup'});
 
-      if(clientConfig.get('onLineState') === true) {
+      if(appState.get('onLineState') === true) {
         logger.debug('waiting for user action', {category: 'startup'});
         if(!startupWindow) startupWindow = createStartupWindow();
 
@@ -312,7 +313,7 @@ module.exports = function(env, clientConfig) {
       ipcMain.removeAllListeners('startup-server-continue');
       ipcMain.on('startup-server-continue', function(event, blnUrl) {
         //TODO pixtron - this should not be set here. This should only be changed by the event listeners.
-        clientConfig.set('onLineState', true);
+        appState.set('onLineState', true);
 
         if(!env.blnUrl) {
           logger.info('change url to server', {

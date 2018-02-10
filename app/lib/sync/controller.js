@@ -8,6 +8,8 @@ const logger = require('../logger.js');
 
 const env = require('../../env.js');
 const clientConfig = require('../config.js');
+const appState = require('../state.js');
+
 var startup = StartupCtrl(env, clientConfig);
 
 var syncTimeout;
@@ -95,7 +97,7 @@ module.exports = function(env, tray) {
     }
 
     //return if no network available
-    if(clientConfig.get('onLineState') === false) {
+    if(appState.get('onLineState') === false) {
       return logger.info('not starting because no network available', {category: 'sync'});
     }
 

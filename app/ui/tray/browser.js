@@ -9,6 +9,7 @@ const syncFactory = require('@gyselroth/balloon-node-sync');
 const i18n = require('../../lib/i18n.js');
 const instance = require('../../lib/instance.js');
 const clientConfig = require('../../lib/config.js');
+const appState = require('../../lib/state.js');
 
 const logger = require('../../lib/logger.js');
 const loggerFactory = require('../../lib/logger-factory.js');
@@ -243,7 +244,7 @@ function compileTemplate() {
 }
 
 function toggleInstallUpdate() {
-  if(clientConfig.get('updateAvailable')) {
+  if(appState.get('updateAvailable')) {
     $('#item-installupdate').show();
   } else {
     $('#item-installupdate').hide();

@@ -2,6 +2,7 @@ const {ipcMain} = require('electron');
 const {autoUpdater} = require('electron-updater');
 
 const logger = require('../logger.js');
+const appState = require('../state.js');
 
 var checkRunning = false;
 
@@ -50,7 +51,7 @@ module.exports = function(env, clientConfig, tray, about) {
 
     about.update('update-downloaded');
     tray.toggleState('update', true);
-    clientConfig.set('updateAvailable', true);
+    appState.set('updateAvailable', true);
     checkRunning = false;
   });
 

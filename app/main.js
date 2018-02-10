@@ -4,6 +4,7 @@ const {app, ipcMain} = require('electron');
 
 const env = require('./env.js');
 const clientConfig = require('./lib/config.js');
+const appState = require('./lib/state.js');
 const migrate = require('./lib/migrate.js');
 const TrayCtrl = require('./ui/tray/controller.js');
 const SettingsCtrl = require('./ui/settings/controller.js');
@@ -24,9 +25,6 @@ var tray, sync, settings, feedback, autoUpdate;
 var standardLogger = new loggerFactory(clientConfig.getAll());
 var startup = StartupCtrl(env, clientConfig);
 var auth = AuthCtrl(env, clientConfig);
-
-//TODO: raffis: this wont work with first start and memory config
-clientConfig.set('updateAvailable', false);
 
 logger.setLogger(standardLogger);
 
@@ -57,7 +55,7 @@ function startApp() {
         state: state
       });
 
-      clientConfig.set('onLineState', state);
+      appState.set('onLineState', state);
       startup.checkConfig().then(() => {
         logger.info('startup checkconfig successfull', {
           category: 'bootstrap',
@@ -141,6 +139,8 @@ function unlinkAccount() {
 }
 
 app.on('ready', function () {
+  appState.set('updateAvailable', false);
+
   logger.info('App ready', {
       category: 'bootstrap',
   });
@@ -183,7 +183,7 @@ ipcMain.on('tray-online-state-changed', function(event, state) {
     state: state
   });
 
-  clientConfig.set('onLineState', state);
+  appState.set('onLineState', state);
   if(state === false) {
     //abort a possibly active sync if not already paused
     if(sync && sync.isPaused() === false) sync.pause(true);
@@ -396,7 +396,7 @@ function startSync() {
     sync = SyncCtrl(env, tray);
   }
 
-  if(clientConfig.get('onLineState') === true) {
+  if(appState.get('onLineState') === true) {
     sync.start();
   } else {
     logger.info('Not starting Sync because client is offline', {
