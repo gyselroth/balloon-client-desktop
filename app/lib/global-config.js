@@ -29,7 +29,14 @@ function configFactory() {
 
   settings.setPath(configFile);
 
+  setDefaultConfig();
+
   return settings;
+}
+
+function setDefaultConfig() {
+  // enableAutoLaunch defaults to true
+  if(!settings.has('enableAutoLaunch')) settings.set('enableAutoLaunch', (env.enableAutoLaunch !== false));
 }
 
 module.exports = configFactory();

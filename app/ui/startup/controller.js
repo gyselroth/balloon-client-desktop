@@ -1,28 +1,14 @@
 const fs = require('graceful-fs');
 const path = require('path');
 const url = require('url');
-const {app, BrowserWindow, ipcMain, shell, dialog} = require('electron');
-
-var autoLaunch = require('auto-launch');
+const {BrowserWindow, ipcMain, shell, dialog} = require('electron');
 
 const env = require('../../env.js');
 const appState = require('../../lib/state.js');
 const fsUtility = require('../../lib/fs-utility.js');
 const AuthCtrl = require('../../lib/auth/controller.js');
 const configManagerCtrl = require('../../lib/config-manager/controller.js');
-var appPath;
-
-if(process.platform === 'darwin') {
-  //This is a workaround for: https://github.com/Teamwork/node-auto-launch/issues/28
-  //Might be removed as soon as the issue has been resolved
-  appPath = app.getPath('exe').split('.app/Content')[0] + '.app';
-}
-
-var balloonAutoLauncher = new autoLaunch({
-    name: 'Balloon',
-    path: appPath,
-    isHidden: true
-});
+const autoLaunch = require('../../lib/auto-launch.js');
 
 const logger = require('../../lib/logger.js');
 
@@ -32,30 +18,8 @@ module.exports = function(env, clientConfig) {
   var auth = AuthCtrl(env, clientConfig);
   var configManager = configManagerCtrl(clientConfig);
 
-  function enableAutoLaunch() {
-    return new Promise(function(resolve, reject) {
-      if(env.enableAutoLaunch === false) {
-        logger.debug('autolaunch is disabled, skip enabling autolaunch', {
-          category: 'startup'
-        });
-        return resolve();
-      }
-
-      logger.debug('verify that autolaunch is enabled', {category: 'startup'});
-      balloonAutoLauncher.isEnabled().then(function(isEnabled) {
-        if(!isEnabled) {
-          balloonAutoLauncher.enable().then(function(isEnabled) {
-            resolve();
-          }).catch(function(err) {
-            reject(err);
-          });
-        } else {
-          resolve();
-        }
-      }).catch(function(err){
-        reject(err);
-      });
-    });
+  function ensureCorrectAutoLaunchState() {
+    return autoLaunch.ensureCorrectState();
   }
 
   function isAutoLaunch() {
@@ -65,7 +29,7 @@ module.exports = function(env, clientConfig) {
   function checkConfig() {
     return Promise.all([
       makeSureBalloonDirExists(),
-      enableAutoLaunch(),
+      ensureCorrectAutoLaunchState(),
       authenticate(),
     ]);
   }
