@@ -3,11 +3,18 @@ const {autoUpdater} = require('electron-updater');
 
 const logger = require('../logger.js');
 const appState = require('../state.js');
+const globalConfig = require('../global-config.js');
 
 var checkRunning = false;
 
 module.exports = function(env, clientConfig, tray, about) {
   autoUpdater.logger = logger;
+
+  if(globalConfig.has('allowPrerelease') && globalConfig.get('allowPrerelease') === true) {
+    logger.debug('Allowing to install prereleases', {category: 'autoupdate'});
+    autoUpdater.allowPrerelease = true;
+    autoUpdater.allowDowngrade = false;
+  }
 
   autoUpdater.on('checking-for-update', () => {
     logger.info('Checking for update', {category: 'autoupdate'});

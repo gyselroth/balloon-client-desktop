@@ -37,6 +37,9 @@ function configFactory() {
 function setDefaultConfig() {
   // enableAutoLaunch defaults to true
   if(!settings.has('enableAutoLaunch')) settings.set('enableAutoLaunch', (env.enableAutoLaunch !== false));
+
+  // allowPrerelease defaults to false
+  if(!settings.has('allowPrerelease')) settings.set('allowPrerelease', !(env.enableAutoLaunch !== true));
 }
 
 module.exports = configFactory();

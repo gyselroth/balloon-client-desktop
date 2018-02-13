@@ -138,6 +138,7 @@ The following configuration options are available:
   * `interval` Integer (optional) - interval in which syncs run in production context. Default: `5`
   * `maxConcurentConnections` Integer (optional) - maximum simultaneous connections for file up- and downloads
 * `enableAutoLaunch` Boolean (optional) - if app should be launched on system startup. Default: true
+* `allowPrerelease` Boolean (optional) - if auto updater should install pre releases. Default: false
 * `update` Object (optional) - update configuration
   * `enable` Boolean (optional) - enables automatic (and manual) updates - Default: `true`
   * `checkInterval` Integer (optional) - interval in hours the client should check for updates. A first check is always done on app start. Default: `4`
