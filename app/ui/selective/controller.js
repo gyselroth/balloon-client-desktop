@@ -42,6 +42,12 @@ module.exports = function(env, clientConfig) {
         data: ids
       });
 
+      let currentlyIgnored = clientConfig.get('ignoreNodes') || [];
+      let unignoreIds = currentlyIgnored.filter(node => {
+        return ids.indexOf(node) === -1;
+      });
+
+      clientConfig.unignoreNode(unignoreIds);
       clientConfig.ignoreNode(ids);
 
       close();

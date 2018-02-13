@@ -244,5 +244,31 @@ module.exports = function() {
 
       settings.set('ignoreNodes', ignoreNodes);
     },
+
+    /**
+     * @var string||array id node id(s) to uningore
+     */
+    unignoreNode: function(id) {
+      if(id.constructor === String) {
+        id = [id];
+      }
+
+      if(id.constructor !== Array) {
+        throw(new Error('id must be a string or an array'));
+      }
+
+      var ignoreNodes = settings.get('ignoreNodes');
+      if(!ignoreNodes) {
+        ignoreNodes = [];
+      }
+
+      ignoreNodes = ignoreNodes.filter(node => {
+        return id.indexOf(node) === -1;
+      });
+
+      ignoreNodes = [...new Set(ignoreNodes)];
+
+      settings.set('ignoreNodes', ignoreNodes);
+    },
   }
 }();
