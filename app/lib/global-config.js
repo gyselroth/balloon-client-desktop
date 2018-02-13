@@ -1,48 +1,35 @@
 const fs = require('fs');
 const path = require('path');
 
+const electron = require('electron');
+
+if(process.type === 'browser') {
+  var ElectronSettings = require('electron-settings/lib/settings.js');
+} else {
+  var ElectronSettings = electron.remote.require('electron-settings/lib/settings.js');
+}
+
 const env = require('../env.js');
 const fsUtility = require('./fs-utility.js');
 const paths = require('./paths.js');
 
-let configFile;
-let config = {};
+let settings;
 
-function initialize() {
-  configDir = paths.getConfigDir();
+function configFactory() {
+  if(settings !== undefined) return settings;
 
-  fsUtility.createConfigDir(configDir);
+  const configDir = paths.getConfigDir();
+  const configFile = path.join(configDir, 'config-'+env.name+'.json');
 
-  configFile  = path.join(configDir, 'config-'+env.name+'.json');
-
-  readConfig();
-}
-
-function readConfig() {
-  try {
-    if(fs.existsSync(configFile)) {
-      config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-    }
-  } catch(err) {
-    return {};
+  if(!fs.existsSync(configDir)) {
+    fsUtility.mkdirpSync(configDir);
   }
+
+  settings = new ElectronSettings();
+
+  settings.setPath(configFile);
+
+  return settings;
 }
 
-function saveConfig() {
-  fs.writeFileSync(configFile, JSON.stringify(config || {}), 'utf8');
-}
-
-
-module.exports = function() {
-  initialize();
-
-  return {
-    get: function(key) {
-      return config[key];
-    },
-    set: function(key, value) {
-      config[key] = value;
-      saveConfig();
-    }
-  }
-}();
+module.exports = configFactory();
