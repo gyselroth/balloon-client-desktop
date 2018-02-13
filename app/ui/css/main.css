@@ -141,61 +141,81 @@ p {
 
 /*-----Setting Boxes-----*/
 
-#setting button {
+#settings #contentWrapper {
+  padding: 10px;
+}
+
+#settings button {
   float: right;
 }
 
-.settings {
-    background-color: #fff;
-    border: solid 1px #DDD;
-    padding: 10px 0;
-    margin-bottom: 10px;
-    display: table;
-    table-layout: fixed;
-    width: 100%;
+/*---- Settings Tab naviagtion ----*/
+#settings #settings-navigation {
+  height: 36px;
+  overflow-x: visible;
+  z-index: 1;
 }
 
-.settings > div {
-    float: left;
+#settings #settings-navigation li {
+  float: left;
+  border-top: 1px solid #000;
+  border-right: 1px solid #000;
+  padding: 10px;
+  cursor: pointer;
+
+  height: 36px;
+  box-sizing: border-box;
+  background-color: transparent;
 }
 
-.settings:last-child {
-    margin-bottom: 0;
+#settings #settings-navigation li:first-child {
+  border-left: 1px solid #000;
 }
 
-.settingTxt {
-    width: 55%;
+#settings #settings-navigation li.tab-navigation-active {
+  height: 37px;
+  background-color: #fff;
 }
 
-.settings .icon {
-    width: 60px;
-    text-align: center;
+#settings #settings-navigation li a {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
 }
 
-.settings .icon svg {
-    width: 40px;
+/*---- Settings Tab content ----*/
+#settings .tab-content {
+  display: none;
+  padding: 25px 15px;
+  margin-bottom: 20px;
+  border: 1px solid #000;
 }
 
-.settings .edit {
-    clear: both;
-    margin: 5px 0 0 60px;
-    font-size: 13px;
-    text-decoration: underline;
-    color: #999;
+#settings .tab-content.tab-active {
+  display: block;
 }
 
-.settings .edit svg {
-    width: 40px;
+#settings .tab-content .setting-item {
+  margin-bottom: 15px;
 }
 
-.settings .info {
-    font-size: 16px;
-    color: #000;
-    font-weight: 400;
+#settings .tab-content .setting-item:last-child {
+  margin-bottom: 0;
 }
 
-#settings-account .edit > div {
-    display: none;
+#settings .tab-content label {
+  display: block;
+  padding-left: 15px;
+  text-indent: -15px;
+}
+
+#settings .tab-content input {
+  padding: 0;
+  margin:0;
+  vertical-align: bottom;
+  position: relative;
+  top: -3px;
+  *overflow: hidden;
 }
 
 /*-----Formular----*/
@@ -661,4 +681,12 @@ button:disabled,
 button[disabled] {
   color: #ccc;
   cursor: initial;
+}
+
+.clearfix:after {
+  content: ".";
+  clear: both;
+  display: block;
+  visibility: hidden;
+  height: 0px;
 }

@@ -12,12 +12,19 @@ module.exports = function(env) {
   windowStates = windowStatesFactory(env);
 
   function close() {
-    logger.info('Settings: close requested');
-    if(settingsWindow) settingsWindow.close();
+    logger.info('Close requested', {category: 'settings'});
+
+    if(settingsWindow) {
+      if(env.name === 'development') {
+        settingsWindow.closeDevTools();
+      }
+
+      settingsWindow.close();
+    }
   }
 
   function open() {
-    logger.info('Settings: open requested');
+    logger.info('Open requested', {category: 'settings'});
     if(!settingsWindow) settingsWindow = createWindow();
 
     settingsWindow.show();
@@ -52,17 +59,13 @@ module.exports = function(env) {
 
       windowStates.closed('settings');
 
-      logger.info('Settings: closed');
+      logger.info('Closed', {category: 'settings'});
     });
 
     settingsWindow.on('show', (event) => {
       windowStates.opened('settings');
 
-      logger.info('Settings: opened');
-    });
-
-    settingsWindow.on('focus', (event) => {
-      settingsWindow.webContents.send('update-window');
+      logger.info('Opened', {category: 'settings'});
     });
 
     if(env.name === 'development') {
