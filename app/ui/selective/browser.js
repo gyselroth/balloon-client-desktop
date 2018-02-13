@@ -10,8 +10,11 @@ const clientConfig = require('../../lib/config.js');
 
 const logger = require('../../lib/logger.js');
 const loggerFactory = require('../../lib/logger-factory.js');
-var standardLogger = new loggerFactory(clientConfig.getAll());
+const syncFactory = require('@gyselroth/balloon-node-sync');
+
+const standardLogger = new loggerFactory(clientConfig.getAll());
 logger.setLogger(standardLogger);
+
 
 const i18n = require('../../lib/i18n.js');
 const env = require('../../env.js');
@@ -24,13 +27,9 @@ handlebars.registerHelper('i18n', function(key) {
   return new handlebars.SafeString(translation);
 });
 
-$("document").ready(function() {
-  $("html").addClass(process.platform);
+$('document').ready(function() {
+  $('html').addClass(process.platform);
   compileTemplates();
-
-  const logger = require('../../lib/logger.js');
-  const clientConfig = require('../../lib/config.js');
-  const syncFactory = require('@gyselroth/balloon-node-sync');
 
   var configuredIgnore = clientConfig.get('ignoreNodes');
 

@@ -14,7 +14,6 @@ const logger = require('../../lib/logger.js');
 
 module.exports = function(env, clientConfig) {
   var startupWindow;
-  var selectiveWindow;
   var auth = AuthCtrl(env, clientConfig);
   var configManager = configManagerCtrl(clientConfig);
 
@@ -243,12 +242,6 @@ module.exports = function(env, clientConfig) {
           }
         });
       });
-
-      ipcMain.removeAllListeners('startup-selective-sync');
-      ipcMain.on('startup-selective-sync', function(event) {
-        logger.info('open selective sync window', {category: 'startup'});
-        openSelectiveSync();
-      });
     });
   }
 
@@ -302,73 +295,6 @@ module.exports = function(env, clientConfig) {
         startupWindow.removeListener('closed', windowClosedByUserHandler);
       });
     });
-  }
-
-  function openSelectiveSync() {
-    logger.info('Startup settings: open selective sync requested', {category: 'startup'});
-
-    return new Promise(function(resolve, reject) {
-      if(!selectiveWindow) selectiveWindow = createSelectiveWindow();
-      selectiveWindow.show();
-      selectiveWindow.focus();
-
-      ipcMain.on('selective-window-loaded',function(){
-        selectiveWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
-      });
-
-      ipcMain.removeAllListeners('selective-apply');
-      ipcMain.on('selective-apply', function(event, ids) {
-        logger.info('apply selective sync settings', {
-          category: 'startup',
-          data: ids
-        });
-
-        clientConfig.ignoreNode(ids);
-
-        selectiveWindow.close();
-      });
-
-      ipcMain.removeAllListeners('selective-cancel');
-      ipcMain.on('selective-cancel', function(event) {
-        logger.info('cancel selective sync settings', {category: 'startup'});
-        selectiveWindow.close();
-      });
-    });
-  }
-
-  function createSelectiveWindow() {
-    if(selectiveWindow) return selectiveWindow;
-
-    selectiveWindow = new BrowserWindow({
-      width: 380,
-      height: 490,
-      show: false,
-      frame: true,
-      fullscreenable: false,
-      resizable: false,
-      transparent: false,
-      skipTaskbar: false,
-      icon: __dirname+'/../../img/logo-512x512.png'
-    });
-
-    selectiveWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'selective.html'),
-        protocol: 'file:',
-        slashes: true
-    }));
-
-    let windowClosedByUserHandler = function(event) {
-      selectiveWindow = undefined;
-    }
-    selectiveWindow.on('closed', windowClosedByUserHandler);
-
-    selectiveWindow.setMenu(null);
-
-    if(env.name === 'development') {
-      //selectiveWindow.openDevTools();
-    }
-
-    return selectiveWindow;
   }
 
   function createStartupWindow() {

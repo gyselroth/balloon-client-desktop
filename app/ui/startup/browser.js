@@ -140,7 +140,7 @@ function welcome() {
     });
 
     $('#startup-adavanced-selective').bind('click', function() {
-      ipcRenderer.send('startup-selective-sync');
+      ipcRenderer.send('selective-open');
     });
 
     ipcRenderer.on('startup-change-dir', function (event, path) {

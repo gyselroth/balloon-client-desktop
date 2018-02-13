@@ -7,6 +7,7 @@ const clientConfig = require('./lib/config.js');
 const appState = require('./lib/state.js');
 const migrate = require('./lib/migrate.js');
 const TrayCtrl = require('./ui/tray/controller.js');
+const SelectiveCtrl = require('./ui/selective/controller.js');
 const SettingsCtrl = require('./ui/settings/controller.js');
 const SyncCtrl = require('./lib/sync/controller.js');
 const StartupCtrl = require('./ui/startup/controller.js');
@@ -20,11 +21,12 @@ const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
 const configManager = require('./lib/config-manager/controller.js')(clientConfig);
 
-var tray, sync, settings, feedback, autoUpdate;
+var tray, selective, sync, settings, feedback, autoUpdate;
 
 var standardLogger = new loggerFactory(clientConfig.getAll());
 var startup = StartupCtrl(env, clientConfig);
 var auth = AuthCtrl(env, clientConfig);
+var selective = SelectiveCtrl(env, clientConfig);
 
 logger.setLogger(standardLogger);
 
@@ -246,6 +248,14 @@ ipcMain.on('settings-open', () => {
 
 ipcMain.on('settings-close', () => {
   settings.close();
+});
+
+ipcMain.on('selective-open', function(event) {
+  selective.open();
+});
+
+ipcMain.on('selective-close', function(event) {
+  selective.close();
 });
 
 ipcMain.on('feedback-open', (event) => {
