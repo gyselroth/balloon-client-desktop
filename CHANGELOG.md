@@ -1,9 +1,10 @@
 ## 0.0.42
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Not released
+**Date**: Mon Feb 26 16:05:52 CET 2018
 
 * CORE: [CHANGE] introduced global app state, moved updateAvailable and onLineState to global app state #26
 * CORE: [CHANGE] introduced new global flag `allowPrerelease` if set to true auto updater will install pre releases.
+
 
 ## 0.0.41
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
