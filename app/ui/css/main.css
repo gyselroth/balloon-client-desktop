@@ -145,7 +145,7 @@ p {
   padding: 10px;
 }
 
-#settings button {
+#settings #settings-close {
   float: right;
 }
 
@@ -228,7 +228,8 @@ input,
 select,
 select > option,
 .select-node div:first-child,
-#startup-adavanced-selective {
+button.btn-light,
+button:hover.btn-light {
     font-size: 16px;
     font-weight: 300;
     line-height: 25px;
@@ -387,7 +388,8 @@ input[type="radio"], input[type="checkbox"] {
     text-align: center;
 }
 
-#startup-adavanced-selective {
+button.btn-light,
+button:hover.btn-light {
     width: 250px !important;
     background: transparent;
     color: #000;

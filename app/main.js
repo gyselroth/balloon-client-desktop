@@ -45,7 +45,11 @@ if(shouldQuit === true) {
 }
 
 function startApp() {
+  logger.info('startApp', {category: 'main'});
+
   auth.retrieveLoginSecret().then(() => {
+    logger.info('login secret recieved', {category: 'main'});
+
     ipcMain.once('tray-online-state-changed', function(event, state) {
       if(clientConfig.hadConfig()) {
         tray.create();
@@ -257,6 +261,14 @@ ipcMain.on('selective-open', function(event) {
 ipcMain.on('selective-close', function(event) {
   selective.close();
 });
+
+ipcMain.on('selective-apply', function(event, ignoredIds) {
+  logger.info('Applying selective sync changes', {category: 'main', ignoredIds});
+
+  if(sync) sync.updateSelectiveSync(ignoredIds);
+
+  selective.close();
+})
 
 ipcMain.on('feedback-open', (event) => {
   feedback.open();

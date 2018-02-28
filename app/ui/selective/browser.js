@@ -31,22 +31,33 @@ $('document').ready(function() {
   $('html').addClass(process.platform);
   compileTemplates();
 
-  var configuredIgnore = clientConfig.get('ignoreNodes');
-
   ipcRenderer.send('selective-window-loaded');
   ipcRenderer.once('secret', function(event, type, secret) {
     var config = clientConfig.getAll(true);
     config[type] = secret;
     var sync = syncFactory(config, logger);
-    sync.blnApi.getChildren(null, {filter: {directory: true}}, (err, data) => {
-      var $list = $('#selective-sync').find('ul');
-      $(data).each((id, node) => {
-        var html = '<input type="checkbox" name="selected" value="'+node.id+'"';
-        if($.inArray(node.id, configuredIgnore) === -1) {
-          html += ' checked';
-        }
 
-        $list.append('<li>'+html+'/><span>'+node.name+'</span></li>');
+    sync.getIgnoredRemoteIds((err, ignoredRemoteIds) => {
+      // TODO pixtron - handle errors
+      if(err) throw err;
+
+      logger.debug('Got ignored remote ids', {category: 'selective', ignoredRemoteIds});
+
+      sync.blnApi.getChildren(null, {filter: {directory: true}}, (err, data) => {
+        // TODO pixtron - handle errors
+        if(err) throw err;
+
+        logger.debug('Got children', {category: 'selective', data});
+
+        var $list = $('#selective-sync').find('ul');
+        $(data).each((id, node) => {
+          var html = '<input type="checkbox" name="selected" value="'+node.id+'"';
+          if($.inArray(node.id, ignoredRemoteIds) === -1) {
+            html += ' checked';
+          }
+
+          $list.append('<li>'+html+'/><span>'+node.name+'</span></li>');
+        });
       });
     });
   });
@@ -57,11 +68,13 @@ $('document').ready(function() {
       ids.push($(this).val());
     });
 
+    logger.info('apply selective sync settings', {category: 'selective', ids});
+
     ipcRenderer.send('selective-apply', ids);
   });
 
   $('#selective-cancel').bind('click', function() {
-    ipcRenderer.send('selective-cancel');
+    ipcRenderer.send('selective-close');
   });
 });
 

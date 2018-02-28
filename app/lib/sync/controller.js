@@ -5,6 +5,7 @@ const url = require('url');
 
 const StartupCtrl = require('../../ui/startup/controller.js');
 const logger = require('../logger.js');
+const syncFactory = require('@gyselroth/balloon-node-sync');
 
 const env = require('../../env.js');
 const clientConfig = require('../config.js');
@@ -176,10 +177,31 @@ module.exports = function(env, tray) {
     }
 
     if(syncWindow) {
+      if(env.name === 'development') {
+        syncWindow.closeDevTools();
+      }
+
       syncWindow.close();
     }
 
     stopPowerSaveBlocker();
+  }
+
+  function updateSelectiveSync(ignoredIds) {
+    pause().then(result => {
+      let config = clientConfig.getAll();
+      config[clientConfig.getSecretType()] = clientConfig.getSecret();
+
+      const sync = syncFactory(config, logger.getLogger());
+
+      sync.updateSelectiveSync(ignoredIds).then(result => {
+        start();
+      }, err => {
+        logger.error('Could not apply selective sync changes', {category: 'sync', err});
+      });
+    }, err => {
+      logger.error('Could not pause sync', {category: 'sync', err});
+    });
   }
 
   return {
@@ -187,6 +209,7 @@ module.exports = function(env, tray) {
     end,
     pause,
     togglePause,
-    isPaused
+    isPaused,
+    updateSelectiveSync
   }
 }

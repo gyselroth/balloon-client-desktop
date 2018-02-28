@@ -31,32 +31,9 @@ module.exports = function(env, clientConfig) {
     selectiveWindow.show();
     selectiveWindow.focus();
 
+    //TODO pixtron - is it possible to have a generic "request secret method?"
     ipcMain.on('selective-window-loaded',function(){
       selectiveWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
-    });
-
-    ipcMain.removeAllListeners('selective-apply');
-    ipcMain.on('selective-apply', function(event, ids) {
-      logger.info('apply selective sync settings', {
-        category: 'startup',
-        data: ids
-      });
-
-      let currentlyIgnored = clientConfig.get('ignoreNodes') || [];
-      let unignoreIds = currentlyIgnored.filter(node => {
-        return ids.indexOf(node) === -1;
-      });
-
-      clientConfig.unignoreNode(unignoreIds);
-      clientConfig.ignoreNode(ids);
-
-      close();
-    });
-
-    ipcMain.removeAllListeners('selective-cancel');
-    ipcMain.on('selective-cancel', function(event) {
-      logger.info('cancel selective sync settings', {category: 'startup'});
-      close();
     });
   }
 

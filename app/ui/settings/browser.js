@@ -55,6 +55,12 @@ $(document).ready(function() {
     globalConfig.set('allowPrerelease', this.checked);
   });
 
+  const $selectiveBtn = $('#settings-selective-btn');
+
+  $selectiveBtn.bind('click', function(event) {
+    ipcRenderer.send('selective-open');
+  });
+
 
 
   $('#settings-close').bind('click', function(event) {
