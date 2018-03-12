@@ -262,10 +262,10 @@ ipcMain.on('selective-close', function(event) {
   selective.close();
 });
 
-ipcMain.on('selective-apply', function(event, ignoredIds) {
-  logger.info('Applying selective sync changes', {category: 'main', ignoredIds});
+ipcMain.on('selective-apply', function(event, difference) {
+  logger.info('Applying selective sync changes', {category: 'main', difference});
 
-  if(sync) sync.updateSelectiveSync(ignoredIds);
+  if(sync) sync.updateSelectiveSync(difference);
 
   selective.close();
 })

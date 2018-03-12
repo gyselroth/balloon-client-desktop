@@ -457,17 +457,21 @@ button:hover.btn-light {
     font-size: 14px;
 }
 
-#selective-sync li {
+#selective-sync li a {
     text-overflow: ellipsis;
-    max-width: 280px;
-    margin: 8px 0;
-    overflow: hidden;
     white-space: nowrap;
+    max-width: calc(100% - 24px);
+    display: inline-block;
+    overflow-x: hidden;
 }
 
 #selective-sync button {
     float: right;
     margin-left: 3px;
+}
+
+.jstree-default .jstree-anchor>.balloon-has-ignored-children {
+    background-position: -196px -4px !important;
 }
 
 /*-----Taskbar-----*/

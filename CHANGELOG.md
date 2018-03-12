@@ -1,3 +1,10 @@
+## 0.0.43
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Not released
+
+* CORE: [CHANGE] Allow to change selective sync after initialization #45
+* CORE: [CHANGE] Allow children to be ignored/unignored in selective sync #93
+
 ## 0.0.42
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Not released

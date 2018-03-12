@@ -3,14 +3,14 @@
 const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
 const handlebars = require('handlebars');
-const uuid4 = require('uuid4');
-const request = require('request');
+const async = require('async');
 
 const clientConfig = require('../../lib/config.js');
 
 const logger = require('../../lib/logger.js');
 const loggerFactory = require('../../lib/logger-factory.js');
 const syncFactory = require('@gyselroth/balloon-node-sync');
+const IgnoredNodes = require('./ignored-nodes.js');
 
 const standardLogger = new loggerFactory(clientConfig.getAll());
 logger.setLogger(standardLogger);
@@ -20,6 +20,8 @@ const i18n = require('../../lib/i18n.js');
 const env = require('../../env.js');
 const app = electron.remote.app;
 
+let ignoredNodes;
+let sync;
 
 handlebars.registerHelper('i18n', function(key) {
   var translation = i18n.__(key);
@@ -32,51 +34,86 @@ $('document').ready(function() {
   compileTemplates();
 
   ipcRenderer.send('selective-window-loaded');
+
   ipcRenderer.once('secret', function(event, type, secret) {
     var config = clientConfig.getAll(true);
     config[type] = secret;
-    var sync = syncFactory(config, logger);
 
-    sync.getIgnoredRemoteIds((err, ignoredRemoteIds) => {
-      // TODO pixtron - handle errors
-      if(err) throw err;
-
-      logger.debug('Got ignored remote ids', {category: 'selective', ignoredRemoteIds});
-
-      sync.blnApi.getChildren(null, {filter: {directory: true}}, (err, data) => {
-        // TODO pixtron - handle errors
-        if(err) throw err;
-
-        logger.debug('Got children', {category: 'selective', data});
-
-        var $list = $('#selective-sync').find('ul');
-        $(data).each((id, node) => {
-          var html = '<input type="checkbox" name="selected" value="'+node.id+'"';
-          if($.inArray(node.id, ignoredRemoteIds) === -1) {
-            html += ' checked';
-          }
-
-          $list.append('<li>'+html+'/><span>'+node.name+'</span></li>');
-        });
-      });
-    });
+    initialize(config);
   });
 
-  $('#selective-apply').bind('click', function() {
-    var ids = [];
-    $("#selective-sync").find("input:checkbox:not(:checked)").each(function(){
-      ids.push($(this).val());
-    });
+  $('#selective-apply').bind('click', function(event) {
+    logger.info('apply selective sync settings', {category: 'selective', ignoredNodes});
 
-    logger.info('apply selective sync settings', {category: 'selective', ids});
-
-    ipcRenderer.send('selective-apply', ids);
+    ipcRenderer.send('selective-apply', $('#collection-tree').jstree(true).get_difference($.jstree.root));
   });
 
   $('#selective-cancel').bind('click', function() {
     ipcRenderer.send('selective-close');
   });
 });
+
+function initialize(config) {
+  sync = syncFactory(config, logger);
+
+  sync.getIgnoredRemoteIds((err, currentlyIgnoredIds) => {
+    // TODO pixtron - handle errors
+    if(err) throw err;
+
+    logger.debug('Got ignored remote ids', {category: 'selective', currentlyIgnoredIds});
+
+    // initialize ignoredNodes
+    sync.blnApi.getAttributesByIds(currentlyIgnoredIds, ['path', 'id'], (err, nodes) => {
+      // TODO pixtron - handle errors
+      if(err) throw err;
+
+      ignoredNodes = new IgnoredNodes(nodes);
+
+      initializeTree();
+    });
+  });
+}
+
+function initializeTree() {
+  $('#collection-tree').jstree({
+    core : {
+      data : function(parentNode, callback) {
+        var nodeId = (parentNode.id === '#' ? null : parentNode.id);
+
+        sync.blnApi.getChildren(nodeId, {filter: {directory: true}, attributes: ['id', 'name', 'path', 'size']}, (err, nodes) => {
+          // TODO pixtron - handle errors
+          if(err) throw err;
+
+          logger.debug('Got children', {category: 'selective', nodes, parent: nodeId});
+
+          callback(prepareNodesForRendering(parentNode, nodes));
+        });
+      }
+    },
+    plugins: ['ignored'],
+    ignored: {},
+  });
+}
+
+function prepareNodesForRendering(parentNode, nodes) {
+  return nodes.map(node => {
+    return {
+      id: node.id,
+      parent: parentNode.id,
+      text: node.name,
+      children: (node.size > 0),
+      data: node,
+      state: {
+        opened: false,
+        disabled: false,
+        selected: !ignoredNodes.isIgnored(node),
+        undetermined: ignoredNodes.hasIgnoredChildren(node)
+      },
+      li_attr : {},
+      a_attr : {}
+    };
+  });
+}
 
 function compileTemplates() {
   var templateContentHtml = $('#template-content').html();

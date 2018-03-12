@@ -187,14 +187,14 @@ module.exports = function(env, tray) {
     stopPowerSaveBlocker();
   }
 
-  function updateSelectiveSync(ignoredIds) {
+  function updateSelectiveSync(difference) {
     pause().then(result => {
       let config = clientConfig.getAll();
       config[clientConfig.getSecretType()] = clientConfig.getSecret();
 
       const sync = syncFactory(config, logger.getLogger());
 
-      sync.updateSelectiveSync(ignoredIds).then(result => {
+      sync.updateSelectiveSync(difference).then(result => {
         start();
       }, err => {
         logger.error('Could not apply selective sync changes', {category: 'sync', err});
