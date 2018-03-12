@@ -19,6 +19,7 @@ var syncStartup = false;
 module.exports = function(env, tray) {
   var syncWindow;
   var syncPaused = false;
+  var mayStart = false;
   var powerSaveBlockerId;
 
   function startPowerSaveBlocker() {
@@ -84,6 +85,9 @@ module.exports = function(env, tray) {
   }
 
   function start() {
+    if(mayStart === false) {
+      return logger.info('not starting sync because mayStart is false', {category: 'sync'});
+    }
 
     //return if sync is already running or is starting up
     if(syncWindow || syncStartup) {
@@ -204,12 +208,17 @@ module.exports = function(env, tray) {
     });
   }
 
+  function setMayStart(value) {
+    mayStart = value;
+  }
+
   return {
     start,
     end,
     pause,
     togglePause,
     isPaused,
-    updateSelectiveSync
+    updateSelectiveSync,
+    setMayStart
   }
 }

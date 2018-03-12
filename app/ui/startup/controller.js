@@ -141,12 +141,10 @@ module.exports = function(env, clientConfig) {
           startupWindow.removeListener('closed', windowClosedByUserHandler);
           auth.basicAuth(username, password).then(() => {
             if(!clientConfig.hadConfig()) {
-              welcomeWizard().then(() => {
-                resolve();
-              });
+              resolve({welcomeWizardPromise: welcomeWizard()});
             } else {
               startupWindow.close();
-              resolve();
+              resolve({welcomeWizardPromise: Promise.resolve()});
             }
           }).catch((error) => {
             startupWindow.webContents.send('startup-auth-error',  'basic');
@@ -164,12 +162,10 @@ module.exports = function(env, clientConfig) {
           startupWindow.removeListener('closed', windowClosedByUserHandler);
           auth.oidcAuth(idpConfig).then(() => {
             if(!clientConfig.hadConfig()) {
-              welcomeWizard().then(() => {
-                resolve();
-              });
+              resolve({welcomeWizardPromise: welcomeWizard()});
             } else {
               startupWindow.close();
-              resolve();
+              resolve({welcomeWizardPromise: welcomeWizard()});
             }
           }).catch((error) => {
             startupWindow.webContents.send('startup-auth-error',  'oidc');
@@ -179,7 +175,7 @@ module.exports = function(env, clientConfig) {
         logger.error('can not ask for authentication credentials, there is an active instance ongoing', {
             category: 'startup'
         });
-        resolve();
+        resolve({welcomeWizardPromise: welcomeWizard()});
       }
     });
   }
@@ -281,9 +277,7 @@ module.exports = function(env, clientConfig) {
           clientConfig.setBlnUrl(blnUrl);
         }
 
-        askCredentials().then(() => {
-          resolve();
-        }).catch((error) => {
+        askCredentials().then(resolve).catch((error) => {
           logger.error('failed ask for credentials', {
             category: 'startup',
             error: error

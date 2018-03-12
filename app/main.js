@@ -62,7 +62,7 @@ function startApp() {
       });
 
       appState.set('onLineState', state);
-      startup.checkConfig().then(() => {
+      startup.checkConfig().then((result) => {
         logger.info('startup checkconfig successfull', {
           category: 'bootstrap',
         });
@@ -73,27 +73,33 @@ function startApp() {
 
         sync = SyncCtrl(env, tray);
 
-        if(env.name === 'production') {
-          startSync();
-        }
+        const welcomeWizard = result[2] === undefined || !result[2].welcomeWizardPromise ? Promise.resolve() : result[2].welcomeWizardPromise;
 
-        electron.powerMonitor.on('suspend', () => {
-          logger.info('The system is going to sleep', {
-            category: 'bootstrap',
-          });
-
-          //abort a possibly active sync if not already paused
-          if(sync && sync.isPaused() === false) sync.pause(true);
-        });
-
-        electron.powerMonitor.on('resume', () => {
-          logger.info('The system is resuming', {
-            category: 'bootstrap',
-          });
+        welcomeWizard.then(() => {
+          sync.setMayStart(true);
 
           if(env.name === 'production') {
             startSync();
           }
+
+          electron.powerMonitor.on('suspend', () => {
+            logger.info('The system is going to sleep', {
+              category: 'bootstrap',
+            });
+
+            //abort a possibly active sync if not already paused
+            if(sync && sync.isPaused() === false) sync.pause(true);
+          });
+
+          electron.powerMonitor.on('resume', () => {
+            logger.info('The system is resuming', {
+              category: 'bootstrap',
+            });
+
+            if(env.name === 'production') {
+              startSync();
+            }
+          });
         });
       }).catch((error) => {
         logger.error('startup checkconfig', {
