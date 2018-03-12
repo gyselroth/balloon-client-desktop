@@ -96,23 +96,25 @@ function initializeTree() {
 }
 
 function prepareNodesForRendering(parentNode, nodes) {
-  return nodes.map(node => {
-    return {
-      id: node.id,
-      parent: parentNode.id,
-      text: node.name,
-      children: (node.size > 0),
-      data: node,
-      state: {
-        opened: false,
-        disabled: false,
-        selected: !ignoredNodes.isIgnored(node),
-        undetermined: ignoredNodes.hasIgnoredChildren(node)
-      },
-      li_attr : {},
-      a_attr : {}
-    };
-  });
+  return nodes
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map(node => {
+      return {
+        id: node.id,
+        parent: parentNode.id,
+        text: node.name,
+        children: (node.size > 0),
+        data: node,
+        state: {
+          opened: false,
+          disabled: false,
+          selected: !ignoredNodes.isIgnored(node),
+          undetermined: ignoredNodes.hasIgnoredChildren(node)
+        },
+        li_attr : {},
+        a_attr : {}
+      };
+    });
 }
 
 function compileTemplates() {
