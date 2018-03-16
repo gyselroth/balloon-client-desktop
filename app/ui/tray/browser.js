@@ -37,7 +37,7 @@ var refreshQuota  = false;
 
 function loadMenu(menu) {
   $('#tray-main-template').load('../'+menu+'/index.html', function() {
-    $('#quota').hide();
+    $('#tray-quota').hide();
     $('#tray-main').removeClass('tray-main-splash');
     compileMenuTemplate(menu);
     modules[menu].init();
@@ -52,6 +52,10 @@ function compileMenuTemplate(menu) {
 
   $placeholder.html(template(context));
 }
+
+$(window).blur(function(){
+  ipcRenderer.send('tray-hide');
+});
 
 function buildMenu() {
   var label;
@@ -278,7 +282,7 @@ function toggleInstallUpdate() {
 }
 
 function updateWindow() {
-  $('#quota').show();
+  $('#tray-quota').show();
   $('#tray-main').addClass('tray-main-splash').html('');
   showQuota();
   toggleInstallUpdate();
