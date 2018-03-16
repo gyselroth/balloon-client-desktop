@@ -72,7 +72,7 @@ h1 {
 }
 
 h2 {
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 300;
     margin-bottom: 10px;
 }
@@ -142,7 +142,7 @@ p {
 /*-----Setting Boxes-----*/
 #settings #startup-logo {
     background-image: url('../../img/teaser/teaser-image-blue.svg');
-    height: 160px;
+    height: 170px;
     margin: -30px -4px 8px -4px;
 }
 
