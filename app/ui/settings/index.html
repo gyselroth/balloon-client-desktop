@@ -1,41 +1,23 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Balloon Desktop</title>
-        <link href="../css/main.css" rel="stylesheet" type="text/css">
-        <script>$ = require("jquery");</script>
-        <script src="browser.js"></script>
-    </head>
-    <body id="settings">
-        <script id="template-content" type="text/x-handlebars-template">
-            <div id="content">
-                <h1>{{i18n 'settings.title'}}</h1>
+<script class="template" type="text/x-handlebars-template">
+    <div id="startup-logo"></div>
+    <ul id="settings-navigation" class="clearfix">
+        <li><a href="#settings-global">{{i18n 'settings.nav.global'}}</a></li>
+        <li><a href="#settings-user">{{i18n 'settings.nav.user'}}</a></li>
+    </ul>
 
-                <ul id="settings-navigation" class="clearfix">
-                    <li><a href="#settings-global">{{i18n 'settings.nav.global'}}</a></li>
-                    <li><a href="#settings-user">{{i18n 'settings.nav.user'}}</a></li>
-                </ul>
-
-                <div class="tab-content" id="settings-global">
-                    <div id="settings-autolaunch" class="setting-item">
-                        <label for="settings-autolaunch-check"><input type="checkbox" id="settings-autolaunch-check" /> {{i18n 'settings.autolaunch'}}</label>
-                    </div>
-                    <div id="settings-allowPrerelease" class="setting-item">
-                        <label for="settings-allowPrerelease-check"><input type="checkbox" id="settings-allowPrerelease-check" /> {{i18n 'settings.allowPrerelease'}}</label>
-                    </div>
-                </div>
-                <div class="tab-content" id="settings-user">
-                    <div id="settings-selective" class="setting-item clearfix">
-                        <h2>{{i18n 'settings.selective.title'}}</h2>
-                        <p>{{i18n 'settings.selective.choosePath'}}</p>
-                        <button id="settings-selective-btn" class="btn-light">{{i18n 'settings.selective.setup'}}</button>
-                    </div>
-                </div>
-
-                <button id="settings-close">{{i18n 'button.close'}}</button>
-            </div>
-        </script>
-        <div id="contentWrapper" class="clearfix"></div>
-    </body>
-</html>
+    <div class="tab-content" id="settings-global">
+        <div id="settings-autolaunch" class="setting-item">
+            <label for="settings-autolaunch-check"><input type="checkbox" id="settings-autolaunch-check" /> {{i18n 'settings.autolaunch'}}</label>
+        </div>
+        <div id="settings-allowPrerelease" class="setting-item">
+            <label for="settings-allowPrerelease-check"><input type="checkbox" id="settings-allowPrerelease-check" /> {{i18n 'settings.allowPrerelease'}}</label>
+        </div>
+    </div>
+    <div class="tab-content" id="settings-user">
+        <div id="settings-selective" class="setting-item clearfix">
+            <h2>{{i18n 'settings.selective.title'}}</h2>
+            <p>{{i18n 'settings.selective.choosePath'}}</p>
+            <button id="settings-selective-btn" class="btn-light">{{i18n 'settings.selective.setup'}}</button>
+        </div>
+    </div>
+</script>

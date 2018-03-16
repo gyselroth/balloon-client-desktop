@@ -1,4 +1,3 @@
-//for powerMonitor as it is only available after app.ready
 const electron = require('electron');
 const {app, ipcMain} = require('electron');
 
@@ -8,13 +7,11 @@ const appState = require('./lib/state.js');
 const migrate = require('./lib/migrate.js');
 const TrayCtrl = require('./ui/tray/controller.js');
 const SelectiveCtrl = require('./ui/selective/controller.js');
-const SettingsCtrl = require('./ui/settings/controller.js');
 const SyncCtrl = require('./lib/sync/controller.js');
 const StartupCtrl = require('./ui/startup/controller.js');
 const AuthCtrl = require('./lib/auth/controller.js');
 const AutoUpdateCtrl = require('./lib/auto-update/controller.js');
 const FeedbackCtrl = require('./ui/feedback/controller.js');
-const AboutCtrl = require('./ui/about/controller.js');
 const setMenu = require('./lib/menu.js');
 
 const logger = require('./lib/logger.js');
@@ -118,9 +115,7 @@ function startApp() {
     });
 
     tray = TrayCtrl(env, clientConfig);
-    settings = SettingsCtrl(env);
-    about = AboutCtrl(env, clientConfig);
-    autoUpdate = AutoUpdateCtrl(env, clientConfig, tray, about);
+    autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
     feedback = FeedbackCtrl(env, clientConfig, sync);
   });
 }
@@ -252,14 +247,6 @@ ipcMain.on('sync-toggle-pause', () => {
   sync.togglePause();
 });
 
-ipcMain.on('settings-open', () => {
-  settings.open();
-});
-
-ipcMain.on('settings-close', () => {
-  settings.close();
-});
-
 ipcMain.on('selective-open', function(event) {
   selective.open();
 });
@@ -275,14 +262,6 @@ ipcMain.on('selective-apply', function(event, difference) {
 
   selective.close();
 })
-
-ipcMain.on('feedback-open', (event) => {
-  feedback.open();
-});
-
-ipcMain.on('about-open', (event) => {
-  about.open();
-});
 
 ipcMain.on('unlink-account', (event) => {
   logger.info('logout requested', {category: 'bootstrap'});

@@ -32,23 +32,18 @@
   "tray.tooltip.state.sync": "Synchronization in progress",
   "tray.tooltip.state.update": "Update ready to install",
 
+  "about.github": "Check out github gyselroth/balloon-client-desktop",
   "about.installNewVersion": "Install new Version",
   "about.checkNewVersion": "Check for a new Version",
   "about.updateNotAvailable": "You already have the latest version installed",
   "about.updateError": "There was an error during the update, please try it again later",
 
-  "feedback.title": "Feedback",
   "feedback.includeSystemFiles": "Include system information:",
   "feedback.text": "We appreciate any feedback you might given us:",
   "feedback.sent": "Thank you for your feedback!",
   "feedback.error.send": "We encountered an error during sending your feedback, please try it again later!",
   "feedback.error.empty": "Please provide a feedback message before sending!",
 
-  "node-settings.error.message": "The synchronization has not been completed yet.",
-  "node-settings.changed": "Changed",
-  "node-settings.tags": "Tags",
-
-  "settings.title": "Settings",
   "settings.nav.global": "All users",
   "settings.nav.user": "Current user",
   "settings.autolaunch": "Start balloon on startup",

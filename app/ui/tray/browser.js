@@ -11,6 +11,12 @@ const instance = require('../../lib/instance.js');
 const clientConfig = require('../../lib/config.js');
 const appState = require('../../lib/state.js');
 
+const modules = {
+  settings: require('../settings/browser.js')(),
+  feedback: require('../feedback/browser.js')(),
+  about: require('../about/browser.js')(),
+}
+
 const logger = require('../../lib/logger.js');
 const loggerFactory = require('../../lib/logger-factory.js');
 var standardLogger = new loggerFactory(clientConfig.getAll());
@@ -28,6 +34,24 @@ var showReset     = true;
 var showSync      = true;
 var showLogin     = true;
 var refreshQuota  = false;
+
+function loadMenu(menu) {
+  $('#tray-main-template').load('../'+menu+'/index.html', function() {
+    $('#quota').hide();
+    $('#tray-main').removeClass('tray-main-splash');
+    compileMenuTemplate(menu);
+    modules[menu].init();
+  });
+}
+
+function compileMenuTemplate(menu) {
+  var templateHtml = $('#tray-main-template').find('.template').html();
+  var $placeholder = $('#tray-main');
+  var template = handlebars.compile('<div id="'+menu+'">'+templateHtml+'</div>');
+  var context = modules[menu].context();
+
+  $placeholder.html(template(context));
+}
 
 function buildMenu() {
   var label;
@@ -86,20 +110,23 @@ function buildMenu() {
 
   label = i18n.__('tray.menu.settings');
   menu.append(new MenuItem({label: label, click: function(){
-    ipcRenderer.send('settings-open');
-    ipcRenderer.send('tray-hide');
+    //ipcRenderer.send('settings-open');
+    //ipcRenderer.send('tray-hide');
+    loadMenu('settings');
   }}))
 
   label = i18n.__('tray.menu.feedback');
   menu.append(new MenuItem({label: label, click: function(){
-    ipcRenderer.send('feedback-open');
-    ipcRenderer.send('tray-hide');
+    //ipcRenderer.send('feedback-open');
+    //ipcRenderer.send('tray-hide');
+    loadMenu('feedback');
   }}))
 
   label = i18n.__('tray.menu.about');
   menu.append(new MenuItem({label: label, click: function(){
-    ipcRenderer.send('about-open');
-    ipcRenderer.send('tray-hide');
+    //ipcRenderer.send('about-open');
+    //ipcRenderer.send('tray-hide');
+    loadMenu('about');
   }}))
 
   label = i18n.__('tray.menu.close');
@@ -243,7 +270,6 @@ function compileTemplate() {
   var templateHtml = $('#template').html();
   var $placeholder = $('#contentWrapper');
   var template = handlebars.compile(templateHtml);
-
   var context = {};
 
   $placeholder.html(template(context));
@@ -258,6 +284,8 @@ function toggleInstallUpdate() {
 }
 
 function updateWindow() {
+  $('#quota').show();
+  $('#tray-main').addClass('tray-main-splash').html('');
   showQuota();
   toggleInstallUpdate();
 }
