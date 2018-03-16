@@ -321,6 +321,8 @@ input[type="radio"], input[type="checkbox"] {
 
 #about-update-not-available {
     display: none;
+    text-align: center;
+    margin: 8px 0;
 }
 
 #about .loader, .view .loader {
