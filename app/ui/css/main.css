@@ -179,6 +179,7 @@ p {
 
 #settings #settings-navigation li:first-child {
   border-left: 1px solid #CCC;
+  margin-left: 3px;
 }
 
 #settings #settings-navigation li.tab-navigation-active {
