@@ -456,6 +456,16 @@ button:hover.btn-light {
     margin: 10px;
 }
 
+.jstree-themeicon {
+    background-position: 0 calc(162 * -24px) !important;
+    width: 24px !important;
+    height: 24px !important;
+    background-image: url(../../../node_modules/@gyselroth/icon-collection/src/icons.svg) !important;
+    background-repeat: no-repeat !important;
+    background-size: 24px !important;
+    opacity: 0.72 !important;
+}
+
 #selective-sync div {
     height: 310px;
     overflow-x: hidden;
@@ -474,6 +484,7 @@ button:hover.btn-light {
     max-width: calc(100% - 24px);
     display: inline-block;
     overflow-x: hidden;
+    font-size: 13px;
 }
 
 #selective-sync button {

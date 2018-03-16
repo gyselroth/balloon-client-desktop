@@ -55,7 +55,6 @@ $('document').ready(function() {
 
 function initialize(config) {
   sync = syncFactory(config, logger);
-
   sync.getIgnoredRemoteIds((err, currentlyIgnoredIds) => {
     // TODO pixtron - handle errors
     if(err) throw err;
