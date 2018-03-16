@@ -110,22 +110,16 @@ function buildMenu() {
 
   label = i18n.__('tray.menu.settings');
   menu.append(new MenuItem({label: label, click: function(){
-    //ipcRenderer.send('settings-open');
-    //ipcRenderer.send('tray-hide');
     loadMenu('settings');
   }}))
 
   label = i18n.__('tray.menu.feedback');
   menu.append(new MenuItem({label: label, click: function(){
-    //ipcRenderer.send('feedback-open');
-    //ipcRenderer.send('tray-hide');
     loadMenu('feedback');
   }}))
 
   label = i18n.__('tray.menu.about');
   menu.append(new MenuItem({label: label, click: function(){
-    //ipcRenderer.send('about-open');
-    //ipcRenderer.send('tray-hide');
     loadMenu('about');
   }}))
 

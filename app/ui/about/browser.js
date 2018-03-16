@@ -55,16 +55,19 @@ module.exports = function() {
     ipcRenderer.on('error', () => {
       $('#about').find('#content > div').hide();
       $('#about-update-error').show();
+      $('#about').find('.loader').hide();
     });
 
     ipcRenderer.on('update-downloaded', () => {
       $('#about').find('#content > div').hide();
       $('#about-version-install').show();
+      $('#about').find('.loader').hide();
     });
 
     ipcRenderer.on('update-not-available', () => {
       $('#about').find('#content > div').hide();
       $('#about-update-not-available').show();
+      $('#about').find('.loader').hide();
     });
   }
 
