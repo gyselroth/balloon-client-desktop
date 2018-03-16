@@ -1,21 +1,23 @@
-## 0.1.0
+## 0.1.0-beta1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Not released
+**Date**: Fri Mar 16 15:23:28 CET 2018
 
 * CORE: [FEATURE] Allow to change selective sync after initialization #45
-* CORE: [FEATURE]  It is now possible to selctive sync child nodes #90
+* CORE: [FEATURE] It is now possible to selctive sync child nodes #90
 * CORE: [CHANGE] Allow children to be ignored/unignored in selective sync #93
 * UI: [CHANGE] Feedback/settings/about is now integrated in the tray windows, various ui fixes #95
 * UI: [FIX] Selective sync tree is now sorted #94 
 * UI: [CHANGE] Switched to gyselroth/icon-collection #16
 
+
 ## 0.0.42
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Not released
+**Date**: Mon Feb 26 16:05:52 CET 2018
 
 * CORE: [CHANGE] introduced global app state, moved updateAvailable and onLineState to global app state #26
 * CORE: [CHANGE] introduced new global flag `allowPrerelease` if set to true auto updater will install pre releases.
 * CORE: [CHANGE] introduced settings dialog #56
+
 
 ## 0.0.41
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
