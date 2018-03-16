@@ -42,7 +42,7 @@ module.exports = function(env, clientConfig) {
 
     selectiveWindow = new BrowserWindow({
       width: 480,
-      height: 440,
+      height: 470,
       show: false,
       frame: true,
       fullscreenable: false,
