@@ -290,7 +290,7 @@ input[type="radio"], input[type="checkbox"] {
 /*-----About-----*/
 #about #startup-logo {
     background-image: url('../../img/teaser/teaser-image-red.svg');
-    height: 220px;
+    height: 200px;
     margin: -30px -4px 30px -4px;
 }
 
@@ -315,6 +315,8 @@ input[type="radio"], input[type="checkbox"] {
     text-decoration: underline;
     width: 100%;
     display: none;
+    text-align: center;
+    margin: 8px 0;
 }
 
 #about-update-not-available {
