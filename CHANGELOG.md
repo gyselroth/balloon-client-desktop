@@ -1,9 +1,13 @@
-## 0.0.43
+## 0.1.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Not released
 
-* CORE: [CHANGE] Allow to change selective sync after initialization #45
+* CORE: [FEATURE] Allow to change selective sync after initialization #45
+* CORE: [FEATURE]  It is now possible to selctive sync child nodes #90
 * CORE: [CHANGE] Allow children to be ignored/unignored in selective sync #93
+* UI: [CHANGE] Feedback/settings/about is now integrated in the tray windows, various ui fixes #95
+* UI: [FIX] Selective sync tree is now sorted #94 
+* UI: [CHANGE] Switched to gyselroth/icon-collection #16
 
 ## 0.0.42
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
