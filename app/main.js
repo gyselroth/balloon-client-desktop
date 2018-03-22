@@ -258,9 +258,9 @@ ipcMain.on('selective-close', function(event) {
 ipcMain.on('selective-apply', function(event, difference) {
   logger.info('Applying selective sync changes', {category: 'main', difference});
 
-  if(sync) sync.updateSelectiveSync(difference);
-
-  selective.close();
+  if(sync) sync.updateSelectiveSync(difference, err => {
+    selective.close();
+  });
 })
 
 ipcMain.on('unlink-account', (event) => {

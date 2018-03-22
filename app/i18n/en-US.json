@@ -51,6 +51,7 @@
   "settings.selective.title": "Selective synchronization",
   "settings.selective.setup": "Change settings...",
   "settings.selective.choosePath": "Select all folder and files you want to be in sync with your balloon cloud:",
+  "settings.selective.updateing": "Updateing folders to be synced.",
 
 
   "startup.title": "Setup balloon",

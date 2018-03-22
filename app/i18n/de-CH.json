@@ -51,6 +51,7 @@
   "settings.selective.title": "Selektive Synchronisation",
   "settings.selective.setup": "Einstellungen ändern...",
   "settings.selective.choosePath": "Wähle alle Ordner und Dateien aus, welche du synchronisiert haben möchtest:",
+  "settings.selective.updateing": "Aktualisiere zu synchronisierende Ordner.",
 
   "startup.title": "Setup balloon",
   "startup.server.title": "Willkommen bei balloon",

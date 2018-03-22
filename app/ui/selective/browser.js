@@ -42,9 +42,12 @@ $('document').ready(function() {
     initialize(config);
   });
 
+  $('#selective-sync-apply-active').hide();
+
   $('#selective-apply').bind('click', function(event) {
     logger.info('apply selective sync settings', {category: 'selective', ignoredNodes});
 
+    isUpdateing();
     ipcRenderer.send('selective-apply', $('#collection-tree').jstree(true).get_difference($.jstree.root));
   });
 
@@ -126,3 +129,8 @@ function compileTemplates() {
   $placeholderContent.html(templateContent(context));
 }
 }());
+
+function isUpdateing() {
+  $('#selective-sync-choose').hide();
+  $('#selective-sync-apply-active').show();
+}

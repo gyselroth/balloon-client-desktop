@@ -471,7 +471,7 @@ button:hover.btn-light {
     opacity: 0.72 !important;
 }
 
-#selective-sync div {
+#selective-sync-choose div {
     height: 310px;
     overflow-x: hidden;
     overflow-y: auto;
@@ -479,11 +479,11 @@ button:hover.btn-light {
     padding: 5px;
 }
 
-#selective-sync span {
+#selective-sync-choose span {
     font-size: 14px;
 }
 
-#selective-sync li a {
+#selective-sync-choose li a {
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: calc(100% - 24px);
@@ -492,7 +492,7 @@ button:hover.btn-light {
     font-size: 13px;
 }
 
-#selective-sync button {
+#selective-sync-choose button {
     float: right;
     margin-left: 3px;
 }

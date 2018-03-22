@@ -191,7 +191,7 @@ module.exports = function(env, tray) {
     stopPowerSaveBlocker();
   }
 
-  function updateSelectiveSync(difference) {
+  function updateSelectiveSync(difference, callback) {
     pause().then(result => {
       let config = clientConfig.getAll();
       config[clientConfig.getSecretType()] = clientConfig.getSecret();
@@ -200,11 +200,14 @@ module.exports = function(env, tray) {
 
       sync.updateSelectiveSync(difference).then(result => {
         start();
+        callback(null);
       }, err => {
         logger.error('Could not apply selective sync changes', {category: 'sync', err});
+        callback(err);
       });
     }, err => {
       logger.error('Could not pause sync', {category: 'sync', err});
+      callback(err);
     });
   }
 

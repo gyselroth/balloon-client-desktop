@@ -16,12 +16,17 @@
 <body>
     <script id="template-content" type="text/x-handlebars-template">
     <div id="selective-sync">
-        <p>{{i18n 'settings.selective.choosePath'}}</p>
+        <div id="selective-sync-choose">
+            <p>{{i18n 'settings.selective.choosePath'}}</p>
 
-        <div id="collection-tree"></div>
+            <div id="collection-tree"></div>
 
-        <button id="selective-apply">{{i18n 'button.apply'}}</button>
-        <button id="selective-cancel">{{i18n 'button.cancel'}}</button>
+            <button id="selective-apply">{{i18n 'button.apply'}}</button>
+            <button id="selective-cancel">{{i18n 'button.cancel'}}</button>
+        </div>
+        <div id="selective-sync-apply-active">
+            <p>{{i18n 'settings.selective.updateing'}}</p>
+        </div>
     </div>
     </script>
     <div id="contentWrapper"></div>
