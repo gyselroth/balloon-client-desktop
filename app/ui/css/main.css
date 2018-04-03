@@ -46,12 +46,6 @@ q:before, q:after {
     content: none;
 }
 
-/* remember to define visible focus styles!
-:focus {
-	outline: ?????;
-} */
-
-/* remember to highlight inserts somehow! */
 ins {
     text-decoration: none;
 }
@@ -75,12 +69,6 @@ h2 {
     font-size: 17px;
     font-weight: 300;
     margin-bottom: 10px;
-}
-
-h3 {
-    font-size: 16px;
-    margin-bottom: 10px;
-    font-weight: 300;
 }
 
 p {
@@ -121,13 +109,14 @@ p {
 #tray #header p {
     position: static;
 }
+
 /*-----Content-----*/
-#tray #contentWrapper {
+#content-wrapper {
     min-height: 0;
     padding: 0;
 }
 
-#contentWrapper {
+#content-wrapper {
     box-sizing: border-box;
     user-select: none;
 }
@@ -140,18 +129,9 @@ p {
 }
 
 /*-----Setting Boxes-----*/
-#settings #startup-logo {
-    background-image: url('../../img/teaser/teaser-image-blue.svg');
-    height: 170px;
-    margin: -30px -4px 8px -4px;
-}
-
 #settings {
     margin: -4px !important;
-}
 
-#settings #contentWrapper {
-    padding: 10px;
 }
 
 #settings #settings-close {
@@ -167,24 +147,21 @@ p {
 
 #settings #settings-navigation li {
   float: left;
-  border-top: 1px solid #CCC;
-  border-right: 1px solid #CCC;
   padding: 10px;
   cursor: pointer;
-
+  font-size: 15px;
   height: 36px;
   box-sizing: border-box;
   background-color: transparent;
 }
 
 #settings #settings-navigation li:first-child {
-  border-left: 1px solid #CCC;
-  margin-left: 3px;
+  margin-left: 15px;
 }
 
 #settings #settings-navigation li.tab-navigation-active {
-  height: 37px;
-  background-color: #fff;
+  height: 38px;
+  border-bottom: solid 2px #9CD2FF;
 }
 
 #settings #settings-navigation li a {
@@ -198,7 +175,7 @@ p {
   display: none;
   padding: 25px 15px;
   margin-bottom: 20px;
-  border-top: 1px solid #CCC;
+  border-top: 2px solid #DDD;
 }
 
 #settings .tab-content.tab-active {
@@ -217,15 +194,15 @@ p {
   display: block;
   padding-left: 15px;
   text-indent: -15px;
+  line-height: 15px;
 }
 
 #settings .tab-content input {
   padding: 0;
   margin:0;
+  margin-right: 5px;
   vertical-align: bottom;
-  position: relative;
-  top: -3px;
-  *overflow: hidden;
+  overflow: hidden;
 }
 
 /*-----Formular----*/
@@ -237,9 +214,7 @@ form {
 input,
 select,
 select > option,
-.select-node div:first-child,
-button.btn-light,
-button:hover.btn-light {
+.select-node div:first-child {
     font-size: 16px;
     font-weight: 300;
     line-height: 25px;
@@ -294,6 +269,10 @@ input[type="radio"], input[type="checkbox"] {
     margin: -30px -4px 30px -4px;
 }
 
+#about-github span {
+    color: #39A5FF;
+}
+
 #about p {
     text-align: center;
     font-size: 16px;
@@ -317,6 +296,7 @@ input[type="radio"], input[type="checkbox"] {
     display: none;
     text-align: center;
     margin: 8px 0;
+    color: #39A5FF;
 }
 
 #about-update-not-available {
@@ -338,6 +318,7 @@ input[type="radio"], input[type="checkbox"] {
     width: 100%;
     height: 200px;
     margin: 5px 0;
+    border-color: #000;
 }
 
 #feedback button {
@@ -404,14 +385,6 @@ input[type="radio"], input[type="checkbox"] {
     text-align: center;
 }
 
-button.btn-light,
-button:hover.btn-light {
-    width: 250px !important;
-    background: transparent;
-    color: #000;
-    padding: 0;
-}
-
 #startup-savedir {
     margin-bottom: 30px;
     display: inline-block;
@@ -469,13 +442,42 @@ button:hover.btn-light {
     background-repeat: no-repeat !important;
     background-size: 24px !important;
     opacity: 0.72 !important;
+    transform: scale(0.7);
+}
+
+.jstree-checkbox {
+    width: 24px !important;
+    height: 24px !important;
+    transform: scale(0.6);
+    opacity: 0.72 !important;
+    border: solid 1px #000 !important;
+    background-image: none !important;
+}
+
+.jstree-clicked > .jstree-checkbox {
+    filter: invert(100%);
+    background-position: 0 calc(8 * -24px) !important;
+    mask-position: 0 calc(8 * -24px); !important;
+    background-image: url(../../../node_modules/@gyselroth/icon-collection/src/icons.svg) !important;
+    background-repeat: no-repeat !important;
+    background-size: 24px;
+    background-color: #c65a00 !important;
+    border: solid 1px #c65a00 !important;
+}
+
+.jstree-anchor {
+    overflow: hidden;
+}
+
+.jstree-checkbox.balloon-has-ignored-children {
+    background-image: none;
 }
 
 #selective-sync-choose div {
     height: 310px;
     overflow-x: hidden;
     overflow-y: auto;
-    border: solid #CCC 1px;
+    border: solid #000 1px;
     padding: 5px;
 }
 
@@ -537,10 +539,9 @@ html.win32,
 .tray-main-splash {
     background-image: url('../../img/teaser/teaser-image-purple.svg');
     background-repeat: no-repeat;
-    background-size: 100%;
+    background-size: cover;
     background-position: top;
-    margin-top: 13px;
-    height: 320px;
+    height: 400px;
 }
 
 #tray {
@@ -556,10 +557,17 @@ html.win32,
     width: 100%;
 }
 
+#tray-quota {
+    position: absolute;
+    width: 420px;
+    margin: 20px;
+}
+
 #tray #quota .bar {
     width: 100%;
     height: 20px;
-    background-color: #DDD;
+    background-color: #FFF;
+    border: solid 1px #393F93;
 }
 
 .quota-text {
@@ -567,7 +575,7 @@ html.win32,
 }
 
 #quota .used {
-    background-color: #ccdfff;
+    background-color: #393F93;
     width: 0%;
     height: 20px;
 }
@@ -630,19 +638,36 @@ hr {
 button:hover, input[type="button"]:hover, input[type="submit"]:hover {
     cursor: pointer;
     background: #0361ab;
+    border-color: #0361ab;
 }
+
 button, input[type="button"], input[type="submit"] {
-    background: #000;
-    border-width: 0 0 0 0;
+    background: #39A5FF;
+    font-weight: bold;
+    border: solid 2px #39A5FF;
     color: #FFF;
     margin-top: 15px;
     text-shadow: none;
     width: auto !important;
-    padding: 4px 10px;
+    padding: 7px 15px;
+    min-width: 130px;
     font-size: 15px;
     -webkit-appearance: none !important;
-    -webkit-border-radius: 3px;
+    -webkit-border-radius: 4px;
 }
+
+button:last-child, input[type="button"]:last-child, input[type="submit"]:last-child {
+  background-color: #FFF;
+  border-color: #BBB;
+  color: #BBB;
+  margin-right: 10px;
+}
+
+button:last-child:hover, input[type="button"]:last-child:hover, input[type="submit"]:last-child:hover {
+  border-color: #666;
+  color: #666;
+}
+
 
 /*-----SVG Icons-----*/
 .icon .cls-1 {

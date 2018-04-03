@@ -32,7 +32,8 @@
   "tray.tooltip.state.sync": "Daten werden gerade synchronisiert",
   "tray.tooltip.state.update": "Update bereit zur Installation",
 
-  "about.github": "Siehe github gyselroth/balloon-client-desktop",
+  "about.see_github": "Siehe github",
+  "about.github_repo": "gyselroth/balloon-client-desktop",
   "about.installNewVersion": "Neue Version installieren",
   "about.checkNewVersion": "Auf eine neue Version prüfen",
   "about.updateNotAvailable": "Du hast bereits die neuste Version installiert",

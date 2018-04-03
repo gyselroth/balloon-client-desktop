@@ -266,7 +266,7 @@ function getReadableFileSizeString(bytes) {
 
 function compileTemplate() {
   var templateHtml = $('#template').html();
-  var $placeholder = $('#contentWrapper');
+  var $placeholder = $('#content-wrapper');
   var template = handlebars.compile(templateHtml);
   var context = {};
 

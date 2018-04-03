@@ -1,3 +1,11 @@
+## 0.1.0-beta2
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Mon Apr 03 10:44:43 CEST 2018
+
+* UI: [CHANGE] ui design improvements #95
+* CORE: [FIX] fixes invalid selective sync in certain cases #45
+
+
 ## 0.1.0-beta1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri Mar 16 15:23:28 CET 2018

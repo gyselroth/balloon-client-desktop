@@ -121,7 +121,7 @@ function prepareNodesForRendering(parentNode, nodes) {
 
 function compileTemplates() {
   var templateContentHtml = $('#template-content').html();
-  var $placeholderContent = $('#contentWrapper');
+  var $placeholderContent = $('#content-wrapper');
   var templateContent = handlebars.compile(templateContentHtml);
 
   var context = {};

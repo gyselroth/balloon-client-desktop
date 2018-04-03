@@ -38,8 +38,6 @@ module.exports = function() {
         $('#feedback-error-send').show();
       } else {
         $feedback.find('.loader').hide();
-        $('#feedback-form').hide();
-        $('#feedback-send').hide();
         $('#feedback-success').show();
         $feedback.find('.error-message').hide();
       }
