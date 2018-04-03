@@ -82,25 +82,7 @@ function buildMenu() {
 
   menu.append(new MenuItem({type: 'separator', enabled: false}))
 
-  if(clientConfig.get('context') === 'development') {
-    if(showSync === true) {
-      label = i18n.__('tray.menu.startSync');
-      menu.append(new MenuItem({label: label, click:function(){
-        ipcRenderer.send('sync-start');
-        ipcRenderer.send('tray-hide');
-      }}))
-    }
-
-    if(showReset === true) {
-      label = i18n.__('tray.menu.resetSync');
-      menu.append(new MenuItem({label: label, click:function(){
-        showReset = false;
-        showSync = false;
-        ipcRenderer.send('dev-reset');
-        ipcRenderer.send('tray-hide');
-      }}))
-    }
-  } else if(clientConfig.get('loggedin') === true) {
+  if(clientConfig.get('loggedin') === true) {
     if(syncStatus === true) {
       label = i18n.__('tray.menu.pauseSync');
     } else {

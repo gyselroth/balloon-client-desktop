@@ -75,9 +75,7 @@ function startApp() {
         welcomeWizard.then(() => {
           sync.setMayStart(true);
 
-          if(env.name === 'production') {
-            startSync();
-          }
+          startSync(true);
 
           electron.powerMonitor.on('suspend', () => {
             logger.info('The system is going to sleep', {
@@ -85,7 +83,12 @@ function startApp() {
             });
 
             //abort a possibly active sync if not already paused
-            if(sync && sync.isPaused() === false) sync.pause(true);
+            if(sync && sync.isPaused() === false) {
+              sync.pause(true);
+            } else if(sync) {
+              //if sync is paused kill a possible active watcher
+              sync.killWatcher();
+            }
           });
 
           electron.powerMonitor.on('resume', () => {
@@ -93,9 +96,7 @@ function startApp() {
               category: 'bootstrap',
             });
 
-            if(env.name === 'production') {
-              startSync();
-            }
+            startSync(true);
           });
         });
       }).catch((error) => {
@@ -196,7 +197,7 @@ ipcMain.on('tray-online-state-changed', function(event, state) {
     if(sync && sync.isPaused() === false) sync.pause(true);
     tray.toggleState('offline', true);
   } else {
-    if(sync && sync.isPaused() === false) startSync();
+    if(sync && sync.isPaused() === false) startSync(true);
     tray.toggleState('offline', false);
   }
 });
@@ -220,14 +221,6 @@ ipcMain.on('check-for-update', function() {
 });
 
 /** Sync **/
-ipcMain.on('sync-start', () => {
-  startSync();
-});
-
-ipcMain.on('sync-complete', () => {
-  endSync(true);
-});
-
 ipcMain.on('sync-transfer-start', () => {
   tray.syncTransferStarted();
 });
@@ -237,8 +230,6 @@ ipcMain.on('sync-transfer-end', () => {
 });
 
 ipcMain.on('sync-toggle-pause', () => {
-  if(env.name === 'development') return;
-
   if(!sync) {
     return tray.syncPaused();
   }
@@ -280,7 +271,7 @@ ipcMain.on('link-account', (event, id) => {
     clientConfig.updateTraySecret();
 
     tray.toggleState('loggedout', false);
-    startSync();
+    startSync(true);
     event.sender.send('link-account-result', true);
   }).catch((err) => {
     if(err.code !== 'E_BLN_OAUTH_WINDOW_OPEN') {
@@ -303,15 +294,16 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
       if(clientConfig.get('authMethod') === 'basic') {
         logger.info('got 401, end sync and unlink account', {category: 'bootstrap'});
-        endSync(false);
+        endSync();
         unlinkAccount();
       } else {
         logger.debug('got 401, refresh accessToken', {category: 'bootstrap'});
         auth.refreshAccessToken().then(() => {
-          endSync(true);
+          endSync();
+          sync.resumeWatcher(false);
         }).catch(() => {
           logger.error('could not refresh accessToken, unlink instance', {category: 'bootstrap'});
-          endSync(false);
+          endSync();
           unlinkAccount();
         });
       }
@@ -322,7 +314,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
         code: error.code
       });
 
-      endSync(false);
+      endSync();
       unlinkAccount();
     break;
     case 'E_BLN_CONFIG_BALLOONDIR':
@@ -335,14 +327,15 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
       });
 
       clientConfig.initialize();
-      endSync(true);
+      endSync();
+      startSync(true);
     break;
     case 'E_BLN_CONFIG_CONFIGDIR_ACCES':
       logger.error('config dir not accesible.', {
         category: 'bootstrap',
         error
       });
-      endSync(false);
+      endSync();
     break;
     case 'ENOTFOUND':
     case 'ETIMEDOUT':
@@ -356,7 +349,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
         category: 'bootstrap',
         code: error.code
       });
-      endSync(false);
+      endSync();
       tray.emit('network-offline');
     break;
     default:
@@ -369,13 +362,11 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
       });
 
       configManager.resetCursorAndDb().then(function() {
-        if(env.name === 'production') {
-          endSync(true);
-        }
+        endSync();
+        startSync(true);
       }).catch(function(err) {
-        if(env.name === 'production') {
-          endSync(true);
-        }
+        endSync();
+        startSync(true);
       });
   }
 });
@@ -398,13 +389,13 @@ if (process.platform === 'darwin' && app.dock && env.name === 'production') {
   app.dock.hide();
 }
 
-function startSync() {
+function startSync(forceFullSync) {
   if(!sync) {
     sync = SyncCtrl(env, tray);
   }
 
   if(appState.get('onLineState') === true) {
-    sync.start();
+    sync.start(forceFullSync);
   } else {
     logger.info('Not starting Sync because client is offline', {
       category: 'bootstrap',
@@ -412,6 +403,6 @@ function startSync() {
   }
 }
 
-function endSync(scheduleNextSync) {
-  sync.end(scheduleNextSync);
+function endSync() {
+  sync.endFullSync();
 }
