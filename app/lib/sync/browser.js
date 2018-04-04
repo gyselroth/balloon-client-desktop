@@ -1,6 +1,6 @@
 const {ipcRenderer} = require('electron');
 
-const syncFactory = require('@gyselroth/balloon-node-sync');
+const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 
 const env = require('../../env.js');
 const clientConfig = require('../config.js');
@@ -24,7 +24,7 @@ try {
       config['maxConcurentConnections'] = env.sync.maxConcurentConnections;
     }
 
-    sync = syncFactory(config, standardLogger);
+    sync = fullSyncFactory(config, standardLogger);
 
     sync.on('transfer-start', function(event) {
       ipcRenderer.send('sync-transfer-start');

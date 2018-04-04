@@ -9,7 +9,7 @@ const clientConfig = require('../../lib/config.js');
 
 const logger = require('../../lib/logger.js');
 const loggerFactory = require('../../lib/logger-factory.js');
-const syncFactory = require('@gyselroth/balloon-node-sync');
+const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 const IgnoredNodes = require('./ignored-nodes.js');
 
 const standardLogger = new loggerFactory(clientConfig.getAll());
@@ -57,7 +57,7 @@ $('document').ready(function() {
 });
 
 function initialize(config) {
-  sync = syncFactory(config, logger);
+  sync = fullSyncFactory(config, logger);
   sync.getIgnoredRemoteIds((err, currentlyIgnoredIds) => {
     // TODO pixtron - handle errors
     if(err) throw err;

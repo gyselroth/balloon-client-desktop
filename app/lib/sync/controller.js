@@ -5,7 +5,7 @@ const url = require('url');
 
 const StartupCtrl = require('../../ui/startup/controller.js');
 const logger = require('../logger.js');
-const syncFactory = require('@gyselroth/balloon-node-sync');
+const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 
 const env = require('../../env.js');
 const clientConfig = require('../config.js');
@@ -196,7 +196,7 @@ module.exports = function(env, tray) {
       let config = clientConfig.getAll();
       config[clientConfig.getSecretType()] = clientConfig.getSecret();
 
-      const sync = syncFactory(config, logger.getLogger());
+      const sync = fullSyncFactory(config, logger.getLogger());
 
       sync.updateSelectiveSync(difference).then(result => {
         start();

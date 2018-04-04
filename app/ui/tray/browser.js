@@ -4,7 +4,7 @@ const {ipcRenderer, shell, remote} = require('electron');
 const handlebars = require('handlebars');
 const request = require('request');
 
-const syncFactory = require('@gyselroth/balloon-node-sync');
+const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 
 const i18n = require('../../lib/i18n.js');
 const instance = require('../../lib/instance.js');
@@ -202,7 +202,7 @@ ipcRenderer.on('config', function(event, secret, secretType) {
     refreshQuota = false;
   }
 
-  sync = syncFactory(config, logger);
+  sync = fullSyncFactory(config, logger);
 
   if(config[secretType]) {
     refreshQuota = true;
