@@ -97,7 +97,7 @@ module.exports = function(env, tray) {
     syncStartup = true;
 
     //return if no user is logged in
-    if(clientConfig.get('loggedin') === false) {
+    if(!clientConfig.get('loggedin') || !clientConfig.isActiveInstance()) {
       return logger.info('not starting sync because no user logged in', {category: 'sync'});
     }
 

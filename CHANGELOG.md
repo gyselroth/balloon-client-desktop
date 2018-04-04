@@ -4,6 +4,7 @@
 
 * CORE: [CHANGE] Use new ballon-node-sync api
 * CORE: [FIX] Do not query quota, when no user is logged in
+* CORE: [FIX] Do not start sync, when no user is logged in
 
 ## 0.1.0-beta2
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
