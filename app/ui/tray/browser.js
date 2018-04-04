@@ -180,22 +180,23 @@ ipcRenderer.on('config', function(event, secret, secretType) {
   var config = clientConfig.getAll();
   config[secretType] = secret;
 
-  if(!config[secretType]) {
+  if(!clientConfig.get('loggedin') || !clientConfig.isActiveInstance()) {
     refreshQuota = false;
-  }
-
-  sync = fullSyncFactory(config, logger);
-
-  if(config[secretType]) {
+    sync = undefined;
+  } else {
     refreshQuota = true;
     showLogin = false;
+    sync = fullSyncFactory(config, logger);
   }
 
   updateWindow();
 });
 
 function showQuota() {
+  var $quota = $('#quota');
+
   if(refreshQuota === false) {
+    $quota.hide();
     return;
   }
 
@@ -203,19 +204,15 @@ function showQuota() {
     if(err) {
       $('#quota').find('.used').width(0);
       $('#quota').find('.quota-text').html('');
-      return;
-    }
+      $quota.hide();
 
-    var $quota = $('#quota');
-    if(err) {
-      $quota.hide()
-    } else {
-      $quota.show()
+      return;
     }
 
     var percent =  Math.round(data.used / data.hard_quota * 100, 0);
     var $used = $quota.find('.used');
     $used.width(percent+'%');
+    $quota.show();
 
     if(percent >= 90) {
       $used.addClass('quota-high');
