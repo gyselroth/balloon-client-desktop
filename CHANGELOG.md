@@ -1,3 +1,10 @@
+## 0.1.0-beta3
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**:
+
+* CORE: [CHANGE] Use new ballon-node-sync api
+* CORE: [FIX] Do not query quota, when no user is logged in
+
 ## 0.1.0-beta2
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Mon Apr 03 10:44:43 CEST 2018
