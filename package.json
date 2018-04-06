@@ -92,7 +92,7 @@
     "spectron": "~3.4.0"
   },
   "dependencies": {
-    "@gyselroth/balloon-node-sync": "~0.1.0-beta1",
+    "@gyselroth/balloon-node-sync": "~0.1.0-beta2",
     "@gyselroth/icon-collection": "^1.0.5",
     "@openid/appauth": "~0.2.4",
     "app-migrations": "~0.1.2",

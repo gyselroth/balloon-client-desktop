@@ -1,3 +1,9 @@
+## 0.1.0-beta4
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri Apr 06 17:22:02 CEST 2018
+
+* CORE: [FIX] fixes balloon-node-sync dependency
+
 ## 0.1.0-beta3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri Apr 06 14:22:02 CEST 2018
