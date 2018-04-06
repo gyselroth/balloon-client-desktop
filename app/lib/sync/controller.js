@@ -62,21 +62,15 @@ module.exports = function(env, tray) {
 
     if(syncWindow) {
       return new Promise(function(resolve, reject) {
-        syncWindow.webContents.send('sync-stop', forceQuit);
+        syncWindow.once('closed', (event) => {
+          resolve();
+        });
 
         ipcMain.once('sync-stop-result', (event, err) => {
           end(false);
-
-          if(err) return reject(err);
-
-          resolve();
         });
 
-        ipcMain.once('sync-error', (event, error, url, line) => {
-          end(false);
-
-          resolve();
-        });
+        syncWindow.webContents.send('sync-stop', forceQuit);
       });
     } else {
       stopPowerSaveBlocker();
@@ -91,6 +85,7 @@ module.exports = function(env, tray) {
 
     //return if sync is already running or is starting up
     if(syncWindow || syncStartup) {
+      syncStartup = false;
       return logger.info('not starting sync because it is already running', {category: 'sync'});
     }
 
@@ -98,16 +93,19 @@ module.exports = function(env, tray) {
 
     //return if no user is logged in
     if(!clientConfig.get('loggedin') || !clientConfig.isActiveInstance()) {
+      syncStartup = false;
       return logger.info('not starting sync because no user logged in', {category: 'sync'});
     }
 
     //return if no network available
     if(appState.get('onLineState') === false) {
+      syncStartup = false;
       return logger.info('not starting because no network available', {category: 'sync'});
     }
 
     //return if sync has been paused
     if(syncPaused) {
+      syncStartup = false;
       return logger.info('not starting sync because it has been paused', {category: 'sync'});
     }
 

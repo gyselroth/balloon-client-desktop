@@ -121,14 +121,14 @@ function startApp() {
 }
 
 function unlinkAccount() {
-  return Promise.all([
-    auth.logout(),
-    (function() {
-      if(!sync) return Promise.resolve();
+  (function() {
+    if(!sync) return Promise.resolve();
 
-      return sync.pause(true);
-    }())
-  ]).then(() => {
+    return sync.pause(true);
+  }()).then(function() {
+    logger.error('GETTING HERE...');
+    return auth.logout();
+  }).then(() => {
     logger.info('logout successfull', {
       category: 'bootstrap',
     });
