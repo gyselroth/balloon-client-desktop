@@ -69,6 +69,8 @@ function initialize(syncMemory, mainSync) {
     } else {
       newSettings.apiUrl = env.blnUrl+'/api/v1/';
     }
+  } else if(newSettings.blnUrl) {
+    newSettings.apiUrl = newSettings.blnUrl + (env.apiPath || '/api/v1/');
   }
 
   //only write default or startup settings in <main>

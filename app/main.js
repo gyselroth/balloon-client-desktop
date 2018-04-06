@@ -328,6 +328,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
     case 'E_BLN_CONFIG_BALLOONDIR':
     case 'E_BLN_CONFIG_CONFIGDIR':
     case 'E_BLN_CONFIG_CONFIGDIR_NOTEXISTS':
+    case 'E_BLN_CONFIG_APIURL':
       //this should only happen, when user deletes the configuation, while the application is running
       logger.info('reinitializing config, config sync error occured', {
         category: 'bootstrap',
