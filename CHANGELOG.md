@@ -1,3 +1,9 @@
+## 0.2.0-alpha1
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**:
+
+* CORE [FEATURE] Only run fullSync when really needed
+
 ## 0.1.0-beta3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**:
