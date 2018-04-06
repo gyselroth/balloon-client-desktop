@@ -104,6 +104,7 @@ module.exports = function(env, tray) {
   function startFullSync() {
     //return if sync is already running or is starting up
     if(fullSyncWindow || fullSyncStartup) {
+      fullSyncStartup = false;
       return logger.info('not starting full sync because it is already running', {category: 'sync'});
     }
 
@@ -111,16 +112,19 @@ module.exports = function(env, tray) {
 
     //return if no user is logged in
     if(!clientConfig.get('loggedin') || !clientConfig.isActiveInstance()) {
+      fullSyncStartup = false;
       return logger.info('not starting full sync because no user logged in', {category: 'sync'});
     }
 
     //return if no network available
     if(appState.get('onLineState') === false) {
+      fullSyncStartup = false;
       return logger.info('not starting full sync because no network available', {category: 'sync'});
     }
 
     //return if sync has been paused
     if(syncPaused) {
+      fullSyncStartup = false;
       return logger.info('not starting full sync because sync has been paused', {category: 'sync'});
     }
 
@@ -194,21 +198,15 @@ module.exports = function(env, tray) {
   function pauseFullSync(forceQuit) {
     if(fullSyncWindow) {
       return new Promise(function(resolve, reject) {
-        fullSyncWindow.webContents.send('sync-stop', forceQuit);
+        fullSyncWindow.once('closed', (event) => {
+          resolve();
+        });
 
         ipcMain.once('sync-stop-result', (event, err) => {
           endFullSync();
-
-          if(err) return reject(err);
-
-          resolve();
         });
 
-        ipcMain.once('sync-error', (event, error, url, line) => {
-          endFullSync();
-
-          resolve();
-        });
+        fullSyncWindow.webContents.send('sync-stop', forceQuit);
       });
     } else {
       endFullSync();

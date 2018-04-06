@@ -26,6 +26,13 @@ try {
 
     sync = fullSyncFactory(config, standardLogger);
 
+    ipcRenderer.on('sync-stop', function(event, forceQuit) {
+      sync.stop(forceQuit, (err) => {
+        syncCompleted = true;
+        ipcRenderer.send('sync-stop-result', err);
+      });
+    });
+
     sync.on('transfer-start', function(event) {
       ipcRenderer.send('sync-transfer-start');
       logger.info('transfer started', {category: 'sync'});
@@ -53,12 +60,6 @@ try {
 
       syncCompleted = true;
       ipcRenderer.send('sync-complete');
-    });
-
-    ipcRenderer.on('sync-stop', function(event, forceQuit) {
-      sync.stop(forceQuit, (err) => {
-        ipcRenderer.send('sync-stop-result', err);
-      });
     });
 
     window.addEventListener('beforeunload', function(event) {
