@@ -303,14 +303,14 @@ module.exports = function(env, tray) {
   }
 
   function updateSelectiveSync(difference, callback) {
-    pause().then(result => {
+    pause(true).then(result => {
       let config = clientConfig.getAll();
       config[clientConfig.getSecretType()] = clientConfig.getSecret();
 
       const sync = fullSyncFactory(config, logger.getLogger());
 
       sync.updateSelectiveSync(difference).then(result => {
-        start();
+        start(true);
         callback(null);
       }, err => {
         logger.error('Could not apply selective sync changes', {category: 'sync', err});
