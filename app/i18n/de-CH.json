@@ -17,7 +17,6 @@
   "tray.menu.startSync": "Synchronisation starten",
   "tray.menu.continueSync": "Synchronisation fortsetzen",
   "tray.menu.pauseSync": "Synchronisation pausieren",
-  "tray.menu.resetSync": "Synchronisation zurücksetzen",
   "tray.menu.about": "Über",
   "tray.menu.link": "Account verbinden",
   "tray.menu.unlink": "Account trennen",

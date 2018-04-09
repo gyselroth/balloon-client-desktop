@@ -30,8 +30,6 @@ handlebars.registerHelper('i18n', function(key) {
 
 var sync;
 var syncStatus    = true;
-var showReset     = true;
-var showSync      = true;
 var showLogin     = true;
 var refreshQuota  = false;
 
@@ -156,22 +154,10 @@ ipcRenderer.on('link-account-result', (event, result) => {
 
 ipcRenderer.on('sync-started' , function() {
   syncStatus = true;
-  showSync = false;
-});
-
-ipcRenderer.on('sync-ended' , function() {
-  showSync = true;
 });
 
 ipcRenderer.on('sync-paused' , function() {
   syncStatus = false;
-});
-
-ipcRenderer.on('dev-reset-complete', (event, err) => {
-  if(err) return console.error('ERROR, reset not successfull', err);
-  showReset = true;
-  showSync = true;
-  return console.info('Reset complete', new Date());
 });
 
 ipcRenderer.send('tray-window-loaded');

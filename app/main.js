@@ -374,14 +374,6 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
 /** Development Methods **/
 if(env.name === 'development') {
   process.on('unhandledRejection', r => console.log(r));
-
-  ipcMain.on('dev-reset', (event) => {
-    configManager.reset().then(() => {
-      event.sender.send('dev-reset-complete');
-    }).catch(err => {
-      event.sender.send('dev-reset-complete', err);
-    });
-  });
 }
 
 if (process.platform === 'darwin' && app.dock && env.name === 'production') {
