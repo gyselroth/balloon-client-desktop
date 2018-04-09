@@ -36,16 +36,6 @@ module.exports = function(env, clientConfig, sync) {
 
     return new Promise(function(resolve, reject) {
       var reportName = [clientConfig.get('username'), Math.floor(new Date().getTime() / 1000)].join('_');
-      var archive = archiver('zip', {zlib: { level: 9 }});
-
-      archive.on('error', function(err) {
-        logger.error('sending feedback failed', {
-          category: 'feedback',
-          error: err
-        });
-
-        reject(err);
-      });
 
       var url = env.feedbackPutUrl || 'https://support.gyselroth.net/balloon';
       var req = request.put(url+'/' + reportName+'?feedback='+encodeURIComponent(text));
@@ -86,7 +76,29 @@ module.exports = function(env, clientConfig, sync) {
       });
 
       if(file === true) {
+        var archive = archiver('zip', {zlib: { level: 9 }});
+
+        archive.on('error', function(err) {
+          logger.error('sending feedback failed', {
+            category: 'feedback',
+            error: err
+          });
+
+          reject(err);
+        });
+
         archive.pipe(req);
+
+        var rotatedLogfiles = fs.readdirSync(clientConfig.get('configDir')).filter((node) => {
+          return node.match(/^(sync|error)\d+\.log\.gz$/) !== null;
+        });
+
+        rotatedLogfiles.forEach((filename) => {
+          var rotatedLogPath = path.join(clientConfig.get('configDir'), filename);
+          if(fs.existsSync(rotatedLogPath)) {
+            archive.append(fs.createReadStream(rotatedLogPath), { name: 'report/'+filename });
+          }
+        });
 
         var snycLogPath = path.join(clientConfig.get('configDir'), 'sync.log');
         if(fs.existsSync(snycLogPath)) {

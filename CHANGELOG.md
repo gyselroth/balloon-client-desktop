@@ -3,6 +3,7 @@
 **Date**:
 
 * CORE [FEATURE] Only run fullSync when really needed
+* CORE [CHANGE] Include rotated log files in feedback
 
 ## 0.1.0-beta3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
