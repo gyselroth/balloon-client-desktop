@@ -40,6 +40,9 @@ function setDefaultConfig() {
 
   // allowPrerelease defaults to false
   if(!settings.has('allowPrerelease')) settings.set('allowPrerelease', !(env.enableAutoLaunch !== true));
+
+  // autoReport defaults to false
+  if(!settings.has('autoReport')) settings.set('autoReport', !(env.autoReport !== true));
 }
 
 module.exports = configFactory();

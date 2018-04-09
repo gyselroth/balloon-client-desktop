@@ -154,3 +154,6 @@ The following configuration options are available:
     * `revokeAuthenticationRequired` Boolean (otional) should be false if the /revoke endpoint does not require client authentication. Default: `true`
     * `scope` String (required) OAUTH2 scopes (For example: openid profile)
     * `imgBase64` String (required) base64 encoded Oidc sign-in button
+* `autoReport` Boolean (optional) - If true report will be sent every `autoReportInterval` to `autoReportPutUrl` Default: `false`
+* `autoReportPutUrl` String (optional) - Url to which to send auto reports
+* `autoReportInterval` Integer (optional) - Interval to send auto reports in milliseconds. Default: `300000`

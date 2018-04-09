@@ -17,6 +17,7 @@ const setMenu = require('./lib/menu.js');
 const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
 const configManager = require('./lib/config-manager/controller.js')(clientConfig);
+const globalConfig = require('./lib/global-config.js');
 
 var tray, selective, sync, feedback, autoUpdate;
 
@@ -117,7 +118,6 @@ function startApp() {
 
     tray = TrayCtrl(env, clientConfig);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
-    feedback = FeedbackCtrl(env, clientConfig, sync);
   });
 }
 
@@ -147,6 +147,9 @@ function unlinkAccount() {
 
 app.on('ready', function () {
   appState.set('updateAvailable', false);
+
+  feedback = FeedbackCtrl(env, clientConfig);
+  feedback.toggleAutoReport(globalConfig.get('autoReport'));
 
   logger.info('App ready', {
       category: 'bootstrap',
@@ -199,6 +202,11 @@ ipcMain.on('tray-online-state-changed', function(event, state) {
     if(sync && sync.isPaused() === false) startSync(true);
     tray.toggleState('offline', false);
   }
+});
+
+/** Settings **/
+ipcMain.on('settings-autoReport-changed', function(event, state) {
+  feedback.toggleAutoReport(state);
 });
 
 

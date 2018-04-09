@@ -44,6 +44,15 @@ module.exports = function() {
       globalConfig.set('allowPrerelease', this.checked);
     });
 
+    const $autoReportCheck = $('#settings-autoReport-check');
+
+    $autoReportCheck.attr('checked', globalConfig.get('autoReport'));
+
+    $autoReportCheck.bind('change', function(event) {
+      globalConfig.set('autoReport', this.checked);
+      ipcRenderer.send('settings-autoReport-changed', this.checked);
+    });
+
     const $selectiveBtn = $('#settings-selective-btn');
 
     $selectiveBtn.bind('click', function(event) {

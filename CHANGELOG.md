@@ -4,6 +4,7 @@
 
 * CORE [FEATURE] Only run fullSync when really needed
 * CORE [CHANGE] Include rotated log files in feedback
+* CORE [FEATURE] new setting autoReport, if enabled log files will be sent in recuring periods 
 
 ## 0.1.0-beta3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\

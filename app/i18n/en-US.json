@@ -47,6 +47,7 @@
   "settings.nav.global": "All users",
   "settings.nav.user": "Current user",
   "settings.autolaunch": "Start balloon on startup",
+  "settings.autoReport": "Automatically send system reports",
   "settings.allowPrerelease": "Install pre releases",
   "settings.selective.title": "Selective synchronization",
   "settings.selective.setup": "Change settings...",
