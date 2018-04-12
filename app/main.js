@@ -126,7 +126,6 @@ function unlinkAccount() {
 
     return sync.pause(true);
   }()).then(function() {
-    logger.error('GETTING HERE...');
     return auth.logout();
   }).then(() => {
     logger.info('logout successfull', {
