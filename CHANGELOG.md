@@ -1,10 +1,15 @@
+## 0.1.0-beta5
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**:
+
+* CORE: [FIX] Show notice in selective settings dialog, if no colections on root level exist #97
+* CORE: [FIX] Do not show tab "current user" in settings dialog if no user is logged in #98
+
 ## 0.1.0-beta4
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri Apr 06 17:22:02 CEST 2018
 
 * CORE: [FIX] fixes balloon-node-sync dependency
-* CORE: [FIX] Show notice in selective settings dialog, if no colections on root level exist #97
-* CORE: [FIX] Do not show tab "current user" in settings dialog if no user is logged in #98
 
 ## 0.1.0-beta3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
