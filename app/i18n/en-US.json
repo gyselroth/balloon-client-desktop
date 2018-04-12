@@ -44,6 +44,7 @@
   "feedback.error.send": "We encountered an error during sending your feedback, please try it again later!",
   "feedback.error.empty": "Please provide a feedback message before sending!",
 
+  "settings": "Settings",
   "settings.nav.global": "All users",
   "settings.nav.user": "Current user",
   "settings.autolaunch": "Start balloon on startup",
@@ -53,6 +54,7 @@
   "settings.selective.setup": "Change settings...",
   "settings.selective.choosePath": "Select all folder and files you want to be in sync with your balloon cloud:",
   "settings.selective.updateing": "Updateing folders to be synced.",
+  "settings.selective.noCollections": "No collections exist.",
 
 
   "startup.title": "Setup balloon",

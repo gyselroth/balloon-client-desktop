@@ -88,7 +88,14 @@ function initializeTree() {
 
           logger.debug('Got children', {category: 'selective', nodes, parent: nodeId});
 
-          callback(prepareNodesForRendering(parentNode, nodes));
+          if(nodeId === null && nodes.length === 0) {
+            $('#warning-no-collections-in-root').show();
+            $('#collection-tree').hide();
+            $('#selective-apply').hide();
+            callback([]);
+          } else {
+            callback(prepareNodesForRendering(parentNode, nodes));
+          }
         });
       }
     },

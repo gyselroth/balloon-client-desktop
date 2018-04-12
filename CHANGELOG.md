@@ -4,11 +4,24 @@
 
 * CORE [FEATURE] Only run fullSync when really needed
 * CORE [CHANGE] Include rotated log files in feedback
-* CORE [FEATURE] new setting autoReport, if enabled log files will be sent in recuring periods 
+* CORE [FEATURE] new setting autoReport, if enabled log files will be sent in recuring periods
+
+## 0.1.0-beta5
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**:
+
+* CORE: [FIX] Show notice in selective settings dialog, if no colections on root level exist #97
+* CORE: [FIX] Do not show tab "current user" in settings dialog if no user is logged in #98
+
+## 0.1.0-beta4
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri Apr 06 17:22:02 CEST 2018
+
+* CORE: [FIX] fixes balloon-node-sync dependency
 
 ## 0.1.0-beta3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**:
+**Date**: Fri Apr 06 14:22:02 CEST 2018
 
 * CORE: [CHANGE] Use new ballon-node-sync api
 * CORE: [FIX] Do not query quota, when no user is logged in

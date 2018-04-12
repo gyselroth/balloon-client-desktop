@@ -138,6 +138,10 @@ p {
     float: right;
 }
 
+#settings h1 {
+  margin: 25px 15px;
+}
+
 /*---- Settings Tab naviagtion ----*/
 #settings #settings-navigation {
     height: 36px;
@@ -735,6 +739,10 @@ button:disabled,
 button[disabled] {
   color: #ccc;
   cursor: initial;
+}
+
+.hidden {
+  display: none;
 }
 
 .clearfix:after {
