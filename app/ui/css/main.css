@@ -741,6 +741,10 @@ button[disabled] {
   cursor: initial;
 }
 
+.hidden {
+  display: none;
+}
+
 .clearfix:after {
   content: ".";
   clear: both;
