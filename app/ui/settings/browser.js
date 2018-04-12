@@ -1,6 +1,7 @@
 const { ipcRenderer } = require('electron');
 
 const globalConfig = require('../../lib/global-config.js');
+const clientConfig = require('../../lib/config.js');
 const autoLaunch = require('../../lib/auto-launch.js');
 
 module.exports = function() {
@@ -8,8 +9,16 @@ module.exports = function() {
     var $navigationItems = $('#settings-navigation li a');
     var $tabContents = $('.tab-content');
 
+    var isLoggedIn = clientConfig.isActiveInstance() !== undefined;
+
     if(process.platform === 'linux') {
       $('#settings-allowPrerelease').hide();
+    }
+
+    if(isLoggedIn) {
+      $('#settings-nav-user').show();
+    } else {
+      $('#settings-nav-user').hide();
     }
 
     navigateTo('settings-global');
