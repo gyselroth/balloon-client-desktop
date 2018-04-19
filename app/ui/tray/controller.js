@@ -12,6 +12,8 @@ const i18n = require('../../lib/i18n.js');
 
 const animationSpeed = 1000/24; //24 fps
 
+const feedback = require('../feedback/controller.js');
+
 const stateIconNameMap = {
   default: 'default',
   sync: 'sync',
@@ -104,8 +106,8 @@ const currentStates = {
   update: false
 }
 
-const trayWindowWidth = 306;
-const trayWindowHeight = 96;
+const trayWindowHeight = 410;
+const trayWindowWidth = 500;
 
 var tray;
 var animationTimeout = null;
@@ -269,7 +271,7 @@ module.exports = function(env, clientConfig) {
     });
 
     if(env.name === 'development') {
-      //trayWindow.openDevTools();
+      trayWindow.openDevTools();
     }
 
     return trayWindow;
@@ -319,6 +321,12 @@ module.exports = function(env, clientConfig) {
     }
   }
 
+  function update(state) {
+    if(trayWindow && trayWindow.isDestroyed() === false) {
+      trayWindow.webContents.send(state);
+    }
+  }
+
   return {
     create,
     isRunning,
@@ -332,6 +340,7 @@ module.exports = function(env, clientConfig) {
     syncPaused,
     toggleState,
     updateSecret,
-    emit
+    emit,
+    update
   }
 }

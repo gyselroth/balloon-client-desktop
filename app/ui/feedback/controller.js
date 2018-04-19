@@ -8,79 +8,12 @@ const async = require('async');
 const archiver = require('archiver');
 const request = require('request');
 
-
 const logger = require('../../lib/logger.js');
 const fsInfo = require('../../lib/fs-info.js');
 
 const url = require('url');
-const windowStatesFactory = require('../window-states.js');
-
-var feedbackWindow;
 
 module.exports = function(env, clientConfig, sync) {
-  windowStates = windowStatesFactory(env);
-
-  function close() {
-    logger.info('close window requested', {category: 'feedback'});
-    if(feedbackWindow) feedbackWindow.close();
-  }
-
-  function open() {
-    logger.info('open window requested', {category: 'feedback'});
-    if(!feedbackWindow) feedbackWindow = createWindow();
-
-    feedbackWindow.show();
-    feedbackWindow.focus();
-  }
-
-  function createWindow() {
-    if(feedbackWindow) return feedbackWindow;
-
-    feedbackWindow = new BrowserWindow({
-      width: 600,
-      height: 450,
-      show: false,
-      frame: true,
-      fullscreenable: false,
-      resizable: false,
-      transparent: false,
-      skipTaskbar: false,
-      icon: __dirname+'/../../img/logo-512x512.png'
-    });
-
-    feedbackWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'index.html'),
-        protocol: 'file:',
-        slashes: true
-    }));
-
-    feedbackWindow.setMenu(null);
-
-    feedbackWindow.on('closed', (event) => {
-      feedbackWindow = null;
-
-      windowStates.closed('feedback');
-
-      logger.debug('window closed', {category: 'feedback'});
-    });
-
-    feedbackWindow.on('show', (event) => {
-      windowStates.opened('feedback');
-
-      logger.debug('window opened', {category: 'feedback'});
-    });
-
-    feedbackWindow.on('focus', (event) => {
-      feedbackWindow.webContents.send('update-window');
-    });
-
-    if(env.name === 'development') {
-      //feedbackWindow.openDevTools();
-    }
-
-    return feedbackWindow;
-  }
-
   ipcMain.on('feedback-send', (event, text, file) => {
     send(text, file).then(function(reportDir, reportPath) {
       logger.info('sending feedback was successfull', {category: 'feedback'});
@@ -329,10 +262,5 @@ module.exports = function(env, clientConfig, sync) {
         });
       });
     }
-  }
-
-  return {
-    close,
-    open
   }
 }

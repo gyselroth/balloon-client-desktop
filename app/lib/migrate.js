@@ -64,14 +64,14 @@ module.exports = function migrate() {
     readMigrations((err, migrations) => {
       if(err) return reject(err);
 
-      logger.info(`Migrating from ${previousVersion} to ${currentVersion}`);
+      logger.info(`Migrating from ${previousVersion} to ${currentVersion}`, {category: 'migration'});
       appMigrations(migrations)(previousVersion, currentVersion, (err, result) => {
         if(err) {
-          logger.error(`Migrating from ${previousVersion} to ${currentVersion} failed`, {err})
+          logger.error(`Migrating from ${previousVersion} to ${currentVersion} failed`, {category: 'migration', err})
           return reject(err);
         }
 
-        logger.info(`Migration from ${previousVersion} to ${currentVersion} successfull`);
+        logger.info(`Migration from ${previousVersion} to ${currentVersion} successfull`, {category: 'migration'});
 
         globalConfig.set('version', currentVersion);
         resolve(result);

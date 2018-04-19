@@ -1,4 +1,3 @@
-//for powerMonitor as it is only available after app.ready
 const electron = require('electron');
 const {app, ipcMain} = require('electron');
 
@@ -7,24 +6,24 @@ const clientConfig = require('./lib/config.js');
 const appState = require('./lib/state.js');
 const migrate = require('./lib/migrate.js');
 const TrayCtrl = require('./ui/tray/controller.js');
-const SettingsCtrl = require('./ui/settings/controller.js');
+const SelectiveCtrl = require('./ui/selective/controller.js');
 const SyncCtrl = require('./lib/sync/controller.js');
 const StartupCtrl = require('./ui/startup/controller.js');
 const AuthCtrl = require('./lib/auth/controller.js');
 const AutoUpdateCtrl = require('./lib/auto-update/controller.js');
 const FeedbackCtrl = require('./ui/feedback/controller.js');
-const AboutCtrl = require('./ui/about/controller.js');
 const setMenu = require('./lib/menu.js');
 
 const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
 const configManager = require('./lib/config-manager/controller.js')(clientConfig);
 
-var tray, sync, settings, feedback, autoUpdate;
+var tray, selective, sync, settings, feedback, autoUpdate;
 
 var standardLogger = new loggerFactory(clientConfig.getAll());
 var startup = StartupCtrl(env, clientConfig);
 var auth = AuthCtrl(env, clientConfig);
+var selective = SelectiveCtrl(env, clientConfig);
 
 logger.setLogger(standardLogger);
 
@@ -43,7 +42,11 @@ if(shouldQuit === true) {
 }
 
 function startApp() {
+  logger.info('startApp', {category: 'main'});
+
   auth.retrieveLoginSecret().then(() => {
+    logger.info('login secret recieved', {category: 'main'});
+
     ipcMain.once('tray-online-state-changed', function(event, state) {
       if(clientConfig.hadConfig()) {
         tray.create();
@@ -56,7 +59,7 @@ function startApp() {
       });
 
       appState.set('onLineState', state);
-      startup.checkConfig().then(() => {
+      startup.checkConfig().then((result) => {
         logger.info('startup checkconfig successfull', {
           category: 'bootstrap',
         });
@@ -67,27 +70,33 @@ function startApp() {
 
         sync = SyncCtrl(env, tray);
 
-        if(env.name === 'production') {
-          startSync();
-        }
+        const welcomeWizard = result[2] === undefined || !result[2].welcomeWizardPromise ? Promise.resolve() : result[2].welcomeWizardPromise;
 
-        electron.powerMonitor.on('suspend', () => {
-          logger.info('The system is going to sleep', {
-            category: 'bootstrap',
-          });
-
-          //abort a possibly active sync if not already paused
-          if(sync && sync.isPaused() === false) sync.pause(true);
-        });
-
-        electron.powerMonitor.on('resume', () => {
-          logger.info('The system is resuming', {
-            category: 'bootstrap',
-          });
+        welcomeWizard.then(() => {
+          sync.setMayStart(true);
 
           if(env.name === 'production') {
             startSync();
           }
+
+          electron.powerMonitor.on('suspend', () => {
+            logger.info('The system is going to sleep', {
+              category: 'bootstrap',
+            });
+
+            //abort a possibly active sync if not already paused
+            if(sync && sync.isPaused() === false) sync.pause(true);
+          });
+
+          electron.powerMonitor.on('resume', () => {
+            logger.info('The system is resuming', {
+              category: 'bootstrap',
+            });
+
+            if(env.name === 'production') {
+              startSync();
+            }
+          });
         });
       }).catch((error) => {
         logger.error('startup checkconfig', {
@@ -106,22 +115,19 @@ function startApp() {
     });
 
     tray = TrayCtrl(env, clientConfig);
-    settings = SettingsCtrl(env);
-    about = AboutCtrl(env, clientConfig);
-    autoUpdate = AutoUpdateCtrl(env, clientConfig, tray, about);
+    autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
     feedback = FeedbackCtrl(env, clientConfig, sync);
   });
 }
 
 function unlinkAccount() {
-  return Promise.all([
-    auth.logout(),
-    (function() {
-      if(!sync) return Promise.resolve();
+  (function() {
+    if(!sync) return Promise.resolve();
 
-      return sync.pause(true);
-    }())
-  ]).then(() => {
+    return sync.pause(true);
+  }()).then(function() {
+    return auth.logout();
+  }).then(() => {
     logger.info('logout successfull', {
       category: 'bootstrap',
     });
@@ -240,21 +246,21 @@ ipcMain.on('sync-toggle-pause', () => {
   sync.togglePause();
 });
 
-ipcMain.on('settings-open', () => {
-  settings.open();
+ipcMain.on('selective-open', function(event) {
+  selective.open();
 });
 
-ipcMain.on('settings-close', () => {
-  settings.close();
+ipcMain.on('selective-close', function(event) {
+  selective.close();
 });
 
-ipcMain.on('feedback-open', (event) => {
-  feedback.open();
-});
+ipcMain.on('selective-apply', function(event, difference) {
+  logger.info('Applying selective sync changes', {category: 'main', difference});
 
-ipcMain.on('about-open', (event) => {
-  about.open();
-});
+  if(sync) sync.updateSelectiveSync(difference, err => {
+    selective.close();
+  });
+})
 
 ipcMain.on('unlink-account', (event) => {
   logger.info('logout requested', {category: 'bootstrap'});
@@ -321,6 +327,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
     case 'E_BLN_CONFIG_BALLOONDIR':
     case 'E_BLN_CONFIG_CONFIGDIR':
     case 'E_BLN_CONFIG_CONFIGDIR_NOTEXISTS':
+    case 'E_BLN_CONFIG_APIURL':
       //this should only happen, when user deletes the configuation, while the application is running
       logger.info('reinitializing config, config sync error occured', {
         category: 'bootstrap',

@@ -7,7 +7,7 @@ const globalConfig = require('../global-config.js');
 
 var checkRunning = false;
 
-module.exports = function(env, clientConfig, tray, about) {
+module.exports = function(env, clientConfig, tray) {
   autoUpdater.logger = logger;
 
   if(globalConfig.has('allowPrerelease') && globalConfig.get('allowPrerelease') === true) {
@@ -18,7 +18,7 @@ module.exports = function(env, clientConfig, tray, about) {
 
   autoUpdater.on('checking-for-update', () => {
     logger.info('Checking for update', {category: 'autoupdate'});
-    about.update('checking-for-update');
+    tray.update('checking-for-update');
   });
 
   autoUpdater.on('update-available', (event, info) => {
@@ -27,7 +27,7 @@ module.exports = function(env, clientConfig, tray, about) {
       data: info
     });
 
-    about.update('update-available');
+    tray.update('update-available');
   });
 
   autoUpdater.on('update-not-available', (event, info) => {
@@ -36,7 +36,7 @@ module.exports = function(env, clientConfig, tray, about) {
       data: info
     });
 
-    about.update('update-not-available');
+    tray.update('update-not-available');
     checkRunning = false;
   });
 
@@ -46,7 +46,7 @@ module.exports = function(env, clientConfig, tray, about) {
       error: err
     });
 
-    about.update('error');
+    tray.update('error');
     checkRunning = false;
   });
 
@@ -56,7 +56,7 @@ module.exports = function(env, clientConfig, tray, about) {
       data: info
     });
 
-    about.update('update-downloaded');
+    tray.update('update-downloaded');
     tray.toggleState('update', true);
     appState.set('updateAvailable', true);
     checkRunning = false;
@@ -80,7 +80,7 @@ module.exports = function(env, clientConfig, tray, about) {
       autoUpdater.checkForUpdates();
     } else {
       logger.info('skip check for update', {category: 'autoupdate'});
-      about.update('update-not-available');
+      tray.update('update-not-available');
     }
   }
 

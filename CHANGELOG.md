@@ -1,10 +1,52 @@
+## 0.1.0-beta5
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**:
+
+* CORE: [FIX] Show notice in selective settings dialog, if no colections on root level exist #97
+* CORE: [FIX] Do not show tab "current user" in settings dialog if no user is logged in #98
+
+## 0.1.0-beta4
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri Apr 06 17:22:02 CEST 2018
+
+* CORE: [FIX] fixes balloon-node-sync dependency
+
+## 0.1.0-beta3
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri Apr 06 14:22:02 CEST 2018
+
+* CORE: [CHANGE] Use new ballon-node-sync api
+* CORE: [FIX] Do not query quota, when no user is logged in
+* CORE: [FIX] Do not start sync, when no user is logged in
+* CORE: [FIX] Wait until sync stopped before logout in unlinkAccount
+
+## 0.1.0-beta2
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Mon Apr 03 10:44:43 CEST 2018
+
+* UI: [CHANGE] ui design improvements #95
+* CORE: [FIX] fixes invalid selective sync in certain cases #45
+
+
+## 0.1.0-beta1
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri Mar 16 15:23:28 CET 2018
+
+* CORE: [FEATURE] Allow to change selective sync after initialization #45
+* CORE: [FEATURE] It is now possible to selctive sync child nodes #90
+* CORE: [CHANGE] Allow children to be ignored/unignored in selective sync #93
+* CORE: [CHANGE] introduced settings dialog #56
+* UI: [CHANGE] Feedback/settings/about is now integrated in the tray windows, various ui fixes #95
+* UI: [FIX] Selective sync tree is now sorted #94
+* UI: [CHANGE] Switched to gyselroth/icon-collection #16
+
+
 ## 0.0.42
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Mon Feb 26 16:05:52 CET 2018
 
 * CORE: [CHANGE] introduced global app state, moved updateAvailable and onLineState to global app state #26
 * CORE: [CHANGE] introduced new global flag `allowPrerelease` if set to true auto updater will install pre releases. #55
-
 
 ## 0.0.41
 **Maintainer**: balloon-team <opensource@gyselroth.net>\

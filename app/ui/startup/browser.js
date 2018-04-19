@@ -84,7 +84,7 @@ function checkIfHostReachable(blnUrl, callback) {
 
 function compileTemplates() {
   var templateContentHtml = $('#template-content').html();
-  var $placeholderContent = $('#contentWrapper');
+  var $placeholderContent = $('#content-wrapper');
   var templateContent = handlebars.compile(templateContentHtml);
 
   var context = {};
@@ -140,7 +140,7 @@ function welcome() {
     });
 
     $('#startup-adavanced-selective').bind('click', function() {
-      ipcRenderer.send('startup-selective-sync');
+      ipcRenderer.send('selective-open');
     });
 
     ipcRenderer.on('startup-change-dir', function (event, path) {

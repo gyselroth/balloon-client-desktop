@@ -1,110 +1,23 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Balloon Desktop</title>
-        <link href="../css/main.css" rel="stylesheet" type="text/css">
-        <script>$ = require("jquery");</script>
-        <script src="browser.js"></script>
-    </head>
-    <body id="setting">
-        <script id="template-content" type="text/x-handlebars-template">
-            <div id="content">
-                <h1>{{i18n 'settings.title'}}</h1>
-                <div id="settings-account" class="settings">
-                    <div class="icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-                            <title>user-icon</title>
-                            <g id="Ebene_2" data-name="Ebene 2">
-                                <g id="Ebene_1-2" data-name="Ebene 1">
-                                    <rect class="cls-1" width="48" height="48"/>
-                                    <rect class="cls-2" x="18" y="8" width="12" height="14" rx="6" ry="6"/>
-                                    <path class="cls-2" d="M24,28a27.67,27.67,0,0,0-14,4v6H38V32A27.67,27.67,0,0,0,24,28Z"/>
-                                </g>
-                            </g>
-                        </svg>
-                    </div>
-                    <div class="settingTxt"><p><span class="info">{{i18n 'settings.account.title'}}</span><br>
-                        <span id="value-username"></span></p></div>
-                    <div class="edit">
-                        <div id="settings-account-logout">{{i18n 'settings.account.unlink'}}</div>
-                        <div id="settings-account-login">{{i18n 'settings.account.login'}}</div>
-                    </div>
-                </div>
+<script class="template" type="text/x-handlebars-template">
+    <h1>{{i18n 'settings'}}</h1>
+    <ul id="settings-navigation" class="clearfix">
+        <li id="settings-nav-global"><a href="#settings-global">{{i18n 'settings.nav.global'}}</a></li>
+        <li id="settings-nav-user"><a href="#settings-user">{{i18n 'settings.nav.user'}}</a></li>
+    </ul>
 
-                <div id="settings-location" class="settings">
-                    <div class="icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-                            <title>location-icon</title>
-                            <g id="Ebene_2" data-name="Ebene 2">
-                                <g id="Ebene_1-2" data-name="Ebene 1">
-                                    <rect class="cls-1" width="48" height="48"/>
-                                    <rect class="cls-2" x="8" y="12" width="32" height="20"/>
-                                    <line class="cls-2" x1="24" y1="32" x2="24" y2="40"/>
-                                    <line class="cls-2" x1="16" y1="40" x2="32" y2="40"/>
-                                </g>
-                            </g>
-                        </svg>
-                    </div>
-                    <div class="settingTxt"><p><span class="info">{{i18n 'settings.location.title'}}</span><br>
-                        {{balloonDir}}</p>
-                    </div>
-                    <div class="edit">
-                        <div id="settings-change-location">{{i18n 'settings.location.changeDir'}}</div>
-                    </div>
-                </div>
-
-                <div id="settings-selective" class="settings">
-                    <div class="icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-                            <title>location-icon</title>
-                            <g id="Ebene_2" data-name="Ebene 2">
-                                <g id="Ebene_1-2" data-name="Ebene 1">
-                                    <rect class="cls-1" width="48" height="48"/>
-                                    <rect class="cls-2" x="8" y="12" width="32" height="20"/>
-                                    <line class="cls-2" x1="24" y1="32" x2="24" y2="40"/>
-                                    <line class="cls-2" x1="16" y1="40" x2="32" y2="40"/>
-                                </g>
-                            </g>
-                        </svg>
-                    </div>
-                    <div class="settingTxt"><p><span class="info">{{i18n 'settings.selective.title'}}</span><br>
-                        </p>
-                    </div>
-                    <div class="edit">
-                        <div id="settings-change-location">{{i18n 'settings.selective.setup'}}</div>
-                    </div>
-                </div>
-
-                <div id="settings-version" class="settings">
-                    <div class="icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-                            <title>info-icon</title>
-                            <g id="Ebene_2" data-name="Ebene 2">
-                                <g id="Ebene_1-2" data-name="Ebene 1">
-                                    <rect class="cls-1" width="48" height="48"/>
-                                    <circle class="cls-2" cx="24" cy="24" r="16"/>
-                                    <line class="cls-2" x1="24" y1="32" x2="24" y2="22"/>
-                                    <line class="cls-2" x1="24" y1="19" x2="24" y2="16"/>
-                                </g>
-                            </g>
-                        </svg>
-                    </div>
-                    <div class="settingTxt"><p><span class="info">{{i18n 'settings.version.title'}}</span><br>
-                        {{i18n 'settings.version.hint'}} {{version}}</p>
-                    </div>
-                    <div class="edit">
-                      <div id="settings-report">{{i18n 'settings.version.report'}}</div>
-                      <div id="install-update">{{i18n 'settings.version.installUpdate'}}</div>
-                      <div id="check-for-update">{{i18n 'settings.version.checkForUpdate'}}</div>
-                    </div>
-
-                    <div id="error-report-failure" class="error-message">{{i18n 'error.errorReport'}}</div>
-                </div>
-
-                <button id="settings-close">{{i18n 'button.close'}}</button>
-            </div>
-        </script>
-        <div id="contentWrapper"></div>
-    </body>
-</html>
+    <div class="tab-content" id="settings-global">
+        <div id="settings-autolaunch" class="setting-item">
+            <label for="settings-autolaunch-check"><input type="checkbox" id="settings-autolaunch-check" /> {{i18n 'settings.autolaunch'}}</label>
+        </div>
+        <div id="settings-allowPrerelease" class="setting-item">
+            <label for="settings-allowPrerelease-check"><input type="checkbox" id="settings-allowPrerelease-check" /> {{i18n 'settings.allowPrerelease'}}</label>
+        </div>
+    </div>
+    <div class="tab-content" id="settings-user">
+        <div id="settings-selective" class="setting-item clearfix">
+            <h2>{{i18n 'settings.selective.title'}}</h2>
+            <p>{{i18n 'settings.selective.choosePath'}}</p>
+            <button id="settings-selective-btn">{{i18n 'settings.selective.setup'}}</button>
+        </div>
+    </div>
+</script>

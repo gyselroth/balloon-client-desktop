@@ -1,6 +1,6 @@
 const {ipcRenderer} = require('electron');
 
-const syncFactory = require('@gyselroth/balloon-node-sync');
+const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 
 const env = require('../../env.js');
 const clientConfig = require('../config.js');
@@ -24,7 +24,14 @@ try {
       config['maxConcurentConnections'] = env.sync.maxConcurentConnections;
     }
 
-    sync = syncFactory(config, standardLogger);
+    sync = fullSyncFactory(config, standardLogger);
+
+    ipcRenderer.on('sync-stop', function(event, forceQuit) {
+      sync.stop(forceQuit, (err) => {
+        syncCompleted = true;
+        ipcRenderer.send('sync-stop-result', err);
+      });
+    });
 
     sync.on('transfer-start', function(event) {
       ipcRenderer.send('sync-transfer-start');
@@ -53,12 +60,6 @@ try {
 
       syncCompleted = true;
       ipcRenderer.send('sync-complete');
-    });
-
-    ipcRenderer.on('sync-stop', function(event, forceQuit) {
-      sync.stop(forceQuit, (err) => {
-        ipcRenderer.send('sync-stop-result', err);
-      });
     });
 
     window.addEventListener('beforeunload', function(event) {

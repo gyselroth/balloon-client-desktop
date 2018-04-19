@@ -1,29 +1,12 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>About balloon</title>
-        <link href="../../../node_modules/ubuntu-fontface/ubuntu.css" rel="stylesheet" type="text/css">
-        <link href="../css/main.css" rel="stylesheet" type="text/css">
-        <script>$ = require("jquery");</script>
-        <script src="browser.js"></script>
-    </head>
-    <body id="about">
-        <script id="template-content" type="text/x-handlebars-template">
-            <div id="startup-logo"></div>
-            <div id="content">
-              <p>balloon</p>
-              <p>Desktop client version: {{version}}</p>
-              <p><span>gyselroth GmbH</span> 2017-2018</p>
-              <p>GPL-3.0</p>
+<script class="template" type="text/x-handlebars-template">
+    <div id="startup-logo"></div>
+    <p>balloon desktop {{version}}</p>
+    <p id="about-gyselroth">gyselroth GmbH 2017-2018 GPL-3.0</p>
+    <p id="about-github">{{i18n 'about.see_github'}} <span>{{i18n 'about.github_repo'}}</span></p>
 
-              <div id="about-update-error" class="error-message">{{i18n 'about.updateError'}}</div>
-              <div id="about-update-not-available">{{i18n 'about.updateNotAvailable'}}</div>
-              <div id="about-version-check">{{i18n 'about.checkNewVersion'}}</div>
-              <div id="about-version-install">{{i18n 'about.installNewVersion'}}</div>
-              <div class="loader"></div>
-            </div>
-        </script>
-        <div id="contentWrapper"></div>
-    </body>
-</html>
+    <div id="about-update-error" class="error-message">{{i18n 'about.updateError'}}</div>
+    <div id="about-update-not-available">{{i18n 'about.updateNotAvailable'}}</div>
+    <div id="about-version-check">{{i18n 'about.checkNewVersion'}}</div>
+    <div id="about-version-install">{{i18n 'about.installNewVersion'}}</div>
+    <div class="loader"></div>
+</script>

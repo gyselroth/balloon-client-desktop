@@ -69,6 +69,8 @@ function initialize(syncMemory, mainSync) {
     } else {
       newSettings.apiUrl = env.blnUrl+'/api/v1/';
     }
+  } else if(newSettings.blnUrl) {
+    newSettings.apiUrl = newSettings.blnUrl + (env.apiPath || '/api/v1/');
   }
 
   //only write default or startup settings in <main>
@@ -220,29 +222,6 @@ module.exports = function() {
     },
     updateTraySecret: function() {
       traySecretUpdate();
-    },
-    /**
-     * @var string||array id node id(s) to ingore
-     */
-    ignoreNode: function(id) {
-      if(id.constructor === String) {
-        id = [id];
-      }
-
-      if(id.constructor !== Array) {
-        throw(new Error('id must be a string or an array'));
-      }
-
-      var ignoreNodes = settings.get('ignoreNodes');
-      if(!ignoreNodes) {
-        ignoreNodes = [];
-      }
-
-      ignoreNodes = ignoreNodes.concat(id);
-
-      ignoreNodes = [...new Set(ignoreNodes)];
-
-      settings.set('ignoreNodes', ignoreNodes);
-    },
+    }
   }
 }();

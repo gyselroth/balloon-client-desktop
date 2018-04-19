@@ -4,12 +4,18 @@ const {ipcRenderer, shell, remote} = require('electron');
 const handlebars = require('handlebars');
 const request = require('request');
 
-const syncFactory = require('@gyselroth/balloon-node-sync');
+const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 
 const i18n = require('../../lib/i18n.js');
 const instance = require('../../lib/instance.js');
 const clientConfig = require('../../lib/config.js');
 const appState = require('../../lib/state.js');
+
+const modules = {
+  settings: require('../settings/browser.js')(),
+  feedback: require('../feedback/browser.js')(),
+  about: require('../about/browser.js')(),
+}
 
 const logger = require('../../lib/logger.js');
 const loggerFactory = require('../../lib/logger-factory.js');
@@ -28,6 +34,28 @@ var showReset     = true;
 var showSync      = true;
 var showLogin     = true;
 var refreshQuota  = false;
+
+function loadMenu(menu) {
+  $('#tray-main-template').load('../'+menu+'/index.html', function() {
+    $('#tray-quota').hide();
+    $('#tray-main').removeClass('tray-main-splash');
+    compileMenuTemplate(menu);
+    modules[menu].init();
+  });
+}
+
+function compileMenuTemplate(menu) {
+  var templateHtml = $('#tray-main-template').find('.template').html();
+  var $placeholder = $('#tray-main');
+  var template = handlebars.compile('<div id="'+menu+'">'+templateHtml+'</div>');
+  var context = modules[menu].context();
+
+  $placeholder.html(template(context));
+}
+
+$(window).blur(function(){
+  ipcRenderer.send('tray-hide');
+});
 
 function buildMenu() {
   var label;
@@ -84,16 +112,19 @@ function buildMenu() {
     }}))
   }
 
+  label = i18n.__('tray.menu.settings');
+  menu.append(new MenuItem({label: label, click: function(){
+    loadMenu('settings');
+  }}))
+
   label = i18n.__('tray.menu.feedback');
   menu.append(new MenuItem({label: label, click: function(){
-    ipcRenderer.send('feedback-open');
-    ipcRenderer.send('tray-hide');
+    loadMenu('feedback');
   }}))
 
   label = i18n.__('tray.menu.about');
   menu.append(new MenuItem({label: label, click: function(){
-    ipcRenderer.send('about-open');
-    ipcRenderer.send('tray-hide');
+    loadMenu('about');
   }}))
 
   label = i18n.__('tray.menu.close');
@@ -167,22 +198,23 @@ ipcRenderer.on('config', function(event, secret, secretType) {
   var config = clientConfig.getAll();
   config[secretType] = secret;
 
-  if(!config[secretType]) {
+  if(!clientConfig.get('loggedin') || !clientConfig.isActiveInstance()) {
     refreshQuota = false;
-  }
-
-  sync = syncFactory(config, logger);
-
-  if(config[secretType]) {
+    sync = undefined;
+  } else {
     refreshQuota = true;
     showLogin = false;
+    sync = fullSyncFactory(config, logger);
   }
 
   updateWindow();
 });
 
 function showQuota() {
+  var $quota = $('#quota');
+
   if(refreshQuota === false) {
+    $quota.hide();
     return;
   }
 
@@ -190,19 +222,15 @@ function showQuota() {
     if(err) {
       $('#quota').find('.used').width(0);
       $('#quota').find('.quota-text').html('');
-      return;
-    }
+      $quota.hide();
 
-    var $quota = $('#quota');
-    if(err) {
-      $quota.hide()
-    } else {
-      $quota.show()
+      return;
     }
 
     var percent =  Math.round(data.used / data.hard_quota * 100, 0);
     var $used = $quota.find('.used');
     $used.width(percent+'%');
+    $quota.show();
 
     if(percent >= 90) {
       $used.addClass('quota-high');
@@ -235,9 +263,8 @@ function getReadableFileSizeString(bytes) {
 
 function compileTemplate() {
   var templateHtml = $('#template').html();
-  var $placeholder = $('#contentWrapper');
+  var $placeholder = $('#content-wrapper');
   var template = handlebars.compile(templateHtml);
-
   var context = {};
 
   $placeholder.html(template(context));
@@ -252,6 +279,8 @@ function toggleInstallUpdate() {
 }
 
 function updateWindow() {
+  $('#tray-quota').show();
+  $('#tray-main').addClass('tray-main-splash').html('');
   showQuota();
   toggleInstallUpdate();
 }

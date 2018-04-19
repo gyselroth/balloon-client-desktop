@@ -8,7 +8,7 @@ const StartupCtrl = require('../../ui/startup/controller.js');
 const logger = require('../logger.js');
 const instance = require('../instance.js');
 const fsUtility = require('../fs-utility.js');
-const syncFactory = require('@gyselroth/balloon-node-sync');
+const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 
 module.exports = function(env, clientConfig) {
   var oidc = OidcCtrl(env, clientConfig);
@@ -225,7 +225,7 @@ module.exports = function(env, clientConfig) {
         reject(new Error('Secret not set'));
       }
 
-      var sync = syncFactory(config, logger);
+      var sync = fullSyncFactory(config, logger);
 
       logger.info('verify authentication via whoami api call', {
         category: 'auth',
@@ -258,7 +258,7 @@ module.exports = function(env, clientConfig) {
 
   function verifyNewLogin(oldUser, newUser) {
     return new Promise(function(resolve, reject) {
-      var sync = syncFactory(clientConfig.getAll(true), logger);
+      var sync = fullSyncFactory(clientConfig.getAll(true), logger);
       sync.blnApi.whoami(function(err, username) {
         if(err) {
           logger.error('failed verify new user credentials', {

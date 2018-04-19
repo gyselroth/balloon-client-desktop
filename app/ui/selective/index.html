@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Selective Sync</title>
+
+    <link href="../../../node_modules/ubuntu-fontface/ubuntu.css" rel="stylesheet" type="text/css">
+    <link href="../../../node_modules/jstree/dist/themes/default/style.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/main.css" rel="stylesheet" type="text/css">
+
+    <script> $ = require("jquery");</script>
+    <script src="../../../node_modules/jstree/dist/jstree.min.js"></script>
+    <script src="jstree.ignored.js"></script>
+    <script src="browser.js"></script>
+</head>
+<body>
+    <script id="template-content" type="text/x-handlebars-template">
+    <div id="selective-sync">
+        <div id="selective-sync-choose">
+            <p>{{i18n 'settings.selective.choosePath'}}</p>
+
+            <div id="collection-tree"></div>
+            <div id="warning-no-collections-in-root" class="hidden">{{i18n 'settings.selective.noCollections'}}</div>
+
+            <button id="selective-apply">{{i18n 'button.apply'}}</button>
+            <button id="selective-cancel">{{i18n 'button.cancel'}}</button>
+        </div>
+        <div id="selective-sync-apply-active">
+            <p>{{i18n 'settings.selective.updateing'}}</p>
+        </div>
+    </div>
+    </script>
+    <div id="content-wrapper"></div>
+</body>
+</html>

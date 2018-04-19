@@ -5,6 +5,7 @@ const url = require('url');
 
 const StartupCtrl = require('../../ui/startup/controller.js');
 const logger = require('../logger.js');
+const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 
 const env = require('../../env.js');
 const clientConfig = require('../config.js');
@@ -18,6 +19,7 @@ var syncStartup = false;
 module.exports = function(env, tray) {
   var syncWindow;
   var syncPaused = false;
+  var mayStart = false;
   var powerSaveBlockerId;
 
   function startPowerSaveBlocker() {
@@ -60,21 +62,15 @@ module.exports = function(env, tray) {
 
     if(syncWindow) {
       return new Promise(function(resolve, reject) {
-        syncWindow.webContents.send('sync-stop', forceQuit);
+        syncWindow.once('closed', (event) => {
+          resolve();
+        });
 
         ipcMain.once('sync-stop-result', (event, err) => {
           end(false);
-
-          if(err) return reject(err);
-
-          resolve();
         });
 
-        ipcMain.once('sync-error', (event, error, url, line) => {
-          end(false);
-
-          resolve();
-        });
+        syncWindow.webContents.send('sync-stop', forceQuit);
       });
     } else {
       stopPowerSaveBlocker();
@@ -83,26 +79,33 @@ module.exports = function(env, tray) {
   }
 
   function start() {
+    if(mayStart === false) {
+      return logger.info('not starting sync because mayStart is false', {category: 'sync'});
+    }
 
     //return if sync is already running or is starting up
     if(syncWindow || syncStartup) {
+      syncStartup = false;
       return logger.info('not starting sync because it is already running', {category: 'sync'});
     }
 
     syncStartup = true;
 
     //return if no user is logged in
-    if(clientConfig.get('loggedin') === false) {
+    if(!clientConfig.get('loggedin') || !clientConfig.isActiveInstance()) {
+      syncStartup = false;
       return logger.info('not starting sync because no user logged in', {category: 'sync'});
     }
 
     //return if no network available
     if(appState.get('onLineState') === false) {
+      syncStartup = false;
       return logger.info('not starting because no network available', {category: 'sync'});
     }
 
     //return if sync has been paused
     if(syncPaused) {
+      syncStartup = false;
       return logger.info('not starting sync because it has been paused', {category: 'sync'});
     }
 
@@ -176,10 +179,38 @@ module.exports = function(env, tray) {
     }
 
     if(syncWindow) {
+      if(env.name === 'development') {
+        syncWindow.closeDevTools();
+      }
+
       syncWindow.close();
     }
 
     stopPowerSaveBlocker();
+  }
+
+  function updateSelectiveSync(difference, callback) {
+    pause().then(result => {
+      let config = clientConfig.getAll();
+      config[clientConfig.getSecretType()] = clientConfig.getSecret();
+
+      const sync = fullSyncFactory(config, logger.getLogger());
+
+      sync.updateSelectiveSync(difference).then(result => {
+        start();
+        callback(null);
+      }, err => {
+        logger.error('Could not apply selective sync changes', {category: 'sync', err});
+        callback(err);
+      });
+    }, err => {
+      logger.error('Could not pause sync', {category: 'sync', err});
+      callback(err);
+    });
+  }
+
+  function setMayStart(value) {
+    mayStart = value;
   }
 
   return {
@@ -187,6 +218,8 @@ module.exports = function(env, tray) {
     end,
     pause,
     togglePause,
-    isPaused
+    isPaused,
+    updateSelectiveSync,
+    setMayStart
   }
 }
