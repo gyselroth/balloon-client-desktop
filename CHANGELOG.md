@@ -2,8 +2,8 @@
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu Apr 19 15:41:32 CEST 2018
 
-* CORE: [FIX] Show notice in selective settings dialog, if no colections on root level exist #97
-* CORE: [FIX] Do not show tab "current user" in settings dialog if no user is logged in #98
+* UI: [FIX] Show notice in selective settings dialog, if no colections on root level exist #97
+* UI: [FIX] Do not show tab "current user" in settings dialog if no user is logged in #98
 
 ## 0.1.0-beta4
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
