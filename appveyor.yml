@@ -33,8 +33,6 @@ deploy:
   auth_token:
     secure: pUNwihH4K0Qy5dcJ8g3FFkvPyqwOcv5avZYU/JwoY4RVJljy/sq8FuOObDGkZ+Sx
   artifact: exe,latest
-  draft: true
-  prerelease: false
   force_update: true
   on:
     appveyor_repo_tag: true
