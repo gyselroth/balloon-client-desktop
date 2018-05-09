@@ -29,7 +29,9 @@ before_deploy:
 deploy:
   - provider: releases
     file_glob: true
-    file: dist/*
+    file:
+      - dist/*
+      - dist/mac/*
     skip_cleanup: true
     api_key:
       secure: BRt/TM+aZd+uli7tOdO/fddqmnjgcT1psYa9WknVB/BYE8GcZ5D/6zGJdeXv4A1v4+AS6RxzkzVytewAfvL6rXcUDPUy4o5+O21N1c8kuzhZkd+kTOeOTpX+wySAQ+oYcrUEvvNZb82rbRNnjdD+sAfpWZlJYJcjvergDduaXncPKqxerHkRrAulhiO8+9sryt5m+CQPpT2kM6o4VYAclNG6M4u09H7rbpm05TcfuFdqi3ZvRqktdES0IIiu6k4XBJ5osHvO4mX53nKW8b9CMYkcHFrMomIsnq9TOYR4o0IxKIkdDde9jOnQcQjJc4YYo9CHvjUpbU4WneylrJJ3RLMF4v4EC1rhLMAm9aw5jAcSEj5ZiipsMpCqWbyGm8bhzqXnLfTyeeaS6ItovAfcQIlovtED4fKAv0MYKOwFYhY1NKMOFiC2uGL2/+/WT1JKB9V03eqqPWCsOkKOlxsiEJfOBgvhnnAAocegwQOupa8ti/CDq/IRlFoLI5F0BGLp+I6lLccAykt6+zF2nEHFqGw0QYuRHv8ULk630c0azEWNwOwSrbPBYhqwXwMphuoG2QUZCUTon+vjtkCZhF20y7HD4hpTzGQhvSKnkwi9PkrjOv2U/ImdU0luWTrTaP+NiODUgT1JqhtgRqstuhdpil0huTvngfOFuKYegrAOqyA=
