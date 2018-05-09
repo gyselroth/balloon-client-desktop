@@ -1,6 +1,6 @@
 ## 0.2.0-alpha1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**:
+**Date**: Wed May 09 14:46:23 CEST 2018
 
 * CORE: [FEATURE] Only run sync if kernel notifies changes (watchdog) or delta got changes #102
 * CORE: [CHANGE] Include rotated log files in feedback #35
