@@ -52,19 +52,6 @@ This software is freely available under the terms of [GPL-3.0](https://github.co
 ## Editor config
 This repository gets shipped with an .editorconfig configuration. For more information on how to configure your editor, please visit [editorconfig](https://github.com/editorconfig).
 
-## Code policy
-There are no javascript standards like PSR-1/2 for PHP, but please observe the following rules:
-
-* Abstract classes should be named with an Abstract prefix: AbstractExample
-* Interfaces should be named with an Interface suffix: ExampleInterface
-* Variables should be named with underscore (_) and not camelCase
-* Methods and classes follow camelCase naming
-* All files delcare "use strict;"
-* Always cache dom objects which will be used more than once: (`var $body = $('body');`)
-* Add a $ prefix for variables containing a jquery object
-* Always use i18next for output messages
-* All api calls must use balloon.xmlHttpRequest()
-
 # Build
 
 ## Automation

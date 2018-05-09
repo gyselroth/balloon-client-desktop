@@ -20,21 +20,21 @@ test_script:
   - npm --version
   - SET PATH=C:\Program Files\Nodejs;%PATH%
 
-#artifacts:
-#  - path: dist/*.exe
-#    name: exe
+artifacts:
+  - path: dist/*.exe
+    name: exe
 
-#  - path: dist/*.yml
-#    name: latest
+  - path: dist/*.yml
+    name: latest
 
-#deploy:
-#  release: v$(package_version)
-#  provider: GitHub
-#  auth_token:
-#    secure: pUNwihH4K0Qy5dcJ8g3FFkvPyqwOcv5avZYU/JwoY4RVJljy/sq8FuOObDGkZ+Sx
-#  artifact: exe,latest
-#  draft: true
-#  prerelease: false
-#  force_update: true
-#  on:
-#    branch: master
+deploy:
+  release: v$(package_version)
+  provider: GitHub
+  auth_token:
+    secure: pUNwihH4K0Qy5dcJ8g3FFkvPyqwOcv5avZYU/JwoY4RVJljy/sq8FuOObDGkZ+Sx
+  artifact: exe,latest
+  draft: true
+  prerelease: false
+  force_update: true
+  on:
+    appveyor_repo_tag: true

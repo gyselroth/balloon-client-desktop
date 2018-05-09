@@ -2,13 +2,16 @@
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**:
 
-* CORE [FEATURE] Only run fullSync when really needed
-* CORE [CHANGE] Include rotated log files in feedback
-* CORE [FEATURE] new setting autoReport, if enabled log files will be sent in recuring periods
+* CORE: [FEATURE] Only run sync if kernel notifies changes (watchdog) or delta got changes #102
+* CORE: [CHANGE] Include rotated log files in feedback #35
+* CORE: [FEATURE] new setting autoReport, if enabled log files will be sent in recuring periods #96
+* CORE: [FIX] file gets added as new instead moved #100
+* CORE: [CHANGE] upgraded to electron v2.0.0
+* PACKAGING: [CHANGE] upgraded builder and release deployment via travis/appveyor
 
-## 0.1.0-beta5
+## 0.1.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**:
+**Date**: Thu Apr 19 15:41:32 CEST 2018
 
 * CORE: [FIX] Show notice in selective settings dialog, if no colections on root level exist #97
 * CORE: [FIX] Do not show tab "current user" in settings dialog if no user is logged in #98
