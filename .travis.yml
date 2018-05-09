@@ -29,7 +29,7 @@ before_deploy:
 deploy:
   - provider: releases
     file_glob: true
-    file: dist/*.deb,dist/*.yml,dist/*.pkg,dist/*.rpm,dist/*.zip
+    file: dist/*.deb,dist/*.yml,dist/*.pkg,dist/*.rpm,dist/*.zip,dist/*.json
     skip_cleanup: true
     overwrite: true
     api_key:
