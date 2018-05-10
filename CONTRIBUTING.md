@@ -111,6 +111,7 @@ The following configuration options are available:
 
 * `name` String (optional) - the name of the context. `production` or `development`. Default: `production`
 * `version` Integer (optional) - version of this configuration (Increase if you want to update env configuration between build updates). Default: `0`
+* `tlsVerifyCert` Boolean (optional) - Accept self signed SSl certificates. Default: `true` on development, `false` on production
 * `blnUrl` String (optional) - the url under which your Balloon installation is running. If no set user is prompted to enter URL on first start (eg: `https://example-balloon.io`)
 * `apiPath` String (optional) - the path to the API Default: `'/api/v1/'`
 * `configDir` String (optional) - path to the directory where configuration is stored on the client. You can use {home}/{username} which gets replaced with the current home directory/local username. This setting only works well if update.enable is set on `false`. Default: `{home}/.balloon`

@@ -32,16 +32,16 @@ module.exports = function(env, clientConfig) {
 
   function toggleAutoReport(state) {
     if(state === false) {
-      logger.info('Disabling auto report', {category: 'feedback'});
+      logger.info('disabling auto report', {category: 'feedback'});
       if(autoReportInterval) clearInterval(autoReportInterval);
     } else {
-      logger.info('Enabling auto report', {category: 'feedback'});
+      logger.info('enabling auto report', {category: 'feedback'});
       autoReportInterval = setInterval(sendAutoReport, (env.autoReportInterval || 300000))
     }
   }
 
   function sendAutoReport() {
-    logger.debug('Sending auto report', {category: 'feedback'});
+    logger.debug('sending auto report', {category: 'feedback'});
 
     var reportName = [clientConfig.get('username'), Math.floor(new Date().getTime() / 1000)].join('_');
 

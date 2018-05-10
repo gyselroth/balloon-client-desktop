@@ -30,7 +30,7 @@ logger.setLogger(standardLogger);
 
 process.on('uncaughtException', function(exception) {
   logger.error('uncaught exception', {
-    category: 'bootstrap',
+    category: 'main',
     error: exception
   });
 });
@@ -43,7 +43,7 @@ if(shouldQuit === true) {
 }
 
 function startApp() {
-  logger.info('startApp', {category: 'main'});
+  logger.info('bootstrap app', {category: 'main'});
 
   auth.retrieveLoginSecret().then(() => {
     logger.info('login secret recieved', {category: 'main'});
@@ -55,14 +55,14 @@ function startApp() {
       }
 
       logger.info('initial online state', {
-        category: 'bootstrap',
+        category: 'main',
         state: state
       });
 
       appState.set('onLineState', state);
       startup.checkConfig().then((result) => {
         logger.info('startup checkconfig successfull', {
-          category: 'bootstrap',
+          category: 'main',
         });
 
         if(!tray.isRunning()) {
@@ -79,8 +79,8 @@ function startApp() {
           startSync(true);
 
           electron.powerMonitor.on('suspend', () => {
-            logger.info('The system is going to sleep', {
-              category: 'bootstrap',
+            logger.info('the system is going to sleep', {
+              category: 'main',
             });
 
             //abort a possibly active sync if not already paused
@@ -93,8 +93,8 @@ function startApp() {
           });
 
           electron.powerMonitor.on('resume', () => {
-            logger.info('The system is resuming', {
-              category: 'bootstrap',
+            logger.info('the system is resuming', {
+              category: 'main',
             });
 
             startSync(true);
@@ -102,7 +102,7 @@ function startApp() {
         });
       }).catch((error) => {
         logger.error('startup checkconfig', {
-            category: 'bootstrap',
+            category: 'main',
             error: error
         });
 
@@ -130,14 +130,14 @@ function unlinkAccount() {
     return auth.logout();
   }).then(() => {
     logger.info('logout successfull', {
-      category: 'bootstrap',
+      category: 'main',
     });
 
     tray.emit('unlink-account-result', true);
     tray.toggleState('loggedout', true);
   }).catch((error) => {
     logger.error('logout not successfull', {
-      category: 'bootstrap',
+      category: 'main',
       error: error
     });
 
@@ -151,8 +151,8 @@ app.on('ready', function () {
   feedback = FeedbackCtrl(env, clientConfig);
   feedback.toggleAutoReport(globalConfig.get('autoReport'));
 
-  logger.info('App ready', {
-      category: 'bootstrap',
+  logger.info('app ready to operate', {
+      category: 'main',
   });
 
   setMenu();
@@ -161,7 +161,7 @@ app.on('ready', function () {
     startApp();
   }).catch(err => {
     logger.error('error during migration, quitting app', {
-      category: 'bootstrap',
+      category: 'main',
       error: err
     });
 
@@ -189,7 +189,7 @@ ipcMain.on('tray-show', function() {
 
 ipcMain.on('tray-online-state-changed', function(event, state) {
   logger.info('online state changed', {
-    category: 'bootstrap',
+    category: 'main',
     state: state
   });
 
@@ -213,7 +213,7 @@ ipcMain.on('settings-autoReport-changed', function(event, state) {
 /** Auto update **/
 ipcMain.on('install-update', function() {
   logger.info('install-update triggered', {
-    category: 'bootstrap',
+    category: 'main',
   });
 
   autoUpdate.quitAndInstall();
@@ -221,7 +221,7 @@ ipcMain.on('install-update', function() {
 
 ipcMain.on('check-for-update', function() {
   logger.info('check-for-update triggered', {
-      category: 'bootstrap',
+      category: 'main',
   });
 
   autoUpdate.checkForUpdate();
@@ -262,16 +262,16 @@ ipcMain.on('selective-apply', function(event, difference) {
 })
 
 ipcMain.on('unlink-account', (event) => {
-  logger.info('logout requested', {category: 'bootstrap'});
+  logger.info('logout requested', {category: 'main'});
   unlinkAccount();
 });
 
 ipcMain.on('link-account', (event, id) => {
-  logger.info('login requested', {category: 'bootstrap'});
+  logger.info('login requested', {category: 'main'});
 
   startup.checkConfig().then(() => {
     logger.info('login successfull', {
-      category: 'bootstrap',
+      category: 'main',
       data: clientConfig.getMulti(['username', 'loggedin'])
     });
 
@@ -283,12 +283,12 @@ ipcMain.on('link-account', (event, id) => {
   }).catch((err) => {
     if(err.code !== 'E_BLN_OAUTH_WINDOW_OPEN') {
       logger.error('login not successfull', {
-        category: 'bootstrap',
+        category: 'main',
         error: err
       });
     } else {
       logger.info('login aborted as there is already a login window open', {
-        category: 'bootstrap',
+        category: 'main',
       });
     }
 
@@ -300,16 +300,16 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
   switch(error.code) {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
       if(clientConfig.get('authMethod') === 'basic') {
-        logger.info('got 401, end sync and unlink account', {category: 'bootstrap'});
+        logger.info('got 401, end sync and unlink account', {category: 'main'});
         endSync();
         unlinkAccount();
       } else {
-        logger.debug('got 401, refresh accessToken', {category: 'bootstrap'});
+        logger.debug('got 401, refresh accessToken', {category: 'main'});
         auth.refreshAccessToken().then(() => {
           endSync();
           sync.resumeWatcher(false);
         }).catch(() => {
-          logger.error('could not refresh accessToken, unlink instance', {category: 'bootstrap'});
+          logger.error('could not refresh accessToken, unlink instance', {category: 'main'});
           endSync();
           unlinkAccount();
         });
@@ -317,7 +317,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
     break;
     case 'E_BLN_CONFIG_CREDENTIALS':
       logger.error('credentials not set', {
-        category: 'bootstrap',
+        category: 'main',
         code: error.code
       });
 
@@ -330,7 +330,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
     case 'E_BLN_CONFIG_APIURL':
       //this should only happen, when user deletes the configuation, while the application is running
       logger.info('reinitializing config, config sync error occured', {
-        category: 'bootstrap',
+        category: 'main',
         code: error.code
       });
 
@@ -340,7 +340,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
     break;
     case 'E_BLN_CONFIG_CONFIGDIR_ACCES':
       logger.error('config dir not accesible.', {
-        category: 'bootstrap',
+        category: 'main',
         error
       });
       endSync();
@@ -354,7 +354,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
     case 'ESOCKETTIMEDOUT':
     case 'ECONNRESET':
       logger.error('sync terminated with networkproblems.', {
-        category: 'bootstrap',
+        category: 'main',
         code: error.code
       });
       endSync();
@@ -362,7 +362,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
     break;
     default:
       logger.error('Uncaught sync error. Resetting cursor and db', {
-        category: 'bootstrap',
+        category: 'main',
         error,
         url,
         line,
@@ -397,8 +397,8 @@ function startSync(forceFullSync) {
   if(appState.get('onLineState') === true) {
     sync.start(forceFullSync);
   } else {
-    logger.info('Not starting Sync because client is offline', {
-      category: 'bootstrap',
+    logger.info('not starting Sync because client is offline', {
+      category: 'main',
     });
   }
 }
