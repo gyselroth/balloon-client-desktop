@@ -9,7 +9,7 @@ matrix:
 
 install:
   - ps: $env:package_version = (Get-Content -Path package.json | ConvertFrom-Json).version
-  - ps: $env:pre_release = true
+  - ps: $env:channel = "unstable"
   - ps: Install-Product node $env:nodejs_version x64
   - npm set progress=false
   - npm prune
@@ -29,12 +29,23 @@ artifacts:
     name: latest
 
 deploy:
-  release: v$(package_version)
-  provider: GitHub
-  auth_token:
-    secure: pUNwihH4K0Qy5dcJ8g3FFkvPyqwOcv5avZYU/JwoY4RVJljy/sq8FuOObDGkZ+Sx
-  artifact: exe,latest
-  prerelease: $(pre_release)
-  force_update: true
-  on:
-    appveyor_repo_tag: true
+  - release: $(package_version)
+    provider: GitHub
+    auth_token:
+      secure: pUNwihH4K0Qy5dcJ8g3FFkvPyqwOcv5avZYU/JwoY4RVJljy/sq8FuOObDGkZ+Sx
+    artifact: exe,latest
+    prerelease: true
+    force_update: true
+    on:
+      channel: unstable
+      appveyor_repo_tag: true
+  - release: $(package_version)
+    provider: GitHub
+    auth_token:
+      secure: pUNwihH4K0Qy5dcJ8g3FFkvPyqwOcv5avZYU/JwoY4RVJljy/sq8FuOObDGkZ+Sx
+    artifact: exe,latest
+    prerelease: false
+    force_update: true
+    on:
+      channel: stable
+      appveyor_repo_tag: true
