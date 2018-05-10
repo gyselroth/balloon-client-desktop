@@ -7,6 +7,7 @@
 * CORE: [FEATURE] new setting autoReport, if enabled log files will be sent in recuring periods #96
 * CORE: [FIX] file gets added as new instead moved #100
 * CORE: [CHANGE] upgraded to electron v2.0.0
+* CORE: [FEATURE] Accept self signed ssl certificates via config `tlsVerifyCert` #91
 * PACKAGING: [CHANGE] upgraded builder and release deployment via travis/appveyor
 
 ## 0.1.0
