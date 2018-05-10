@@ -29,7 +29,8 @@ artifacts:
     name: latest
 
 deploy:
-  - release: $(package_version)
+  - tag: v$(package_version)
+    release: $(package_version)
     provider: GitHub
     auth_token:
       secure: pUNwihH4K0Qy5dcJ8g3FFkvPyqwOcv5avZYU/JwoY4RVJljy/sq8FuOObDGkZ+Sx
@@ -39,7 +40,8 @@ deploy:
     on:
       channel: unstable
       appveyor_repo_tag: true
-  - release: $(package_version)
+  - tag: v$(package_version)
+    release: $(package_version)
     provider: GitHub
     auth_token:
       secure: pUNwihH4K0Qy5dcJ8g3FFkvPyqwOcv5avZYU/JwoY4RVJljy/sq8FuOObDGkZ+Sx
