@@ -21,7 +21,7 @@
     ],
     "extraResources": "resources/**/*",
     "mac": {
-      "artifactName": "${os}/${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
+      "artifactName": "${os}/${name}-${version}-mac.${ext}"
     },
     "linux": {
       "category": "Network"
@@ -33,7 +33,7 @@
       "afterInstall": "build/fpm-scripts/postinstall"
     },
     "nsis": {
-      "artifactName": "${productName}-Setup-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}",
+      "artifactName": "${name}-setup-${version}.${ext}",
       "allowToChangeInstallationDirectory": true,
       "oneClick": false,
       "license": "LICENSE"
