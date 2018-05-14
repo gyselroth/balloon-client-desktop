@@ -37,7 +37,14 @@
       "allowToChangeInstallationDirectory": true,
       "oneClick": false,
       "license": "LICENSE"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "gyselroth",
+        "repo": "balloon-client-desktop"
+      }
+    ]
   },
   "bugs": {
     "url": "https://github.com/gyselroth/balloon-client-desktop/issues"
