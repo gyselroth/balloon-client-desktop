@@ -27,27 +27,3 @@ artifacts:
 
   - path: dist/*.yml
     name: latest
-
-#deploy:
-#  - tag: v$(package_version)
-#    release: $(package_version)
-#    provider: GitHub
-#    auth_token:
-#      secure: pUNwihH4K0Qy5dcJ8g3FFkvPyqwOcv5avZYU/JwoY4RVJljy/sq8FuOObDGkZ+Sx
-#    artifact: exe,latest
-#    prerelease: true
-#    force_update: true
-#    on:
-#      channel: unstable
-#      appveyor_repo_tag: true
-#  - tag: v$(package_version)
-#    release: $(package_version)
-#    provider: GitHub
-#    auth_token:
-#      secure: pUNwihH4K0Qy5dcJ8g3FFkvPyqwOcv5avZYU/JwoY4RVJljy/sq8FuOObDGkZ+Sx
-#    artifact: exe,latest
-#    prerelease: false
-#    force_update: true
-#    on:
-#      channel: stable
-#      appveyor_repo_tag: true
