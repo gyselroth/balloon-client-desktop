@@ -123,7 +123,10 @@ module.exports = function(env, clientConfig, sync) {
         async.parallel([
           (cb) => {
             createDirectorySnapshot((err, snapshot) => {
-              if(err) return cb(err);
+              if(err) {
+                logger.error('creating directory snapshot failed', {category: 'feedback', err});
+                return cb(err);
+              }
 
               archive.append(snapshot, {name: 'report/snapshot.json'});
 
@@ -141,8 +144,6 @@ module.exports = function(env, clientConfig, sync) {
 
           }
         ], (err, results) => {
-          if(err) return reject(err);
-
           archive.finalize();
         });
       }
