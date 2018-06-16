@@ -4,6 +4,8 @@ const { exec } = require('child_process');
 
 const async = require('async');
 
+const logger = require('./logger.js');
+
 module.exports = function(balloonDir, callback) {
   var cmds;
   switch (process.platform) {
@@ -20,7 +22,10 @@ module.exports = function(balloonDir, callback) {
 
   async.map(cmds, (cmd, cb) => {
     exec(cmd, (err, result) => {
-      if(err) return cb(err);
+      if(err) {
+        logger.error('shell exec error', {cmd, err, category: 'fs-info'});
+        return cb(err);
+      }
 
       cb(null, {cmd, result});
     });

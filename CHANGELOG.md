@@ -17,6 +17,13 @@
 * CORE: [FEATURE] Accept self signed ssl certificates via config `tlsVerifyCert` #91
 
 
+## 0.1.1
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Tue May 15 14:52:11 CEST 2018
+
+* CORE: [FIX] Various sync fixes with balloon-node-sync v0.1.1
+
+
 ## 0.1.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu Apr 19 15:41:32 CEST 2018
