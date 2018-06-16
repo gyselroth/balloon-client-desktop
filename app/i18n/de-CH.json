@@ -41,7 +41,7 @@
   "feedback.includeSystemFiles": "Systeminformationen senden:",
   "feedback.text": "Vielen Dank, dass du balloon unterstützt:",
   "feedback.sent": "Danke für dein Feedback!",
-  "feedback.error.send": "Wir haben einen Fehler beim senden deines Feedbacks festgestellt, bitte versuche es später erneut!",
+  "feedback.error.send": "Wir haben einen Fehler beim Senden deines Feedbacks festgestellt, bitte versuche es später erneut!",
   "feedback.error.empty": "Bitte fühle das Feedback vor dem senden aus!",
 
   "settings": "Einstellungen",
