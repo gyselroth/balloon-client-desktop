@@ -1,8 +1,8 @@
 ## 0.2.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Fri Jun 15 22:52:21 CEST 2018
+**Date**: Mon Jun 18 08:49:21 CEST 2018
 
-0.2.0 release
+* CORE: [CHANGE] Upgrade sync to v0.2.1
 
 
 ## 0.2.0-alpha1
