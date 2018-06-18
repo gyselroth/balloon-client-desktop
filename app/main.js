@@ -17,8 +17,9 @@ const setMenu = require('./lib/menu.js');
 const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
 const configManager = require('./lib/config-manager/controller.js')(clientConfig);
+const globalConfig = require('./lib/global-config.js');
 
-var tray, selective, sync, settings, feedback, autoUpdate;
+var tray, selective, sync, feedback, autoUpdate;
 
 var standardLogger = new loggerFactory(clientConfig.getAll());
 var startup = StartupCtrl(env, clientConfig);
@@ -29,7 +30,7 @@ logger.setLogger(standardLogger);
 
 process.on('uncaughtException', function(exception) {
   logger.error('uncaught exception', {
-    category: 'bootstrap',
+    category: 'main',
     error: exception
   });
 });
@@ -42,7 +43,7 @@ if(shouldQuit === true) {
 }
 
 function startApp() {
-  logger.info('startApp', {category: 'main'});
+  logger.info('bootstrap app', {category: 'main'});
 
   auth.retrieveLoginSecret().then(() => {
     logger.info('login secret recieved', {category: 'main'});
@@ -54,14 +55,14 @@ function startApp() {
       }
 
       logger.info('initial online state', {
-        category: 'bootstrap',
+        category: 'main',
         state: state
       });
 
       appState.set('onLineState', state);
       startup.checkConfig().then((result) => {
         logger.info('startup checkconfig successfull', {
-          category: 'bootstrap',
+          category: 'main',
         });
 
         if(!tray.isRunning()) {
@@ -75,32 +76,33 @@ function startApp() {
         welcomeWizard.then(() => {
           sync.setMayStart(true);
 
-          if(env.name === 'production') {
-            startSync();
-          }
+          startSync(true);
 
           electron.powerMonitor.on('suspend', () => {
-            logger.info('The system is going to sleep', {
-              category: 'bootstrap',
+            logger.info('the system is going to sleep', {
+              category: 'main',
             });
 
             //abort a possibly active sync if not already paused
-            if(sync && sync.isPaused() === false) sync.pause(true);
+            if(sync && sync.isPaused() === false) {
+              sync.pause(true);
+            } else if(sync) {
+              //if sync is paused kill a possible active watcher
+              sync.killWatcher();
+            }
           });
 
           electron.powerMonitor.on('resume', () => {
-            logger.info('The system is resuming', {
-              category: 'bootstrap',
+            logger.info('the system is resuming', {
+              category: 'main',
             });
 
-            if(env.name === 'production') {
-              startSync();
-            }
+            startSync(true);
           });
         });
       }).catch((error) => {
         logger.error('startup checkconfig', {
-            category: 'bootstrap',
+            category: 'main',
             error: error
         });
 
@@ -116,7 +118,6 @@ function startApp() {
 
     tray = TrayCtrl(env, clientConfig);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
-    feedback = FeedbackCtrl(env, clientConfig, sync);
   });
 }
 
@@ -129,14 +130,14 @@ function unlinkAccount() {
     return auth.logout();
   }).then(() => {
     logger.info('logout successfull', {
-      category: 'bootstrap',
+      category: 'main',
     });
 
     tray.emit('unlink-account-result', true);
     tray.toggleState('loggedout', true);
   }).catch((error) => {
     logger.error('logout not successfull', {
-      category: 'bootstrap',
+      category: 'main',
       error: error
     });
 
@@ -147,8 +148,11 @@ function unlinkAccount() {
 app.on('ready', function () {
   appState.set('updateAvailable', false);
 
-  logger.info('App ready', {
-      category: 'bootstrap',
+  feedback = FeedbackCtrl(env, clientConfig);
+  feedback.toggleAutoReport(globalConfig.get('autoReport'));
+
+  logger.info('app ready to operate', {
+      category: 'main',
   });
 
   setMenu();
@@ -157,7 +161,7 @@ app.on('ready', function () {
     startApp();
   }).catch(err => {
     logger.error('error during migration, quitting app', {
-      category: 'bootstrap',
+      category: 'main',
       error: err
     });
 
@@ -185,7 +189,7 @@ ipcMain.on('tray-show', function() {
 
 ipcMain.on('tray-online-state-changed', function(event, state) {
   logger.info('online state changed', {
-    category: 'bootstrap',
+    category: 'main',
     state: state
   });
 
@@ -195,16 +199,21 @@ ipcMain.on('tray-online-state-changed', function(event, state) {
     if(sync && sync.isPaused() === false) sync.pause(true);
     tray.toggleState('offline', true);
   } else {
-    if(sync && sync.isPaused() === false) startSync();
+    if(sync && sync.isPaused() === false) startSync(true);
     tray.toggleState('offline', false);
   }
+});
+
+/** Settings **/
+ipcMain.on('settings-autoReport-changed', function(event, state) {
+  feedback.toggleAutoReport(state);
 });
 
 
 /** Auto update **/
 ipcMain.on('install-update', function() {
   logger.info('install-update triggered', {
-    category: 'bootstrap',
+    category: 'main',
   });
 
   autoUpdate.quitAndInstall();
@@ -212,21 +221,13 @@ ipcMain.on('install-update', function() {
 
 ipcMain.on('check-for-update', function() {
   logger.info('check-for-update triggered', {
-      category: 'bootstrap',
+      category: 'main',
   });
 
   autoUpdate.checkForUpdate();
 });
 
 /** Sync **/
-ipcMain.on('sync-start', () => {
-  startSync();
-});
-
-ipcMain.on('sync-complete', () => {
-  endSync(true);
-});
-
 ipcMain.on('sync-transfer-start', () => {
   tray.syncTransferStarted();
 });
@@ -236,8 +237,6 @@ ipcMain.on('sync-transfer-end', () => {
 });
 
 ipcMain.on('sync-toggle-pause', () => {
-  if(env.name === 'development') return;
-
   if(!sync) {
     return tray.syncPaused();
   }
@@ -263,33 +262,33 @@ ipcMain.on('selective-apply', function(event, difference) {
 })
 
 ipcMain.on('unlink-account', (event) => {
-  logger.info('logout requested', {category: 'bootstrap'});
+  logger.info('logout requested', {category: 'main'});
   unlinkAccount();
 });
 
 ipcMain.on('link-account', (event, id) => {
-  logger.info('login requested', {category: 'bootstrap'});
+  logger.info('login requested', {category: 'main'});
 
   startup.checkConfig().then(() => {
     logger.info('login successfull', {
-      category: 'bootstrap',
+      category: 'main',
       data: clientConfig.getMulti(['username', 'loggedin'])
     });
 
     clientConfig.updateTraySecret();
 
     tray.toggleState('loggedout', false);
-    startSync();
+    startSync(true);
     event.sender.send('link-account-result', true);
   }).catch((err) => {
     if(err.code !== 'E_BLN_OAUTH_WINDOW_OPEN') {
       logger.error('login not successfull', {
-        category: 'bootstrap',
+        category: 'main',
         error: err
       });
     } else {
       logger.info('login aborted as there is already a login window open', {
-        category: 'bootstrap',
+        category: 'main',
       });
     }
 
@@ -301,27 +300,28 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
   switch(error.code) {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
       if(clientConfig.get('authMethod') === 'basic') {
-        logger.info('got 401, end sync and unlink account', {category: 'bootstrap'});
-        endSync(false);
+        logger.info('got 401, end sync and unlink account', {category: 'main'});
+        endSync();
         unlinkAccount();
       } else {
-        logger.debug('got 401, refresh accessToken', {category: 'bootstrap'});
+        logger.debug('got 401, refresh accessToken', {category: 'main'});
         auth.refreshAccessToken().then(() => {
-          endSync(true);
+          endSync();
+          sync.resumeWatcher(false);
         }).catch(() => {
-          logger.error('could not refresh accessToken, unlink instance', {category: 'bootstrap'});
-          endSync(false);
+          logger.error('could not refresh accessToken, unlink instance', {category: 'main'});
+          endSync();
           unlinkAccount();
         });
       }
     break;
     case 'E_BLN_CONFIG_CREDENTIALS':
       logger.error('credentials not set', {
-        category: 'bootstrap',
+        category: 'main',
         code: error.code
       });
 
-      endSync(false);
+      endSync();
       unlinkAccount();
     break;
     case 'E_BLN_CONFIG_BALLOONDIR':
@@ -330,19 +330,20 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
     case 'E_BLN_CONFIG_APIURL':
       //this should only happen, when user deletes the configuation, while the application is running
       logger.info('reinitializing config, config sync error occured', {
-        category: 'bootstrap',
+        category: 'main',
         code: error.code
       });
 
       clientConfig.initialize();
-      endSync(true);
+      endSync();
+      startSync(true);
     break;
     case 'E_BLN_CONFIG_CONFIGDIR_ACCES':
       logger.error('config dir not accesible.', {
-        category: 'bootstrap',
+        category: 'main',
         error
       });
-      endSync(false);
+      endSync();
     break;
     case 'ENOTFOUND':
     case 'ETIMEDOUT':
@@ -353,15 +354,15 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
     case 'ESOCKETTIMEDOUT':
     case 'ECONNRESET':
       logger.error('sync terminated with networkproblems.', {
-        category: 'bootstrap',
+        category: 'main',
         code: error.code
       });
-      endSync(false);
+      endSync();
       tray.emit('network-offline');
     break;
     default:
       logger.error('Uncaught sync error. Resetting cursor and db', {
-        category: 'bootstrap',
+        category: 'main',
         error,
         url,
         line,
@@ -369,13 +370,11 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
       });
 
       configManager.resetCursorAndDb().then(function() {
-        if(env.name === 'production') {
-          endSync(true);
-        }
+        endSync();
+        startSync(true);
       }).catch(function(err) {
-        if(env.name === 'production') {
-          endSync(true);
-        }
+        endSync();
+        startSync(true);
       });
   }
 });
@@ -383,14 +382,6 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
 /** Development Methods **/
 if(env.name === 'development') {
   process.on('unhandledRejection', r => console.log(r));
-
-  ipcMain.on('dev-reset', (event) => {
-    configManager.reset().then(() => {
-      event.sender.send('dev-reset-complete');
-    }).catch(err => {
-      event.sender.send('dev-reset-complete', err);
-    });
-  });
 }
 
 if (process.platform === 'darwin' && app.dock && env.name === 'production') {
@@ -398,20 +389,20 @@ if (process.platform === 'darwin' && app.dock && env.name === 'production') {
   app.dock.hide();
 }
 
-function startSync() {
+function startSync(forceFullSync) {
   if(!sync) {
     sync = SyncCtrl(env, tray);
   }
 
   if(appState.get('onLineState') === true) {
-    sync.start();
+    sync.start(forceFullSync);
   } else {
-    logger.info('Not starting Sync because client is offline', {
-      category: 'bootstrap',
+    logger.info('not starting Sync because client is offline', {
+      category: 'main',
     });
   }
 }
 
-function endSync(scheduleNextSync) {
-  sync.end(scheduleNextSync);
+function endSync() {
+  sync.endFullSync();
 }

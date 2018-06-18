@@ -1,21 +1,43 @@
+## 0.2.0
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Mon Jun 18 08:49:21 CEST 2018
+
+* CORE: [CHANGE] Upgrade sync to v0.2.1
+
+
+## 0.2.0-alpha1
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Wed May 09 14:46:23 CEST 2018
+
+* CORE: [FEATURE] Only run sync if kernel notifies changes (watchdog) or delta got changes #102
+* CORE: [CHANGE] Include rotated log files in feedback #35
+* CORE: [FEATURE] new setting autoReport, if enabled log files will be sent in recuring periods #96
+* CORE: [FIX] file gets added as new instead moved #100
+* CORE: [CHANGE] upgraded to electron v2.0.0
+* CORE: [FEATURE] Accept self signed ssl certificates via config `tlsVerifyCert` #91
+
+
 ## 0.1.1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Tue May 15 14:52:11 CEST 2018
 
 * CORE: [FIX] Various sync fixes with balloon-node-sync v0.1.1
 
+
 ## 0.1.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu Apr 19 15:41:32 CEST 2018
 
-* UI: [FIX] Show notice in selective settings dialog, if no colections on root level exist #97
-* UI: [FIX] Do not show tab "current user" in settings dialog if no user is logged in #98
+* CORE: [FIX] Show notice in selective settings dialog, if no colections on root level exist #97
+* CORE: [FIX] Do not show tab "current user" in settings dialog if no user is logged in #98
+
 
 ## 0.1.0-beta4
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri Apr 06 17:22:02 CEST 2018
 
 * CORE: [FIX] fixes balloon-node-sync dependency
+
 
 ## 0.1.0-beta3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
@@ -25,6 +47,7 @@
 * CORE: [FIX] Do not query quota, when no user is logged in
 * CORE: [FIX] Do not start sync, when no user is logged in
 * CORE: [FIX] Wait until sync stopped before logout in unlinkAccount
+
 
 ## 0.1.0-beta2
 **Maintainer**: balloon-team <opensource@gyselroth.net>\

@@ -9,32 +9,6 @@ const fsUtility = require('../fs-utility.js');
 module.exports = function(clientConfig) {
   const instanceDir = clientConfig.get('instanceDir');
 
-  function reset() {
-    logger.debug('reset initalized', {category: 'config-manager'});
-
-    return new Promise(function(resolve, reject) {
-      async.parallel([
-        resetLastCursor,
-        resetSyncDb,
-        resetQueueErrorDb,
-        resetTransferDb,
-        removeLocalFiles
-      ], (err, results) => {
-        if(err) {
-          logger.error('reset failed', {
-            category: 'config-manager',
-            error: err
-          });
-
-          reject(err);
-        } else {
-          logger.debug('reset was successfull', {category: 'config-manager'});
-          resolve();
-        }
-      });
-    });
-  }
-
   function resetCursorAndDb() {
     logger.debug('reseting cursor and sync db initalized',  {category: 'config-manager'});
 
@@ -56,25 +30,6 @@ module.exports = function(clientConfig) {
           resolve();
         }
       });
-    });
-  }
-
-  function removeLocalFiles(callback) {
-    var pathBalloonDir = clientConfig.get('balloonDir');
-    async.series([
-      (cb) => {
-        fsUtility.rmdirp(pathBalloonDir, cb);
-      },
-      (cb) => {
-        fsUtility.createBalloonDir(pathBalloonDir, clientConfig.get('homeDir'), cb);
-      }
-    ], (err) => {
-      if(err) {
-        logger.error(err);
-        return callback(err);
-      }
-
-      callback(null);
     });
   }
 
@@ -139,7 +94,6 @@ module.exports = function(clientConfig) {
   }
 
   return {
-    reset,
     resetCursorAndDb
   }
 }

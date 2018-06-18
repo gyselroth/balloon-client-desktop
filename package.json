@@ -2,7 +2,7 @@
   "name": "balloon-desktop",
   "productName": "Balloon",
   "description": "Balloon Desktop Client",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "author": "gyselroth GmbH  <opensource@gyselroth.net>",
   "copyright": "© 2017-2018, gyselroth GmbH",
   "homepage": "https://www.gyselroth.com",
@@ -21,7 +21,7 @@
     ],
     "extraResources": "resources/**/*",
     "mac": {
-      "artifactName": "${os}/${productName}-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}"
+      "artifactName": "${os}/${name}-${version}-mac.${ext}"
     },
     "linux": {
       "category": "Network"
@@ -33,7 +33,7 @@
       "afterInstall": "build/fpm-scripts/postinstall"
     },
     "nsis": {
-      "artifactName": "${productName}-Setup-${version}${env.BLN_ARTIFACT_APPENDIX}.${ext}",
+      "artifactName": "${name}-setup-${version}.${ext}",
       "allowToChangeInstallationDirectory": true,
       "oneClick": false,
       "license": "LICENSE"
@@ -73,8 +73,8 @@
   },
   "devDependencies": {
     "chai": "~3.5.0",
-    "electron": "^1.7.13",
-    "electron-builder": "19.27.3",
+    "electron": "^2.0.2",
+    "electron-builder": "^20.15.3",
     "electron-mocha": "~3.5.0",
     "electron-rebuild": "1.6.0",
     "gulp": "~3.9.1",
@@ -92,26 +92,27 @@
     "spectron": "~3.4.0"
   },
   "dependencies": {
-    "@gyselroth/balloon-node-sync": "~0.1.1",
-    "@gyselroth/icon-collection": "^1.0.5",
+    "@gyselroth/balloon-node-sync": "^0.2.1",
+    "@gyselroth/icon-collection": "^1.0.6",
     "@openid/appauth": "~0.2.4",
     "app-migrations": "~0.1.2",
     "archiver": "~1.3.0",
-    "async": "^2.4.1",
+    "async": "~2.4.1",
     "auto-launch": "^5.0.5",
     "electron-is-dev": "~0.3.0",
     "electron-settings": "~3.1.4",
-    "electron-traywindow-positioner": "0.0.2",
-    "electron-updater": "2.10.1",
-    "escape-string-regexp": "^1.0.5",
+    "electron-traywindow-positioner": "~0.0.2",
+    "electron-updater": "^2.21.11",
+    "escape-string-regexp": "~1.0.5",
     "graceful-fs": "~4.1.11",
     "handlebars": "^4.0.11",
     "jquery": "~3.0.0",
-    "jstree": "^3.3.5",
-    "keytar": "^4.2.0",
-    "lodash": "^4.17.5",
+    "jstree": "~3.3.5",
+    "keytar": "~4.2.1",
+    "lodash": "~4.17.10",
     "mkdirp": "~0.5.1",
     "moment": "~2.20.1",
+    "nedb": "~1.8.0",
     "prepend-file": "~1.3.1",
     "querystring": "~0.2.0",
     "request": "~2.83.0",
@@ -119,6 +120,6 @@
     "ubuntu-fontface": "~0.1.13",
     "underscore": "~1.8.3",
     "uuid4": "~1.0.0",
-    "winston": "^2.4.1"
+    "winston": "^2.4.3"
   }
 }

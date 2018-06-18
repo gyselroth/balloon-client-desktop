@@ -61,6 +61,12 @@ function initialize(syncMemory, mainSync) {
   newSettings.balloonDir = newSettings.balloonDir || balloonDir;
   newSettings.context    = env.name || 'production';
 
+  if(env.tlsVerifyCert !== undefined) {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = Number(env.tlsVerifyCert).toString();
+  } else if(env.name == 'development') {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+  }
+
   if(env.blnUrl) {
     newSettings.blnUrl = env.blnUrl;
 

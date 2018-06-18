@@ -3,6 +3,8 @@ const path = require('path');
 const {BrowserWindow, ipcMain, powerSaveBlocker} = require('electron');
 const url = require('url');
 
+const {syncWatcherFactory} = require('@gyselroth/balloon-node-sync');
+
 const StartupCtrl = require('../../ui/startup/controller.js');
 const logger = require('../logger.js');
 const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
@@ -13,14 +15,15 @@ const appState = require('../state.js');
 
 var startup = StartupCtrl(env, clientConfig);
 
-var syncTimeout;
-var syncStartup = false;
+var watcherResumeTimeout;
+var fullSyncStartup = false;
 
 module.exports = function(env, tray) {
-  var syncWindow;
+  var fullSyncWindow;
   var syncPaused = false;
   var mayStart = false;
   var powerSaveBlockerId;
+  var watcher;
 
   function startPowerSaveBlocker() {
     if(!powerSaveBlockerId || powerSaveBlocker.isStarted(powerSaveBlockerId) === false ) {
@@ -43,7 +46,7 @@ module.exports = function(env, tray) {
       });
     } else {
       //resume
-      start();
+      start(false);
     }
   }
 
@@ -54,150 +57,260 @@ module.exports = function(env, tray) {
   function pause(forceQuit) {
     logger.info('Sync: pause requested');
 
-    //stop an active sync
-    if(syncTimeout) {
-      clearTimeout(syncTimeout);
-      syncTimeout = undefined;
+    if(watcherResumeTimeout) {
+      clearTimeout(watcherResumeTimeout);
+      watcherResumeTimeout = undefined;
     }
 
-    if(syncWindow) {
-      return new Promise(function(resolve, reject) {
-        syncWindow.once('closed', (event) => {
-          resolve();
-        });
+    const watcherPromise = forceQuit ? killWatcher() : pauseWatcher();
 
-        ipcMain.once('sync-stop-result', (event, err) => {
-          end(false);
-        });
-
-        syncWindow.webContents.send('sync-stop', forceQuit);
-      });
-    } else {
-      stopPowerSaveBlocker();
-      return Promise.resolve();
-    }
+    return Promise.all([
+      watcherPromise,
+      pauseFullSync(forceQuit)
+    ]);
   }
 
-  function start() {
+  function start(forceFullSync) {
     if(mayStart === false) {
       return logger.info('not starting sync because mayStart is false', {category: 'sync'});
     }
 
-    //return if sync is already running or is starting up
-    if(syncWindow || syncStartup) {
-      syncStartup = false;
-      return logger.info('not starting sync because it is already running', {category: 'sync'});
-    }
-
-    syncStartup = true;
-
     //return if no user is logged in
     if(!clientConfig.get('loggedin') || !clientConfig.isActiveInstance()) {
-      syncStartup = false;
       return logger.info('not starting sync because no user logged in', {category: 'sync'});
     }
 
     //return if no network available
     if(appState.get('onLineState') === false) {
-      syncStartup = false;
-      return logger.info('not starting because no network available', {category: 'sync'});
+      return logger.info('not starting sync because no network available', {category: 'sync'});
     }
 
     //return if sync has been paused
     if(syncPaused) {
-      syncStartup = false;
-      return logger.info('not starting sync because it has been paused', {category: 'sync'});
+      return logger.info('not starting sync because sync has been paused', {category: 'sync'});
     }
 
-    logger.info('starting sync', {category: 'sync'});
+    if(watcher === undefined) forceFullSync = true;
+
+    if(forceFullSync) {
+      startWatcher().then(() => {
+        startFullSync();
+      });
+    } else {
+      resumeWatcher(true);
+    }
+  }
+
+  function startFullSync() {
+    //return if sync is already running or is starting up
+    if(fullSyncWindow || fullSyncStartup) {
+      fullSyncStartup = false;
+      return logger.info('not starting full sync because it is already running', {category: 'sync'});
+    }
+
+    fullSyncStartup = true;
+
+    //return if no user is logged in
+    if(!clientConfig.get('loggedin') || !clientConfig.isActiveInstance()) {
+      fullSyncStartup = false;
+      return logger.info('not starting full sync because no user logged in', {category: 'sync'});
+    }
+
+    //return if no network available
+    if(appState.get('onLineState') === false) {
+      fullSyncStartup = false;
+      return logger.info('not starting full sync because no network available', {category: 'sync'});
+    }
+
+    //return if sync has been paused
+    if(syncPaused) {
+      fullSyncStartup = false;
+      return logger.info('not starting full sync because sync has been paused', {category: 'sync'});
+    }
+
+    logger.info('starting full sync', {category: 'sync'});
     tray.syncStarted();
 
     startPowerSaveBlocker();
 
-    startup.preSyncCheck().then(result => {
-      logger.info('pre sync check successfull', {category: 'sync'});
 
-      syncWindow = new BrowserWindow({
-          width: 1000,
-          height: 700,
-          show: false,
-          frame: true,
-          fullscreenable: true,
-          resizable: true,
-          transparent: false,
-          skipTaskbar: true
+    pauseWatcher().then(() => {
+      startup.preSyncCheck().then(result => {
+        logger.info('pre sync check successfull', {category: 'sync'});
+
+        fullSyncWindow = new BrowserWindow({
+            width: 1000,
+            height: 700,
+            show: false,
+            frame: true,
+            fullscreenable: true,
+            resizable: true,
+            transparent: false,
+            skipTaskbar: true
+        });
+
+        fullSyncStartup = false;
+
+        fullSyncWindow.loadURL(url.format({
+            pathname: path.join(__dirname, 'index.html'),
+            protocol: 'file:',
+            slashes: true
+        }));
+
+        fullSyncWindow.once('ready-to-show', () => {
+          if((env.name === 'development')) {
+            fullSyncWindow.openDevTools();
+            fullSyncWindow.show();
+          }
+        });
+
+        ipcMain.once('sync-window-loaded', function(){
+          fullSyncWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
+        });
+
+        ipcMain.once('sync-complete', () => {
+          endFullSync();
+          resumeWatcher(false);
+        });
+
+        fullSyncWindow.once('closed', (event) => {
+          fullSyncWindow = null;
+
+          logger.info('Sync: ended');
+          tray.syncEnded();
+        });
+      }).catch(err => {
+        logger.error('pre sync check failed', {
+          category: 'sync',
+          error: err
+        });
+
+        killWatcher().then(() => {
+          tray.syncEnded();
+          fullSyncStartup = false;
+
+          endFullSync();
+        });
       });
-
-      syncStartup = false;
-
-      syncWindow.loadURL(url.format({
-          pathname: path.join(__dirname, 'index.html'),
-          protocol: 'file:',
-          slashes: true
-      }));
-
-      syncWindow.once('ready-to-show', () => {
-        if((env.name === 'development')) {
-          syncWindow.openDevTools();
-          syncWindow.show();
-        }
-      });
-
-      ipcMain.once('sync-window-loaded', function(){
-        syncWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
-      });
-
-      syncWindow.once('closed', (event) => {
-        syncWindow = null;
-
-        logger.info('Sync: ended');
-        tray.syncEnded();
-      });
-    }).catch(err => {
-      logger.error('pre sync check failed', {
-        category: 'sync',
-        error: err
-      });
-
-      tray.syncEnded();
-      syncStartup = false;
-      end(true);
     });
   }
 
-  function end(scheduleNextSync) {
-    if(syncTimeout) {
-      clearTimeout(syncTimeout);
-      syncTimeout = undefined;
-    }
+  function pauseFullSync(forceQuit) {
+    if(fullSyncWindow) {
+      return new Promise(function(resolve, reject) {
+        fullSyncWindow.once('closed', (event) => {
+          resolve();
+        });
 
-    if(env.name === 'production' && syncPaused !== true && scheduleNextSync === true) {
-      //do not set timeout when sync has been paused
-      syncTimeout = setTimeout(() => {
-        start();
-      }, ((env.sync && env.sync.interval) || 5) * 1000);
-    }
+        ipcMain.once('sync-stop-result', (event, err) => {
+          endFullSync();
+        });
 
-    if(syncWindow) {
+        fullSyncWindow.webContents.send('sync-stop', forceQuit);
+      });
+    } else {
+      endFullSync();
+      return Promise.resolve();
+    }
+  }
+
+  function endFullSync() {
+    if(fullSyncWindow) {
       if(env.name === 'development') {
-        syncWindow.closeDevTools();
+        fullSyncWindow.closeDevTools();
       }
 
-      syncWindow.close();
+      fullSyncWindow.close();
     }
 
     stopPowerSaveBlocker();
   }
 
+  function startWatcher() {
+    return new Promise(function(resolve, reject) {
+      const config = clientConfig.getAll(true);
+
+      killWatcher().then(result => {
+        watcher = new syncWatcherFactory(config, logger);
+
+        watcher.once('started', () => {
+          resolve();
+        });
+
+        watcher.start();
+
+        watcher.on('changed', (source) => {
+          startFullSync();
+        });
+      });
+    });
+  }
+
+  function pauseWatcher() {
+    return new Promise(function(resolve, reject) {
+      if(watcher === undefined) return resolve();
+
+      watcher.once('paused', () => {
+        resolve();
+      });
+
+      watcher.pause();
+    });
+  }
+
+  function resumeWatcher(immediate) {
+    return new Promise(function(resolve, reject) {
+      function _resume() {
+        watcher.once('resumed', () => {
+          resolve();
+        });
+
+        if(immediate === true) {
+          watcher.resume();
+        } else {
+          watcherResumeTimeout = setTimeout(() => {
+            watcher.resume();
+          }, ((env.sync && env.sync.interval) || 5) * 1000);
+        }
+      }
+
+      if(syncPaused !== true) {
+        if(!watcher) {
+          startWatcher().then(() => {
+            _resume();
+          });
+        } else {
+          _resume();
+        }
+      } else {
+        resolve();
+      }
+    });
+  }
+
+  function killWatcher() {
+    return new Promise(function(resolve, reject) {
+      if(watcher === undefined) return resolve();
+
+      watcher.once('stoped', () => {
+        watcher = undefined;
+
+        resolve();
+      });
+
+      watcher.stop();
+    });
+  }
+
   function updateSelectiveSync(difference, callback) {
-    pause().then(result => {
+    pause(true).then(result => {
       let config = clientConfig.getAll();
       config[clientConfig.getSecretType()] = clientConfig.getSecret();
 
       const sync = fullSyncFactory(config, logger.getLogger());
 
       sync.updateSelectiveSync(difference).then(result => {
-        start();
+        start(true);
         callback(null);
       }, err => {
         logger.error('Could not apply selective sync changes', {category: 'sync', err});
@@ -215,11 +328,13 @@ module.exports = function(env, tray) {
 
   return {
     start,
-    end,
     pause,
+    endFullSync,
     togglePause,
     isPaused,
     updateSelectiveSync,
-    setMayStart
+    setMayStart,
+    resumeWatcher,
+    killWatcher
   }
 }

@@ -13,7 +13,9 @@ const fsInfo = require('../../lib/fs-info.js');
 
 const url = require('url');
 
-module.exports = function(env, clientConfig, sync) {
+module.exports = function(env, clientConfig) {
+  let autoReportInterval;
+
   ipcMain.on('feedback-send', (event, text, file) => {
     send(text, file).then(function(reportDir, reportPath) {
       logger.info('sending feedback was successfull', {category: 'feedback'});
@@ -28,6 +30,68 @@ module.exports = function(env, clientConfig, sync) {
     });
   });
 
+  function toggleAutoReport(state) {
+    if(state === false) {
+      logger.info('disabling auto report', {category: 'feedback'});
+      if(autoReportInterval) clearInterval(autoReportInterval);
+    } else {
+      logger.info('enabling auto report', {category: 'feedback'});
+      autoReportInterval = setInterval(sendAutoReport, (env.autoReportInterval || 300000))
+    }
+  }
+
+  function sendAutoReport() {
+    logger.debug('sending auto report', {category: 'feedback'});
+
+    var reportName = [clientConfig.get('username'), Math.floor(new Date().getTime() / 1000)].join('_');
+
+    var url = env.autoReportPutUrl || 'https://support.gyselroth.net/balloon-auto-report';
+    var req = request.put(url+'/' + reportName);
+
+    req.on('error', function(err) {
+      logger.error('sending auto report failed', {
+        category: 'feedback',
+        error: err
+      });
+    });
+
+    req.on('response', function(response) {
+      if(response.statusCode === 200) {
+        logger.info('auto report got response ', {
+          category: 'feedback',
+          response
+        });
+      } else {
+        logger.error('auto report got response ', {
+          category: 'feedback',
+          response
+        });
+      }
+    });
+
+    req.on('aborted', function(err) {
+      logger.error('auto report request has been aborted by the server', {
+        category: 'feedback',
+        error: err
+      });
+    });
+
+    var archive = archiver('zip', {zlib: { level: 9 }});
+
+    archive.on('error', function(err) {
+      logger.error('sending auto report failed', {
+        category: 'feedback',
+        error: err
+      });
+    });
+
+    archive.pipe(req);
+
+    appendLogFilesToArchive(archive, false);
+
+    archive.finalize();
+  }
+
 
   function send(text, file) {
     logger.info('sending feedback triggered', {
@@ -36,16 +100,6 @@ module.exports = function(env, clientConfig, sync) {
 
     return new Promise(function(resolve, reject) {
       var reportName = [clientConfig.get('username'), Math.floor(new Date().getTime() / 1000)].join('_');
-      var archive = archiver('zip', {zlib: { level: 9 }});
-
-      archive.on('error', function(err) {
-        logger.error('sending feedback failed', {
-          category: 'feedback',
-          error: err
-        });
-
-        reject(err);
-      });
 
       var url = env.feedbackPutUrl || 'https://support.gyselroth.net/balloon';
       var req = request.put(url+'/' + reportName+'?feedback='+encodeURIComponent(text));
@@ -86,17 +140,20 @@ module.exports = function(env, clientConfig, sync) {
       });
 
       if(file === true) {
+        var archive = archiver('zip', {zlib: { level: 9 }});
+
+        archive.on('error', function(err) {
+          logger.error('sending feedback failed', {
+            category: 'feedback',
+            error: err
+          });
+
+          reject(err);
+        });
+
         archive.pipe(req);
 
-        var snycLogPath = path.join(clientConfig.get('configDir'), 'sync.log');
-        if(fs.existsSync(snycLogPath)) {
-          archive.append(fs.createReadStream(snycLogPath), { name: 'report/sync.log' });
-        }
-
-        var errorLogPath = path.join(clientConfig.get('configDir'), 'error.log');
-        if(fs.existsSync(errorLogPath)) {
-          archive.append(fs.createReadStream(errorLogPath), { name: 'report/error.log' });
-        }
+        appendLogFilesToArchive(archive, true);
 
         var dbPath = path.join(clientConfig.get('configDir'), 'db', 'nodes.db');
         if(fs.existsSync(dbPath)) {
@@ -148,6 +205,31 @@ module.exports = function(env, clientConfig, sync) {
         });
       }
     });
+  }
+
+  function appendLogFilesToArchive(archive, includeRotatedLogFiles) {
+    if(includeRotatedLogFiles) {
+      var rotatedLogfiles = fs.readdirSync(clientConfig.get('configDir')).filter((node) => {
+        return node.match(/^(sync|error)\d+\.log\.gz$/) !== null;
+      });
+
+      rotatedLogfiles.forEach((filename) => {
+        var rotatedLogPath = path.join(clientConfig.get('configDir'), filename);
+        if(fs.existsSync(rotatedLogPath)) {
+          archive.append(fs.createReadStream(rotatedLogPath), { name: 'report/'+filename });
+        }
+      });
+    }
+
+    var snycLogPath = path.join(clientConfig.get('configDir'), 'sync.log');
+    if(fs.existsSync(snycLogPath)) {
+      archive.append(fs.createReadStream(snycLogPath), { name: 'report/sync.log' });
+    }
+
+    var errorLogPath = path.join(clientConfig.get('configDir'), 'error.log');
+    if(fs.existsSync(errorLogPath)) {
+      archive.append(fs.createReadStream(errorLogPath), { name: 'report/error.log' });
+    }
   }
 
   function getMetaData() {
@@ -263,5 +345,9 @@ module.exports = function(env, clientConfig, sync) {
         });
       });
     }
+  }
+
+  return {
+    toggleAutoReport
   }
 }

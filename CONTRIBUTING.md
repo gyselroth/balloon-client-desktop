@@ -52,19 +52,6 @@ This software is freely available under the terms of [GPL-3.0](https://github.co
 ## Editor config
 This repository gets shipped with an .editorconfig configuration. For more information on how to configure your editor, please visit [editorconfig](https://github.com/editorconfig).
 
-## Code policy
-There are no javascript standards like PSR-1/2 for PHP, but please observe the following rules:
-
-* Abstract classes should be named with an Abstract prefix: AbstractExample
-* Interfaces should be named with an Interface suffix: ExampleInterface
-* Variables should be named with underscore (_) and not camelCase
-* Methods and classes follow camelCase naming
-* All files delcare "use strict;"
-* Always cache dom objects which will be used more than once: (`var $body = $('body');`)
-* Add a $ prefix for variables containing a jquery object
-* Always use i18next for output messages
-* All api calls must use balloon.xmlHttpRequest()
-
 # Build
 
 ## Automation
@@ -124,6 +111,7 @@ The following configuration options are available:
 
 * `name` String (optional) - the name of the context. `production` or `development`. Default: `production`
 * `version` Integer (optional) - version of this configuration (Increase if you want to update env configuration between build updates). Default: `0`
+* `tlsVerifyCert` Boolean (optional) - Accept self signed SSl certificates. Default: `true` on development, `false` on production
 * `blnUrl` String (optional) - the url under which your Balloon installation is running. If no set user is prompted to enter URL on first start (eg: `https://example-balloon.io`)
 * `apiPath` String (optional) - the path to the API Default: `'/api/v1/'`
 * `configDir` String (optional) - path to the directory where configuration is stored on the client. You can use {home}/{username} which gets replaced with the current home directory/local username. This setting only works well if update.enable is set on `false`. Default: `{home}/.balloon`
@@ -154,3 +142,6 @@ The following configuration options are available:
     * `revokeAuthenticationRequired` Boolean (otional) should be false if the /revoke endpoint does not require client authentication. Default: `true`
     * `scope` String (required) OAUTH2 scopes (For example: openid profile)
     * `imgBase64` String (required) base64 encoded Oidc sign-in button
+* `autoReport` Boolean (optional) - If true report will be sent every `autoReportInterval` to `autoReportPutUrl` Default: `false`
+* `autoReportPutUrl` String (optional) - Url to which to send auto reports
+* `autoReportInterval` Integer (optional) - Interval to send auto reports in milliseconds. Default: `300000`

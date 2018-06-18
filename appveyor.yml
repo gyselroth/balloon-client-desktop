@@ -9,6 +9,7 @@ matrix:
 
 install:
   - ps: $env:package_version = (Get-Content -Path package.json | ConvertFrom-Json).version
+  - ps: $env:channel = "unstable"
   - ps: Install-Product node $env:nodejs_version x64
   - npm set progress=false
   - npm prune
@@ -19,3 +20,10 @@ test_script:
   - node --version
   - npm --version
   - SET PATH=C:\Program Files\Nodejs;%PATH%
+
+artifacts:
+  - path: dist/*.exe
+    name: exe
+
+  - path: dist/*.yml
+    name: latest

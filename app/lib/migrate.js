@@ -35,7 +35,7 @@ module.exports = function migrate() {
   let previousVersion = globalConfig.get('version');
   const currentVersion = app.getVersion();
 
-  logger.info('Checking for migration', {category: 'migration'});
+  logger.info('checking for migration', {category: 'migration'});
 
   if(previousVersion === undefined) {
     const instanceDir = clientConfig.get('instanceDir');
@@ -45,7 +45,7 @@ module.exports = function migrate() {
       //default previousVersion to 0.0.28 which is the version before migrations have been implemented
       previousVersion ='0.0.28';
     } else {
-      logger.info('Previous version not set, assuming fresh install. No migration will run', {
+      logger.info('previous version not set, assuming fresh install. No migration will run', {
         category: 'migration'
       });
       globalConfig.set('version', currentVersion);
@@ -54,7 +54,7 @@ module.exports = function migrate() {
   }
 
   if(previousVersion === currentVersion) {
-    logger.info('No migration necessary as previous and current Version are equal', {
+    logger.info('no migration necessary as previous and current Version are equal', {
         category: 'migration'
     });
     return Promise.resolve({});
@@ -64,14 +64,14 @@ module.exports = function migrate() {
     readMigrations((err, migrations) => {
       if(err) return reject(err);
 
-      logger.info(`Migrating from ${previousVersion} to ${currentVersion}`, {category: 'migration'});
+      logger.info(`migrating from ${previousVersion} to ${currentVersion}`, {category: 'migration'});
       appMigrations(migrations)(previousVersion, currentVersion, (err, result) => {
         if(err) {
-          logger.error(`Migrating from ${previousVersion} to ${currentVersion} failed`, {category: 'migration', err})
+          logger.error(`migrating from ${previousVersion} to ${currentVersion} failed`, {category: 'migration', err})
           return reject(err);
         }
 
-        logger.info(`Migration from ${previousVersion} to ${currentVersion} successfull`, {category: 'migration'});
+        logger.info(`migration from ${previousVersion} to ${currentVersion} successfull`, {category: 'migration'});
 
         globalConfig.set('version', currentVersion);
         resolve(result);

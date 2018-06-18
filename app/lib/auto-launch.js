@@ -34,7 +34,7 @@ class BalloonAutoLaunch {
 
   ensureCorrectState() {
     return new Promise((resolve, reject) => {
-      logger.debug('Verify that autolaunch has correct state', {category: 'autolaunch'});
+      logger.debug('verify that autolaunch has correct state', {category: 'autolaunch'});
 
       if(globalConfig.has('enableAutoLaunch') === false || globalConfig.get('enableAutoLaunch') === false) {
         this.disable().then(resolve, reject);
@@ -45,48 +45,48 @@ class BalloonAutoLaunch {
   }
 
   disable() {
-    logger.debug('Trying to disable auto launch', {category: 'autolaunch'});
+    logger.debug('trying to disable auto launch', {category: 'autolaunch'});
 
     return new Promise((resolve, reject) => {
       this.autoLaunch.isEnabled().then(isEnabled => {
         if(isEnabled === false) {
-          logger.debug('Autolaunch not currently enabled. Skip disable', {category: 'autolaunch'});
+          logger.debug('Aatolaunch not currently enabled. Skip disable', {category: 'autolaunch'});
           return resolve();
         } else {
           this.autoLaunch.disable().then(function() {
-            logger.debug('Autolaunch disabled', {category: 'autolaunch'});
+            logger.debug('autolaunch disabled', {category: 'autolaunch'});
             return resolve();
           }).catch(function(err) {
-            logger.error('Could not disabled autolaunch', {category: 'autolaunch', err});
+            logger.error('could not disabled autolaunch', {category: 'autolaunch', err});
             return reject(err);
           });
         }
       }).catch(err => {
-        logger.error('Could not query autolaunch state', {category: 'autolaunch', err});
+        logger.error('could not query autolaunch state', {category: 'autolaunch', err});
         return reject(err);
       });
     });
   }
 
   enable() {
-    logger.debug('Trying to enable autolaunch', {category: 'autolaunch'});
+    logger.debug('trying to enable autolaunch', {category: 'autolaunch'});
 
     return new Promise((resolve, reject) => {
       this.autoLaunch.isEnabled().then(isEnabled => {
         if(isEnabled === true) {
-          logger.debug('Autolaunch already enabled. Skip enable', {category: 'autolaunch'});
+          logger.debug('autolaunch already enabled. Skip enable', {category: 'autolaunch'});
           return resolve();
         } else {
           this.autoLaunch.enable().then(function() {
-            logger.debug('Autolaunch enabled', {category: 'autolaunch'});
+            logger.debug('autolaunch enabled', {category: 'autolaunch'});
             return resolve();
           }).catch(function(err) {
-            logger.error('Could not enable autolaunch', {category: 'autolaunch', err});
+            logger.error('could not enable autolaunch', {category: 'autolaunch', err});
             return reject(err);
           });
         }
       }).catch(err => {
-        logger.error('Could not query autolaunch state', {category: 'autolaunch', err});
+        logger.error('could not query autolaunch state', {category: 'autolaunch', err});
         return reject(err);
       });
     });
