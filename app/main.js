@@ -190,7 +190,8 @@ ipcMain.on('tray-show', function() {
 ipcMain.on('tray-online-state-changed', function(event, state) {
   logger.info('online state changed', {
     category: 'main',
-    state: state
+    state: state,
+    syncPaused: (sync && sync.isPaused())
   });
 
   appState.set('onLineState', state);
@@ -390,6 +391,8 @@ if (process.platform === 'darwin' && app.dock && env.name === 'production') {
 }
 
 function startSync(forceFullSync) {
+  logger.debug('start sync requested', {category: 'main', forceFullSync});
+
   if(!sync) {
     sync = SyncCtrl(env, tray);
   }
