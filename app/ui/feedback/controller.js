@@ -178,7 +178,7 @@ module.exports = function(env, clientConfig) {
         archive.append(getMetaData(), {name: 'report/metadata.json'});
 
         async.parallel([
-          (cb) => {
+          async.reflect((cb) => {
             createDirectorySnapshot((err, snapshot) => {
               if(err) {
                 logger.error('creating directory snapshot failed', {category: 'feedback', err});
@@ -188,9 +188,9 @@ module.exports = function(env, clientConfig) {
               archive.append(snapshot, {name: 'report/snapshot.json'});
 
               cb(null);
-            })
-          },
-          (cb) => {
+            });
+          }),
+          async.reflect((cb) => {
             fsInfo(clientConfig.get('balloonDir'), (err, result) => {
               if(err) return cb(err);
 
@@ -198,9 +198,9 @@ module.exports = function(env, clientConfig) {
 
               return cb(null);
             });
-
-          }
+          })
         ], (err, results) => {
+          //err will be always `null` as async.reflect is used
           archive.finalize();
         });
       }
