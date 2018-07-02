@@ -1,3 +1,11 @@
+## 0.2.1
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Mon Jul 02 08:50:44 CEST 2018
+
+* UI: [FIX] Fixes feedback zip on Windows #105 and #106
+* CORE: [CHANGE] Extended online state logging for #108, upgraded node-sync to v0.2.2
+
+
 ## 0.2.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Mon Jun 18 11:49:21 CEST 2018
