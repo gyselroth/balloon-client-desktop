@@ -169,6 +169,7 @@ module.exports = function(env, tray) {
         });
 
         ipcMain.once('sync-complete', () => {
+          logger.debug('Sync complete', {category: 'sync'});
           endFullSync();
           resumeWatcher(false);
         });
@@ -196,6 +197,8 @@ module.exports = function(env, tray) {
   }
 
   function pauseFullSync(forceQuit) {
+    logger.debug('pause full sync requested', {category: 'sync'});
+
     if(fullSyncWindow) {
       return new Promise(function(resolve, reject) {
         fullSyncWindow.once('closed', (event) => {
@@ -247,6 +250,8 @@ module.exports = function(env, tray) {
   }
 
   function pauseWatcher() {
+    logger.debug('pause watcher requested', {category: 'sync'});
+
     return new Promise(function(resolve, reject) {
       if(watcher === undefined) return resolve();
 
@@ -259,6 +264,8 @@ module.exports = function(env, tray) {
   }
 
   function resumeWatcher(immediate) {
+    logger.debug('trying to resume watcher', {category: 'sync', immediate});
+
     return new Promise(function(resolve, reject) {
       function _resume() {
         watcher.once('resumed', () => {
