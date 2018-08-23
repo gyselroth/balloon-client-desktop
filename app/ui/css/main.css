@@ -334,6 +334,13 @@ input[type="radio"], input[type="checkbox"] {
     margin-top: 13px;
 }
 
+/*-----Burl
+----------*/
+#burl {
+  padding: 15px;
+  text-align: center;
+}
+
 /*-----Tray----------*/
 #item-installupdate {
     display: none;

@@ -9,7 +9,6 @@ const fsUtility = require('../../lib/fs-utility.js');
 const AuthCtrl = require('../../lib/auth/controller.js');
 const configManagerCtrl = require('../../lib/config-manager/controller.js');
 const autoLaunch = require('../../lib/auto-launch.js');
-const {BalloonBurlHandler} = require('../../lib/burl.js');
 
 const logger = require('../../lib/logger.js');
 
@@ -17,7 +16,6 @@ module.exports = function(env, clientConfig) {
   var startupWindow;
   var auth = AuthCtrl(env, clientConfig);
   var configManager = configManagerCtrl(clientConfig);
-  var burlHandler = new BalloonBurlHandler(clientConfig);
 
   function ensureCorrectAutoLaunchState() {
     return autoLaunch.ensureCorrectState();
@@ -25,10 +23,6 @@ module.exports = function(env, clientConfig) {
 
   function isAutoLaunch() {
     return process.argv.find(argument => {return argument === '--hidden'}) !== undefined;
-  }
-
-  function extractBurlArgument() {
-    return process.argv.find(argument => {return burlHandler.isBalloonBurlPath(argument)});
   }
 
   function checkConfig() {
@@ -189,10 +183,6 @@ module.exports = function(env, clientConfig) {
   function showBalloonDir() {
     //if app is Launched through autolaunch do not open BalloonDir
     if(isAutoLaunch()) return Promise.resolve();
-    let burlArgument = extractBurlArgument();
-    if (burlArgument) {
-      return burlHandler.handleBurl(burlArgument);
-    };
 
     return new Promise(function(resolve, reject) {
       makeSureBalloonDirExists().then(function() {

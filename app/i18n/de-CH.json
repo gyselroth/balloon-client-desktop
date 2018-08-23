@@ -82,5 +82,8 @@
   "error.blnUrl.notreachable": "Der eingegebene Server kann nicht erreicht werden. Bitte prüfen Sie den Server",
   "error.blnUrl.offline": "Der balloon Server kann nicht erreicht werden. Bitte stelle sicher, dass eine Internetverbindung besteht.",
   "error.auth.basic": "Authentifizierung fehlgeschlagen",
-  "error.auth.oidc": "Die Authentifizierung mit dem ausgewählten Identity Provider ist fehlgeschlagen."
+  "error.auth.oidc": "Die Authentifizierung mit dem ausgewählten Identity Provider ist fehlgeschlagen.",
+
+  "burl.prompt": "Möchtest du die folgenden URL in deinem Browser öffnen?",
+  "burl.invalid-url": "Die URL ist ungültig:"
 }

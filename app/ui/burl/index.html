@@ -1,0 +1,14 @@
+<script class="template" type="text/x-handlebars-template">
+    <div id="burl-prompt">
+        {{#if error}}
+            <p>{{i18n error}}</p>
+        {{else}}
+            <p>{{i18n 'burl.prompt'}}</p>
+        {{/if}}
+        <p>{{burl}}</p>
+    </div>
+    {{#unless error}}
+        <button id="burl-open">{{i18n 'button.continue'}}</button>
+    {{/unless}}
+    <button id="burl-not-open">{{i18n 'button.cancel'}}</button>
+</script>

@@ -9,10 +9,13 @@ const TrayCtrl = require('./ui/tray/controller.js');
 const SelectiveCtrl = require('./ui/selective/controller.js');
 const SyncCtrl = require('./lib/sync/controller.js');
 const StartupCtrl = require('./ui/startup/controller.js');
+const BurlCtrl = require('./ui/burl/controller.js');
 const AuthCtrl = require('./lib/auth/controller.js');
 const AutoUpdateCtrl = require('./lib/auto-update/controller.js');
 const FeedbackCtrl = require('./ui/feedback/controller.js');
 const setMenu = require('./lib/menu.js');
+const {BalloonBurlHandler} = require('./lib/burl.js');
+const ipc = require ('./lib/ipc.js');
 
 const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
@@ -25,8 +28,13 @@ var standardLogger = new loggerFactory(clientConfig.getAll());
 var startup = StartupCtrl(env, clientConfig);
 var auth = AuthCtrl(env, clientConfig);
 var selective = SelectiveCtrl(env, clientConfig);
+var burlHandler = new BalloonBurlHandler(clientConfig);
 
 logger.setLogger(standardLogger);
+
+function extractBurlArgument() {
+  return process.argv.find(argument => {return burlHandler.isBalloonBurlPath(argument)});
+}
 
 process.on('uncaughtException', function(exception) {
   logger.error('uncaught exception', {
@@ -34,13 +42,6 @@ process.on('uncaughtException', function(exception) {
     error: exception
   });
 });
-
-var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
-
-if(shouldQuit === true) {
-  startup.showBalloonDir();
-  app.quit();
-}
 
 function startApp() {
   logger.info('bootstrap app', {category: 'main'});
@@ -118,6 +119,11 @@ function startApp() {
 
     tray = TrayCtrl(env, clientConfig);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
+    ipc.listen((burlPath) => {
+      if (burlHandler.isBalloonBurlPath(burlPath)) {
+        tray.showBurl(burlPath);
+      }
+    })
   });
 }
 
@@ -145,30 +151,44 @@ function unlinkAccount() {
   });
 }
 
-app.on('ready', function () {
-  appState.set('updateAvailable', false);
+var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
 
-  feedback = FeedbackCtrl(env, clientConfig);
-  feedback.toggleAutoReport(globalConfig.get('autoReport'));
+let burlArgument = '/home/fabian.jucker/Balloon/test.burl';
+if(shouldQuit === true) {
+  let burlArgument = extractBurlArgument();
+  if (burlArgument) {
+    ipc.send(burlArgument).then(() => {
+      app.quit();
+    });
+  } else {
+    startup.showBalloonDir();
+    app.quit();
+  }
+} else {
+  app.on('ready', function () {
+    appState.set('updateAvailable', false);
 
-  logger.info('app ready to operate', {
-      category: 'main',
-  });
+    feedback = FeedbackCtrl(env, clientConfig);
+    feedback.toggleAutoReport(globalConfig.get('autoReport'));
 
-  setMenu();
-
-  migrate().then(result => {
-    startApp();
-  }).catch(err => {
-    logger.error('error during migration, quitting app', {
-      category: 'main',
-      error: err
+    logger.info('app ready to operate', {
+        category: 'main',
     });
 
-    app.quit();
-  })
-});
+    setMenu();
 
+    migrate().then(result => {
+      startApp();
+    }).catch(err => {
+      logger.error('error during migration, quitting app', {
+        category: 'main',
+        error: err
+      });
+
+      app.quit();
+    })
+  });
+}
 /** Main App **/
 ipcMain.on('quit', function() {
   app.quit();

@@ -15,6 +15,7 @@ const modules = {
   settings: require('../settings/browser.js')(),
   feedback: require('../feedback/browser.js')(),
   about: require('../about/browser.js')(),
+  burl: require('../burl/browser.js')(),
 }
 
 const logger = require('../../lib/logger.js');
@@ -120,6 +121,9 @@ $('document').ready(function() {
   compileTemplate();
 
   ipcRenderer.on('update-window', updateWindow);
+  ipcRenderer.on('show-burl', (event, burl) => {
+    loadMenu('burl');
+  });
 
   $('#item-installupdate').bind('click', function() {
     ipcRenderer.send('tray-hide');

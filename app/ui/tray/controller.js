@@ -13,6 +13,7 @@ const i18n = require('../../lib/i18n.js');
 const animationSpeed = 1000/24; //24 fps
 
 const feedback = require('../feedback/controller.js');
+const burlCtrl = require('../burl/controller.js');
 
 const stateIconNameMap = {
   default: 'default',
@@ -244,6 +245,11 @@ module.exports = function(env, clientConfig) {
     trayWindow.focus();
   }
 
+  function showBurl(burlPath) {
+    show();
+    burlCtrl(trayWindow, burlPath);
+  }
+
   function createWindow() {
     if(trayWindow) return trayWindow;
 
@@ -333,6 +339,7 @@ module.exports = function(env, clientConfig) {
     toggle,
     hide,
     show,
+    showBurl,
     syncStarted,
     syncTransferStarted,
     syncEnded,
