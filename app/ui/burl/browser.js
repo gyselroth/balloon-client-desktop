@@ -43,7 +43,7 @@ module.exports = function() {
     let $burlNotOpen = $('#burl-not-open');
     if ($burlOpen) {
       $burlOpen.click(() => {
-        ipcRenderer.send('burl-open');
+        ipcRenderer.send('burl-open', burl);
       });
     }
     $burlNotOpen.click(() => {

@@ -6,26 +6,29 @@ const clientConfig = require('../../lib/config.js');
 const {BalloonBurlHandler} = require('../../lib/burl.js');
 const burlHandler = new BalloonBurlHandler(clientConfig);
 
-module.exports = function(tray, burlPath) {
-  ipcMain.on('burl-open', (burl) => {
-    burlHandler.extractBurl(burlPath).then((burl) => {
-      burlHandler.handleBurl(burl);
-      tray.hide();
-    }).catch((error) => {
-      logger.error(error, {category: 'burl-prompt'});
-    });
+module.exports = function(tray) {
+  ipcMain.on('burl-open', (event, burl) => {
+    burlHandler.handleBurl(burl);
+    tray.hide();
   });
 
   ipcMain.on('burl-not-open', () => {
     tray.hide();
   });
 
-  burlHandler.extractBurl(burlPath).then((burl) => {
-    tray.webContents.send('set-burl', burl);
-    tray.webContents.send('show-burl', burlPath);
-  }).catch((error) => {
-    tray.webContents.send('set-burl', error.burl);
-    tray.webContents.send('set-error', error.error);
-    tray.webContents.send('show-burl', burlPath);
-  });
+  const showBurl = (burlPath) => {
+    burlHandler.extractBurl(burlPath).then((burl) => {
+      tray.webContents.send('set-burl', burl);
+      tray.webContents.send('set-error', null);
+      tray.webContents.send('show-burl', burlPath);
+    }).catch((error) => {
+      tray.webContents.send('set-burl', error.burl);
+      tray.webContents.send('set-error', error.error);
+      tray.webContents.send('show-burl', burlPath);
+    });
+  };
+
+  return {
+    showBurl
+  };
 }

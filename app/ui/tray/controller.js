@@ -201,6 +201,7 @@ function animateIcon(curFrame=1, maxFrames=1) {
 
 module.exports = function(env, clientConfig) {
   var trayWindow = createWindow();
+  const burlController = burlCtrl(trayWindow);
 
   function create() {
     if(!tray) {
@@ -247,7 +248,7 @@ module.exports = function(env, clientConfig) {
 
   function showBurl(burlPath) {
     show();
-    burlCtrl(trayWindow, burlPath);
+    burlController.showBurl(burlPath);
   }
 
   function createWindow() {
