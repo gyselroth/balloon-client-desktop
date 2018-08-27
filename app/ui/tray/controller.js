@@ -198,6 +198,12 @@ function animateIcon(curFrame=1, maxFrames=1) {
   }, animationSpeed);
 }
 
+function getIcon() {
+  const iconConfig = getIconConfig('default');
+  const iconPath = getIconPath(iconConfig);
+  return nativeImage.createFromPath(iconPath);
+}
+
 
 module.exports = function(env, clientConfig) {
   var trayWindow = createWindow();
@@ -205,9 +211,7 @@ module.exports = function(env, clientConfig) {
 
   function create() {
     if(!tray) {
-      const iconConfig = getIconConfig('default');
-      const iconPath = getIconPath(iconConfig);
-      const icon = nativeImage.createFromPath(iconPath);
+      const icon = getIcon();
 
       tray = new Tray(icon);
       changeTrayIcon();
@@ -240,7 +244,9 @@ module.exports = function(env, clientConfig) {
     //UPDATE ACCESS_TOKEN
 
     trayWindow.webContents.send('update-window');
-    positioner.position(trayWindow, tray.getBounds());
+    if (process.platform !== 'linux') {
+      positioner.position(trayWindow, tray.getBounds());
+    }
     trayWindow.setAlwaysOnTop(true);
     trayWindow.show();
     trayWindow.focus();
@@ -258,12 +264,16 @@ module.exports = function(env, clientConfig) {
       width: trayWindowWidth,
       height: trayWindowHeight,
       show: false,
-      frame: false,
+      frame: process.platform === 'linux',
+      center: process.platform === 'linux',
+      icon: getIcon(),
       fullscreenable: false,
       resizable: false,
       transparent: true,
       skipTaskbar: true
     });
+
+    trayWindow.setMenu(null);
 
     trayWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'index.html'),
@@ -272,10 +282,18 @@ module.exports = function(env, clientConfig) {
     }));
 
     trayWindow.on('blur', () => {
-      if (!trayWindow.webContents.isDevToolsOpened()) {
-        trayWindow.hide()
+      if (!trayWindow.webContents.isDevToolsOpened() && process.platform !== 'linux') {
+        trayWindow.hide();
       }
     });
+
+    // trayWindow.on('close', (event) => {
+    //   console.log(forceClose);
+    //   if (process.platform === 'linux' && !forceClose) {
+    //     event.preventDefault()
+    //     trayWindow.hide();
+    //   }
+    // });
 
     if(env.name === 'development') {
       trayWindow.openDevTools();
@@ -318,6 +336,10 @@ module.exports = function(env, clientConfig) {
 
   function syncTransferEnded() {
     toggleState('sync', false);
+  }
+
+  function windowIsVisible() {
+    return trayWindow ? trayWindow.isVisible() : false;
   }
 
   function isRunning() {

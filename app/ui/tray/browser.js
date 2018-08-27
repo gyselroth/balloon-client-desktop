@@ -33,6 +33,7 @@ var sync;
 var syncStatus    = true;
 var showLogin     = true;
 var refreshQuota  = false;
+var forceClose    = false;
 
 function loadMenu(menu) {
   $('#tray-main-template').load('../'+menu+'/index.html', function() {
@@ -53,7 +54,16 @@ function compileMenuTemplate(menu) {
 }
 
 $(window).blur(function(){
-  ipcRenderer.send('tray-hide');
+  if (process.platform !== 'linux') {
+    ipcRenderer.send('tray-hide');
+  }
+});
+
+$(window).bind('beforeunload', function(){
+  if (process.platform === 'linux' && !forceClose) {
+    ipcRenderer.send('tray-hide');
+    return false;
+  }
 });
 
 function buildMenu() {
@@ -110,6 +120,7 @@ function buildMenu() {
 
   label = i18n.__('tray.menu.close');
   menu.append(new MenuItem({label: label, click: function(){
+    forceClose = true;
     ipcRenderer.send('quit');
   }}))
 
