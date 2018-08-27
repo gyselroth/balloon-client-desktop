@@ -119,9 +119,20 @@ function startApp() {
 
     tray = TrayCtrl(env, clientConfig);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
-    ipc.listen((burlPath) => {
-      if (burlHandler.isBalloonBurlPath(burlPath)) {
-        tray.showBurl(burlPath);
+    ipc.listen((data) => {
+      switch(data.type) {
+        case 'open-burl':
+          if (burlHandler.isBalloonBurlPath(data.payload)) {
+            tray.showBurl(data.payload);
+          }
+          break;
+        case 'open-balloon':
+        default:
+          if (tray.isWindowVisible() || process.platform !== 'linux') {
+            startup.showBalloonDir();
+          } else {
+            tray.show();
+          }
       }
     })
   });
@@ -157,12 +168,13 @@ let burlArgument = '/home/fabian.jucker/Balloon/test.burl';
 if(shouldQuit === true) {
   let burlArgument = extractBurlArgument();
   if (burlArgument) {
-    ipc.send(burlArgument).then(() => {
+    ipc.send({type: 'open-burl', payload: burlArgument}).then(() => {
       app.quit();
     });
   } else {
-    startup.showBalloonDir();
-    app.quit();
+    ipc.send({type: 'open-balloon'}).then(() => {
+      app.quit();
+    });
   }
 } else {
   app.on('ready', function () {

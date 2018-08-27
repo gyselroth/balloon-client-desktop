@@ -270,7 +270,7 @@ module.exports = function(env, clientConfig) {
       fullscreenable: false,
       resizable: false,
       transparent: true,
-      skipTaskbar: true
+      skipTaskbar: process.platform !== 'linux'
     });
 
     trayWindow.setMenu(null);
@@ -286,14 +286,6 @@ module.exports = function(env, clientConfig) {
         trayWindow.hide();
       }
     });
-
-    // trayWindow.on('close', (event) => {
-    //   console.log(forceClose);
-    //   if (process.platform === 'linux' && !forceClose) {
-    //     event.preventDefault()
-    //     trayWindow.hide();
-    //   }
-    // });
 
     if(env.name === 'development') {
       trayWindow.openDevTools();
@@ -338,7 +330,7 @@ module.exports = function(env, clientConfig) {
     toggleState('sync', false);
   }
 
-  function windowIsVisible() {
+  function isWindowVisible() {
     return trayWindow ? trayWindow.isVisible() : false;
   }
 
@@ -367,6 +359,7 @@ module.exports = function(env, clientConfig) {
     syncTransferStarted,
     syncEnded,
     syncTransferEnded,
+    isWindowVisible,
     syncPaused,
     toggleState,
     updateSecret,
