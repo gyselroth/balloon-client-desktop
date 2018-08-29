@@ -253,8 +253,12 @@ module.exports = function(env, clientConfig) {
   }
 
   function showBurl(burlPath) {
-    burlController.showBurl(burlPath);
-    show();
+    burlController.showBurl(burlPath).then(() => {
+      show();
+    }).catch((error) => {
+      logger.error(error, {category: 'tray'});
+    });
+
   }
 
   function createWindow() {

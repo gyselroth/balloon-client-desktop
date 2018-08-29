@@ -17,14 +17,18 @@ module.exports = function(tray) {
   });
 
   const showBurl = (burlPath) => {
-    burlHandler.extractBurl(burlPath).then((burl) => {
-      tray.webContents.send('set-burl', burl);
-      tray.webContents.send('set-error', null);
-      tray.webContents.send('show-burl', burlPath);
-    }).catch((error) => {
-      tray.webContents.send('set-burl', error.burl);
-      tray.webContents.send('set-error', error.error);
-      tray.webContents.send('show-burl', burlPath);
+    return new Promise((resolve, reject) => {
+      burlHandler.extractBurl(burlPath).then((burl) => {
+        tray.webContents.send('set-burl', burl);
+        tray.webContents.send('set-error', null);
+        tray.webContents.send('show-burl', burlPath);
+        resolve();
+      }).catch((error) => {
+        tray.webContents.send('set-burl', error.burl);
+        tray.webContents.send('set-error', error.error);
+        tray.webContents.send('show-burl', burlPath);
+        resolve();
+      });
     });
   };
 
