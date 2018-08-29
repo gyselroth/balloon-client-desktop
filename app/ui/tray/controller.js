@@ -253,8 +253,8 @@ module.exports = function(env, clientConfig) {
   }
 
   function showBurl(burlPath) {
-    show();
     burlController.showBurl(burlPath);
+    show();
   }
 
   function createWindow() {
