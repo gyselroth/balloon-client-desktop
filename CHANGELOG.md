@@ -1,6 +1,6 @@
 ## 0.2.2
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Wed Aug 28 16:59:41 CEST 2018
+**Date**: Wed Aug 29 11:50:40 CEST 2018
 
 * CORE: [FIX] Feedback occasionally sends corrupt zip #107
 * CORE: [FIX] network connectivity incorrect, race condition online:false => online:true #108 
