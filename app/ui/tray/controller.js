@@ -15,6 +15,8 @@ const animationSpeed = 1000/24; //24 fps
 const feedback = require('../feedback/controller.js');
 const burlCtrl = require('../burl/controller.js');
 
+const logger = require('../../lib/logger.js');
+
 const stateIconNameMap = {
   default: 'default',
   sync: 'sync',
@@ -238,8 +240,10 @@ module.exports = function(env, clientConfig) {
   }
 
   function show(inTray = true) {
+    logger.error(inTray);
     if(!trayWindow) trayWindow = createWindow(inTray);
-
+    trayWindow.setSkipTaskbar(inTray);
+    logger.error(inTray);
 
     //UPDATE ACCESS_TOKEN
 
@@ -250,9 +254,9 @@ module.exports = function(env, clientConfig) {
     trayWindow.focus();
   }
 
-  function showBurl(burlPath) {
+  function showBurl(burlPath, inTray = true) {
     burlController.showBurl(burlPath).then(() => {
-      show();
+      show(inTray);
     }).catch((error) => {
       logger.error(error, {category: 'tray'});
     });
@@ -260,11 +264,6 @@ module.exports = function(env, clientConfig) {
   }
 
   function createWindow(inTray = true) {
-    if(trayWindow) {
-        trayWindow.setSkipTaskbar(inTray);
-        return trayWindow;
-    }
-
     trayWindow = new BrowserWindow({
       width: trayWindowWidth,
       height: trayWindowHeight,
@@ -286,7 +285,7 @@ module.exports = function(env, clientConfig) {
     }));
 
     trayWindow.on('blur', () => {
-      if (!trayWindow.webContents.isDevToolsOpened() && process.platform !== 'linux') {
+      if (!trayWindow.webContents.isDevToolsOpened()) {
         trayWindow.hide();
       }
     });

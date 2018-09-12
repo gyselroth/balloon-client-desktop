@@ -43,6 +43,12 @@ process.on('uncaughtException', function(exception) {
   });
 });
 
+function openBurl(burlPath) {
+  if (burlHandler.isBalloonBurlPath(burlPath)) {
+    tray.showBurl(burlPath, process.platform !== 'linux');
+  }
+}
+
 function startApp() {
   logger.info('bootstrap app', {category: 'main'});
 
@@ -122,16 +128,14 @@ function startApp() {
     ipc.listen((data) => {
       switch(data.type) {
         case 'open-burl':
-          if (burlHandler.isBalloonBurlPath(data.payload)) {
-            tray.showBurl(data.payload);
-          }
+          openBurl(data.payload);
           break;
         case 'open-balloon':
         default:
           if (tray.isWindowVisible() || process.platform !== 'linux') {
             startup.showBalloonDir();
           } else {
-            tray.show();
+            tray.show(process.platform !== 'linux');
           }
       }
     })
@@ -162,30 +166,26 @@ function unlinkAccount() {
   });
 }
 
-function handleSecondInstance(burlArgument, callback) {
+var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
+
+if(shouldQuit === true && process.platform !== 'darwin') {
   if (burlArgument) {
     ipc.send({type: 'open-burl', payload: burlArgument}).then(() => {
       if (callback) {
-        callback();
+        app.quit();
       }
     });
   } else {
     ipc.send({type: 'open-balloon'}).then(() => {
       if (callback) {
-        callback();
+        app.quit();
       }
     });
   }
-}
-
-var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
-
-if(shouldQuit === true && process.platform !== 'darwin') {
-  handleSecondInstance(extractBurlArgument(), app.quit);
 } else {
-  app.on('on-file', function(event, path) {
+  app.on('open-file', function(event, path) {
     if (process.platform === 'darwin') {
-      handleSecondInstance(path);
+      openBurl(path);
     }
   });
 
