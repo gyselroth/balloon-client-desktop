@@ -28,7 +28,7 @@ class BalloonBurlHandler {
       }
       return isSameOrSubPath(this.clientConfig.get('balloonDir'), parsedPath.dir);
     } catch (error) {
-      logger.debug(error, {category: 'burl'});
+      logger.debug(error.message, {category: 'burl'});
       return false;
     }
   }
@@ -44,7 +44,7 @@ class BalloonBurlHandler {
             let burl = new url.URL(data);
             resolve(burl.href);
           } catch (error) {
-            logger.debug(error, {category: 'burl-handler'});
+            logger.info(error.message, {category: 'burl-handler'});
             reject({
               error: 'invalid-url',
               burl: data,
