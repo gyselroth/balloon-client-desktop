@@ -45,7 +45,7 @@ process.on('uncaughtException', function(exception) {
 
 function openBurl(burlPath) {
   if (burlHandler.isBalloonBurlPath(burlPath)) {
-    tray.showBurl(burlPath, process.platform !== 'linux');
+    tray.showBurl(burlPath);
   }
 }
 
@@ -135,7 +135,7 @@ function startApp() {
           if (tray.isWindowVisible() || process.platform !== 'linux') {
             startup.showBalloonDir();
           } else {
-            tray.show(process.platform !== 'linux');
+            tray.show();
           }
       }
     })

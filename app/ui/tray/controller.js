@@ -239,41 +239,40 @@ module.exports = function(env, clientConfig) {
     if(trayWindow) trayWindow.hide();
   }
 
-  function show(inTray = true) {
-    logger.error(inTray);
-    if(!trayWindow) trayWindow = createWindow(inTray);
-    trayWindow.setSkipTaskbar(inTray);
-    logger.error(inTray);
+  function show(mainScreen = true) {
+    if (!trayWindow) trayWindow = createWindow();
 
     //UPDATE ACCESS_TOKEN
 
-    trayWindow.webContents.send('update-window');
+    if (mainScreen) {
+      trayWindow.webContents.send('update-window');
+    }
     positioner.position(trayWindow, tray.getBounds());
     trayWindow.setAlwaysOnTop(true);
     trayWindow.show();
     trayWindow.focus();
   }
 
-  function showBurl(burlPath, inTray = true) {
+  function showBurl(burlPath) {
     burlController.showBurl(burlPath).then(() => {
-      show(inTray);
+      show();
     }).catch((error) => {
       logger.error(error, {category: 'tray'});
     });
 
   }
 
-  function createWindow(inTray = true) {
+  function createWindow() {
     trayWindow = new BrowserWindow({
       width: trayWindowWidth,
       height: trayWindowHeight,
       show: false,
-      frame: !inTray,
+      frame: false,
       icon: getIcon(),
       fullscreenable: false,
       resizable: false,
       transparent: true,
-      skipTaskbar: inTray
+      skipTaskbar: true
     });
 
     trayWindow.setMenu(null);
@@ -291,7 +290,7 @@ module.exports = function(env, clientConfig) {
     });
 
     if(env.name === 'development') {
-      trayWindow.openDevTools();
+      // trayWindow.openDevTools();
     }
 
     return trayWindow;
