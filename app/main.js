@@ -169,6 +169,7 @@ function unlinkAccount() {
 var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
 
 if(shouldQuit === true && process.platform !== 'darwin') {
+  let burlArgument = extractBurlArgument();
   if (burlArgument) {
     ipc.send({type: 'open-burl', payload: burlArgument}).then(() => {
       if (callback) {
