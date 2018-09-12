@@ -237,16 +237,14 @@ module.exports = function(env, clientConfig) {
     if(trayWindow) trayWindow.hide();
   }
 
-  function show() {
-    if(!trayWindow) trayWindow = createWindow();
+  function show(inTray = true) {
+    if(!trayWindow) trayWindow = createWindow(inTray);
 
 
     //UPDATE ACCESS_TOKEN
 
     trayWindow.webContents.send('update-window');
-    if (process.platform !== 'linux') {
-      positioner.position(trayWindow, tray.getBounds());
-    }
+    positioner.position(trayWindow, tray.getBounds());
     trayWindow.setAlwaysOnTop(true);
     trayWindow.show();
     trayWindow.focus();
@@ -261,20 +259,22 @@ module.exports = function(env, clientConfig) {
 
   }
 
-  function createWindow() {
-    if(trayWindow) return trayWindow;
+  function createWindow(inTray = true) {
+    if(trayWindow) {
+        trayWindow.setSkipTaskbar(inTray);
+        return trayWindow;
+    }
 
     trayWindow = new BrowserWindow({
       width: trayWindowWidth,
       height: trayWindowHeight,
       show: false,
-      frame: process.platform === 'linux',
-      center: process.platform === 'linux',
+      frame: !inTray,
       icon: getIcon(),
       fullscreenable: false,
       resizable: false,
       transparent: true,
-      skipTaskbar: process.platform !== 'linux'
+      skipTaskbar: inTray
     });
 
     trayWindow.setMenu(null);

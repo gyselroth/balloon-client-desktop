@@ -162,21 +162,33 @@ function unlinkAccount() {
   });
 }
 
-var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
-
-let burlArgument = '/home/fabian.jucker/Balloon/test.burl';
-if(shouldQuit === true) {
-  let burlArgument = extractBurlArgument();
+function handleSecondInstance(burlArgument, callback) {
   if (burlArgument) {
     ipc.send({type: 'open-burl', payload: burlArgument}).then(() => {
-      app.quit();
+      if (callback) {
+        callback();
+      }
     });
   } else {
     ipc.send({type: 'open-balloon'}).then(() => {
-      app.quit();
+      if (callback) {
+        callback();
+      }
     });
   }
+}
+
+var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
+
+if(shouldQuit === true && process.platform !== 'darwin') {
+  handleSecondInstance(extractBurlArgument(), app.quit);
 } else {
+  app.on('on-file', function(event, path) {
+    if (process.platform === 'darwin') {
+      handleSecondInstance(path);
+    }
+  });
+
   app.on('ready', function () {
     appState.set('updateAvailable', false);
 
