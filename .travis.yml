@@ -16,6 +16,8 @@ addons:
     - libsecret-1-dev
     - libgnome-keyring-dev
 before_script: npm update
+install:
+  - npm install
 script:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run release-linux; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then npm run release-osx; fi
