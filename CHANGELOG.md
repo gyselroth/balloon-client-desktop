@@ -2,7 +2,7 @@
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri Sept 21 08:40:33 CEST 2018
 
-* CORE: [FIX] Upgrade sync to v0.2.3, partially fixes #119
+* CORE: [FIX] Upgrade sync to v0.2.3, partially fixes sync can result in DDOS #119 
 
 
 ## 0.2.2
