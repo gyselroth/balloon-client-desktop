@@ -1,3 +1,10 @@
+## 0.2.3
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri Sept 21 08:40:33 CEST 2018
+
+* CORE: [FIX] Upgrade sync to v0.2.3, partially fixes #119
+
+
 ## 0.2.2
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Wed Aug 29 13:43:40 CEST 2018
