@@ -1,3 +1,10 @@
+## 0.2.4
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+
+* CORE [Fix] Connect new user ends in stuck sync #118
+* CORE [Fix] Connect a user which was previously connected can result in data loss #121
+* Core [Fix] Catch `Service shut down unexpectedly` #123
+
 ## 0.2.3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri Sept 21 08:40:33 CEST 2018
