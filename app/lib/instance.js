@@ -5,6 +5,7 @@ const env = require('../env.js');
 const fsUtility = require('./fs-utility.js');
 const logger = require('./logger.js');
 const paths = require('./paths.js');
+const configManagerCtrl = require('./config-manager/controller.js');
 
 var instances = {};
 var instancesFile;
@@ -73,26 +74,36 @@ module.exports = function() {
     });
   }
 
-  function createDataDir(balloonDir, homeDir) {
-    return new Promise(function(resolve, reject) {
-      fsUtility.createBalloonDir(balloonDir, homeDir, (err) => {
+  function createDataDir(clientConfig, instanceName) {
+
+    var configManager = configManagerCtrl(clientConfig, paths.getInstanceDir(instance));
+
+    var createDirP = new Promise(function(resolve, reject) {
+      fsUtility.createBalloonDir(clientConfig.get('balloonDir'), clientConfig.get('homeDir'), (err) => {
         if(err) return reject(err);
 
         logger.info('data directory has been created', {category: 'instance'});
         resolve();
       });
     });
+
+    //if data dir is being created sync state has to be reset
+    return Promise.all([
+      createDirP,
+      configManager.resetCursorAndDb(),
+    ]);
   }
 
-  function unarchiveDataDir(archiveDir, balloonDir, homeDir) {
+  function unarchiveDataDir(archiveDir, clientConfig, instanceName) {
     logger.info('starting to extract archived data directory', {
       category: 'instance',
       archive: archiveDir
     });
 
     return new Promise(function(resolve, reject) {
-      if(fs.existsSync(archiveDir) === false) return createDataDir(balloonDir, homeDir)
+      if(fs.existsSync(archiveDir) === false) return createDataDir(clientConfig, instanceName);
 
+      var balloonDir = clientConfig.get('balloonDir');
       fs.rename(archiveDir, balloonDir, (err) => {
         if(err) return reject(err);
 
@@ -156,17 +167,18 @@ module.exports = function() {
 
       return new Promise(function(resolve, reject) {
         var instance = instances.instances[name];
+
         if(fs.existsSync(instance.balloonDir)) {
-          unarchiveDataDir(instance.balloonDir, clientConfig.get('balloonDir'), clientConfig.get('homeDir')).then(() => {
+          unarchiveDataDir(instance.balloonDir, clientConfig, name).then(() => {
             switchInstance();
             resolve();
           }).catch(reject);
         } else {
           if(fs.existsSync(clientConfig.get('balloonDir')) === false) {
-            createDataDir(clientConfig.get('balloonDir'), clientConfig.get('homeDir')).then(() => {
-              switchInstance();
-              resolve();
-            }).catch(reject);
+              createDataDir(clientConfig, name).then(() => {
+                switchInstance();
+                resolve();
+              }).catch(reject);
           } else {
             switchInstance();
             resolve();
