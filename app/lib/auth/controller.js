@@ -279,20 +279,27 @@ module.exports = function(env, clientConfig) {
         clientConfig.set('username', username);
 
         if(!instance.getInstances()) {
-          instance.setNewInstance(clientConfig);
-          resolve();
+          instance.setNewInstance(clientConfig).then(() => {
+            clientConfig.set('loggedin', true);
+            resolve();
+          });
         } else {
           var instanceName = instance.getInstance(clientConfig);
 
           if(instanceName === instance.getLastActiveInstance()) {
-            instance.loadInstance(instanceName, clientConfig);
-            resolve();
+            instance.loadInstance(instanceName, clientConfig).then(() => {
+              resolve();
+              clientConfig.set('loggedin', true);
+            }).catch(error => {
+              reject(error);
+            });
           } else {
             instance.archiveDataDir(clientConfig).then(() => {
               if(instanceName === null) {
-                instance.setNewInstance(clientConfig);
-                clientConfig.set('loggedin', true);
-                resolve();
+                instance.setNewInstance(clientConfig).then(() => {
+                  clientConfig.set('loggedin', true);
+                  resolve();
+                });
               } else {
                 instance.loadInstance(instanceName, clientConfig).then(() => {
                   resolve();

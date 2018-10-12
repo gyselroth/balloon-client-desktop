@@ -76,7 +76,7 @@ module.exports = function() {
 
   function createDataDir(clientConfig, instanceName) {
 
-    var configManager = configManagerCtrl(clientConfig, paths.getInstanceDir(instance));
+    var configManager = configManagerCtrl(clientConfig, paths.getInstanceDir(instanceName));
 
     var createDirP = new Promise(function(resolve, reject) {
       fsUtility.createBalloonDir(clientConfig.get('balloonDir'), clientConfig.get('homeDir'), (err) => {
@@ -200,6 +200,8 @@ module.exports = function() {
       instances.active = name;
       persist();
       clientConfig.initialize();
+
+      return createDataDir(clientConfig, name);
     },
     unlink: function(clientConfig){
       instances.lastActive = instances.active;
