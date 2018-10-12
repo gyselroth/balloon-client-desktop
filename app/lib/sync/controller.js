@@ -233,7 +233,10 @@ module.exports = function(env, tray) {
     return new Promise(function(resolve, reject) {
       const config = clientConfig.getAll(true);
 
-      killWatcher().then(result => {
+      Promise.all([
+        killWatcher(),
+        startup.preSyncCheck(),
+      ]).then(result => {
         watcher = new syncWatcherFactory(config, logger);
 
         watcher.once('started', () => {
