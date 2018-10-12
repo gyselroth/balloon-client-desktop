@@ -239,6 +239,20 @@ module.exports = function(env, tray) {
       ]).then(result => {
         watcher = new syncWatcherFactory(config, logger);
 
+        watcher.on('error', err => {
+          logger.error('Watcher error', {category: 'sync', err});
+
+          switch(err.code) {
+            case 'E_BLN_REMOTE_WATCHER_DELTA':
+              //network problems wait until network is available again
+              return;
+            break;
+            case 'E_BLN_LOCAL_WATCHER_SHUTDOWN':
+            default:
+              pause(true).then(() => start(true));
+          }
+        });
+
         watcher.once('started', () => {
           resolve();
         });
