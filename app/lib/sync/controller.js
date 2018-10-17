@@ -104,29 +104,25 @@ module.exports = function(env, tray) {
   function startFullSync() {
     //return if sync is already running or is starting up
     if(fullSyncWindow || fullSyncStartup) {
-      fullSyncStartup = false;
       return logger.info('not starting full sync because it is already running', {category: 'sync'});
     }
 
-    fullSyncStartup = true;
-
     //return if no user is logged in
     if(!clientConfig.get('loggedin') || !clientConfig.isActiveInstance()) {
-      fullSyncStartup = false;
       return logger.info('not starting full sync because no user logged in', {category: 'sync'});
     }
 
     //return if no network available
     if(appState.get('onLineState') === false) {
-      fullSyncStartup = false;
       return logger.info('not starting full sync because no network available', {category: 'sync'});
     }
 
     //return if sync has been paused
     if(syncPaused) {
-      fullSyncStartup = false;
       return logger.info('not starting full sync because sync has been paused', {category: 'sync'});
     }
+
+    fullSyncStartup = true;
 
     logger.info('starting full sync', {category: 'sync'});
     tray.syncStarted();
