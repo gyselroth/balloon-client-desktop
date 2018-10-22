@@ -361,6 +361,11 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
       endSync();
       tray.emit('network-offline');
     break;
+    case 'E_BLN_DELTA_FAILED':
+      logger.error('sync generating delta failed', {category: 'main', error});
+      endSync();
+      startSync(true);
+    break;
     default:
       logger.error('Uncaught sync error. Resetting cursor and db', {
         category: 'main',
