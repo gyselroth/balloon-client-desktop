@@ -5,6 +5,7 @@
 * CORE [Fix] Connect a user which was previously connected can result in data loss #121
 * Core [Fix] Catch `Service shut down unexpectedly` #123
 * Core [Fix] Handle E_BLN_DELTA_FAILED #124
+* Core [CHANGE] Improve logging for tray window
 
 ## 0.2.3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
