@@ -34,7 +34,11 @@ var showLogin     = true;
 var refreshQuota  = false;
 
 function loadMenu(menu) {
+  logger.info('loadMenu', {category: 'tray-browser', menu});
+
   $('#tray-main-template').load('../'+menu+'/index.html', function() {
+    logger.info('template loaded', {category: 'tray-browser', menu});
+
     $('#tray-quota').hide();
     $('#tray-main').removeClass('tray-main-splash');
     compileMenuTemplate(menu);
@@ -162,6 +166,8 @@ ipcRenderer.on('sync-paused' , function() {
 
 ipcRenderer.send('tray-window-loaded');
 ipcRenderer.on('config', function(event, secret, secretType) {
+  logger.info('got config', {category: 'tray-browser', secretType});
+
   clientConfig.initialize(false);
   var config = clientConfig.getAll();
   config[secretType] = secret;
@@ -179,6 +185,8 @@ ipcRenderer.on('config', function(event, secret, secretType) {
 });
 
 function showQuota() {
+  logger.info('showQuota', {category: 'tray-browser', refreshQuota});
+
   var $quota = $('#quota');
 
   if(refreshQuota === false) {
@@ -247,6 +255,8 @@ function toggleInstallUpdate() {
 }
 
 function updateWindow() {
+  logger.info('updateWindow', {category: 'tray-browser'});
+
   $('#tray-quota').show();
   $('#tray-main').addClass('tray-main-splash').html('');
   showQuota();

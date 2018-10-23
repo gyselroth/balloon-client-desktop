@@ -14,6 +14,8 @@ const animationSpeed = 1000/24; //24 fps
 
 const feedback = require('../feedback/controller.js');
 
+const logger = require('../../lib/logger.js');
+
 const stateIconNameMap = {
   default: 'default',
   sync: 'sync',
@@ -220,6 +222,9 @@ module.exports = function(env, clientConfig) {
 
   function toggle() {
     if(!trayWindow) trayWindow = createWindow();
+
+    logger.info('Toggl tray window', {category: 'tray', isVisble: trayWindow.isVisible()});
+
     if(trayWindow.isVisible()) {
       hide();
     } else {
@@ -228,10 +233,14 @@ module.exports = function(env, clientConfig) {
   }
 
   function hide() {
+    logger.info('Hide tray window', {category: 'tray'});
+
     if(trayWindow) trayWindow.hide();
   }
 
   function show() {
+    logger.info('Show tray window', {category: 'tray'});
+
     if(!trayWindow) trayWindow = createWindow();
 
 
