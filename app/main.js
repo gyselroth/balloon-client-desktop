@@ -297,6 +297,36 @@ ipcMain.on('link-account', (event, id) => {
   });
 });
 
+ipcMain.on('selective-error', (event, error, url, line, message) => {
+  switch(error.code) {
+    case 'E_BLN_API_REQUEST_UNAUTHORIZED':
+      selective.close();
+      if(clientConfig.get('authMethod') === 'basic') {
+        logger.info('got 401 from selective, unlink account', {category: 'main'});
+        unlinkAccount();
+      } else {
+        logger.debug('got 401 from selective, refresh accessToken', {category: 'main'});
+        auth.refreshAccessToken().then(() => {
+          selective.open();
+        }).catch(() => {
+          logger.error('could not refresh accessToken after selective-error, unlink instance', {category: 'main'});
+          unlinkAccount();
+        });
+      }
+    break;
+    default:
+      logger.error('Uncaught selective error.', {
+        category: 'main',
+        error,
+        url,
+        line,
+        errorMsg: message
+      });
+
+      selective.close();
+  }
+});
+
 ipcMain.on('sync-error', (event, error, url, line, message) => {
   switch(error.code) {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
