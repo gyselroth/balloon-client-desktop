@@ -240,8 +240,14 @@ module.exports = function(env, tray) {
 
           switch(err.code) {
             case 'E_BLN_REMOTE_WATCHER_DELTA':
-              //network problems wait until network is available again
-              return;
+              if(err.origErr && err.origErr.code === 'E_BLN_API_REQUEST_UNAUTHORIZED') {
+                //TODO pixtron - find a cleaner way to emit watcher errors
+                ipcMain.emit('sync-error', {}, err.origErr);
+              } else {
+                //network problems wait until network is available again
+                return;
+              }
+
             break;
             case 'E_BLN_LOCAL_WATCHER_SHUTDOWN':
             default:
