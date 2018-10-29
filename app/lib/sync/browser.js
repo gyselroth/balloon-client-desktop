@@ -59,7 +59,7 @@ try {
       }
 
       syncCompleted = true;
-      ipcRenderer.send('sync-complete');
+      ipcRenderer.send('sync-complete', err);
     });
 
     window.addEventListener('beforeunload', function(event) {

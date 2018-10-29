@@ -164,10 +164,10 @@ module.exports = function(env, tray) {
           fullSyncWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
         });
 
-        ipcMain.once('sync-complete', () => {
+        ipcMain.once('sync-complete', (event, err) => {
           logger.debug('Sync complete', {category: 'sync'});
           endFullSync();
-          resumeWatcher(false);
+          if(!err) resumeWatcher(false);
         });
 
         fullSyncWindow.once('closed', (event) => {
