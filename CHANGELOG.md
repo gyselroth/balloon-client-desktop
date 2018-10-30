@@ -7,6 +7,9 @@
 * Core [Fix] Handle E_BLN_DELTA_FAILED #124
 * Core [CHANGE] Improve logging for tray window
 * Core [CHANGE] Remove clientSecret from feedback reports #129
+* Core [Fix] Handle 401 thrown by selective window #127
+* Core [Fix] Handle 401 thrown by remote watcher #126
+* Core [Fix] Handle 401 thrown by watcher start #130
 
 ## 0.2.3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
