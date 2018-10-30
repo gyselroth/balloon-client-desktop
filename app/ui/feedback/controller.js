@@ -244,7 +244,7 @@ module.exports = function(env, clientConfig) {
     }
 
     var envForReport = Object.assign({}, env);
-    if(envForReport.auth && envForReport.auth.oidc && envForReport.auth.oidc.isArray()) {
+    if(envForReport.auth && envForReport.auth.oidc && Array.isArray(envForReport.auth.oidc)) {
       envForReport.auth.oidc = envForReport.auth.oidc.map(idpConfig => {
         if(idpConfig.clientSecret) {
           idpConfig.hasClientSecret = true;
