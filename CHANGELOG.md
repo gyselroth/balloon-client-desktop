@@ -6,6 +6,7 @@
 * Core [Fix] Catch `Service shut down unexpectedly` #123
 * Core [Fix] Handle E_BLN_DELTA_FAILED #124
 * Core [CHANGE] Improve logging for tray window
+* Core [CHANGE] Remove clientSecret from feedback reports #129
 
 ## 0.2.3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
