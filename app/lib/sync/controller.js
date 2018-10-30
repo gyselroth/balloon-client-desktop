@@ -249,6 +249,10 @@ module.exports = function(env, tray) {
               }
 
             break;
+            case 'E_BLN_API_REQUEST_UNAUTHORIZED':
+              //TODO pixtron - find a cleaner way to emit watcher errors
+              ipcMain.emit('sync-error', {}, err);
+            break;
             case 'E_BLN_LOCAL_WATCHER_SHUTDOWN':
             default:
               pause(true).then(() => start(true));
