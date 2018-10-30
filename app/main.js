@@ -330,18 +330,17 @@ ipcMain.on('selective-error', (event, error, url, line, message) => {
 ipcMain.on('sync-error', (event, error, url, line, message) => {
   switch(error.code) {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
+      endSync();
+
       if(clientConfig.get('authMethod') === 'basic') {
         logger.info('got 401, end sync and unlink account', {category: 'main'});
-        endSync();
         unlinkAccount();
       } else {
         logger.debug('got 401, refresh accessToken', {category: 'main'});
         auth.refreshAccessToken().then(() => {
-          endSync();
-          sync.resumeWatcher(false);
+          startSync(true);
         }).catch(() => {
           logger.error('could not refresh accessToken, unlink instance', {category: 'main'});
-          endSync();
           unlinkAccount();
         });
       }

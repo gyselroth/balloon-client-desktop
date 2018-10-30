@@ -10,6 +10,7 @@
 * Core [Fix] Handle 401 thrown by selective window #127
 * Core [Fix] Handle 401 thrown by remote watcher #126
 * Core [Fix] Handle 401 thrown by watcher start #130
+* Core [Change] Start sync after access token is refreshed #131
 
 ## 0.2.3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
