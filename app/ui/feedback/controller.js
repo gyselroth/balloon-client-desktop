@@ -243,6 +243,20 @@ module.exports = function(env, clientConfig) {
       return value < 10 ? '0' + value : value;
     }
 
+    var envForReport = Object.assign({}, env);
+    if(envForReport.auth && envForReport.auth.oidc && Array.isArray(envForReport.auth.oidc)) {
+      envForReport.auth.oidc = envForReport.auth.oidc.map(idpConfig => {
+        if(idpConfig.clientSecret) {
+          idpConfig.hasClientSecret = true;
+          delete idpConfig.clientSecret;
+        } else {
+          idpConfig.hasClientSecret = false;
+        }
+
+        return idpConfig;
+      });
+    }
+
     var metaData = {
       version: app.getVersion(),
       hasToken: clientConfig.get('accessToken') !== undefined,
@@ -253,7 +267,7 @@ module.exports = function(env, clientConfig) {
       },
       locale: app.getLocale(),
       config,
-      env: env,
+      env: envForReport,
       os: {
         arch: os.arch(),
         platform: os.platform(),
