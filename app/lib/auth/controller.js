@@ -105,7 +105,7 @@ module.exports = function(env, clientConfig) {
             reject(error)
           });
         }
-      });
+      }).catch(reject);
     });
   }
 
@@ -137,7 +137,7 @@ module.exports = function(env, clientConfig) {
             reject(error)
           });
         }
-      });
+      }).catch(reject);
     });
   }
 

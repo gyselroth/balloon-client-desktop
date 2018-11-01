@@ -11,12 +11,13 @@
 * Core [Fix] Handle 401 thrown by remote watcher #126
 * Core [Fix] Handle 401 thrown by watcher start #130
 * Core [Change] Start sync after access token is refreshed #131
+* Core [FIX] Catch oidc.signin errors
 
 ## 0.2.3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri Sept 21 08:40:33 CEST 2018
 
-* CORE: [FIX] Upgrade sync to v0.2.3, partially fixes sync can result in DDOS #119 
+* CORE: [FIX] Upgrade sync to v0.2.3, partially fixes sync can result in DDOS #119
 
 
 ## 0.2.2
@@ -24,7 +25,7 @@
 **Date**: Wed Aug 29 13:43:40 CEST 2018
 
 * CORE: [FIX] Feedback occasionally sends corrupt zip #107
-* CORE: [FIX] network connectivity incorrect, race condition online:false => online:true #108 
+* CORE: [FIX] network connectivity incorrect, race condition online:false => online:true #108
 
 
 ## 0.2.1

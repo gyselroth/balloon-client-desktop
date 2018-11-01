@@ -339,8 +339,8 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
         logger.debug('got 401, refresh accessToken', {category: 'main'});
         auth.refreshAccessToken().then(() => {
           startSync(true);
-        }).catch(() => {
-          logger.error('could not refresh accessToken, unlink instance', {category: 'main'});
+        }).catch(err => {
+          logger.error('could not refresh accessToken, unlink instance', {category: 'main', err});
           unlinkAccount();
         });
       }
