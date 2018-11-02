@@ -1,17 +1,19 @@
 ## 0.2.4
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri November 02 12:25:33 CET 2018
 
-* CORE [Fix] Connect new user ends in stuck sync #118
-* CORE [Fix] Connect a user which was previously connected can result in data loss #121
-* Core [Fix] Catch `Service shut down unexpectedly` #123
-* Core [Fix] Handle E_BLN_DELTA_FAILED #124
+* CORE [FIX] Connect new user ends in stuck sync #118
+* CORE [FIX] Connect a user which was previously connected can result in data loss #121
+* Core [FIX] Catch `Service shut down unexpectedly` #123
+* Core [FIX] Handle E_BLN_DELTA_FAILED #124
 * Core [CHANGE] Improve logging for tray window
 * Core [CHANGE] Remove clientSecret from feedback reports #129
-* Core [Fix] Handle 401 thrown by selective window #127
-* Core [Fix] Handle 401 thrown by remote watcher #126
-* Core [Fix] Handle 401 thrown by watcher start #130
+* Core [FIX] Handle 401 thrown by selective window #127
+* Core [FIX] Handle 401 thrown by remote watcher #126
+* Core [FIX] Handle 401 thrown by watcher start #130
 * Core [Change] Start sync after access token is refreshed #131
 * Core [FIX] Catch oidc.signin errors
+
 
 ## 0.2.3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
