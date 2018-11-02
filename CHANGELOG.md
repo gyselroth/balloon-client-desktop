@@ -2,6 +2,7 @@
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri November 02 12:25:33 CET 2018
 
+* CORE: [CHANGE] Upgrade sync to v0.2.5, fixes various sync issues
 * CORE: [FIX] Connect new user ends in stuck sync #118
 * CORE: [FIX] Connect a user which was previously connected can result in data loss #121
 * CORE: [FIX] Catch `Service shut down unexpectedly` #123
