@@ -4,15 +4,15 @@
 
 * CORE [FIX] Connect new user ends in stuck sync #118
 * CORE [FIX] Connect a user which was previously connected can result in data loss #121
-* Core [FIX] Catch `Service shut down unexpectedly` #123
-* Core [FIX] Handle E_BLN_DELTA_FAILED #124
-* Core [CHANGE] Improve logging for tray window
-* Core [CHANGE] Remove clientSecret from feedback reports #129
-* Core [FIX] Handle 401 thrown by selective window #127
-* Core [FIX] Handle 401 thrown by remote watcher #126
-* Core [FIX] Handle 401 thrown by watcher start #130
-* Core [Change] Start sync after access token is refreshed #131
-* Core [FIX] Catch oidc.signin errors
+* CORE [FIX] Catch `Service shut down unexpectedly` #123
+* CORE [FIX] Handle E_BLN_DELTA_FAILED #124
+* CORE [CHANGE] Improve logging for tray window
+* CORE [CHANGE] Remove clientSecret from feedback reports #129
+* CORE [FIX] Handle 401 thrown by selective window #127
+* CORE [FIX] Handle 401 thrown by remote watcher #126
+* CORE [FIX] Handle 401 thrown by watcher start #130
+* CORE [Change] Start sync after access token is refreshed #131
+* CORE [FIX] Catch oidc.signin errors
 
 
 ## 0.2.3
