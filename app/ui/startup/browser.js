@@ -3,7 +3,6 @@
 const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
 const handlebars = require('handlebars');
-const uuid4 = require('uuid4');
 const request = require('request');
 
 const clientConfig = require('../../lib/config.js');
