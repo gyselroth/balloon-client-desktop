@@ -73,7 +73,7 @@
   },
   "devDependencies": {
     "chai": "~3.5.0",
-    "electron": "^2.0.13",
+    "electron": "^3.0.8",
     "electron-builder": "20.13.3",
     "electron-mocha": "~3.5.0",
     "electron-rebuild": "1.6.0",
@@ -104,7 +104,7 @@
     "electron-traywindow-positioner": "~0.0.2",
     "electron-updater": "^2.23.3",
     "escape-string-regexp": "~1.0.5",
-    "graceful-fs": "~4.1.11",
+    "graceful-fs": "^4.1.15",
     "handlebars": "^4.0.12",
     "jquery": "~3.0.0",
     "jstree": "^3.3.6",
