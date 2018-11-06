@@ -154,9 +154,16 @@ module.exports = function(env, clientConfig) {
         ipcMain.removeAllListeners('auth-oidc-signin');
         ipcMain.on('auth-oidc-signin', function(event, idp) {
           var idpConfig = env.auth.oidc[idp];
+
+          var idpConfigToLog = Object.assign({hasClientSecret: false}, idpConfig);
+          if(idpConfigToLog.clientSecret) {
+            idpConfigToLog.hasClientSecret = true;
+            delete idpConfigToLog.clientSecret;
+          }
+
           logger.info('requested oidc signin', {
             category: 'startup',
-            idp: idpConfig
+            idp: idpConfigToLog
           });
 
           startupWindow.removeListener('closed', windowClosedByUserHandler);
