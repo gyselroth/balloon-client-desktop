@@ -4,7 +4,8 @@ const {AuthorizationNotifier, AuthorizationRequestHandler, AuthorizationRequestR
 const {AuthorizationResponse} = require('@openid/appauth/built/authorization_response.js');
 const {AuthorizationServiceConfiguration} = require('@openid/appauth/built/authorization_service_configuration.js');
 const {NodeBasedHandler} = require('@openid/appauth/built/node_support/node_request_handler.js');
-const {NodeRequestor} = require('@openid/appauth/built/node_support/node_requestor.js');
+const {NodeRequestor, NodeCrypto} = require('@openid/appauth/built/node_support/index.js');
+
 const {GRANT_TYPE_AUTHORIZATION_CODE, GRANT_TYPE_REFRESH_TOKEN, TokenRequest} = require('@openid/appauth/built/token_request.js');
 const {RevokeTokenRequest} = require('@openid/appauth/built/revoke_token_request.js');
 const {BaseTokenRequestHandler, TokenRequestHandler} = require('@openid/appauth/built/token_request_handler.js');
@@ -100,9 +101,9 @@ module.exports = function (env, clientConfig) {
 
   function fetchServiceConfiguration() {
     return AuthorizationServiceConfiguration.fetchFromIssuer(idpConfig.providerUrl, requestor)
-        .then(response => {
-          return response;
-        });
+      .then(response => {
+        return response;
+      });
    }
 
   function makeAuthorizationRequest(AuthorizationServiceConfiguration) {
@@ -136,28 +137,38 @@ module.exports = function (env, clientConfig) {
         } else {
           reject(error);
         }
-    });
+      });
 
-    // create a request
-    let request = new AuthorizationRequest(
-        idpConfig.clientId, idpConfig.redirectUri, idpConfig.scope, AuthorizationRequest.RESPONSE_TYPE_CODE,
-        undefined, /* state */
-        {'prompt': 'consent', 'access_type': 'offline'});
+      // create a request
+      let request = new AuthorizationRequest({
+        client_id: idpConfig.clientId,
+        redirect_uri: idpConfig.redirectUri,
+        scope: idpConfig.scope,
+        response_type: AuthorizationRequest.RESPONSE_TYPE_CODE,
+        state: undefined,
+        extras: {'prompt': 'consent', 'access_type': 'offline'}
+      }, new NodeCrypto());
 
-    logger.info('oauth2 authorization request', {
-      category: 'openid-connect',
-      config: configuration,
-      request: request
-    });
+      logger.info('oauth2 authorization request', {
+        category: 'openid-connect',
+        config: configuration,
+        request: request
+      });
 
-    authorizationHandler.performAuthorizationRequest(configuration, request);
+      authorizationHandler.performAuthorizationRequest(configuration, request);
    });
   }
 
   function makeRefreshTokenRequest(configuration, code) {
     // use the code to make the token request.
-    let request = new TokenRequest(
-        idpConfig.clientId, idpConfig.redirectUri, GRANT_TYPE_AUTHORIZATION_CODE, code, undefined, {'client_secret': idpConfig.clientSecret});
+    let request = new TokenRequest({
+      client_id: idpConfig.clientId,
+      redirect_uri: idpConfig.redirectUri,
+      grant_type: GRANT_TYPE_AUTHORIZATION_CODE,
+      code: code,
+      refresh_token: undefined,
+      extras: {'client_secret': idpConfig.clientSecret}
+    });
 
     return tokenHandler.performTokenRequest(configuration, request).then(response => {
       logger.info('retrieved oauth2 refresh token', {category: 'openid-connect'});
@@ -166,8 +177,14 @@ module.exports = function (env, clientConfig) {
   }
 
   function makeAccessTokenRequest(configuration, refreshToken) {
-    let request = new TokenRequest(
-        idpConfig.clientId, idpConfig.redirectUri, GRANT_TYPE_REFRESH_TOKEN, undefined, refreshToken, {'client_secret': idpConfig.clientSecret});
+    let request = new TokenRequest({
+      client_id: idpConfig.clientId,
+      redirect_uri: idpConfig.redirectUri,
+      grant_type: GRANT_TYPE_REFRESH_TOKEN,
+      code: undefined,
+      refresh_token: refreshToken,
+      extras: {'client_secret': idpConfig.clientSecret}
+    });
 
     return tokenHandler.performTokenRequest(configuration, request).then(response => {
       logger.info('retrieved oauth2 access token', {category: 'openid-connect'});
@@ -176,11 +193,17 @@ module.exports = function (env, clientConfig) {
   }
 
   function makeRevokeTokenRequest(configuration, refreshToken) {
-    if(idpConfig.revokeAuthenticationRequired === false) {
-      var request = new RevokeTokenRequest(refreshToken, 'refresh_token');
-    } else {
-      var request = new RevokeTokenRequest(refreshToken, 'refresh_token', idpConfig.clientId, idpConfig.clientSecret);
+    let options = {
+      token: refreshToken,
+      tokenTypeHint: 'refresh_token',
+    };
+
+    if(idpConfig.revokeAuthenticationRequired !== false) {
+      options.client_id = idpConfig.clientId;
+      options.client_secret = idpConfig.clientSecret;
     }
+
+    let request = new RevokeTokenRequest(options);
 
     return tokenHandler.performRevokeTokenRequest(configuration, request).then(response => {
       logger.info('revoked refreshToken', {category: 'openid-connect'});
