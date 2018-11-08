@@ -1,3 +1,13 @@
+## 0.2.5
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: 
+
+* CORE: [CHANGE] Upgrade electron to v3.0.8
+* CORE: [CHANGE] Upgrade various dependencies, remove obsolete dependencies
+* CORE: [CHANGE] Upgrade @openid/appautg to v1.1.1 #143
+
+
+
 ## 0.2.4
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri November 02 12:25:33 CET 2018
@@ -14,7 +24,6 @@
 * CORE: [FIX] Handle 401 thrown by watcher start #130
 * CORE: [Change] Start sync after access token is refreshed #131
 * CORE: [FIX] Catch oidc.signin errors
-
 
 ## 0.2.3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
