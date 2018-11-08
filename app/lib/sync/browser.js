@@ -33,16 +33,6 @@ try {
       });
     });
 
-    sync.on('transfer-start', function(event) {
-      ipcRenderer.send('sync-transfer-start');
-      logger.info('transfer started', {category: 'sync'});
-    });
-
-    sync.on('transfer-end', function(event) {
-      ipcRenderer.send('sync-transfer-end');
-      logger.info('Sync transfer ended');
-    });
-
     sync.start((err, results) => {
       if(err) {
         logger.error('finished sync with error', {

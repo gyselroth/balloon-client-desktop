@@ -229,14 +229,6 @@ ipcMain.on('check-for-update', function() {
 });
 
 /** Sync **/
-ipcMain.on('sync-transfer-start', () => {
-  tray.syncTransferStarted();
-});
-
-ipcMain.on('sync-transfer-end', () => {
-  tray.syncTransferEnded();
-});
-
 ipcMain.on('sync-toggle-pause', () => {
   if(!sync) {
     return tray.syncPaused();
