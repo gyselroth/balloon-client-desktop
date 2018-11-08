@@ -5,6 +5,7 @@
 * CORE: [CHANGE] Upgrade electron to v3.0.8
 * CORE: [CHANGE] Upgrade various dependencies, remove obsolete dependencies
 * CORE: [CHANGE] Upgrade @openid/appautg to v1.1.1 #143
+* CORE: [FIX] Catch errors on oidc sing in and revoke #137
 
 
 
