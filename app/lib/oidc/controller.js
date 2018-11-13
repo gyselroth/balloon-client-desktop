@@ -122,8 +122,13 @@ module.exports = function (env, clientConfig) {
           error: error
         });
 
+        let codeVerifier;
+        if(request && request.internal && request.internal.code_verifier) {
+          codeVerifier = request.internal.code_verifier;
+        }
+
         if(response) {
-          makeRefreshTokenRequest(configuration, response.code)
+          makeRefreshTokenRequest(configuration, response.code, codeVerifier)
             .then((result) => {
 
               clientConfig.storeSecret('refreshToken', result.refreshToken).then(() => {
@@ -171,7 +176,13 @@ module.exports = function (env, clientConfig) {
    });
   }
 
-  function makeRefreshTokenRequest(configuration, code) {
+  function makeRefreshTokenRequest(configuration, code, codeVerifier) {
+    let extras = {'client_secret': idpConfig.clientSecret};
+
+    if(codeVerifier) {
+      extras['code_verifier'] = codeVerifier;
+    }
+
     // use the code to make the token request.
     let request = new TokenRequest({
       client_id: idpConfig.clientId,
@@ -179,7 +190,7 @@ module.exports = function (env, clientConfig) {
       grant_type: GRANT_TYPE_AUTHORIZATION_CODE,
       code: code,
       refresh_token: undefined,
-      extras: {'client_secret': idpConfig.clientSecret}
+      extras: extras
     });
 
     return tokenHandler.performTokenRequest(configuration, request)
