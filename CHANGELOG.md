@@ -6,6 +6,7 @@
 * CORE: [CHANGE] Upgrade various dependencies, remove obsolete dependencies
 * CORE: [CHANGE] Upgrade @openid/appautg to v1.1.1 #143
 * CORE: [FIX] Catch errors on oidc sing in and revoke #137
+* CORE: [FIX] Re enable copy&paste in feedback and login fields
 
 
 
