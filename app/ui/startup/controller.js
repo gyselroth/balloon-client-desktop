@@ -9,6 +9,7 @@ const fsUtility = require('../../lib/fs-utility.js');
 const AuthCtrl = require('../../lib/auth/controller.js');
 const configManagerCtrl = require('../../lib/config-manager/controller.js');
 const autoLaunch = require('../../lib/auto-launch.js');
+const contextMenuFactory = require('../../lib/context-menu-factory.js');
 
 const logger = require('../../lib/logger.js');
 
@@ -321,6 +322,8 @@ module.exports = function(env, clientConfig) {
     }));
 
     startupWindow.setMenu(null);
+
+    contextMenuFactory(startupWindow);
 
     startupWindow.on('closed', (event) => {
       startupWindow = null;
