@@ -179,6 +179,18 @@ module.exports = function(env, clientConfig) {
 
         async.parallel([
           async.reflect((cb) => {
+            getAdditionalMetadata((err, meta) => {
+              if(err) {
+                logger.error('getting additional meta failed', {category: 'feedback', err});
+                return cb(err);
+              }
+
+              archive.append(meta, {name: 'report/additional-meta.txt'});
+
+              cb(null);
+            });
+          }),
+          async.reflect((cb) => {
             createDirectorySnapshot((err, snapshot) => {
               if(err) {
                 logger.error('creating directory snapshot failed', {category: 'feedback', err});
@@ -360,6 +372,45 @@ module.exports = function(env, clientConfig) {
       });
     }
   }
+
+  function getAdditionalMetadata(callback) {
+    var cmds;
+    switch (process.platform) {
+      case 'darwin':
+      case 'win32':
+        cmds = [];
+      break;
+      default:
+        cmds = ['cat /etc/lsb-release', 'cat /proc/version', 'echo "$XDG_CURRENT_DESKTOP"', 'echo "$GDMSESSION"'];
+    }
+
+    async.map(cmds, (cmd, cb) => {
+      exec(cmd, (err, result) => {
+        if(err) {
+          logger.error('shell exec error (getAdditionalMetadata)', {cmd, err, category: 'feedback'});
+          return cb(err);
+        }
+
+        cb(null, {cmd, result});
+      });
+    }, (err, results) => {
+      if(err) return callback(err);
+
+      var out = '';
+
+      for(i=0; i<results.length; i++) {
+        var result = results[i];
+
+        out += result.cmd + os.EOL;
+        out += result.result;
+
+        if(i < results.length -1) out += os.EOL + os.EOL;
+      }
+
+      callback(null, out);
+    });
+  }
+
 
   return {
     toggleAutoReport
