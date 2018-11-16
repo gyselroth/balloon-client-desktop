@@ -8,6 +8,7 @@
 * CORE: [FIX] Catch errors on oidc sing in and revoke #137
 * CORE: [FIX] Re enable copy&paste in feedback and login fields #113
 * CORE: [CHANGE] Add context menu for feedback and basic auth login #101
+* CORE: [CHANGE] Store temporary feedback in sessionStorage #111
 
 
 
