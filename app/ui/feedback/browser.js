@@ -13,6 +13,7 @@ module.exports = function() {
     var $feedback = $('#feedback');
     var $file = $feedback.find('input[name="file"]');
     var $text = $feedback.find('textarea');
+    var $loader = $feedback.find('.loader');
 
     var fileVal = sessionStorage.getItem('feedback.file') !== 'false';
     var textVal = sessionStorage.getItem('feedback.text') || '';
@@ -31,7 +32,6 @@ module.exports = function() {
     $feedback.find('button').click(function(){
       var file = $file.is(':checked');
       var text = $text.val();
-      var $loader = $feedback.find('.loader');
 
       if($loader.is(':visible')) {
         return;
@@ -52,8 +52,9 @@ module.exports = function() {
       if(result === false) {
         $('#feedback-success').hide();
         $('#feedback-error-send').show();
+        $loader.hide();
       } else {
-        $feedback.find('.loader').hide();
+        $loader.hide();
         $('#feedback-success').show();
         $feedback.find('.error-message').hide();
         sessionStorage.removeItem('feedback.file');
