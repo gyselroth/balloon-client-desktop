@@ -11,10 +11,26 @@ const app = electron.remote.app;
 module.exports = function() {
   function init() {
     var $feedback = $('#feedback');
+    var $file = $feedback.find('input[name="file"]');
+    var $text = $feedback.find('textarea');
+
+    var fileVal = sessionStorage.getItem('feedback.file') !== 'false';
+    var textVal = sessionStorage.getItem('feedback.text') || '';
+
+    $text.val(textVal);
+    $file.prop('checked', fileVal);
+
+    $file.off('change').on('change', function(event) {
+      sessionStorage.setItem('feedback.file', $file.is(':checked'));
+    });
+
+    $text.off('change').on('change', function(event) {
+      sessionStorage.setItem('feedback.text', $text.val());
+    });
 
     $feedback.find('button').click(function(){
-      var file = $feedback.find('input').is(':checked');
-      var text = $feedback.find('textarea').val();
+      var file = $file.is(':checked');
+      var text = $text.val();
       var $loader = $feedback.find('.loader');
 
       if($loader.is(':visible')) {
@@ -40,6 +56,8 @@ module.exports = function() {
         $feedback.find('.loader').hide();
         $('#feedback-success').show();
         $feedback.find('.error-message').hide();
+        sessionStorage.removeItem('feedback.file');
+        sessionStorage.removeItem('feedback.text');
       }
     });
   }
