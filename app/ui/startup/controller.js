@@ -148,6 +148,7 @@ module.exports = function(env, clientConfig) {
               resolve({welcomeWizardPromise: Promise.resolve()});
             }
           }).catch((error) => {
+            logger.error('Basic auth resulted in an error', {category: 'startup', error});
             startupWindow.webContents.send('startup-auth-error',  'basic');
           });
         });
