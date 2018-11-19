@@ -10,6 +10,7 @@
 * CORE: [CHANGE] Add context menu for feedback and basic auth login #101
 * CORE: [CHANGE] Store temporary feedback in sessionStorage #111
 * CORE: [FIX] Hide loader after feedback send error #77
+* CORE: [CHANGE] Add env to instance #24
 
 
 
