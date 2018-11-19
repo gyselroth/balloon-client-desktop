@@ -203,7 +203,21 @@ function showQuota() {
       return;
     }
 
-    var percent =  Math.round(data.used / data.hard_quota * 100, 0);
+    var percent, usage;
+
+    if(data.hard_quota <=0) {
+      percent = 0;
+      usage = i18n.__('tray.quota.unlimited');
+    } else {
+      percent =  Math.round(data.used / data.hard_quota * 100, 0);
+      usage = i18n.__('tray.quota.limited');
+    }
+
+    usage = [
+      getReadableFileSizeString(data.used),
+      getReadableFileSizeString(data.available)
+    ].reduce((p,c) => p.replace(/%s/,c), usage);
+
     var $used = $quota.find('.used');
     $used.width(percent+'%');
     $quota.show();
@@ -214,7 +228,7 @@ function showQuota() {
       $used.removeClass('quota-high');
     }
 
-    $quota.find('.quota-text').html('('+getReadableFileSizeString(data.available)+' left)');
+    $quota.find('.quota-text').html('('+usage+')');
   });
 }
 

@@ -11,7 +11,7 @@
 * CORE: [CHANGE] Store temporary feedback in sessionStorage #111
 * CORE: [FIX] Hide loader after feedback send error #77
 * CORE: [CHANGE] Add env to instance #24
-
+* CORE: [CHANGE] Support unlimited quota #109
 
 
 ## 0.2.4
