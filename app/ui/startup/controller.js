@@ -10,6 +10,7 @@ const AuthCtrl = require('../../lib/auth/controller.js');
 const configManagerCtrl = require('../../lib/config-manager/controller.js');
 const autoLaunch = require('../../lib/auto-launch.js');
 const contextMenuFactory = require('../../lib/context-menu-factory.js');
+const instance = require('../../lib/instance.js');
 
 const logger = require('../../lib/logger.js');
 
@@ -92,6 +93,8 @@ module.exports = function(env, clientConfig) {
         !clientConfig.hadConfig()
         ||
         !clientConfig.isActiveInstance()
+        ||
+        instance.getInstance(clientConfig) === null
     ) {
       logger.debug('skip startup authentication, first time wizard needs to be executed first', {
           category: 'startup'
