@@ -39,7 +39,6 @@ function loadMenu(menu) {
   $('#tray-main-template').load('../'+menu+'/index.html', function() {
     logger.info('template loaded', {category: 'tray-browser', menu});
 
-    $('#tray-quota').hide();
     $('#tray-main').removeClass('tray-main-splash');
     compileMenuTemplate(menu);
     modules[menu].init();
