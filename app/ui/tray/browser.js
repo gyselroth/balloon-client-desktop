@@ -206,16 +206,11 @@ function showQuota() {
 
     if(data.hard_quota <=0) {
       percent = 0;
-      usage = i18n.__('tray.quota.unlimited');
+      usage = i18n.__('tray.quota.unlimited').replace(/%s/, getReadableFileSizeString(data.used));
     } else {
       percent =  Math.round(data.used / data.hard_quota * 100, 0);
-      usage = i18n.__('tray.quota.limited');
+      usage = i18n.__('tray.quota.limited').replace(/%s/, getReadableFileSizeString(data.available));
     }
-
-    usage = [
-      getReadableFileSizeString(data.used),
-      getReadableFileSizeString(data.available)
-    ].reduce((p,c) => p.replace(/%s/,c), usage);
 
     var $used = $quota.find('.used');
     $used.width(percent+'%');

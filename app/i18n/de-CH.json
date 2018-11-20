@@ -31,7 +31,7 @@
   "tray.tooltip.state.sync": "Daten werden gerade synchronisiert",
   "tray.tooltip.state.update": "Update bereit zur Installation",
   "tray.quota.unlimited": "%s von unlimitiert",
-  "tray.quota.limited": "%s von %s",
+  "tray.quota.limited": "%s übrig",
 
   "about.see_github": "Siehe github",
   "about.github_repo": "gyselroth/balloon-client-desktop",
