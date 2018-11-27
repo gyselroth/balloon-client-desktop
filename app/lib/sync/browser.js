@@ -33,6 +33,14 @@ try {
       });
     });
 
+    sync.on('transfer-task', (task) => {
+      ipcRenderer.send('transfer-task', task);
+    });
+
+    sync.on('transfer-progress', (task) => {
+      ipcRenderer.send('transfer-progress', task);
+    });
+
     sync.start((err, results) => {
       if(err) {
         logger.error('finished sync with error', {

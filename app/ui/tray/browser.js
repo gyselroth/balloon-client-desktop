@@ -15,6 +15,7 @@ const modules = {
   settings: require('../settings/browser.js')(),
   feedback: require('../feedback/browser.js')(),
   about: require('../about/browser.js')(),
+  status: require('../status/browser.js')(),
 }
 
 const logger = require('../../lib/logger.js');
@@ -39,7 +40,6 @@ function loadMenu(menu) {
   $('#tray-main-template').load('../'+menu+'/index.html', function() {
     logger.info('template loaded', {category: 'tray-browser', menu});
 
-    $('#tray-main').removeClass('tray-main-splash');
     compileMenuTemplate(menu);
     modules[menu].init();
   });
@@ -93,7 +93,14 @@ function buildMenu() {
       ipcRenderer.send('sync-toggle-pause');
       ipcRenderer.send('tray-hide');
     }}))
+
+    menu.append(new MenuItem({type: 'separator', enabled: false}))
   }
+
+  label = i18n.__('tray.menu.status');
+  menu.append(new MenuItem({label: label, click: function(){
+    loadMenu('status');
+  }}))
 
   label = i18n.__('tray.menu.settings');
   menu.append(new MenuItem({label: label, click: function(){
@@ -109,6 +116,8 @@ function buildMenu() {
   menu.append(new MenuItem({label: label, click: function(){
     loadMenu('about');
   }}))
+
+  menu.append(new MenuItem({type: 'separator', enabled: false}))
 
   label = i18n.__('tray.menu.close');
   menu.append(new MenuItem({label: label, click: function(){
@@ -266,9 +275,11 @@ function updateWindow() {
   logger.info('updateWindow', {category: 'tray-browser'});
 
   $('#tray-quota').show();
-  $('#tray-main').addClass('tray-main-splash').html('');
+  //TODO pixtron - do we still need this?
+  $('#tray-main').html('');
   showQuota();
   toggleInstallUpdate();
+  loadMenu('status');
 }
 
 /*

@@ -23,6 +23,7 @@
   "tray.menu.settings": "Settings",
   "tray.menu.feedback": "Give feedback",
   "tray.menu.close": "Quit balloon",
+  "tray.menu.status": "Status",
   "tray.tooltip.state.default": "Your balloon is synchronized",
   "tray.tooltip.state.check": "Your balloon is synchronized",
   "tray.tooltip.state.offline": "No data can be synced, because there is no internet connection.",
@@ -71,6 +72,8 @@
   "startup.auth.username": "Username",
   "startup.auth.password": "Password",
   "startup.auth.message": "Authenticate your account with balloon:",
+
+  "status.nav.transfer": "Transfers",
 
   "button.cancel": "Cancel",
   "button.send": "Send",

@@ -204,6 +204,14 @@ function animateIcon(curFrame=1, maxFrames=1) {
 module.exports = function(env, clientConfig) {
   var trayWindow = createWindow();
 
+  ipcMain.on('transfer-task', (event, task) => {
+    trayWindow.webContents.send('transfer-task', task);
+  });
+
+  ipcMain.on('transfer-progress', (event, task) => {
+    trayWindow.webContents.send('transfer-progress', task);
+  });
+
   function create() {
     if(!tray) {
       const iconConfig = getIconConfig('default');
