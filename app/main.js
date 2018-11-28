@@ -13,18 +13,20 @@ const AuthCtrl = require('./lib/auth/controller.js');
 const AutoUpdateCtrl = require('./lib/auto-update/controller.js');
 const FeedbackCtrl = require('./ui/feedback/controller.js');
 const setMenu = require('./lib/menu.js');
+const BalloonDirSelectorCtrl = require('./ui/balloon-dir-selector/controller.js');
 
 const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
 const configManager = require('./lib/config-manager/controller.js')(clientConfig);
 const globalConfig = require('./lib/global-config.js');
 
-var tray, selective, sync, feedback, autoUpdate;
+var tray, selective, sync, feedback, autoUpdates;
 
 var standardLogger = new loggerFactory(clientConfig.getAll());
 var startup = StartupCtrl(env, clientConfig);
 var auth = AuthCtrl(env, clientConfig);
 var selective = SelectiveCtrl(env, clientConfig);
+var ballonDirSelector = BalloonDirSelectorCtrl(env, clientConfig);
 
 logger.setLogger(standardLogger);
 
@@ -252,7 +254,23 @@ ipcMain.on('selective-apply', function(event, difference) {
   if(sync) sync.updateSelectiveSync(difference, err => {
     selective.close();
   });
-})
+});
+
+ipcMain.on('balloonDirSelector-open', function(event) {
+  (function() {
+    if(!sync) return Promise.resolve();
+
+    return sync.pause(true);
+  }()).then(function() {
+    return ballonDirSelector.open();
+  }).then((result) => {
+    event.sender.send('balloonDirSelector-result', result);
+    startSync((result && result.newPath));
+  }).catch((err) => {
+    if(err) logger.error('Change balloon dir failed', {category: 'main', err});
+    startSync(false);
+  });
+});
 
 ipcMain.on('unlink-account', (event) => {
   logger.info('logout requested', {category: 'main'});

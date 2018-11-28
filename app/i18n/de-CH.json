@@ -58,6 +58,9 @@
   "settings.selective.choosePath": "Wähle alle Ordner und Dateien aus, welche du synchronisiert haben möchtest:",
   "settings.selective.updateing": "Aktualisiere zu synchronisierende Ordner.",
   "settings.selective.noCollections": "Es sind noch keine Ordner vorhanden.",
+  "settings.balloonDir.title": "balloon Verzeichnis",
+  "settings.balloonDir.message": "Der Speicherort für deinen balloon ändern:",
+
 
   "startup.title": "Setup balloon",
   "startup.server.title": "Willkommen bei balloon",
@@ -87,5 +90,11 @@
   "error.blnUrl.notreachable": "Der eingegebene Server kann nicht erreicht werden. Bitte prüfen Sie den Server",
   "error.blnUrl.offline": "Der balloon Server kann nicht erreicht werden. Bitte stelle sicher, dass eine Internetverbindung besteht.",
   "error.auth.basic": "Authentifizierung fehlgeschlagen",
-  "error.auth.oidc": "Die Authentifizierung mit dem ausgewählten Identity Provider ist fehlgeschlagen."
+  "error.auth.oidc": "Die Authentifizierung mit dem ausgewählten Identity Provider ist fehlgeschlagen.",
+
+  "balloonDirSelector.title": "Speicherort für BalloonDir wählen",
+  "balloonDirSelector.error.title": "Fehler",
+  "balloonDirSelector.error.unknown": "Balloon konnte nicht verschoben werden.",
+  "balloonDirSelector.error.moveIntoItself": "Balloon kann nicht in sich selbst verschoben werden.",
+  "balloonDirSelector.error.targetExists": "Es existiert bereits ein Balloon am gewählten Pfad."
 }

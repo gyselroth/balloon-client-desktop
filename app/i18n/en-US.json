@@ -58,6 +58,8 @@
   "settings.selective.choosePath": "Select all folder and files you want to be in sync with your balloon cloud:",
   "settings.selective.updateing": "Updateing folders to be synced.",
   "settings.selective.noCollections": "No collections exist.",
+  "settings.balloonDir.title": "balloon directory",
+  "settings.balloonDir.message": "Change the directory for your balloon:",
 
 
   "startup.title": "Setup balloon",
@@ -88,5 +90,11 @@
   "error.blnUrl.notreachable": "The Server entered can not be reached. Please make sure to enter the correct server.",
   "error.blnUrl.offline": "It looks like the balloon server can not be reached. Please make sure you have a valid internet connection.",
   "error.auth.basic": "Authentication failed",
-  "error.auth.oidc": "There was an error authenticating your account with the choosen identity provider."
+  "error.auth.oidc": "There was an error authenticating your account with the choosen identity provider.",
+
+  "balloonDirSelector.title": "Chose location for balloonDir",
+  "balloonDirSelector.error.title": "Error",
+  "balloonDirSelector.error.unknown": "Moving your Balloon failed, please try again later.",
+  "balloonDirSelector.error.moveIntoItself": "Can't move your Balloon into itself.",
+  "balloonDirSelector.error.targetExists": "There is already a Balloon at the given path."
 }

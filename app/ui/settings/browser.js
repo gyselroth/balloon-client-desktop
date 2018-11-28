@@ -21,6 +21,7 @@ module.exports = function() {
 
     tabNavigation('#settings');
 
+    /** Auto launch **/
     const $autoLaunchCheck = $('#settings-autolaunch-check');
     $autoLaunchCheck.attr('checked', autoLaunch.getState());
 
@@ -31,6 +32,7 @@ module.exports = function() {
       });
     });
 
+    /** Allow prerelease **/
     const $allowPrereleaseCheck = $('#settings-allowPrerelease-check');
     $allowPrereleaseCheck.attr('checked', globalConfig.get('allowPrerelease'));
 
@@ -38,6 +40,7 @@ module.exports = function() {
       globalConfig.set('allowPrerelease', this.checked);
     });
 
+    /** Auto report **/
     const $autoReportCheck = $('#settings-autoReport-check');
 
     $autoReportCheck.attr('checked', globalConfig.get('autoReport'));
@@ -47,6 +50,22 @@ module.exports = function() {
       ipcRenderer.send('settings-autoReport-changed', this.checked);
     });
 
+    /** BalloonDir **/
+    const $balloonDirBtn = $('#settings-balloonDir');
+    const $balloonDirBtnLabel = $balloonDirBtn.find('> div:first-child');
+
+    $balloonDirBtnLabel.html(clientConfig.get('balloonDir'));
+    $balloonDirBtn.bind('click', function(event) {
+      ipcRenderer.send('balloonDirSelector-open');
+    });
+
+    ipcRenderer.on('balloonDirSelector-result', function (event, result) {
+      if(result && result.newPath) {
+        $balloonDirBtnLabel.html(result.newPath);
+      }
+    });
+
+    /** Selective **/
     const $selectiveBtn = $('#settings-selective-btn');
 
     $selectiveBtn.bind('click', function(event) {

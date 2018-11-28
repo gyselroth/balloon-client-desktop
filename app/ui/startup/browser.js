@@ -135,15 +135,17 @@ function welcome() {
 
     $savedirLabel.html(clientConfig.get('balloonDir'));
     $savedir.bind('click', function() {
-      ipcRenderer.send('startup-change-dir');
+      ipcRenderer.send('balloonDirSelector-open');
     });
 
     $('#startup-adavanced-selective').bind('click', function() {
       ipcRenderer.send('selective-open');
     });
 
-    ipcRenderer.on('startup-change-dir', function (event, path) {
-        $savedirLabel.html(path);
+    ipcRenderer.on('balloonDirSelector-result', function (event, result) {
+      if(result && result.newPath) {
+        $savedirLabel.html(result.newPath);
+      }
     });
 
     $('#startup-logo').hide();
