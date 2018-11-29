@@ -208,6 +208,10 @@ function showQuota() {
       $('#quota').find('.quota-text').html('');
       $quota.hide();
 
+      if(err.code === 'E_BLN_API_REQUEST_UNAUTHORIZED') {
+        ipcRenderer.send('sync-error', err);
+      }
+
       return;
     }
 

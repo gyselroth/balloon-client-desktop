@@ -15,6 +15,7 @@
 * CORE: [FIX] reset instance after server changed #145
 * CORE: [CHANGE] display transfer status in try #103
 * CORE: [CHANGE] Allow to change location of BalloonDir #46
+* CORE: [CHANGE] Handle 401 on getQuotaUsage requests #125
 
 
 ## 0.2.4
