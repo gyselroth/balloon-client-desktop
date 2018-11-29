@@ -14,6 +14,7 @@
 * CORE: [CHANGE] Support unlimited quota #109
 * CORE: [FIX] reset instance after server changed #145
 * CORE: [CHANGE] display transfer status in try #103
+* CORE: [CHANGE] Allow to change location of BalloonDir #46
 
 
 ## 0.2.4
