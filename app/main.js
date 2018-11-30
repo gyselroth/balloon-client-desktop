@@ -28,6 +28,10 @@ var auth = AuthCtrl(env, clientConfig);
 var selective = SelectiveCtrl(env, clientConfig);
 var ballonDirSelector = BalloonDirSelectorCtrl(env, clientConfig);
 
+if (process.platform === 'linux') {
+  app.disableHardwareAcceleration();
+}
+
 logger.setLogger(standardLogger);
 
 process.on('uncaughtException', function(exception) {
