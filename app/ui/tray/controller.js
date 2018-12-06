@@ -80,7 +80,7 @@ const Icons = {
     },
     sync: {
       path: 'icon-tray-blue-16x16-frame%d.png',
-      animate: true,
+      animate: false,
       frames: 10,
       template: false
     },
