@@ -1,5 +1,10 @@
-const { ipcRenderer } = require('electron');
+const path = require('path');
 
+const { ipcRenderer } = require('electron');
+const moment = require('moment');
+
+const clientConfig = require('../../lib/config.js');
+const logTrayDb = require('../../lib/log-tray-db.js');
 const tabNavigation = require('../tray/tab-navigation.js');
 const MAX_DISPLAY = 50;
 const prettyBytes = require('pretty-bytes');
@@ -73,14 +78,25 @@ module.exports = function() {
     showQuota(sync);
 
     let $transfer = $('#status-transfer');
+    let $error = $('#status-error');
     tabNavigation('#status');
+    logTrayDb.connect(path.join(clientConfig.get('instanceDir'), 'db', 'log-tray.db'), true);
     let i;
 
     $transfer.empty();
+    $error.empty();
 
     for(id in taskHistory) {
       $transfer.append(renderTask(taskHistory[id]));
     }
+
+    logTrayDb.getErrors((err, errors) => {
+      if(errors) {
+        for(i=0; i < errors.length; i++) {
+          $error.append(renderError(errors[i]));
+        }
+      }
+    });
 
     ipcRenderer.on('transfer-task', function(event, task) {
       console.log('tranfer-task',task);
@@ -127,6 +143,13 @@ module.exports = function() {
     dom += '</li>';
 
     return $(dom);
+  }
+
+  function renderError(error) {
+    return $(`<li id="${error.hash}" class="clearfix" >
+      <div class="status-error-date">${moment(error.date).format('DD.MM.YYYY HH:mm:ss')}</div>
+      <div class="status-error-message">${error.message}</div>
+    </li>`);
   }
 
   return {

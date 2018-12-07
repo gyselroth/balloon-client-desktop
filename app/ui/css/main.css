@@ -212,7 +212,7 @@ p {
 }
 
 
-/*-----Status Transfer-----*/
+/*-----Status Transfer/Error-----*/
 #status {
   height: 100%;
 }
@@ -295,6 +295,23 @@ p {
 #status-transfer .task-finished .task-progress-inner {
   background-color: #5cd600;
 }
+
+
+#status #status-error li {
+  margin-bottom: 10px;
+}
+
+#status #status-error li .status-error-date {
+  float: left;
+  width: 140px;
+  margin-right: 5px;
+}
+
+#status #status-error li .status-error-message {
+  float: left;
+  width: calc(100% - 145px);
+}
+
 
 
 /*-----Formular----*/

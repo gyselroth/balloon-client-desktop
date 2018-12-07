@@ -72,8 +72,10 @@
   "startup.auth.message": "Authenticate your account with balloon:",
 
   "status.nav.activities": "Activities",
+  "status.nav.error": "Errors",
   "status.nav.notes": "Notes",
   "status.nav.quota": "Storage",
+
   "status.quota.used": "Used storage",
   "status.quota.left": "Available storage",
   "status.quota.max": "Total storage",

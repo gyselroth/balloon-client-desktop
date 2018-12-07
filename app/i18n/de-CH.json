@@ -74,8 +74,10 @@
   "startup.auth.message": "Melde dich an deinem balloon an:",
 
   "status.nav.activities": "Aktivitäten",
+  "status.nav.error": "Fehler",
   "status.nav.notes": "Hinweise",
   "status.nav.quota": "Speicher",
+
   "status.quota.used": "Benutzter Speicherplatz",
   "status.quota.left": "Freier Speicherplatz",
   "status.quota.max": "Gesamter Speicherplatz",
