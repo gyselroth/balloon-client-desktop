@@ -143,6 +143,9 @@ module.exports = function() {
     getActiveInstance: function() {
       return instances.active;
     },
+    getInstanceByName: function(name) {
+      return instances.instances[name];
+    },
     getInstance: function(clientConfig) {
       if(instances.instances) {
         for(instance in instances.instances) {

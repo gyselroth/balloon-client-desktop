@@ -6,6 +6,7 @@ const handlebars = require('handlebars');
 const request = require('request');
 
 const clientConfig = require('../../lib/config.js');
+const instance = require('../../lib/instance.js');
 
 const i18n = require('../../lib/i18n.js');
 const env = require('../../env.js');
@@ -58,7 +59,11 @@ $(document).ready(function() {
   window.addEventListener('offline', updateOnLineState);
 
   if(!clientConfig.get('blnUrl')) {
-    $('#startup-view-server').find('.view-content').find('> div').show();
+    let $server = $('#startup-view-server').find('.view-content').find('> div').show();
+    let last = instance.getInstanceByName(instance.getLastActiveInstance());
+    if(last.server) {
+      $server.find('input').val(last.server);
+    }
   }
 
   $('#startup-server-continue').bind('click', verifyServer);
