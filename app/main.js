@@ -41,6 +41,13 @@ process.on('uncaughtException', function(exception) {
   });
 });
 
+var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
+
+if(shouldQuit === true) {
+  startup.showBalloonDir();
+  app.quit();
+}
+
 function startApp() {
   logger.info('bootstrap app', {category: 'main'});
 
@@ -144,6 +151,293 @@ function unlinkAccount() {
   });
 }
 
+app.on('ready', function () {
+  appState.set('updateAvailable', false);
+
+  feedback = FeedbackCtrl(env, clientConfig);
+  feedback.toggleAutoReport(globalConfig.get('autoReport'));
+
+  logger.info('app ready to operate', {
+      category: 'main',
+  });
+
+  setMenu();
+
+  migrate().then(result => {
+    startApp();
+  }).catch(err => {
+    logger.error('error during migration, quitting app', {
+      category: 'main',
+      error: err
+    });
+
+    app.quit();
+  })
+});
+
+/** Main App **/
+ipcMain.on('quit', function() {
+  app.quit();
+});
+
+/** Tray **/
+ipcMain.on('tray-toggle', function() {
+  tray.toggle();
+});
+
+ipcMain.on('tray-hide', function() {
+  tray.hide();
+});
+
+ipcMain.on('tray-show', function() {
+  tray.show();
+});
+
+ipcMain.on('tray-online-state-changed', function(event, state) {
+  logger.info('online state changed', {
+    category: 'main',
+    state: state,
+    syncPaused: (sync && sync.isPaused())
+  });
+
+  appState.set('onLineState', state);
+  if(state === false) {
+    //abort a possibly active sync if not already paused
+    if(sync && sync.isPaused() === false) sync.pause(true);
+    tray.toggleState('offline', true);
+  } else {
+    if(sync && sync.isPaused() === false) startSync(true);
+    tray.toggleState('offline', false);
+  }
+});
+
+/** Settings **/
+ipcMain.on('settings-autoReport-changed', function(event, state) {
+  feedback.toggleAutoReport(state);
+});
+
+
+/** Auto update **/
+ipcMain.on('install-update', function() {
+  logger.info('install-update triggered', {
+    category: 'main',
+  });
+
+  autoUpdate.quitAndInstall();
+});
+
+ipcMain.on('check-for-update', function() {
+  logger.info('check-for-update triggered', {
+      category: 'main',
+  });
+
+  autoUpdate.checkForUpdate();
+});
+
+/** Sync **/
+ipcMain.on('sync-toggle-pause', () => {
+  if(!sync) {
+    return tray.syncPaused();
+  }
+
+  tray.toggleState('pause', !sync.isPaused());
+  sync.togglePause();
+});
+
+ipcMain.on('selective-open', function(event) {
+  selective.open();
+});
+
+ipcMain.on('selective-close', function(event) {
+  selective.close();
+});
+
+ipcMain.on('selective-apply', function(event, difference) {
+  logger.info('Applying selective sync changes', {category: 'main', difference});
+
+  if(sync) sync.updateSelectiveSync(difference, err => {
+    selective.close();
+  });
+});
+
+ipcMain.on('balloonDirSelector-open', function(event) {
+  (function() {
+    if(!sync) return Promise.resolve();
+
+    return sync.pause(true);
+  }()).then(function() {
+    return ballonDirSelector.open();
+  }).then((result) => {
+    event.sender.send('balloonDirSelector-result', result);
+    startSync((result && result.newPath));
+  }).catch((err) => {
+    if(err) logger.error('Change balloon dir failed', {category: 'main', err});
+    startSync(false);
+  });
+});
+
+ipcMain.on('unlink-account', (event) => {
+  logger.info('logout requested', {category: 'main'});
+  unlinkAccount();
+});
+
+ipcMain.on('link-account', (event, id) => {
+  logger.info('login requested', {category: 'main'});
+
+  startup.checkConfig().then(() => {
+    logger.info('login successfull', {
+      category: 'main',
+      data: clientConfig.getMulti(['username', 'loggedin'])
+    });
+
+    clientConfig.updateTraySecret();
+
+    tray.toggleState('loggedout', false);
+    startSync(true);
+    event.sender.send('link-account-result', true);
+  }).catch((err) => {
+    if(err.code !== 'E_BLN_OAUTH_WINDOW_OPEN') {
+      logger.error('login not successfull', {
+        category: 'main',
+        error: err
+      });
+    } else {
+      logger.info('login aborted as there is already a login window open', {
+        category: 'main',
+      });
+    }
+
+    event.sender.send('link-account-result', false);
+  });
+});
+
+ipcMain.on('selective-error', (event, error, url, line, message) => {
+  switch(error.code) {
+    case 'E_BLN_API_REQUEST_UNAUTHORIZED':
+      selective.close();
+      if(clientConfig.get('authMethod') === 'basic') {
+        logger.info('got 401 from selective, unlink account', {category: 'main'});
+        unlinkAccount();
+      } else {
+        logger.debug('got 401 from selective, refresh accessToken', {category: 'main'});
+        auth.refreshAccessToken().then(() => {
+          selective.open();
+        }).catch(() => {
+          logger.error('could not refresh accessToken after selective-error, unlink instance', {category: 'main'});
+          unlinkAccount();
+        });
+      }
+    break;
+    default:
+      logger.error('Uncaught selective error.', {
+        category: 'main',
+        error,
+        url,
+        line,
+        errorMsg: message
+      });
+
+      selective.close();
+  }
+});
+
+ipcMain.on('sync-error', (event, error, url, line, message) => {
+  switch(error.code) {
+    case 'E_BLN_API_REQUEST_UNAUTHORIZED':
+      endSync();
+
+      if(clientConfig.get('authMethod') === 'basic') {
+        logger.info('got 401, end sync and unlink account', {category: 'main'});
+        unlinkAccount();
+      } else {
+        logger.debug('got 401, refresh accessToken', {category: 'main'});
+        auth.refreshAccessToken().then(() => {
+          startSync(true);
+        }).catch(err => {
+          logger.error('could not refresh accessToken, unlink instance', {category: 'main', err});
+          unlinkAccount();
+        });
+      }
+    break;
+    case 'E_BLN_CONFIG_CREDENTIALS':
+      logger.error('credentials not set', {
+        category: 'main',
+        code: error.code
+      });
+
+      endSync();
+      unlinkAccount();
+    break;
+    case 'E_BLN_CONFIG_BALLOONDIR':
+    case 'E_BLN_CONFIG_CONFIGDIR':
+    case 'E_BLN_CONFIG_CONFIGDIR_NOTEXISTS':
+    case 'E_BLN_CONFIG_APIURL':
+      //this should only happen, when user deletes the configuation, while the application is running
+      logger.info('reinitializing config, config sync error occured', {
+        category: 'main',
+        code: error.code
+      });
+
+      clientConfig.initialize();
+      endSync();
+      startSync(true);
+    break;
+    case 'E_BLN_CONFIG_CONFIGDIR_ACCES':
+      logger.error('config dir not accesible.', {
+        category: 'main',
+        error
+      });
+      endSync();
+    break;
+    case 'ENOTFOUND':
+    case 'ETIMEDOUT':
+    case 'ENETUNREACH':
+    case 'EHOSTUNREACH':
+    case 'ECONNREFUSED':
+    case 'EHOSTDOWN':
+    case 'ESOCKETTIMEDOUT':
+    case 'ECONNRESET':
+      logger.error('sync terminated with networkproblems.', {
+        category: 'main',
+        code: error.code
+      });
+      endSync();
+      tray.emit('network-offline');
+    break;
+    case 'E_BLN_DELTA_FAILED':
+      logger.error('sync generating delta failed', {category: 'main', error});
+      endSync();
+      startSync(true);
+    break;
+    default:
+      logger.error('Uncaught sync error. Resetting cursor and db', {
+        category: 'main',
+        error,
+        url,
+        line,
+        errorMsg: message
+      });
+
+      configManager.resetCursorAndDb().then(function() {
+        endSync();
+        startSync(true);
+      }).catch(function(err) {
+        endSync();
+        startSync(true);
+      });
+  }
+});
+
+/** Development Methods **/
+if(env.name === 'development') {
+  process.on('unhandledRejection', r => console.log(r));
+}
+
+if (process.platform === 'darwin' && app.dock && env.name === 'production') {
+  //hide from dock on OSX in production
+  app.dock.hide();
+}
+
 function startSync(forceFullSync) {
   logger.debug('start sync requested', {category: 'main', forceFullSync});
 
@@ -162,301 +456,4 @@ function startSync(forceFullSync) {
 
 function endSync() {
   sync.endFullSync();
-}
-
-var gotLock = app.requestSingleInstanceLock();
-
-if(gotLock === false) {
-  app.quit();
-} else {
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
-    startup.showBalloonDir();
-  });
-
-  app.on('ready', function () {
-    appState.set('updateAvailable', false);
-
-    feedback = FeedbackCtrl(env, clientConfig);
-    feedback.toggleAutoReport(globalConfig.get('autoReport'));
-
-    logger.info('app ready to operate', {
-        category: 'main',
-    });
-
-    setMenu();
-
-    migrate().then(result => {
-      startApp();
-    }).catch(err => {
-      logger.error('error during migration, quitting app', {
-        category: 'main',
-        error: err
-      });
-
-      app.quit();
-    })
-  });
-
-  /** Main App **/
-  ipcMain.on('quit', function() {
-    app.quit();
-  });
-
-  /** Tray **/
-  ipcMain.on('tray-toggle', function() {
-    tray.toggle();
-  });
-
-  ipcMain.on('tray-hide', function() {
-    tray.hide();
-  });
-
-  ipcMain.on('tray-show', function() {
-    tray.show();
-  });
-
-  ipcMain.on('tray-online-state-changed', function(event, state) {
-    logger.info('online state changed', {
-      category: 'main',
-      state: state,
-      syncPaused: (sync && sync.isPaused())
-    });
-
-    appState.set('onLineState', state);
-    if(state === false) {
-      //abort a possibly active sync if not already paused
-      if(sync && sync.isPaused() === false) sync.pause(true);
-      tray.toggleState('offline', true);
-    } else {
-      if(sync && sync.isPaused() === false) startSync(true);
-      tray.toggleState('offline', false);
-    }
-  });
-
-  /** Settings **/
-  ipcMain.on('settings-autoReport-changed', function(event, state) {
-    feedback.toggleAutoReport(state);
-  });
-
-
-  /** Auto update **/
-  ipcMain.on('install-update', function() {
-    logger.info('install-update triggered', {
-      category: 'main',
-    });
-
-    autoUpdate.quitAndInstall();
-  });
-
-  ipcMain.on('check-for-update', function() {
-    logger.info('check-for-update triggered', {
-        category: 'main',
-    });
-
-    autoUpdate.checkForUpdate();
-  });
-
-  /** Sync **/
-  ipcMain.on('sync-toggle-pause', () => {
-    if(!sync) {
-      return tray.syncPaused();
-    }
-
-    tray.toggleState('pause', !sync.isPaused());
-    sync.togglePause();
-  });
-
-  ipcMain.on('selective-open', function(event) {
-    selective.open();
-  });
-
-  ipcMain.on('selective-close', function(event) {
-    selective.close();
-  });
-
-  ipcMain.on('selective-apply', function(event, difference) {
-    logger.info('Applying selective sync changes', {category: 'main', difference});
-
-    if(sync) sync.updateSelectiveSync(difference, err => {
-      selective.close();
-    });
-  });
-
-  ipcMain.on('balloonDirSelector-open', function(event) {
-    (function() {
-      if(!sync) return Promise.resolve();
-
-      return sync.pause(true);
-    }()).then(function() {
-      return ballonDirSelector.open();
-    }).then((result) => {
-      event.sender.send('balloonDirSelector-result', result);
-      startSync((result && result.newPath));
-    }).catch((err) => {
-      if(err) logger.error('Change balloon dir failed', {category: 'main', err});
-      startSync(false);
-    });
-  });
-
-  ipcMain.on('unlink-account', (event) => {
-    logger.info('logout requested', {category: 'main'});
-    unlinkAccount();
-  });
-
-  ipcMain.on('link-account', (event, id) => {
-    logger.info('login requested', {category: 'main'});
-
-    startup.checkConfig().then(() => {
-      logger.info('login successfull', {
-        category: 'main',
-        data: clientConfig.getMulti(['username', 'loggedin'])
-      });
-
-      clientConfig.updateTraySecret();
-
-      tray.toggleState('loggedout', false);
-      startSync(true);
-      event.sender.send('link-account-result', true);
-    }).catch((err) => {
-      if(err.code !== 'E_BLN_OAUTH_WINDOW_OPEN') {
-        logger.error('login not successfull', {
-          category: 'main',
-          error: err
-        });
-      } else {
-        logger.info('login aborted as there is already a login window open', {
-          category: 'main',
-        });
-      }
-
-      event.sender.send('link-account-result', false);
-    });
-  });
-
-  ipcMain.on('selective-error', (event, error, url, line, message) => {
-    switch(error.code) {
-      case 'E_BLN_API_REQUEST_UNAUTHORIZED':
-        selective.close();
-        if(clientConfig.get('authMethod') === 'basic') {
-          logger.info('got 401 from selective, unlink account', {category: 'main'});
-          unlinkAccount();
-        } else {
-          logger.debug('got 401 from selective, refresh accessToken', {category: 'main'});
-          auth.refreshAccessToken().then(() => {
-            selective.open();
-          }).catch(() => {
-            logger.error('could not refresh accessToken after selective-error, unlink instance', {category: 'main'});
-            unlinkAccount();
-          });
-        }
-      break;
-      default:
-        logger.error('Uncaught selective error.', {
-          category: 'main',
-          error,
-          url,
-          line,
-          errorMsg: message
-        });
-
-        selective.close();
-    }
-  });
-
-  ipcMain.on('sync-error', (event, error, url, line, message) => {
-    switch(error.code) {
-      case 'E_BLN_API_REQUEST_UNAUTHORIZED':
-        endSync();
-
-        if(clientConfig.get('authMethod') === 'basic') {
-          logger.info('got 401, end sync and unlink account', {category: 'main'});
-          unlinkAccount();
-        } else {
-          logger.debug('got 401, refresh accessToken', {category: 'main'});
-          auth.refreshAccessToken().then(() => {
-            startSync(true);
-          }).catch(err => {
-            logger.error('could not refresh accessToken, unlink instance', {category: 'main', err});
-            unlinkAccount();
-          });
-        }
-      break;
-      case 'E_BLN_CONFIG_CREDENTIALS':
-        logger.error('credentials not set', {
-          category: 'main',
-          code: error.code
-        });
-
-        endSync();
-        unlinkAccount();
-      break;
-      case 'E_BLN_CONFIG_BALLOONDIR':
-      case 'E_BLN_CONFIG_CONFIGDIR':
-      case 'E_BLN_CONFIG_CONFIGDIR_NOTEXISTS':
-      case 'E_BLN_CONFIG_APIURL':
-        //this should only happen, when user deletes the configuation, while the application is running
-        logger.info('reinitializing config, config sync error occured', {
-          category: 'main',
-          code: error.code
-        });
-
-        clientConfig.initialize();
-        endSync();
-        startSync(true);
-      break;
-      case 'E_BLN_CONFIG_CONFIGDIR_ACCES':
-        logger.error('config dir not accesible.', {
-          category: 'main',
-          error
-        });
-        endSync();
-      break;
-      case 'ENOTFOUND':
-      case 'ETIMEDOUT':
-      case 'ENETUNREACH':
-      case 'EHOSTUNREACH':
-      case 'ECONNREFUSED':
-      case 'EHOSTDOWN':
-      case 'ESOCKETTIMEDOUT':
-      case 'ECONNRESET':
-        logger.error('sync terminated with networkproblems.', {
-          category: 'main',
-          code: error.code
-        });
-        endSync();
-        tray.emit('network-offline');
-      break;
-      case 'E_BLN_DELTA_FAILED':
-        logger.error('sync generating delta failed', {category: 'main', error});
-        endSync();
-        startSync(true);
-      break;
-      default:
-        logger.error('Uncaught sync error. Resetting cursor and db', {
-          category: 'main',
-          error,
-          url,
-          line,
-          errorMsg: message
-        });
-
-        configManager.resetCursorAndDb().then(function() {
-          endSync();
-          startSync(true);
-        }).catch(function(err) {
-          endSync();
-          startSync(true);
-        });
-    }
-  });
-
-  if(process.platform === 'darwin' && app.dock && env.name === 'production') {
-    //hide from dock on OSX in production
-    app.dock.hide();
-  }
-}
-
-/** Development Methods **/
-if(env.name === 'development') {
-  process.on('unhandledRejection', r => console.log(r));
 }
