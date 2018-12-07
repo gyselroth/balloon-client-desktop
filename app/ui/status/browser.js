@@ -4,13 +4,10 @@ const tabNavigation = require('../tray/tab-navigation.js');
 const MAX_DISPLAY = 50;
 const prettyBytes = require('pretty-bytes');
 const i18n = require('../../lib/i18n.js');
+const fileIconMap = require('../../lib/file-icon-map.js');
+const ta = require('time-ago');
 
 function showQuota(sync) {
-  /*if(refreshQuota === false) {
-    $quota.hide();
-    return;
-  }*/
-
   sync.blnApi.getQuotaUsage((err, data) => {
     if(err) {
       $('#status-quota-used').find('td').html(0);
@@ -44,23 +41,32 @@ function showQuota(sync) {
   });
 }
 
+function getIcon(task) {
+  let ext = task.name.split('.').pop();
+
+  if(fileIconMap[ext]) {
+    return fileIconMap[ext];
+  }
+
+  return 'gr-i-file';
+}
+
 module.exports = function() {
   let taskHistory = {};
   let taskElements = {};
 
   ipcRenderer.on('transfer-task', function(event, task) {
-console.log(event, task);
     if(taskHistory[task.id]) {
       taskHistory[task.id].subtype = task.subtype;
     } else {
       taskHistory[task.id] = task;
       taskHistory[task.id].percent = 0;
     }
+
+    taskHistory[task.id].datetime = new Date();
   });
 
   ipcRenderer.on('sync-started' , function() {
-    //taskHistory = {};
-    //$('#status-transfer').empty();
   });
 
   function init(sync) {
@@ -73,35 +79,27 @@ console.log(event, task);
     $transfer.empty();
 
     for(id in taskHistory) {
-      let element = renderTask(taskHistory[id]);
-      taskElements[element] = element;
-      $transfer.append(element);
+      $transfer.append(renderTask(taskHistory[id]));
     }
 
     ipcRenderer.on('transfer-task', function(event, task) {
-      //$item = $transfer.find(`li#${task.id}`);
+      console.log('tranfer-task',task);
+      $item = $transfer.find(`#${task.id}`);
 
-      if(taskElements[task.id]) {
-        let $item = taskElements[task.id];
+      if($item.length > 0) {
         $item.replaceWith(renderTask(task));
       } else {
-        let $item = renderTask(task);
-        taskElements[task.id] = $item;
-        $transfer.append($item);
+        $transfer.append(renderTask(task));
       }
     });
 
     ipcRenderer.on('transfer-progress', function(event, task) {
+      console.log("progress",task);
       if(taskHistory[task.id]) {
         taskHistory[task.id].percent = task.percent;
-        let $item = taskElements[task.id];
-        //$item = $transfer.find(`li#${task.id}`);
-
+        $item = $transfer.find(`li#${task.id}`);
         if($item.length > 0) {
-          let element = renderTask(taskHistory[task.id]);
-          $item.replaceWith($item);
-
-          //$item.replaceWith(renderTask(taskHistory[task.id]));
+          $item.replaceWith(renderTask(taskHistory[task.id]));
         }
       }
     });
@@ -116,12 +114,19 @@ console.log(event, task);
 
     let innerBarWidth = ['error', 'aborted'].indexOf(task.subtype) === -1 ? percent : 100;
 
-    return $(`<li id="${task.id}" class="task-${task.subtype}">
-      <div class="gr-icon g-i-folder"></div>
-      <div class="task-name">${task.name}</div>
-      <div class="task-percent">${Math.round(percent)}%</div>
-      <div class="task-progress"><div class="task-progress-inner" style="width: ${innerBarWidth}%;"></div></div>
-    </li>`);
+    var dom = '<li id="'+task.id+'" class="task-'+task.subtype+'">'
+      +'<div class="gr-icon '+getIcon(task)+'"></div>'
+      +'<div class="task-name">'+task.name+'</div>';
+
+      if(task.subtype == 'finished') {
+        dom += '<div class="task-finish">'+ta.ago(task.datetime)+'</div>';
+      } else {
+        dom += '<div class="task-progress"><div class="task-progress-inner" style="width: '+innerBarWidth+'%;"></div></div>';
+      }
+
+    dom += '</li>';
+
+    return $(dom);
   }
 
   return {

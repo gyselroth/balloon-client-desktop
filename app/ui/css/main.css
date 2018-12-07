@@ -223,7 +223,7 @@ p {
 }
 
 #status-transfer li {
-  margin-bottom: 5px;
+  margin-bottom: 20px;
   border-bottom: solid 1px #EEE;
   padding-bottom: 10px;
 }
@@ -251,6 +251,19 @@ p {
   font-size: 24px;
   line-height: 30px;
   font-weight: 300;
+}
+
+#status-transfer .task-finish {
+  clear: both;
+  position: relative;
+  margin: 30px 0 0 36px;
+  width: calc(100% - 36px);
+  height: 13px;
+  border-radius: 4px;
+  overflow: hidden;
+  color: #666;
+  font-weight: 300;
+  font-size: 13px;
 }
 
 #status-transfer .task-progress {

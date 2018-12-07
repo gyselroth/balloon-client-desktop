@@ -103,6 +103,7 @@
     "pretty-bytes": "^5.1.0",
     "request": "~2.88.0",
     "rimraf": "~2.6.2",
+    "time-ago": "^0.2.1",
     "ubuntu-fontface": "~0.1.13",
     "winston": "^2.4.4"
   }
