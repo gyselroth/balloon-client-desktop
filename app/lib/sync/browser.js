@@ -43,7 +43,7 @@ try {
 
     sync.start((err, results) => {
       if(err) {
-        logger.error('finished sync with error', {
+        logger.warning('finished sync with error', {
           category: 'sync',
           error: err
         });
@@ -76,7 +76,7 @@ try {
 }
 
 window.onerror = function(message, url, line, column, error) {
-  logger.error(message, {url, line, column, error});
+  logger.warning(message, {url, line, column, error});
 
   if(sync && sync.cleanup) {
     sync.cleanup((cleanupErr) => {
