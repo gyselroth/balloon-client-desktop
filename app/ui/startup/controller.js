@@ -1,7 +1,7 @@
 const fs = require('graceful-fs');
 const path = require('path');
 const url = require('url');
-const {BrowserWindow, ipcMain, shell, dialog} = require('electron');
+const {BrowserWindow, ipcMain, shell} = require('electron');
 
 const env = require('../../env.js');
 const appState = require('../../lib/state.js');
@@ -11,6 +11,7 @@ const configManagerCtrl = require('../../lib/config-manager/controller.js');
 const autoLaunch = require('../../lib/auto-launch.js');
 const contextMenuFactory = require('../../lib/context-menu-factory.js');
 const instance = require('../../lib/instance.js');
+const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 
 const logger = require('../../lib/logger.js');
 
@@ -115,6 +116,37 @@ module.exports = function(env, clientConfig) {
     });
   }
 
+  function initializeIgnoreDb(newInstance) {
+    return new Promise(function(resolve, reject) {
+      if(newInstance !== true) return resolve();
+
+      var sync = fullSyncFactory(clientConfig.getAll(true), logger);
+
+      sync.blnApi.queryNodes({shared:true, reference:{'$exists':true}}, (err, result) => {
+        if(err) {
+          logger.error('Could not fetch consumed shares', {category: 'startup', err});
+          return reject();
+        }
+
+        logger.info('got shares consumed by current user', {category: 'startup', result});
+
+        var shares = [];
+
+        for(i in result) {
+          shares.push(result[i]);
+        }
+
+        sync.initializeIgnoreDb(shares).then(() => {
+          logger.info('initialized ignore db', {category: 'startup', shares});
+          resolve();
+        }).catch(err => {
+          logger.error('Could not inititalize ignore DB', {category: 'startup', err});
+          return reject();
+        });
+      });
+    });
+  }
+
   function askCredentials() {
     return new Promise(function(resolve, reject) {
       logger.debug('ask user for authentication credentials', {category: 'startup'});
@@ -143,17 +175,22 @@ module.exports = function(env, clientConfig) {
           });
 
           startupWindow.removeListener('closed', windowClosedByUserHandler);
-          auth.basicAuth(username, password).then(() => {
-            if(!clientConfig.hadConfig()) {
-              resolve({welcomeWizardPromise: welcomeWizard()});
-            } else {
-              startupWindow.close();
-              resolve({welcomeWizardPromise: Promise.resolve()});
-            }
-          }).catch((error) => {
-            logger.error('Basic auth resulted in an error', {category: 'startup', error});
-            startupWindow.webContents.send('startup-auth-error',  'basic');
-          });
+          auth.basicAuth(username, password)
+            .then((newInstance) => {
+              return initializeIgnoreDb(newInstance);
+            })
+            .then(() => {
+              if(!clientConfig.hadConfig()) {
+                resolve({welcomeWizardPromise: welcomeWizard()});
+              } else {
+                startupWindow.close();
+                resolve({welcomeWizardPromise: Promise.resolve()});
+              }
+            })
+            .catch((error) => {
+              logger.error('Basic auth resulted in an error', {category: 'startup', error});
+              startupWindow.webContents.send('startup-auth-error',  'basic');
+            });
         });
 
         ipcMain.removeAllListeners('auth-oidc-signin');
@@ -172,16 +209,21 @@ module.exports = function(env, clientConfig) {
           });
 
           startupWindow.removeListener('closed', windowClosedByUserHandler);
-          auth.oidcAuth(idpConfig).then(() => {
-            if(!clientConfig.hadConfig()) {
-              resolve({welcomeWizardPromise: welcomeWizard()});
-            } else {
-              startupWindow.close();
-              resolve({welcomeWizardPromise: welcomeWizard()});
-            }
-          }).catch((error) => {
-            startupWindow.webContents.send('startup-auth-error',  'oidc');
-          });
+          auth.oidcAuth(idpConfig)
+            .then((newIsntance) => {
+              return initializeIgnoreDb(newInstance);
+            })
+            .then(() => {
+              if(!clientConfig.hadConfig()) {
+                resolve({welcomeWizardPromise: welcomeWizard()});
+              } else {
+                startupWindow.close();
+                resolve({welcomeWizardPromise: welcomeWizard()});
+              }
+            })
+            .catch((error) => {
+              startupWindow.webContents.send('startup-auth-error',  'oidc');
+            });
         });
       } else {
         logger.error('can not ask for authentication credentials, there is an active instance ongoing', {
@@ -232,23 +274,6 @@ module.exports = function(env, clientConfig) {
         startupWindow.removeListener('closed', windowClosedByUserHandler);
         startupWindow.close();
         showBalloonDir().then(resolve, reject);
-      });
-
-      ipcMain.removeAllListeners('startup-change-dir');
-      ipcMain.on('startup-change-dir', function(event) {
-        logger.info('change balloon data directory', {category: 'startup'});
-
-        dialog.showOpenDialog({
-          title: 'Select balloon directory',
-          defaultPath: clientConfig.balloonDir,
-          properties: ['openDirectory']
-        }, (folder) => {
-          if(folder) {
-            var p = folder[0]+path.sep+'Balloon';
-            startupWindow.webContents.send('startup-change-dir', p);
-            clientConfig.set('balloonDir', p);
-          }
-        });
       });
     });
   }
