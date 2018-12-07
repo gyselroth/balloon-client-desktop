@@ -75,7 +75,7 @@ module.exports = function() {
   });
 
   function init(sync) {
-    showQuota(sync);
+    if(sync) showQuota(sync);
 
     let $transfer = $('#status-transfer');
     let $error = $('#status-error');
