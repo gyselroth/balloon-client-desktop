@@ -14,7 +14,7 @@ module.exports = function(env, clientConfig) {
   windowStates = windowStatesFactory(env);
 
   function close() {
-    logger.info('Close requested', {category: 'selective'});
+    logger.info('close requested', {category: 'selective'});
 
     if(selectiveWindow) {
       if(env.name === 'development') {
@@ -28,7 +28,7 @@ module.exports = function(env, clientConfig) {
   }
 
   function open() {
-    logger.info('Open requested', {category: 'selective'});
+    logger.info('open requested', {category: 'selective'});
     if(!selectiveWindow) selectiveWindow = createWindow();
 
     selectiveWindow.show();

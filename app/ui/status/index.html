@@ -1,7 +1,35 @@
 <script class="template" type="text/x-handlebars-template">
     <ul id="status-navigation" class="clearfix tab-navigation">
-        <li id="status-nav-transfer"><a href="#status-transfer">{{i18n 'status.nav.transfer'}}</a></li>
+        <li id="status-nav-transfer"><a href="#status-transfer">{{i18n 'status.nav.activities'}}</a></li>
+        <li id="status-nav-errors"><a href="#status-errors">{{i18n 'status.nav.notes'}}</a></li>
+        <li id="status-nav-quota"><a href="#status-quota">{{i18n 'status.nav.quota'}}</a></li>
     </ul>
 
     <ul class="tab-content" id="status-transfer"></ul>
+    <ul class="tab-content" id="status-errors"></ul>
+    <div class="tab-content" id="status-quota">
+        <figure id="quota-circle" class="animate percentage-39">
+            <svg role="img" xmlns="http://www.w3.org/2000/svg">
+                <title>[title here]</title>
+                <desc>[long description here]</desc>
+                <circle class="circle-background"/>
+                <circle class="circle-foreground"/>
+            </svg>
+            <figcaption>25% of all males like donuts.</figcaption>
+        </figure>
+        <table>
+            <tr id="status-quota-max">
+                <th>{{i18n 'status.quota.max'}}</th>
+                <td></td>
+            </tr>
+            <tr id="status-quota-used">
+                <th>{{i18n 'status.quota.used'}}</th>
+                <td></td>
+            </tr>
+            <tr id="status-quota-left">
+                <th>{{i18n 'status.quota.left'}}</th>
+                <td></td>
+            </tr>
+        </table>
+    </div>
 </script>

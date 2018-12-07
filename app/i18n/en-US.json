@@ -31,8 +31,6 @@
   "tray.tooltip.state.pause": "Synchronization has been paused",
   "tray.tooltip.state.sync": "Synchronization in progress",
   "tray.tooltip.state.update": "Update ready to install",
-  "tray.quota.unlimited": "%s of unlimited",
-  "tray.quota.limited": "%s left",
 
   "about.see_github": "Check out github",
   "about.github_repo": "gyselroth/balloon-client-desktop",
@@ -47,7 +45,6 @@
   "feedback.error.send": "We encountered an error during sending your feedback, please try it again later!",
   "feedback.error.empty": "Please provide a feedback message before sending!",
 
-  "settings": "Settings",
   "settings.nav.global": "All users",
   "settings.nav.user": "Current user",
   "settings.autolaunch": "Start balloon on startup",
@@ -60,7 +57,6 @@
   "settings.selective.noCollections": "No collections exist.",
   "settings.balloonDir.title": "balloon directory",
   "settings.balloonDir.message": "Change the directory for your balloon:",
-
 
   "startup.title": "Setup balloon",
   "startup.server.title": "Welcome to balloon",
@@ -75,7 +71,13 @@
   "startup.auth.password": "Password",
   "startup.auth.message": "Authenticate your account with balloon:",
 
-  "status.nav.transfer": "Transfers",
+  "status.nav.activities": "Activities",
+  "status.nav.notes": "Notes",
+  "status.nav.quota": "Storage",
+  "status.quota.used": "Used storage",
+  "status.quota.left": "Available storage",
+  "status.quota.max": "Total storage",
+  "status.quota.unlimited": "Unlimited",
 
   "button.cancel": "Cancel",
   "button.send": "Send",

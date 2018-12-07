@@ -232,7 +232,7 @@ module.exports = function(env, clientConfig) {
   function toggle() {
     if(!trayWindow) trayWindow = createWindow();
 
-    logger.info('Toggl tray window', {category: 'tray', isVisble: trayWindow.isVisible()});
+    logger.info('toggle tray window', {category: 'tray', isVisble: trayWindow.isVisible()});
 
     if(trayWindow.isVisible()) {
       hide();
@@ -242,13 +242,13 @@ module.exports = function(env, clientConfig) {
   }
 
   function hide() {
-    logger.info('Hide tray window', {category: 'tray'});
+    logger.info('hide tray window', {category: 'tray'});
 
-    if(trayWindow) trayWindow.hide();
+    //if(trayWindow) trayWindow.hide();
   }
 
   function show() {
-    logger.info('Show tray window', {category: 'tray'});
+    logger.info('show tray window', {category: 'tray'});
 
     if(!trayWindow) trayWindow = createWindow();
 
@@ -289,7 +289,7 @@ module.exports = function(env, clientConfig) {
     });
 
     if(env.name === 'development') {
-      trayWindow.openDevTools();
+      trayWindow.openDevTools({ mode: 'detach' });
     }
 
     contextMenuFactory(trayWindow);

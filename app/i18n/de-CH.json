@@ -47,7 +47,6 @@
   "feedback.error.send": "Wir haben einen Fehler beim Senden deines Feedbacks festgestellt, bitte versuche es später erneut!",
   "feedback.error.empty": "Bitte fühle das Feedback vor dem senden aus!",
 
-  "settings": "Einstellungen",
   "settings.nav.global": "Alle Benutzer",
   "settings.nav.user": "Aktueller Benutzer",
   "settings.autolaunch": "Balloon beim Systemstart starten",
@@ -60,7 +59,6 @@
   "settings.selective.noCollections": "Es sind noch keine Ordner vorhanden.",
   "settings.balloonDir.title": "balloon Verzeichnis",
   "settings.balloonDir.message": "Der Speicherort für deinen balloon ändern:",
-
 
   "startup.title": "Setup balloon",
   "startup.server.title": "Willkommen bei balloon",
@@ -75,7 +73,13 @@
   "startup.auth.password": "Passwort",
   "startup.auth.message": "Melde dich an deinem balloon an:",
 
-  "status.nav.transfer": "Transfers",
+  "status.nav.activities": "Aktivitäten",
+  "status.nav.notes": "Hinweise",
+  "status.nav.quota": "Speicher",
+  "status.quota.used": "Benutzter Speicherplatz",
+  "status.quota.left": "Freier Speicherplatz",
+  "status.quota.max": "Gesamter Speicherplatz",
+  "status.quota.unlimited": "Unlimitiert",
 
   "button.send": "Senden",
   "button.cancel": "Abbrechen",

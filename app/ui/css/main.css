@@ -133,23 +133,21 @@ p {
     height: 36px;
     overflow-x: visible;
     z-index: 1;
+    border-bottom: solid #EEF3F6 2px;
+    background-color: #EEF3F6;
 }
 
 .tab-navigation li {
   float: left;
-  padding: 10px;
+  padding: 10px 25px;
   cursor: pointer;
   font-size: 15px;
-  height: 36px;
+  height: 45px;
   box-sizing: border-box;
   background-color: transparent;
 }
 
-.tab-navigation li:first-child {
-  margin-left: 15px;
-}
-
-.tab-navigation li.tab-navigation-active {
+.tab-navigation .tab-navigation-active {
   height: 38px;
   border-bottom: solid 2px #9CD2FF;
 }
@@ -165,7 +163,6 @@ p {
   display: none;
   padding: 25px 15px;
   margin-bottom: 20px;
-  border-top: 2px solid #DDD;
   box-sizing: border-box;
   width: 100%;
   height: 330px;
@@ -220,11 +217,18 @@ p {
   height: 100%;
 }
 
-#status #status-transfer li {
-  margin-bottom: 15px;
+#status .gr-icon {
+  float: left;
+  margin-top: 6px;
 }
 
-#status #status-transfer li .task-name {
+#status-transfer li {
+  margin-bottom: 5px;
+  border-bottom: solid 1px #EEE;
+  padding-bottom: 10px;
+}
+
+#status-transfer .task-name {
   float: left;
   color: #999;
   font-size: 15px;
@@ -234,11 +238,12 @@ p {
   overflow-x: hidden;
   text-overflow: ellipsis;
   max-width: calc(100% - 60px);
+  margin: -10px 0 0 10px;
 }
 
-#status #status-transfer li .task-percent {
+#status-transfer .task-percent {
   float: right;
-  display: block;
+  display: none;
   width: auto;
   max-width: 60px;
   border: none;
@@ -248,33 +253,33 @@ p {
   font-weight: 300;
 }
 
-#status #status-transfer li .task-progress {
+#status-transfer .task-progress {
   clear: both;
   position: relative;
-  top: 3px;
-  width: 100%;
+  margin: 30px 0 0 36px;
+  width: calc(100% - 36px);
   height: 6px;
   background-color: #f4f4f4;
   border-radius: 4px;
   overflow: hidden;
 }
 
-#status #status-transfer li .task-progress-inner {
+#status-transfer .task-progress-inner {
   height: 100%;
   width: 0;
   background-color: #39a5ff;
   border-radius: 4px;
 }
 
-#status #status-transfer li.task-aborted .task-progress-inner {
+#status-transfer .task-aborted .task-progress-inner {
   background-color: #f6b2b5;
 }
 
-#status #status-transfer li.task-error .task-progress-inner {
+ #status-transfer .task-error .task-progress-inner {
   background-color: #f6b2b5;
 }
 
-#status #status-transfer li.task-finished .task-progress-inner {
+#status-transfer .task-finished .task-progress-inner {
   background-color: #5cd600;
 }
 
@@ -340,7 +345,6 @@ input[type="radio"], input[type="checkbox"] {
 #about #startup-logo {
     background-image: url('../../img/teaser/teaser-image-red.svg');
     height: 200px;
-    margin: -30px -4px 30px -4px;
 }
 
 #about-github span {
@@ -602,7 +606,7 @@ html.win32,
 }
 
 #tray #content {
-    border: solid 1px #CCC;
+    border: solid 8px #EEF3F6;
     height: 408px;
 }
 
@@ -615,53 +619,12 @@ html.win32,
     font-size: 11px;
 }
 
-#tray-main > div {
-    margin: 4px;
-}
-
-#tray #quota {
-    width: 100%;
-}
-
-#tray-quota {
-    position: absolute;
-    width: 242px;
-    left: 7px;
-    top: 7px;
-}
-
-#tray #quota .bar {
-    width: 100%;
-    height: 6px;
-    background-color: #f4f4f4;
-    border: 1px solid #39a5ff;
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.quota-text {
-    margin: 2px 0;
-}
-
-#quota .used {
-    background-color: #39a5ff;
-    width: 0%;
-    height: 100%;
-    border-radius: 4px;
-}
-
-.quota-high {
-    background-color: #FF0000 !important;
-}
-
 #tray-top {
-    height: 30px;
-    border-bottom: solid 1px #DDD;
+    height: 40px;
     padding: 1px;
 }
 
 #tray-center {
-    /*height: 80px;*/
     clear: both;
 }
 
@@ -817,4 +780,120 @@ button[disabled] {
   display: block;
   visibility: hidden;
   height: 0px;
+}
+
+/*-----Quota-----*/
+#status-quota table {
+    float: left;
+    margin: 50px 0 0 10px;
+}
+
+#status-quota th::after {
+  display: block;
+  top: 12.5px;
+  left: 0;
+  content: "";
+  width: 20px;
+  height: 5px;
+  border-radius: 4px;
+}
+
+#status-quota th {
+  width: 130px;
+  font-size: 15px;
+  line-height: 30px;
+  font-weight: normal;
+  text-align: left;
+  color: #333;
+  text-align: left;
+  padding-bottom: 10px;
+}
+
+#status-quota td {
+  width: 90px;
+  text-align: right;
+  font-weight: bold;
+}
+
+#status-quota-used th::after {
+    background-color: #39a5ff;
+}
+
+#status-quota-left th::after {
+    background-color: #DDD;
+}
+
+#quota-circle {
+  width: 200px;
+  height: 200px;
+  margin: 30px 0 0 10px;
+  position: relative;
+  float: left;
+}
+#quota-circle.animate svg .circle-foreground {
+  -webkit-animation: offset 3s ease-in-out forwards;
+          animation: offset 3s ease-in-out forwards;
+  -webkit-animation-delay: 1s;
+          animation-delay: 1s;
+}
+#quota-circle.animate figcaption:after {
+  -webkit-animation:#quota-circle-label 3s steps(32) forwards;
+          animation:#quota-circle-label 3s steps(32) forwards;
+  -webkit-animation-delay: 1s;
+          animation-delay: 1s;
+}
+#quota-circle svg {
+  width: 100%;
+  height: 100%;
+}
+#quota-circle svg .circle-background, #quota-circle svg .circle-foreground {
+  r: 99.5px;
+  cx: 50%;
+  cy: 50%;
+  fill: none;
+  stroke: #305556;
+  stroke-width: 1px;
+}
+#quota-circle svg .circle-foreground {
+  stroke: #79be9b;
+  stroke-dasharray: 199.9552px 624.86px;
+  stroke-dashoffset: 199.9552px;
+  stroke-linecap: round;
+  -webkit-transform-origin: 50% 50%;
+          transform-origin: 50% 50%;
+  -webkit-transform: rotate(-90deg);
+          transform: rotate(-90deg);
+}
+#quota-circle figcaption {
+  display: inline-block;
+  width: 100%;
+  height: 2.5rem;
+  overflow: hidden;
+  text-align: center;
+  color: #39a5ff;
+  position: absolute;
+  top: calc(50% - 1.25rem);
+  left: 0;
+  font-size: 0;
+}
+#quota-circle figcaption:after {
+  display: inline-block;
+  content: "0%\a 1%\a 2%\a 3%\a 4%\a 5%\a 6%\a 7%\a 8%\a 9%\a 10%\a 11%\a 12%\a 13%\a 14%\a 15%\a 16%\a 17%\a 18%\a 19%\a 20%\a 21%\a 22%\a 23%\a 24%\a 25%\a 26%\a 27%\a 28%\a 29%\a 30%\a 31%\a 32%\a 33%\a 34%\a 35%\a 36%\a 37%\a 38%\a 39%\a 40%\a 41%\a 42%\a 43%\a 44%\a 45%\a 46%\a 47%\a 48%\a 49%\a 50%\a 51%\a 52%\a 53%\a 54%\a 55%\a 56%\a 57%\a 58%\a 59%\a 60%\a 61%\a 62%\a 63%\a 64%\a 65%\a 66%\a 67%\a 68%\a 69%\a 70%\a 71%\a 72%\a 73%\a 74%\a 75%\a 76%\a 77%\a 78%\a 79%\a 80%\a 81%\a 82%\a 83%\a 84%\a 85%\a 86%\a 87%\a 88%\a 89%\a 90%\a 91%\a 92%\a 93%\a 94%\a 95%\a 96%\a 97%\a 98%\a 99%\a 100%\a";
+  white-space: pre;
+  font-size: 2.5rem;
+  line-height: 2.5rem;
+}
+
+@-webkit-keyframes#quota-circle-label {
+  100% {
+    -webkit-transform: translateY(-80rem);
+            transform: translateY(-80rem);
+  }
+}
+
+@keyframes#quota-circle-label {
+  100% {
+    -webkit-transform: translateY(-80rem);
+            transform: translateY(-80rem);
+  }
 }

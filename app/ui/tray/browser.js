@@ -32,7 +32,6 @@ handlebars.registerHelper('i18n', function(key) {
 var sync;
 var syncStatus    = true;
 var showLogin     = true;
-var refreshQuota  = false;
 
 function loadMenu(menu) {
   logger.info('loadMenu', {category: 'tray-browser', menu});
@@ -41,7 +40,7 @@ function loadMenu(menu) {
     logger.info('template loaded', {category: 'tray-browser', menu});
 
     compileMenuTemplate(menu);
-    modules[menu].init();
+    modules[menu].init(sync);
   });
 }
 
@@ -154,8 +153,8 @@ $('document').ready(function() {
 ipcRenderer.on('unlink-account-result', (event, result) => {
   showLogin = result;
   if(result) {
-    $('#quota').find('.used').width(0);
-    $('#quota').find('.quota-text').html('');
+    //$('#quota').find('.used').width(0);
+    //$('#quota').find('.quota-text').html('');
   }
 });
 
@@ -181,82 +180,14 @@ ipcRenderer.on('config', function(event, secret, secretType) {
   config[secretType] = secret;
 
   if(!clientConfig.get('loggedin') || !clientConfig.isActiveInstance()) {
-    refreshQuota = false;
     sync = undefined;
   } else {
-    refreshQuota = true;
     showLogin = false;
     sync = fullSyncFactory(config, logger);
   }
 
   updateWindow();
 });
-
-function showQuota() {
-  logger.info('showQuota', {category: 'tray-browser', refreshQuota});
-
-  var $quota = $('#quota');
-
-  if(refreshQuota === false) {
-    $quota.hide();
-    return;
-  }
-
-  sync.blnApi.getQuotaUsage((err, data) => {
-    if(err) {
-      $('#quota').find('.used').width(0);
-      $('#quota').find('.quota-text').html('');
-      $quota.hide();
-
-      if(err.code === 'E_BLN_API_REQUEST_UNAUTHORIZED') {
-        ipcRenderer.send('sync-error', err);
-      }
-
-      return;
-    }
-
-    var percent, usage;
-
-    if(data.hard_quota <=0) {
-      percent = 0;
-      usage = i18n.__('tray.quota.unlimited').replace(/%s/, getReadableFileSizeString(data.used));
-    } else {
-      percent =  Math.round(data.used / data.hard_quota * 100, 0);
-      usage = i18n.__('tray.quota.limited').replace(/%s/, getReadableFileSizeString(data.available));
-    }
-
-    var $used = $quota.find('.used');
-    $used.width(percent+'%');
-    $quota.show();
-
-    if(percent >= 90) {
-      $used.addClass('quota-high');
-    } else {
-      $used.removeClass('quota-high');
-    }
-
-    $quota.find('.quota-text').html('('+usage+')');
-  });
-}
-
-function getReadableFileSizeString(bytes) {
-  if(bytes === null) {
-    return '0B';
-  }
-
-  if(bytes < 1024) {
-    return bytes+'B';
-  }
-
-  var i = -1;
-  var units = ['kB', 'MB', 'GB', ' TB', 'PB', 'EB', 'ZB', 'YB'];
-  do {
-    bytes = bytes / 1024;
-    i++;
-  } while (bytes >= 1024);
-
-  return Math.max(bytes, 0.1).toFixed(1) + ' ' + units[i];
-}
 
 function compileTemplate() {
   var templateHtml = $('#template').html();
@@ -278,17 +209,12 @@ function toggleInstallUpdate() {
 function updateWindow() {
   logger.info('updateWindow', {category: 'tray-browser'});
 
-  $('#tray-quota').show();
   //TODO pixtron - do we still need this?
   $('#tray-main').html('');
-  showQuota();
   toggleInstallUpdate();
   loadMenu('status');
 }
 
-/*
-Network change detection
-*/
 function getOnLineState(callback) {
   var onLine = navigator.onLine;
   if(onLine === true) {
