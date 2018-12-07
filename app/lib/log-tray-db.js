@@ -29,6 +29,8 @@ const logTrayDb = {
   },
 
   getErrors: function(callback) {
+    if(connected === false) return callback(null, []);
+
     const dateExpired = new Date();
     dateExpired.setTime(dateExpired.getTime() - expiredAfterMilliSeconds);
     this.db.find({date: {$gt: dateExpired}}).sort({date: -1}).exec(callback);

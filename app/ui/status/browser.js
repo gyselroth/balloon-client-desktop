@@ -80,7 +80,10 @@ module.exports = function() {
     let $transfer = $('#status-transfer');
     let $error = $('#status-error');
     tabNavigation('#status');
-    logTrayDb.connect(path.join(clientConfig.get('instanceDir'), 'db', 'log-tray.db'), true);
+
+    if(clientConfig.get('instanceDir')) {
+      logTrayDb.connect(path.join(clientConfig.get('instanceDir'), 'db', 'log-tray.db'), true);
+    }
     let i;
 
     $transfer.empty();
