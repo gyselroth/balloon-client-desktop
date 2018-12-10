@@ -210,7 +210,7 @@ module.exports = function(env, clientConfig) {
 
           startupWindow.removeListener('closed', windowClosedByUserHandler);
           auth.oidcAuth(idpConfig)
-            .then((newIsntance) => {
+            .then((newInstance) => {
               return initializeIgnoreDb(newInstance);
             })
             .then(() => {
@@ -222,6 +222,11 @@ module.exports = function(env, clientConfig) {
               }
             })
             .catch((error) => {
+              logger.error('failed authenticate via oidc', {
+                category: 'startup',
+                error: error,
+              });
+
               startupWindow.webContents.send('startup-auth-error',  'oidc');
             });
         });
@@ -369,7 +374,7 @@ module.exports = function(env, clientConfig) {
     });
 
     if(env.name === 'development') {
-      //startupWindow.openDevTools();
+      startupWindow.openDevTools();
     }
 
     return startupWindow;
