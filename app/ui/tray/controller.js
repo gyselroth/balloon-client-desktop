@@ -228,6 +228,9 @@ module.exports = function(env, clientConfig) {
 
   function toggle() {
     if(!trayWindow) trayWindow = createWindow();
+
+    logger.info('Toggl tray window', {category: 'tray', isVisble: trayWindow.isVisible()});
+
     if(trayWindow.isVisible()) {
       hide();
     } else {
@@ -236,11 +239,16 @@ module.exports = function(env, clientConfig) {
   }
 
   function hide() {
+    logger.info('Hide tray window', {category: 'tray'});
+
     if(trayWindow) trayWindow.hide();
   }
 
-  function show(mainScreen = true) {
-    if (!trayWindow) trayWindow = createWindow();
+  function show() {
+    logger.info('Show tray window', {category: 'tray'});
+
+    if(!trayWindow) trayWindow = createWindow();
+
 
     //UPDATE ACCESS_TOKEN
 
@@ -314,9 +322,6 @@ module.exports = function(env, clientConfig) {
 
   function syncStarted() {
     trayWindow.webContents.send('sync-started');
-  }
-
-  function syncTransferStarted() {
     toggleState('sync', true);
   }
 
@@ -326,14 +331,6 @@ module.exports = function(env, clientConfig) {
     }
 
     toggleState('sync', false);
-  }
-
-  function syncTransferEnded() {
-    toggleState('sync', false);
-  }
-
-  function isWindowVisible() {
-    return trayWindow ? trayWindow.isVisible() : false;
   }
 
   function isRunning() {
@@ -358,10 +355,7 @@ module.exports = function(env, clientConfig) {
     show,
     showBurl,
     syncStarted,
-    syncTransferStarted,
     syncEnded,
-    syncTransferEnded,
-    isWindowVisible,
     syncPaused,
     toggleState,
     updateSecret,

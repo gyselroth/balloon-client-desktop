@@ -274,14 +274,6 @@ ipcMain.on('check-for-update', function() {
 });
 
 /** Sync **/
-ipcMain.on('sync-transfer-start', () => {
-  tray.syncTransferStarted();
-});
-
-ipcMain.on('sync-transfer-end', () => {
-  tray.syncTransferEnded();
-});
-
 ipcMain.on('sync-toggle-pause', () => {
   if(!sync) {
     return tray.syncPaused();
@@ -342,21 +334,50 @@ ipcMain.on('link-account', (event, id) => {
   });
 });
 
+ipcMain.on('selective-error', (event, error, url, line, message) => {
+  switch(error.code) {
+    case 'E_BLN_API_REQUEST_UNAUTHORIZED':
+      selective.close();
+      if(clientConfig.get('authMethod') === 'basic') {
+        logger.info('got 401 from selective, unlink account', {category: 'main'});
+        unlinkAccount();
+      } else {
+        logger.debug('got 401 from selective, refresh accessToken', {category: 'main'});
+        auth.refreshAccessToken().then(() => {
+          selective.open();
+        }).catch(() => {
+          logger.error('could not refresh accessToken after selective-error, unlink instance', {category: 'main'});
+          unlinkAccount();
+        });
+      }
+    break;
+    default:
+      logger.error('Uncaught selective error.', {
+        category: 'main',
+        error,
+        url,
+        line,
+        errorMsg: message
+      });
+
+      selective.close();
+  }
+});
+
 ipcMain.on('sync-error', (event, error, url, line, message) => {
   switch(error.code) {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
+      endSync();
+
       if(clientConfig.get('authMethod') === 'basic') {
         logger.info('got 401, end sync and unlink account', {category: 'main'});
-        endSync();
         unlinkAccount();
       } else {
         logger.debug('got 401, refresh accessToken', {category: 'main'});
         auth.refreshAccessToken().then(() => {
-          endSync();
-          sync.resumeWatcher(false);
-        }).catch(() => {
-          logger.error('could not refresh accessToken, unlink instance', {category: 'main'});
-          endSync();
+          startSync(true);
+        }).catch(err => {
+          logger.error('could not refresh accessToken, unlink instance', {category: 'main', err});
           unlinkAccount();
         });
       }
@@ -405,6 +426,11 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
       });
       endSync();
       tray.emit('network-offline');
+    break;
+    case 'E_BLN_DELTA_FAILED':
+      logger.error('sync generating delta failed', {category: 'main', error});
+      endSync();
+      startSync(true);
     break;
     default:
       logger.error('Uncaught sync error. Resetting cursor and db', {

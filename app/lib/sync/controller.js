@@ -104,29 +104,25 @@ module.exports = function(env, tray) {
   function startFullSync() {
     //return if sync is already running or is starting up
     if(fullSyncWindow || fullSyncStartup) {
-      fullSyncStartup = false;
       return logger.info('not starting full sync because it is already running', {category: 'sync'});
     }
 
-    fullSyncStartup = true;
-
     //return if no user is logged in
     if(!clientConfig.get('loggedin') || !clientConfig.isActiveInstance()) {
-      fullSyncStartup = false;
       return logger.info('not starting full sync because no user logged in', {category: 'sync'});
     }
 
     //return if no network available
     if(appState.get('onLineState') === false) {
-      fullSyncStartup = false;
       return logger.info('not starting full sync because no network available', {category: 'sync'});
     }
 
     //return if sync has been paused
     if(syncPaused) {
-      fullSyncStartup = false;
       return logger.info('not starting full sync because sync has been paused', {category: 'sync'});
     }
+
+    fullSyncStartup = true;
 
     logger.info('starting full sync', {category: 'sync'});
     tray.syncStarted();
@@ -168,10 +164,10 @@ module.exports = function(env, tray) {
           fullSyncWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
         });
 
-        ipcMain.once('sync-complete', () => {
+        ipcMain.once('sync-complete', (event, err) => {
           logger.debug('Sync complete', {category: 'sync'});
           endFullSync();
-          resumeWatcher(false);
+          if(!err) resumeWatcher(false);
         });
 
         fullSyncWindow.once('closed', (event) => {
@@ -233,8 +229,35 @@ module.exports = function(env, tray) {
     return new Promise(function(resolve, reject) {
       const config = clientConfig.getAll(true);
 
-      killWatcher().then(result => {
+      Promise.all([
+        killWatcher(),
+        startup.preSyncCheck(),
+      ]).then(result => {
         watcher = new syncWatcherFactory(config, logger);
+
+        watcher.on('error', err => {
+          logger.error('Watcher error', {category: 'sync', err});
+
+          switch(err.code) {
+            case 'E_BLN_REMOTE_WATCHER_DELTA':
+              if(err.origErr && err.origErr.code === 'E_BLN_API_REQUEST_UNAUTHORIZED') {
+                //TODO pixtron - find a cleaner way to emit watcher errors
+                ipcMain.emit('sync-error', {}, err.origErr);
+              } else {
+                //network problems wait until network is available again
+                return;
+              }
+
+            break;
+            case 'E_BLN_API_REQUEST_UNAUTHORIZED':
+              //TODO pixtron - find a cleaner way to emit watcher errors
+              ipcMain.emit('sync-error', {}, err);
+            break;
+            case 'E_BLN_LOCAL_WATCHER_SHUTDOWN':
+            default:
+              pause(true).then(() => start(true));
+          }
+        });
 
         watcher.once('started', () => {
           resolve();

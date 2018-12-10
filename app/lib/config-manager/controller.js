@@ -6,8 +6,8 @@ const async = require('async');
 const logger = require('../logger.js');
 const fsUtility = require('../fs-utility.js');
 
-module.exports = function(clientConfig) {
-  const instanceDir = clientConfig.get('instanceDir');
+module.exports = function(clientConfig, instanceDir) {
+  if(!instanceDir) instanceDir = clientConfig.get('instanceDir');
 
   function resetCursorAndDb() {
     logger.debug('reseting cursor and sync db initalized',  {category: 'config-manager'});

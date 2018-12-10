@@ -29,6 +29,12 @@ handlebars.registerHelper('i18n', function(key) {
   return new handlebars.SafeString(translation);
 });
 
+window.onerror = function(message, url, line, column, error) {
+  logger.error(message, {category: 'selective', url, line, column, error});
+
+  ipcRenderer.send('selective-error', error, url, line, message);
+};
+
 $('document').ready(function() {
   $('html').addClass(process.platform);
   compileTemplates();
@@ -59,14 +65,12 @@ $('document').ready(function() {
 function initialize(config) {
   sync = fullSyncFactory(config, logger);
   sync.getIgnoredRemoteIds((err, currentlyIgnoredIds) => {
-    // TODO pixtron - handle errors
     if(err) throw err;
 
     logger.debug('Got ignored remote ids', {category: 'selective', currentlyIgnoredIds});
 
     // initialize ignoredNodes
     sync.blnApi.getAttributesByIds(currentlyIgnoredIds, ['path', 'id'], (err, nodes) => {
-      // TODO pixtron - handle errors
       if(err) throw err;
 
       ignoredNodes = new IgnoredNodes(nodes);

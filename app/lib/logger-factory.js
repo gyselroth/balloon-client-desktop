@@ -35,7 +35,7 @@ module.exports = function(config, logfile) {
 
               clone[prop] = value && typeof value === 'object' ?
                  // Recurse for objects, to handle inner exceptions
-                  _.mergeWith({}, value, errorCloner) :
+                  mergeWith({}, value, errorCloner) :
                   value;
           });
 

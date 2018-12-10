@@ -1,9 +1,34 @@
+## 0.2.4
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri November 02 12:25:33 CET 2018
+
+* CORE: [CHANGE] Upgrade sync to v0.2.5, fixes various sync issues
+* CORE: [FIX] Connect new user ends in stuck sync #118
+* CORE: [FIX] Connect a user which was previously connected can result in data loss #121
+* CORE: [FIX] Catch `Service shut down unexpectedly` #123
+* CORE: [FIX] Handle E_BLN_DELTA_FAILED #124
+* CORE: [CHANGE] Improve logging for tray window
+* CORE: [CHANGE] Remove clientSecret from feedback reports #129
+* CORE: [FIX] Handle 401 thrown by selective window #127
+* CORE: [FIX] Handle 401 thrown by remote watcher #126
+* CORE: [FIX] Handle 401 thrown by watcher start #130
+* CORE: [Change] Start sync after access token is refreshed #131
+* CORE: [FIX] Catch oidc.signin errors
+
+
+## 0.2.3
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri Sept 21 08:40:33 CEST 2018
+
+* CORE: [FIX] Upgrade sync to v0.2.3, partially fixes sync can result in DDOS #119
+
+
 ## 0.2.2
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Wed Aug 29 13:43:40 CEST 2018
 
 * CORE: [FIX] Feedback occasionally sends corrupt zip #107
-* CORE: [FIX] network connectivity incorrect, race condition online:false => online:true #108 
+* CORE: [FIX] network connectivity incorrect, race condition online:false => online:true #108
 
 
 ## 0.2.1
