@@ -19,7 +19,10 @@
       "node_modules/**/*",
       "package.json"
     ],
-    "extraResources": ["resources/**/*", "node_modules/@gyselroth/node-advanced-desktop/node_modules/fileicon/bin/fileicon"],
+    "extraResources": [
+      "resources/**/*",
+      "node_modules/fileicon/bin/fileicon"
+    ],
     "mac": {
       "artifactName": "${os}/${name}-${version}-mac.${ext}"
     },
@@ -80,7 +83,7 @@
   "dependencies": {
     "@gyselroth/balloon-node-sync": "0.3.0-alpha1",
     "@gyselroth/icon-collection": "^1.0.9",
-    "@gyselroth/node-advanced-desktop": "^1.0.0",
+    "@gyselroth/node-advanced-desktop": "^1.0.2",
     "@openid/appauth": "^1.1.2",
     "app-migrations": "~0.1.2",
     "archiver": "~3.0.0",

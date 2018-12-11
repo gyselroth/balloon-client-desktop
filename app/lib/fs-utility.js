@@ -20,17 +20,11 @@ function getIcon() {
   return process.plattform === 'win32' ? path.resolve(resourcesPath, 'resources/diricon/icon.ico') : path.resolve(resourcesPath, 'resources/diricon/icon.png');
 }
 
-function getIcon() {
-  var resourcesPath;
-  if(process.defaultApp) {
-    resourcesPath = path.resolve(__dirname, '../../');
-  } else {
-    resourcesPath = path.resolve(process.resourcesPath);
+function getFileiconPath() {
+  if(!process.defaultApp) {
+    return path.resolve(process.resourcesPath, 'node_modules/fileicon/bin/fileicon');
   }
-
-  return path.resolve(resourcesPath, 'node_modules/@gyselroth/node-advanced-desktop/node_modules/fileicon/bin/fileicon');
 }
-
 
 module.exports = {
   createBalloonDir: function(balloonDir, homeDir, callback) {
@@ -59,7 +53,7 @@ module.exports = {
 
   setDirIcon: function(balloonDir) {
     return nodeIcon.setFolderIcon(balloonDir, getIcon(), {
-      cmd: getFileIconPath()
+      cmd: getFileiconPath()
     });
   },
 
