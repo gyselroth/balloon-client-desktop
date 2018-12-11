@@ -353,6 +353,7 @@ module.exports = function(env, clientConfig) {
     syncStarted,
     syncEnded,
     syncPaused,
+    isWindowVisible,
     toggleState,
     updateSecret,
     emit,
