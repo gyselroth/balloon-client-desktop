@@ -1,5 +1,5 @@
 const electron = require('electron');
-const {app, ipcMain} = require('electron');
+const {app, ipcMain, dialog} = require('electron');
 
 const env = require('./env.js');
 const clientConfig = require('./lib/config.js');
@@ -9,13 +9,13 @@ const TrayCtrl = require('./ui/tray/controller.js');
 const SelectiveCtrl = require('./ui/selective/controller.js');
 const SyncCtrl = require('./lib/sync/controller.js');
 const StartupCtrl = require('./ui/startup/controller.js');
-const BurlCtrl = require('./ui/burl/controller.js');
 const AuthCtrl = require('./lib/auth/controller.js');
 const AutoUpdateCtrl = require('./lib/auto-update/controller.js');
 const FeedbackCtrl = require('./ui/feedback/controller.js');
 const setMenu = require('./lib/menu.js');
 const {BalloonBurlHandler} = require('./lib/burl.js');
 const ipc = require ('./lib/ipc.js');
+const i18n = require ('./lib/i18n.js');
 
 const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
@@ -45,7 +45,27 @@ process.on('uncaughtException', function(exception) {
 
 function openBurl(burlPath) {
   if (burlHandler.isBalloonBurlPath(burlPath)) {
-    tray.showBurl(burlPath);
+    burlHandler.extractBurl(burlPath).then((burl) => {
+      dialog.showMessageBox(null, {
+        type: 'question',
+        buttons: [i18n.__('button.continue'), i18n.__('button.cancel')],
+        title: 'Balloon URL',
+        message: i18n.__('burl.prompt'),
+        detail: burl,
+      }, (buttonIndex) => {
+        if (0 === buttonIndex) {
+          burlHandler.handleBurl(burl);
+        }
+      });
+    }).catch((error) => {
+      dialog.showMessageBox(null, {
+        type: 'error',
+        buttons: [i18n.__('button.close')],
+        title: 'Balloon URL',
+        message: i18n.__('burl.' + error.error),
+        detail: error.burl,
+      });
+    });
   }
 }
 
@@ -172,15 +192,11 @@ if(shouldQuit === true && process.platform !== 'darwin') {
   let burlArgument = extractBurlArgument();
   if (burlArgument) {
     ipc.send({type: 'open-burl', payload: burlArgument}).then(() => {
-      if (callback) {
-        app.quit();
-      }
+      app.quit();
     });
   } else {
     ipc.send({type: 'open-balloon'}).then(() => {
-      if (callback) {
-        app.quit();
-      }
+      app.quit();
     });
   }
 } else {

@@ -13,7 +13,6 @@ const i18n = require('../../lib/i18n.js');
 const animationSpeed = 1000/24; //24 fps
 
 const feedback = require('../feedback/controller.js');
-const burlCtrl = require('../burl/controller.js');
 
 const logger = require('../../lib/logger.js');
 
@@ -209,7 +208,6 @@ function getIcon() {
 
 module.exports = function(env, clientConfig) {
   var trayWindow = createWindow();
-  const burlController = burlCtrl(trayWindow);
 
   function create() {
     if(!tray) {
@@ -259,15 +257,6 @@ module.exports = function(env, clientConfig) {
     trayWindow.setAlwaysOnTop(true);
     trayWindow.show();
     trayWindow.focus();
-  }
-
-  function showBurl(burlPath) {
-    burlController.showBurl(burlPath).then(() => {
-      show();
-    }).catch((error) => {
-      logger.error(error, {category: 'tray'});
-    });
-
   }
 
   function createWindow() {
@@ -333,6 +322,10 @@ module.exports = function(env, clientConfig) {
     toggleState('sync', false);
   }
 
+  function isWindowVisible() {
+    return trayWindow ? trayWindow.isVisible() : false;
+  }
+
   function isRunning() {
     if(tray) {
       return true;
@@ -353,9 +346,9 @@ module.exports = function(env, clientConfig) {
     toggle,
     hide,
     show,
-    showBurl,
     syncStarted,
     syncEnded,
+    isWindowVisible,
     syncPaused,
     toggleState,
     updateSecret,
