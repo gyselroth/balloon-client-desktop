@@ -18,6 +18,8 @@
 * CORE: [CHANGE] If a last known server is available put it into the server field for auth (if instance was unlinked before) #149
 * CORE: [CHANGE] Replace fsinfo with output from systeminformation package #146
 * CORE: [FIX] Ask admin privileges for fsutil calls on windows #135
+* CORE: [FEATURE] Add balloon folder bookmark (favourites) on Mac OS X #31
+* CORE: [FIX] Use fileicon for osx diricon instead shipping by ourselfs #147 
 * UI: [FIX] Desktop ui freezes during initial sync on Ubuntu 18.04 #133
 
 

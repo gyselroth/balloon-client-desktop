@@ -5,16 +5,42 @@ const logger = require('./logger.js');
 const prependFile = require('prepend-file');
 const mkdirp = require('mkdirp');
 const rimraf = require('rimraf');
+const { nodeIcon, sidebar } = require('@gyselroth/node-advanced-desktop');
 
 const env = require('../env.js');
 
+function getIcon() {
+  var resourcesPath;
+  if(process.defaultApp) {
+    resourcesPath = path.resolve(__dirname, '../../');
+  } else {
+    resourcesPath = path.resolve(process.resourcesPath);
+  }
+
+  return process.plattform === 'win32' ? path.resolve(resourcesPath, 'resources/diricon/icon.ico') : path.resolve(resourcesPath, 'resources/diricon/icon.png');
+}
+
+function getIcon() {
+  var resourcesPath;
+  if(process.defaultApp) {
+    resourcesPath = path.resolve(__dirname, '../../');
+  } else {
+    resourcesPath = path.resolve(process.resourcesPath);
+  }
+
+  return path.resolve(resourcesPath, 'node_modules/@gyselroth/node-advanced-desktop/node_modules/fileicon/bin/fileicon');
+}
+
+
 module.exports = {
   createBalloonDir: function(balloonDir, homeDir, callback) {
-    this.mkdirp(balloonDir, (err) => {
+    this.mkdirp(balloonDir, async (err) => {
       if(err) return callback(err);
 
-      this.setDirIcon(balloonDir);
-      this.setDirShortcut(balloonDir, homeDir);
+      await Promise.all([
+        this.setDirIcon(balloonDir),
+        this.setDirShortcut(balloonDir),
+      ]);
 
       callback(null);
     });
@@ -32,89 +58,16 @@ module.exports = {
   },
 
   setDirIcon: function(balloonDir) {
-    var resourcesPath;
-    if(process.defaultApp) {
-      resourcesPath = path.resolve(__dirname, '../../');
-    } else {
-      resourcesPath = path.resolve(process.resourcesPath);
-    }
-
-    switch(process.platform) {
-      case 'darwin':
-        exec([
-          path.resolve(resourcesPath, 'resources/diricon/osx'),
-          'set',
-          balloonDir,
-          path.resolve(resourcesPath, 'resources/diricon/icon.png')
-        ].join(' '));
-      break;
-      case 'win32':
-        exec([
-          path.resolve(resourcesPath, 'resources/diricon/win.cmd'),
-          balloonDir,
-          path.resolve(resourcesPath, 'resources/diricon/icon.ico')
-        ].join(' '));
-      break;
-      case 'linux':
-        exec([
-          'gvfs-set-attribute',
-          balloonDir,
-          'metadata::custom-icon',
-          'file://'+path.resolve(resourcesPath, 'resources/diricon/icon.png')
-        ].join(' '));
-      break;
-    }
+    return nodeIcon.setFolderIcon(balloonDir, getIcon(), {
+      cmd: getFileIconPath()
+    });
   },
 
-  setDirShortcut: function(balloonDir, homeDir) {
-    var resourcesPath;
-    if(process.defaultApp) {
-      resourcesPath = path.resolve(__dirname, '../../');
-    } else {
-      resourcesPath = path.resolve(process.resourcesPath);
-    }
-
-    switch(process.platform) {
-      case 'linux':
-        var gtk = path.join(homeDir, '.config', 'gtk-3.0');
-        if(fs.existsSync(gtk)) {
-          var bookmarks = path.join(gtk, 'bookmarks');
-          if(fs.existsSync(bookmarks)) {
-            fs.readFile(bookmarks, function (err, data) {
-              if (err) throw err;
-              if(data.indexOf('file://'+balloonDir+"\n") === -1){
-                prependFile(bookmarks, 'file://'+balloonDir+"\n", function (err) {
-                  if (err) throw err;
-                });
-              }
-            })
-          } else {
-            fs.writeFile(bookmarks, 'file://'+balloonDir+"\n", function (err) {
-              if (err) throw err;
-            });
-          }
-        }
-      break;
-      case 'win32':
-        var clsId = env.winClsId;
-        if(!clsId) {
-          if(env.name === 'production') {
-            clsId = '5410396b-e8fa-479c-af05-c0edf82fb954';
-          } else if(env.name === 'development') {
-            clsId = '48bafa8f-288a-411b-afbc-21a6ace29729';
-          } else {
-            return;
-          }
-        }
-
-        exec([
-          path.resolve(resourcesPath, 'resources/shortcut/win.cmd'),
-          balloonDir,
-          path.resolve(resourcesPath, 'resources/diricon/icon.ico'),
-          env.winClsId
-        ].join(' '));
-      break;
-    }
+  setDirShortcut: function(balloonDir) {
+    return sidebar.ensureItem(balloonDir, {
+      clsId: '5410396b-e8fa-479c-af05-c0edf82fb954',
+      icon: getIcon()
+    })
   },
 
   mkdirp: function(dir, callback) {
@@ -139,5 +92,4 @@ module.exports = {
 
     rimraf(dir, options, callback);
   }
-
 }
