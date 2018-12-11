@@ -2,15 +2,13 @@ const os = require('os');
 const fs = require('graceful-fs');
 const path = require('path');
 const extend = require('util')._extend;
+const si = require('systeminformation');
 
 const {app, ipcMain, BrowserWindow} = require('electron');
 const async = require('async');
 const archiver = require('archiver');
 const request = require('request');
-
 const logger = require('../../lib/logger.js');
-const fsInfo = require('../../lib/fs-info.js');
-
 const url = require('url');
 
 module.exports = function(env, clientConfig) {
@@ -175,9 +173,11 @@ module.exports = function(env, clientConfig) {
           archive.append(fs.createReadStream(remoteDeltaLogDbPath), { name: 'report/remotedelta-log.db' });
         }
 
-        archive.append(getMetaData(), {name: 'report/metadata.json'});
-
         async.parallel([
+          async.reflect(async (cb) => {
+            archive.append(await getMetaData(), {name: 'report/metadata.json'});
+            cb(null);
+          }),
           async.reflect((cb) => {
             createDirectorySnapshot((err, snapshot) => {
               if(err) {
@@ -190,15 +190,6 @@ module.exports = function(env, clientConfig) {
               cb(null);
             });
           }),
-          async.reflect((cb) => {
-            fsInfo(clientConfig.get('balloonDir'), (err, result) => {
-              if(err) return cb(err);
-
-              archive.append(result, { name: 'report/fs.txt' });
-
-              return cb(null);
-            });
-          })
         ], (err, results) => {
           //err will be always `null` as async.reflect is used
           archive.finalize();
@@ -232,7 +223,7 @@ module.exports = function(env, clientConfig) {
     }
   }
 
-  function getMetaData() {
+  async function getMetaData() {
     var now = new Date();
     var offset = now.getTimezoneOffset();
     var absOffset = Math.abs(offset);
@@ -257,6 +248,9 @@ module.exports = function(env, clientConfig) {
       });
     }
 
+    var system = await si.getAllData();
+    delete system.networkConnections;
+
     var metaData = {
       version: app.getVersion(),
       hasToken: clientConfig.get('accessToken') !== undefined,
@@ -268,22 +262,8 @@ module.exports = function(env, clientConfig) {
       locale: app.getLocale(),
       config,
       env: envForReport,
-      os: {
-        arch: os.arch(),
-        platform: os.platform(),
-        release: os.release(),
-        type: os.type(),
-        freemem: os.freemem(),
-        loadavg: os.loadavg(),
-        endianness: os.endianness(),
-        homedir: os.homedir(),
-        hostname: os.hostname(),
-        tmpdir: os.tmpdir(),
-        uptime: os.uptime(),
-        cpus: os.cpus(),
-        networkInterfaces: os.networkInterfaces(),
-        userInfo: os.userInfo()
-      }
+      system: system,
+      localEnv: process.env
     }
 
     delete metaData.config.accessToken;

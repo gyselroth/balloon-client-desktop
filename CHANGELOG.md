@@ -16,7 +16,10 @@
 * CORE: [CHANGE] Allow to change location of BalloonDir #46
 * CORE: [CHANGE] Handle 401 on getQuotaUsage requests #125
 * CORE: [CHANGE] If a last known server is available put it into the server field for auth (if instance was unlinked before) #149
+* CORE: [CHANGE] Replace fsinfo with output from systeminformation package #146
+* CORE: [FIX] Ask admin privileges for fsutil calls on windows #135
 * UI: [FIX] Desktop ui freezes during initial sync on Ubuntu 18.04 #133
+
 
 ## 0.2.4
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
