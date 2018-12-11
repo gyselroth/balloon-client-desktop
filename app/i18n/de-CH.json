@@ -102,5 +102,8 @@
   "balloonDirSelector.error.title": "Fehler",
   "balloonDirSelector.error.unknown": "Balloon konnte nicht verschoben werden.",
   "balloonDirSelector.error.moveIntoItself": "Balloon kann nicht in sich selbst verschoben werden.",
-  "balloonDirSelector.error.targetExists": "Es existiert bereits ein Balloon am gewählten Pfad."
+  "balloonDirSelector.error.targetExists": "Es existiert bereits ein Balloon am gewählten Pfad.",
+
+  "burl.prompt": "Möchtest du die folgenden URL in deinem Browser öffnen?",
+  "burl.invalid-url": "Die URL ist ungültig:"
 }
