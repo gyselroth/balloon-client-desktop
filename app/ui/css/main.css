@@ -553,6 +553,28 @@ input[type="radio"], input[type="checkbox"] {
     transform: scale(0.7);
 }
 
+.jstree-themeicon.gr-icon {
+    width: 24px !important;
+    height: 24px !important;
+    background-image: url(../../../node_modules/@gyselroth/icon-collection/src/icons.svg) !important;
+    background-repeat: no-repeat !important;
+    background-size: 24px !important;
+    opacity: 0.72 !important;
+    transform: scale(0.8);
+}
+
+.jstree-themeicon.gr-i-folder {
+    background-position: 0 calc(162 * -24px) !important;
+}
+
+.jstree-themeicon.gr-i-folder-received {
+    background-position: 0 calc(165 * -24px) !important;
+}
+
+.jstree-themeicon.gr-i-folder-shared {
+    background-position: 0 calc(166 * -24px) !important;
+}
+
 .jstree-checkbox {
     width: 24px !important;
     height: 24px !important;
