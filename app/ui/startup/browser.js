@@ -127,10 +127,15 @@ function verifyServer() {
 }
 
 function pingApiServer(blnUrl, callback) {
-  var apiPingUrl = blnUrl + (env.apiPath || '/api/v1');
+  var apiPingUrl = blnUrl + '/api/v2';
 
   request.get(apiPingUrl, {timeout: 2000}, (err, result) => {
-    callback(!(err || result.statusCode !== 401));
+    try {
+      var body = JSON.parse(result.body);
+      callback(!(err || body.name !== 'balloon'));
+    } catch(error) {
+      callback(false);
+    }
   });
 }
 

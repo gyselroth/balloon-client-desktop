@@ -20,6 +20,7 @@
 * CORE: [FIX] Ask admin privileges for fsutil calls on windows #135
 * CORE: [FEATURE] Add balloon folder bookmark (favourites) on Mac OS X #31
 * CORE: [FIX] Use fileicon for osx diricon instead shipping by ourselfs #147 
+* CORE: [FIX] Improve condition for api ping #1
 * UI: [FIX] Desktop ui freezes during initial sync on Ubuntu 18.04 #133
 
 
