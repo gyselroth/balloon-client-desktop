@@ -560,7 +560,7 @@ input[type="radio"], input[type="checkbox"] {
     background-repeat: no-repeat !important;
     background-size: 24px !important;
     opacity: 0.72 !important;
-    transform: scale(0.8);
+    transform: scale(0.9);
 }
 
 .jstree-themeicon.gr-i-folder {
