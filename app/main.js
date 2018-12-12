@@ -1,5 +1,5 @@
 const electron = require('electron');
-const {app, ipcMain} = require('electron');
+const {app, ipcMain, dialog} = require('electron');
 
 const env = require('./env.js');
 const clientConfig = require('./lib/config.js');
@@ -14,6 +14,9 @@ const AutoUpdateCtrl = require('./lib/auto-update/controller.js');
 const FeedbackCtrl = require('./ui/feedback/controller.js');
 const setMenu = require('./lib/menu.js');
 const BalloonDirSelectorCtrl = require('./ui/balloon-dir-selector/controller.js');
+const {BalloonBurlHandler} = require('./lib/burl.js');
+const ipc = require ('./lib/ipc.js');
+const i18n = require ('./lib/i18n.js');
 
 const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
@@ -27,12 +30,17 @@ var startup = StartupCtrl(env, clientConfig);
 var auth = AuthCtrl(env, clientConfig);
 var selective = SelectiveCtrl(env, clientConfig);
 var ballonDirSelector = BalloonDirSelectorCtrl(env, clientConfig);
+var burlHandler = new BalloonBurlHandler(clientConfig);
 
 if (process.platform === 'linux') {
   app.disableHardwareAcceleration();
 }
 
 logger.setLogger(standardLogger);
+
+function extractBurlArgument() {
+  return process.argv.find(argument => {return burlHandler.isBalloonBurlPath(argument)});
+}
 
 process.on('uncaughtException', function(exception) {
   logger.error('uncaught exception', {
@@ -41,11 +49,30 @@ process.on('uncaughtException', function(exception) {
   });
 });
 
-var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
-
-if(shouldQuit === true) {
-  startup.showBalloonDir();
-  app.quit();
+function openBurl(burlPath) {
+  if (burlHandler.isBalloonBurlPath(burlPath)) {
+    burlHandler.extractBurl(burlPath).then((burl) => {
+      dialog.showMessageBox(null, {
+        type: 'question',
+        buttons: [i18n.__('button.continue'), i18n.__('button.cancel')],
+        title: 'Balloon URL',
+        message: i18n.__('burl.prompt'),
+        detail: burl,
+      }, (buttonIndex) => {
+        if (0 === buttonIndex) {
+          burlHandler.handleBurl(burl);
+        }
+      });
+    }).catch((error) => {
+      dialog.showMessageBox(null, {
+        type: 'error',
+        buttons: [i18n.__('button.close')],
+        title: 'Balloon URL',
+        message: i18n.__('burl.' + error.error),
+        detail: error.burl,
+      });
+    });
+  }
 }
 
 function startApp() {
@@ -124,6 +151,20 @@ function startApp() {
 
     tray = TrayCtrl(env, clientConfig);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
+    ipc.listen((data) => {
+      switch(data.type) {
+        case 'open-burl':
+          openBurl(data.payload);
+          break;
+        case 'open-balloon':
+        default:
+          if (tray.isWindowVisible() || process.platform !== 'linux') {
+            startup.showBalloonDir();
+          } else {
+            tray.show();
+          }
+      }
+    })
   });
 }
 
@@ -151,30 +192,50 @@ function unlinkAccount() {
   });
 }
 
-app.on('ready', function () {
-  appState.set('updateAvailable', false);
+var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
 
-  feedback = FeedbackCtrl(env, clientConfig);
-  feedback.toggleAutoReport(globalConfig.get('autoReport'));
-
-  logger.info('app ready to operate', {
-      category: 'main',
+if(shouldQuit === true && process.platform !== 'darwin') {
+  let burlArgument = extractBurlArgument();
+  if (burlArgument) {
+    ipc.send({type: 'open-burl', payload: burlArgument}).then(() => {
+      app.quit();
+    });
+  } else {
+    ipc.send({type: 'open-balloon'}).then(() => {
+      app.quit();
+    });
+  }
+} else {
+  app.on('open-file', function(event, path) {
+    if (process.platform === 'darwin') {
+      openBurl(path);
+    }
   });
 
-  setMenu();
+  app.on('ready', function () {
+    appState.set('updateAvailable', false);
 
-  migrate().then(result => {
-    startApp();
-  }).catch(err => {
-    logger.error('error during migration, quitting app', {
-      category: 'main',
-      error: err
+    feedback = FeedbackCtrl(env, clientConfig);
+    feedback.toggleAutoReport(globalConfig.get('autoReport'));
+
+    logger.info('app ready to operate', {
+        category: 'main',
     });
 
-    app.quit();
-  })
-});
+    setMenu();
 
+    migrate().then(result => {
+      startApp();
+    }).catch(err => {
+      logger.error('error during migration, quitting app', {
+        category: 'main',
+        error: err
+      });
+
+      app.quit();
+    })
+  });
+}
 /** Main App **/
 ipcMain.on('quit', function() {
   app.quit();

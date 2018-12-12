@@ -326,6 +326,10 @@ module.exports = function(env, clientConfig) {
     toggleState('sync', false);
   }
 
+  function isWindowVisible() {
+    return trayWindow ? trayWindow.isVisible() : false;
+  }
+
   function isRunning() {
     if(tray) {
       return true;
@@ -349,6 +353,7 @@ module.exports = function(env, clientConfig) {
     syncStarted,
     syncEnded,
     syncPaused,
+    isWindowVisible,
     toggleState,
     updateSecret,
     emit,
