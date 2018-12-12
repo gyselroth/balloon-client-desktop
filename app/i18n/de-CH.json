@@ -31,8 +31,13 @@
   "tray.tooltip.state.pause": "Die Synchronisation ist angehalten",
   "tray.tooltip.state.sync": "Daten werden gerade synchronisiert",
   "tray.tooltip.state.update": "Update bereit zur Installation",
-  "tray.quota.unlimited": "%s von unlimitiert",
-  "tray.quota.limited": "%s übrig",
+
+  "tray.sync.status.offline": "Keine Internetverbindung.",
+  "tray.sync.status.loggedout": "Kein Account verbunden.",
+  "tray.sync.status.pause": "Synchronisation is pausiert.",
+  "tray.sync.status.start": "Erstelle Index...",
+  "tray.sync.status.transfer": "Daten werden synchronisiert...",
+  "tray.sync.status.default": "Alle Daten synchronisiert.",
 
   "about.see_github": "Siehe github",
   "about.github_repo": "gyselroth/balloon-client-desktop",
@@ -77,6 +82,9 @@
   "status.nav.error": "Fehler",
   "status.nav.notes": "Hinweise",
   "status.nav.quota": "Speicher",
+
+  "status.activities.empty": "Keine Aktivitäten vorhanden.",
+  "status.errors.empty": "Gute Arbeit, keine Fehler vorhanden.",
 
   "status.quota.used": "Benutzter Speicherplatz",
   "status.quota.left": "Freier Speicherplatz",

@@ -161,11 +161,11 @@ p {
 /*---- tab content ----*/
 .tab-content {
   display: none;
-  padding: 25px 15px;
+  padding: 20px 15px;
   margin-bottom: 20px;
   box-sizing: border-box;
   width: 100%;
-  height: 330px;
+  height: 276px;
   overflow: auto;
 }
 
@@ -214,7 +214,7 @@ p {
 
 /*-----Status Transfer/Error-----*/
 #status {
-  height: 100%;
+  height: 325px;
 }
 
 #status .gr-icon {
@@ -239,18 +239,6 @@ p {
   text-overflow: ellipsis;
   max-width: calc(100% - 60px);
   margin: -10px 0 0 10px;
-}
-
-#status-transfer .task-percent {
-  float: right;
-  display: none;
-  width: auto;
-  max-width: 60px;
-  border: none;
-  color: #999;
-  font-size: 24px;
-  line-height: 30px;
-  font-weight: 300;
 }
 
 #status-transfer .task-finish {
@@ -288,7 +276,7 @@ p {
   background-color: #f6b2b5;
 }
 
- #status-transfer .task-error .task-progress-inner {
+#status-transfer .task-error .task-progress-inner {
   background-color: #f6b2b5;
 }
 
@@ -296,24 +284,51 @@ p {
   background-color: #5cd600;
 }
 
-
 #status #status-error li {
-  margin-bottom: 10px;
+  margin-bottom: 20px;
+  border-bottom: solid 1px #EEE;
+  padding-bottom: 10px;
 }
 
 #status #status-error li .status-error-date {
-  float: left;
-  width: 140px;
-  margin-right: 5px;
+  font-size: 13px;
+  color: #999;
 }
 
 #status #status-error li .status-error-message {
-  float: left;
-  width: calc(100% - 145px);
+  color: #333;
+  margin-bottom: 5px;
 }
 
+#status-sync {
+  height: 30px;
+  background-color: #EEF3F6;
+  width: 100%;
+  padding: 5px 0;
+  position: absolute;
+  bottom: 0;
+}
 
+#status-sync .loader {
+  float: left;
+  margin-right: 5px;
+}
 
+#status-sync span {
+  line-height: 26px;
+  font-size: 13px;
+  color: #333;
+}
+
+.status-no-elements {
+  margin-bottom: 20px;
+  border-bottom: none !important;
+  padding-bottom: 10px;
+  color: #999;
+  text-align: center;
+  font-size: 16px;
+  margin-top: 15px;
+}
 /*-----Formular----*/
 
 form {
@@ -419,12 +434,12 @@ input[type="radio"], input[type="checkbox"] {
 
 /*-----Feeedback-----*/
 #feedback {
-    padding: 15px;
+    padding: 0 15px;
 }
 
 #feedback textarea {
     width: 100%;
-    height: 200px;
+    height: 180px;
     margin: 5px 0;
     border-color: #000;
 }

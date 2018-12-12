@@ -71,9 +71,6 @@ module.exports = function() {
     taskHistory[task.id].datetime = new Date();
   });
 
-  ipcRenderer.on('sync-started' , function() {
-  });
-
   function init(sync) {
     if(sync) showQuota(sync);
 
@@ -86,33 +83,51 @@ module.exports = function() {
     }
     let i;
 
-    $transfer.empty();
-    $error.empty();
-
     for(id in taskHistory) {
       $transfer.append(renderTask(taskHistory[id]));
     }
 
     logTrayDb.getErrors((err, errors) => {
       if(errors) {
+        if(errors.length > 0) {
+          $error.empty();
+        }
+
         for(i=0; i < errors.length; i++) {
           $error.append(renderError(errors[i]));
         }
       }
     });
 
+    ipcRenderer.on('sync-started', function(event) {
+      $('#status-sync').find('span').html(i18n.__('tray.sync.status.start'));
+      $('#status-sync').find('div').show();
+    });
+
+    ipcRenderer.on('sync-ended', function(event) {
+      $('#status-sync').find('span').html(i18n.__('tray.sync.status.default'));
+      $('#status-sync').find('div').hide();
+    });
+
     ipcRenderer.on('transfer-task', function(event, task) {
+      $transfer.find('.status-no-elements').remove();
       console.log('tranfer-task',task);
       $item = $transfer.find(`#${task.id}`);
 
+      task.datetime = taskHistory[task.id].datetime || new Date();
+
       if($item.length > 0) {
-        $item.replaceWith(renderTask(task));
+        $item.remove();
+        $transfer.append(renderTask(task));
       } else {
         $transfer.append(renderTask(task));
       }
     });
 
     ipcRenderer.on('transfer-progress', function(event, task) {
+      $('#status-sync').find('span').html(i18n.__('tray.sync.status.transfer'));
+      $('#status-sync').find('div').show();
+
       console.log("progress",task);
       if(taskHistory[task.id]) {
         taskHistory[task.id].percent = task.percent;
@@ -150,8 +165,8 @@ module.exports = function() {
 
   function renderError(error) {
     return $(`<li id="${error.hash}" class="clearfix" >
-      <div class="status-error-date">${moment(error.date).format('DD.MM.YYYY HH:mm:ss')}</div>
       <div class="status-error-message">${error.message}</div>
+      <div class="status-error-date">${moment(error.date).format('DD.MM.YYYY HH:mm:ss')}</div>
     </li>`);
   }
 

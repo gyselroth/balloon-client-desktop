@@ -129,7 +129,6 @@ module.exports = function(env, tray) {
 
     startPowerSaveBlocker();
 
-
     pauseWatcher().then(() => {
       startup.preSyncCheck().then(result => {
         logger.info('pre sync check successfull', {category: 'sync'});
