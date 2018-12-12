@@ -465,13 +465,21 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
       endSync();
       tray.emit('network-offline');
     break;
-    case 'E_BLN_DELTA_FAILED':
-      logger.error('sync generating delta failed', {category: 'main', error});
+    case 'BLN_API_DELTA_RESET':
+      logger.info('Remote delta triggered reset. Resetting cursor and db', {
+        category: 'main',
+        code: error.code
+      });
+
       endSync();
-      startSync(true);
+      configManager.resetCursorAndDb().then(function() {
+        startSync(true);
+      }).catch(function(err) {
+        startSync(true);
+      });
     break;
     default:
-      logger.error('Uncaught sync error. Resetting cursor and db', {
+      logger.error('Uncaught sync error. restarting sync', {
         category: 'main',
         error,
         url,
@@ -479,13 +487,8 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
         errorMsg: message
       });
 
-      configManager.resetCursorAndDb().then(function() {
-        endSync();
-        startSync(true);
-      }).catch(function(err) {
-        endSync();
-        startSync(true);
-      });
+      endSync();
+      startSync(true);
   }
 });
 
