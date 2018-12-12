@@ -6,4 +6,6 @@ if [ -f "$conf" ]; then
   cp "$conf" /etc/balloon-desktop/env.json
 fi
 
+open -a Balloon
+
 
