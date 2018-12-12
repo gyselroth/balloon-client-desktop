@@ -144,6 +144,10 @@ module.exports = function() {
       return instances.active;
     },
     getInstanceByName: function(name) {
+      if(!instances.instances || !instances.instances[name]) {
+        throw new Error('requested instance '+name+' does not exists');
+      }
+
       return instances.instances[name];
     },
     getInstance: function(clientConfig) {

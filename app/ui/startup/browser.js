@@ -60,11 +60,14 @@ $(document).ready(function() {
 
   if(!clientConfig.get('blnUrl')) {
     let $server = $('#startup-view-server').find('.view-content').find('> div').show();
-    let last = instance.getInstanceByName(instance.getLastActiveInstance());
 
-    if(last && last.server) {
-      $server.find('input').val(last.server);
-    }
+    try {
+      let last = instance.getInstanceByName(instance.getLastActiveInstance());
+
+      if(last && last.server) {
+        $server.find('input').val(last.server);
+      }
+    } catch(error) {}
   }
 
   $('#startup-server-continue').bind('click', verifyServer);

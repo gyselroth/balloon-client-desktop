@@ -31,12 +31,17 @@ module.exports = {
     this.mkdirp(balloonDir, async (err) => {
       if(err) return callback(err);
 
-      await Promise.all([
+      Promise.all([
         this.setDirIcon(balloonDir),
         this.setDirShortcut(balloonDir),
-      ]);
+      ]).catch((error) => {
+        logger.error('failed to create bookmark and shortcut, continue anyway', {
+          category: 'fs-utility',
+          error: error,
+        });
 
-      callback(null);
+        callback(null);
+      }).then(() => {callback(null)});
     });
   },
 
