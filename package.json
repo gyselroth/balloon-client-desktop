@@ -39,7 +39,9 @@
       "artifactName": "${name}-setup-${version}.${ext}",
       "allowToChangeInstallationDirectory": true,
       "oneClick": false,
-      "license": "LICENSE"
+      "license": "LICENSE",
+      "installerSidebar": "build/installerSidebar.bmp",
+      "uninstallerSidebar": "build/installerSidebar.bmp"
     },
     "publish": [
       {
