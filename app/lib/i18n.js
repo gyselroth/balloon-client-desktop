@@ -3,6 +3,7 @@ const path = require('path');
 
 const electron = require('electron');
 const app = electron.app || electron.remote.app;
+const sprintf = require('sprintf-js').sprintf;
 
 const defaultLocales = {
   'de': 'de-CH',
@@ -36,8 +37,12 @@ function getDefaultLocale(locale) {
   return defaultLocales[locale] || defaultLocales['*'];
 }
 
-function getTranslation(key) {
-  return translations[key] || key;
+function getTranslation(key, context) {
+  if(!context) {
+    context = [];
+  }
+
+  return sprintf(translations[key] || key, ...context);
 }
 
 function getCurrentLocale() {

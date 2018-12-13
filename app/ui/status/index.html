@@ -5,18 +5,18 @@
         <li id="status-nav-quota"><a href="#status-quota">{{i18n 'status.nav.quota'}}</a></li>
     </ul>
 
-    <ul class="tab-content" id="status-transfer"><li class="status-no-elements">{{i18n 'status.activities.empty'}}</li></ul>
-    <ul class="tab-content" id="status-error"><li class="status-no-elements">{{i18n 'status.errors.empty'}}</li></ul>
-    <div class="tab-content" id="status-quota">
-        <figure id="quota-circle" class="animate percentage-39">
-            <svg role="img" xmlns="http://www.w3.org/2000/svg">
-                <title>[title here]</title>
-                <desc>[long description here]</desc>
-                <circle class="circle-background"/>
-                <circle class="circle-foreground"/>
-            </svg>
-            <figcaption>25% of all males like donuts.</figcaption>
-        </figure>
+    <ul class="tab-content tab-disable" id="status-transfer"><li class="status-no-elements">{{i18n 'status.activities.empty'}}</li></ul>
+    <ul class="tab-content tab-disable" id="status-error"><li class="status-no-elements">{{i18n 'status.errors.empty'}}</li></ul>
+    <div class="tab-content tab-disable" id="status-quota">
+        <div class="percent-circle">
+            <figure class="chart chart-0 animate">
+                <svg viewbox="0, 0, 230, 230" role="img" xmlns="http://www.w3.org/2000/svg">
+                    <circle r="96" cx="50%" cy="50%" class="circle-background"/>
+                    <circle r="96" cx="50%" cy="50%" class="circle-foreground"/>
+                </svg>
+                <figcaption></figcaption>
+            </figure>
+        </div>
         <table>
             <tr id="status-quota-max">
                 <th>{{i18n 'status.quota.max'}}</th>

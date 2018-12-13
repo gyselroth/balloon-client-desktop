@@ -35,6 +35,7 @@ function showQuota(sync) {
     }
 
     $('#status-quota-used').find('td').html(prettyBytes(data.used));
+    $('#status-quota').find('.chart').addClass('chart-'+percent);
 
     if(data.hard_quota === 0) {
       $('#status-quota-free').find('td').html(i18n.__('status.quota.unlimited'));
@@ -47,6 +48,10 @@ function showQuota(sync) {
 }
 
 function getIcon(task) {
+  if(task.subtype == 'error') {
+    return 'gr-i-warning';
+  }
+
   let ext = task.name.split('.').pop();
 
   if(fileIconMap[ext]) {
@@ -61,6 +66,7 @@ module.exports = function() {
   let taskElements = {};
 
   ipcRenderer.on('transfer-task', function(event, task) {
+console.log("ON");
     if(taskHistory[task.id]) {
       taskHistory[task.id].subtype = task.subtype;
     } else {
@@ -110,15 +116,12 @@ module.exports = function() {
     });
 
     ipcRenderer.on('transfer-task', function(event, task) {
-      $transfer.find('.status-no-elements').remove();
-      console.log('tranfer-task',task);
       $item = $transfer.find(`#${task.id}`);
 
       task.datetime = taskHistory[task.id].datetime || new Date();
 
       if($item.length > 0) {
-        $item.remove();
-        $transfer.append(renderTask(task));
+        $item.replaceWith(renderTask(task));
       } else {
         $transfer.append(renderTask(task));
       }
@@ -128,7 +131,6 @@ module.exports = function() {
       $('#status-sync').find('span').html(i18n.__('tray.sync.status.transfer'));
       $('#status-sync').find('div').show();
 
-      console.log("progress",task);
       if(taskHistory[task.id]) {
         taskHistory[task.id].percent = task.percent;
         $item = $transfer.find(`li#${task.id}`);
@@ -148,12 +150,24 @@ module.exports = function() {
 
     let innerBarWidth = ['error', 'aborted'].indexOf(task.subtype) === -1 ? percent : 100;
 
-    var dom = '<li id="'+task.id+'" class="task-'+task.subtype+'">'
+    var dom = '<li title="'+path.join(task.parent, task.name)+'" id="'+task.id+'" class="task-'+task.subtype+'">'
       +'<div class="gr-icon '+getIcon(task)+'"></div>'
       +'<div class="task-name">'+task.name+'</div>';
 
       if(task.subtype == 'finished') {
-        dom += '<div class="task-finish">'+ta.ago(task.datetime)+'</div>';
+        if(task.type == 'upload') {
+          dom += '<div class="task-finish">'+i18n.__('status.activities.upload', [ta.ago(task.datetime, true)])+'</div>';
+        } else if(task.type == 'download') {
+          dom += '<div class="task-finish">'+i18n.__('status.activities.download', [ta.ago(task.datetime, true)])+'</div>';
+        }
+      } else if(task.subtype == 'error') {
+        if(task.type == 'upload') {
+          dom += '<div class="task-finish">'+i18n.__('status.activities.upload_failed', [ta.ago(task.datetime, true)])+'</div>';
+        } else if(task.type == 'download') {
+          dom += '<div class="task-finish">'+i18n.__('status.activities.download_failed', [ta.ago(task.datetime, true)])+'</div>';
+        }
+      } else if(percent == 0) {
+          dom += '<div class="task-finish">'+i18n.__('status.activities.waiting')+'</div>';
       } else {
         dom += '<div class="task-progress"><div class="task-progress-inner" style="width: '+innerBarWidth+'%;"></div></div>';
       }

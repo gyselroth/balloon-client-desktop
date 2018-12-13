@@ -83,6 +83,11 @@
   "status.nav.notes": "Hinweise",
   "status.nav.quota": "Speicher",
 
+  "status.activities.waiting": "Ausstehend...",
+  "status.activities.upload": "vor %s (Upload)",
+  "status.activities.download": "vor %s (Download)",
+  "status.activities.upload_failed": "vor %s (Upload fehlgeschlagen)",
+  "status.activities.download_failed": "vor %s (Download fehlgeschagen)",
   "status.activities.empty": "Keine Aktivitäten vorhanden.",
   "status.errors.empty": "Gute Arbeit, keine Fehler vorhanden.",
 

@@ -12,9 +12,9 @@ module.exports = function(view) {
 
   function navigateTo(tab) {
     $navigationItems.removeClass('tab-navigation-active');
-    $tabContents.removeClass('tab-active');
+    $tabContents.addClass('tab-disable');
 
     $navigationItems.addBack().find('[href="#' + tab + '"]').parent('li').addClass('tab-navigation-active');
-    $tabContents.addBack().find('#' + tab).addClass('tab-active');
+    $tabContents.addBack().find('#' + tab).removeClass('tab-disable');
   }
 }
