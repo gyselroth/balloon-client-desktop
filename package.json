@@ -41,7 +41,7 @@
       "oneClick": false,
       "license": "LICENSE",
       "installerSidebar": "build/installerSidebar.bmp",
-      "uninstallerSidebar": "build/installerSidebar.bmp",
+      "uninstallerSidebar": "build/installerSidebar.bmp"
     },
     "publish": [
       {
