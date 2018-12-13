@@ -57,6 +57,7 @@ module.exports = {
   },
 
   setDirIcon: function(balloonDir) {
+console.log(getIcon());
     return nodeIcon.setFolderIcon(balloonDir, getIcon(), {
       cmd: getFileiconPath()
     });

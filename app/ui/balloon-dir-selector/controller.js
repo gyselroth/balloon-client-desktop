@@ -5,6 +5,7 @@ const {dialog} = require('electron');
 
 const i18n = require('../../lib/i18n.js');
 const logger = require('../../lib/logger.js');
+const fsUtility = require('../../lib/fs-utility.js');
 
 module.exports = function(env, clientConfig) {
   function showError(message) {
@@ -51,10 +52,23 @@ module.exports = function(env, clientConfig) {
             try {
               fs.renameSync(oldPath, newPath);
 
-              logger.info('moved existing balloonDir to new path', {category: 'balloon-dir-selector', oldPath, newPath});
+              Promise.all([
+                fsUtility.setDirIcon(newPath),
+                fsUtility.setDirShortcut(newPath),
+              ]).catch((error) => {
+                logger.error('failed to create bookmark and shortcut, continue anyway', {
+                  category: 'balloon-dir-selector',
+                  error: error,
+                });
 
-              clientConfig.set('balloonDir', newPath);
-              resolve({newPath, oldPath});
+                result();
+              }).then(() => {result();});
+
+              var result = function() {
+                logger.info('moved existing balloonDir to new path', {category: 'balloon-dir-selector', oldPath, newPath});
+                clientConfig.set('balloonDir', newPath);
+                resolve({newPath, oldPath});
+              };
             } catch(err) {
               logger.error('could not move existing balloonDir', {category: 'balloon-dir-selector', err});
               showError(i18n.__('balloonDirSelector.error.unknown'));
