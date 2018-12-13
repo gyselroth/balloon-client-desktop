@@ -66,7 +66,6 @@ module.exports = function() {
   let taskElements = {};
 
   ipcRenderer.on('transfer-task', function(event, task) {
-console.log("ON");
     if(taskHistory[task.id]) {
       taskHistory[task.id].subtype = task.subtype;
     } else {
