@@ -152,10 +152,6 @@ $('document').ready(function() {
 
 ipcRenderer.on('unlink-account-result', (event, result) => {
   showLogin = result;
-  if(result) {
-    //$('#quota').find('.used').width(0);
-    //$('#quota').find('.quota-text').html('');
-  }
 });
 
 ipcRenderer.on('link-account-result', (event, result) => {

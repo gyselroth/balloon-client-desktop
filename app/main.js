@@ -284,7 +284,16 @@ ipcMain.on('install-update', function() {
     category: 'main',
   });
 
-  autoUpdate.quitAndInstall();
+  dialog.showMessageBox(null, {
+    type: 'question',
+    buttons: [i18n.__('button.continue'), i18n.__('button.cancel')],
+    title: 'Update',
+    message: i18n.__('update.install'),
+  }, (buttonIndex) => {
+    if (0 === buttonIndex) {
+      autoUpdate.quitAndInstall();
+    }
+  });
 });
 
 ipcMain.on('check-for-update', function() {

@@ -22,9 +22,11 @@
 * CORE: [FIX] Use fileicon for osx diricon instead shipping by ourselfs #147
 * CORE: [FIX] Improve condition for api ping #1
 * CORE: [CHANGE] Only reset cursor and db when triggered by remote delta #152
+* SYNC: [CHANGE] Using @gyselroth/balloon-node-sync v0.3.0 including various sync fixes
 * UI: [FIX] Desktop ui freezes during initial sync on Ubuntu 18.04 #133
 * UI: [CHANGE] Display share/reference icon in selected sync tree #153
 * UI: [FIX] Two tray icon on linux mint 19 Tara #115
+* UI: [FEATURE] Implement prompt to confirm update #25
 
 
 ## 0.2.4
