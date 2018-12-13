@@ -24,6 +24,7 @@
 * CORE: [CHANGE] Only reset cursor and db when triggered by remote delta #152
 * UI: [FIX] Desktop ui freezes during initial sync on Ubuntu 18.04 #133
 * UI: [CHANGE] Display share/reference icon in selected sync tree #153
+* UI: [FIX] Two tray icon on linux mint 19 Tara #115
 
 
 ## 0.2.4
