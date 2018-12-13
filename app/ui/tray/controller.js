@@ -74,23 +74,22 @@ const Icons = {
   },
   default: {
     default: {
-      path: 'icon-tray-blue-16x16.png',
+      path: 'icon-tray-blue-32x32.png',
       animate: false,
       template: false
     },
     sync: {
-      path: 'icon-tray-blue-16x16-frame%d.png',
+      path: 'icon-tray-blue-32x32-sync.png',
       animate: false,
-      frames: 10,
       template: false
     },
     error: {
-      path: 'icon-tray-red-16x16.png',
+      path: 'icon-tray-red-32x32.png',
       animate: false,
       template: false
     },
     warning: {
-      path: 'icon-tray-orange-16x16.png',
+      path: 'icon-tray-orange-32x32.png',
       animate: false,
       template: false
     }
