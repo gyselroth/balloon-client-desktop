@@ -12,8 +12,8 @@
 * CORE: [CHANGE] Add env to instance #24
 * CORE: [CHANGE] Support unlimited quota #109
 * CORE: [FIX] reset instance after server changed #145
-* CORE: [CHANGE] display transfer status in try #103
-* CORE: [CHANGE] Allow to change location of BalloonDir #46
+* CORE: [FEATURE] display transfer status in tray #103
+* CORE: [FEATURE] Allow to change location of BalloonDir #46
 * CORE: [CHANGE] Handle 401 on getQuotaUsage requests #125
 * CORE: [CHANGE] If a last known server is available put it into the server field for auth (if instance was unlinked before) #149
 * CORE: [CHANGE] Replace fsinfo with output from systeminformation package #146

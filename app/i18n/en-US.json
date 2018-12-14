@@ -86,10 +86,10 @@
   "status.nav.quota": "Storage",
 
   "status.activities.waiting": "Waiting...",
-  "status.activities.upload": "%s ago (uploaded)",
-  "status.activities.download": "%s ago (downloaded)",
-  "status.activities.upload_failed": "%s ago (upload failed)",
-  "status.activities.download_failed": "%s ago (download failed)",
+  "status.activities.upload": "%s (uploaded)",
+  "status.activities.download": "%s (downloaded)",
+  "status.activities.upload_failed": "%s (upload failed)",
+  "status.activities.download_failed": "%s (download failed)",
   "status.activities.empty": "There is no activity yet.",
   "status.errors.empty": "Good job, there are no errors.",
 

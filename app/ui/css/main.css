@@ -257,7 +257,7 @@ p {
   margin: -10px 0 0 10px;
 }
 
-#status-transfer .task-finish {
+#status-transfer .task-finish, #status-transfer .task-queued {
   clear: both;
   position: relative;
   margin: 30px 0 0 36px;
