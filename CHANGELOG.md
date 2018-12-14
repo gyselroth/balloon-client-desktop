@@ -1,9 +1,9 @@
 ## 1.0.0-beta1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**:
+**Date**: Fri December 14 13:49:32 CET 2018
 
 * CORE: [CHANGE] Upgrade various dependencies, remove obsolete dependencies
-* CORE: [CHANGE] Upgrade @openid/appautg to v1.1.1 #143
+* CORE: [CHANGE] Upgrade @openid/appauth to v1.1.1 #143
 * CORE: [FIX] Catch errors on oidc sing in and revoke #137
 * CORE: [FIX] Re enable copy&paste in feedback and login fields #113
 * CORE: [CHANGE] Add context menu for feedback and basic auth login #101
