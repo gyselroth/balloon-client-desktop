@@ -5,7 +5,7 @@
 * CORE: [CHANGE] Upgrade various dependencies, remove obsolete dependencies
 * CORE: [CHANGE] Upgrade @openid/appauth to v1.1.1 #143
 * CORE: [FIX] Catch errors on oidc sing in and revoke #137
-* CORE: [FIX] Re enable copy&paste in feedback and login fields #113
+* CORE: [FIX] Enable copy&paste in feedback and login fields #113
 * CORE: [CHANGE] Add context menu for feedback and basic auth login #101
 * CORE: [CHANGE] Store temporary feedback in sessionStorage #111
 * CORE: [FIX] Hide loader after feedback send error #77
