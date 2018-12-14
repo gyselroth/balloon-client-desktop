@@ -46,7 +46,7 @@
   "about.updateNotAvailable": "Du hast bereits die neuste Version installiert",
   "about.updateError": "Ein Fehler ist aufgetreten, bitte versuche es später erneut",
 
-  "update.install": "Möchtest du die neuste balloon desktop client Version installieren?"
+  "update.install": "Möchtest du die neuste balloon desktop client Version installieren?",
 
   "feedback.includeSystemFiles": "Systeminformationen senden:",
   "feedback.text": "Vielen Dank, dass du balloon unterstützt:",

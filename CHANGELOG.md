@@ -1,3 +1,10 @@
+## 1.0.0-beta2
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri December 14 14:35:32 CET 2018
+
+* UI: [FIX] fixed crash tray with de locale
+
+
 ## 1.0.0-beta1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri December 14 13:49:32 CET 2018
