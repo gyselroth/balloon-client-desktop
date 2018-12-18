@@ -23,7 +23,7 @@ const loggerFactory = require('./lib/logger-factory.js');
 const configManager = require('./lib/config-manager/controller.js')(clientConfig);
 const globalConfig = require('./lib/global-config.js');
 
-var tray, selective, sync, feedback, autoUpdates;
+var tray, selective, sync, feedback, autoUpdate;
 
 var standardLogger = new loggerFactory(clientConfig.getAll());
 var startup = StartupCtrl(env, clientConfig);

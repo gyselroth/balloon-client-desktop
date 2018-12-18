@@ -50,7 +50,8 @@ module.exports = function(env, clientConfig) {
       fs.exists(balloonDir, (exists) => {
         if(exists === false) {
           logger.info('BalloonDir does not exist. Reseting db, last-cursor and creating BalloonDir', {
-            category: 'startup'
+            category: 'startup',
+            balloonDir
           });
 
           //when balloonDir does not exist, cursor and db have to be reset too

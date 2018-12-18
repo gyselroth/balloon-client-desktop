@@ -47,7 +47,7 @@ module.exports = function (env, clientConfig) {
                   reject(err);
                 });
             }).catch((error) => {
-              logger.info('failed to retrieve accessToken, request new refreshToken', {category: 'openid-connect'});
+              logger.info('failed to retrieve accessToken, request new refreshToken', {category: 'openid-connect', error});
 
               makeAuthorizationRequest(config)
                 .then(() => {
