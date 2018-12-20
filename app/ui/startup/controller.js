@@ -11,7 +11,6 @@ const configManagerCtrl = require('../../lib/config-manager/controller.js');
 const autoLaunch = require('../../lib/auto-launch.js');
 const contextMenuFactory = require('../../lib/context-menu-factory.js');
 const instance = require('../../lib/instance.js');
-const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 
 const logger = require('../../lib/logger.js');
 
@@ -117,31 +116,6 @@ module.exports = function(env, clientConfig) {
     });
   }
 
-  function initializeIgnoreDb(newInstance) {
-    return new Promise(function(resolve, reject) {
-      if(newInstance !== true) return resolve();
-
-      var sync = fullSyncFactory(clientConfig.getAll(true), logger);
-
-      sync.blnApi.queryNodes({shared:true, reference:{'$exists':true}}, (err, result) => {
-        if(err) {
-          logger.error('Could not fetch consumed shares', {category: 'startup', err});
-          return reject();
-        }
-
-        logger.info('got shares consumed by current user', {category: 'startup', result});
-
-        sync.initializeIgnoreDb(result).then(() => {
-          logger.info('initialized ignore db', {category: 'startup', shares});
-          resolve();
-        }).catch(err => {
-          logger.error('Could not inititalize ignore DB', {category: 'startup', err});
-          return reject();
-        });
-      });
-    });
-  }
-
   function askCredentials() {
     return new Promise(function(resolve, reject) {
       logger.debug('ask user for authentication credentials', {category: 'startup'});
@@ -172,9 +146,6 @@ module.exports = function(env, clientConfig) {
           startupWindow.removeListener('closed', windowClosedByUserHandler);
           auth.basicAuth(username, password)
             .then((newInstance) => {
-              return initializeIgnoreDb(newInstance);
-            })
-            .then(() => {
               if(!clientConfig.hadConfig()) {
                 resolve({welcomeWizardPromise: welcomeWizard()});
               } else {
@@ -206,9 +177,6 @@ module.exports = function(env, clientConfig) {
           startupWindow.removeListener('closed', windowClosedByUserHandler);
           auth.oidcAuth(idpConfig)
             .then((newInstance) => {
-              return initializeIgnoreDb(newInstance);
-            })
-            .then(() => {
               if(!clientConfig.hadConfig()) {
                 resolve({welcomeWizardPromise: welcomeWizard()});
               } else {

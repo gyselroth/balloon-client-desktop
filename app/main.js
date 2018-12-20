@@ -316,7 +316,13 @@ ipcMain.on('sync-toggle-pause', () => {
 });
 
 ipcMain.on('selective-open', function(event) {
-  selective.open();
+  if(sync) {
+    sync.ignoreNewShares(err => {
+      selective.open();
+    });
+  } else {
+    selective.open();
+  }
 });
 
 ipcMain.on('selective-close', function(event) {
