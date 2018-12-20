@@ -151,6 +151,7 @@ function startApp() {
 
     tray = TrayCtrl(env, clientConfig);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
+
     ipc.listen((data) => {
       switch(data.type) {
         case 'open-burl':

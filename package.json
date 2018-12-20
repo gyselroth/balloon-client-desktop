@@ -85,7 +85,7 @@
   },
   "devDependencies": {
     "electron": "^2.0.0",
-    "electron-builder": "20.38.2",
+    "electron-builder": "20.34.0",
     "gulp": "~3.9.1",
     "minimist": "~1.2.0"
   },
@@ -101,7 +101,7 @@
     "electron-is-dev": "~1.0.1",
     "electron-settings": "~3.2.0",
     "electron-traywindow-positioner": "~0.0.2",
-    "electron-updater": "^4.0.0",
+    "electron-updater": "^2.23.3",
     "escape-string-regexp": "~1.0.5",
     "graceful-fs": "^4.1.15",
     "handlebars": "^4.0.12",
