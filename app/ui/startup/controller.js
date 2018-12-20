@@ -131,13 +131,7 @@ module.exports = function(env, clientConfig) {
 
         logger.info('got shares consumed by current user', {category: 'startup', result});
 
-        var shares = [];
-
-        for(i in result) {
-          shares.push(result[i]);
-        }
-
-        sync.initializeIgnoreDb(shares).then(() => {
+        sync.initializeIgnoreDb(result).then(() => {
           logger.info('initialized ignore db', {category: 'startup', shares});
           resolve();
         }).catch(err => {
