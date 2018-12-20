@@ -93,9 +93,9 @@
   "status.activities.empty": "There is no activity yet.",
   "status.errors.empty": "Good job, there are no errors.",
 
-  "status.quota.used": "Used storage",
-  "status.quota.left": "Available storage",
-  "status.quota.max": "Total storage",
+  "status.quota.used": "Used",
+  "status.quota.left": "Available",
+  "status.quota.max": "Total",
   "status.quota.unlimited": "Unlimited",
 
   "button.cancel": "Cancel",

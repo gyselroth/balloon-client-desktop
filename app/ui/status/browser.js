@@ -33,15 +33,15 @@ function showQuota(sync) {
     } else {
       percent =  Math.round(data.used / data.hard_quota * 100, 0);
     }
+percent = 73;
 
     $('#status-quota-used').find('td').html(prettyBytes(data.used));
     $('#status-quota').find('.chart').addClass('chart-'+percent);
 
-    if(data.hard_quota === 0) {
-      $('#status-quota-free').find('td').html(i18n.__('status.quota.unlimited'));
+    if(data.hard_quota === -1) {
+      $('#status-quota-left').find('td').html(i18n.__('status.quota.unlimited'));
       $('#status-quota-max').find('td').html(i18n.__('status.quota.unlimited'));
     } else {
-      $('#status-quota-free').find('td').html(prettyBytes(data.available));
       $('#status-quota-max').find('td').html(prettyBytes(data.hard_quota));
     }
   });

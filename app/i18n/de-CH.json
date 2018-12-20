@@ -93,9 +93,9 @@
   "status.activities.empty": "Keine Aktivitäten vorhanden.",
   "status.errors.empty": "Gute Arbeit, keine Fehler vorhanden.",
 
-  "status.quota.used": "Benutzter Speicherplatz",
-  "status.quota.left": "Freier Speicherplatz",
-  "status.quota.max": "Gesamter Speicherplatz",
+  "status.quota.used": "Benutzt",
+  "status.quota.left": "Frei",
+  "status.quota.max": "Gesamt",
   "status.quota.unlimited": "Unlimitiert",
 
   "button.send": "Senden",
