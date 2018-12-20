@@ -1,3 +1,10 @@
+## 1.0.0-beta3
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Thu December 20 14:29:34 CET 2018
+
+* CORE: [FIX] Upgrade from 0.2.4 to 1.0.0-beta1 unlinked active instance #160
+
+
 ## 1.0.0-beta2
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri December 14 14:35:32 CET 2018

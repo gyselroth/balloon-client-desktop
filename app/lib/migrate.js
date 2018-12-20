@@ -18,7 +18,7 @@ function readMigrations(callback) {
 
     try {
       nodes.forEach(function(node) {
-        let matches = node.match(/^v([0-9]+\.[0-9]+\.[0-9]+)\.js$/);
+        let matches = node.match(/^v([0-9]+\.[0-9]+\.[0-9]+|[0-9]+\.[0-9]+\.[0-9]+\-[0-9a-z]+)\.js$/);
         if (matches !== null) {
           migrations[matches[1]] = require(path.join(migrationsPath, node));
         }
