@@ -7,6 +7,7 @@
 * CORE: [FIX] Instances not in feedbacks metadata #157
 * UI: [FIX] Used Storage Percentage #159
 * UI: [FIX] Fixed de-CH and en-US translations
+* SYNC: [CHANGE] Upgrade sync to v0.3.0-beta1
 
 
 ## 1.0.0-beta2

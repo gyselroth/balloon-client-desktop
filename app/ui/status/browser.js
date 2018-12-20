@@ -33,7 +33,6 @@ function showQuota(sync) {
     } else {
       percent =  Math.round(data.used / data.hard_quota * 100, 0);
     }
-percent = 73;
 
     $('#status-quota-used').find('td').html(prettyBytes(data.used));
     $('#status-quota').find('.chart').addClass('chart-'+percent);
