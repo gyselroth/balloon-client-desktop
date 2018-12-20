@@ -3,8 +3,10 @@
 **Date**: Thu December 20 14:29:34 CET 2018
 
 * CORE: [FIX] Upgrade from 0.2.4 to 1.0.0-beta1 unlinked active instance #160
-* UI: [FIX] Used Storage Percentage #159
 * CORE: [FIX] TypeError: this.app.whenReady is exception #158
+* CORE: [FIX] Instances not in feedbacks metadata #157
+* UI: [FIX] Used Storage Percentage #159
+* UI: [FIX] Fixed de-CH and en-US translations
 
 
 ## 1.0.0-beta2

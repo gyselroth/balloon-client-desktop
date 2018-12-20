@@ -10,8 +10,8 @@
   "menu.edit.paste": "Paste",
   "menu.edit.select": "Select all",
 
-  "tray.item.gotofolder": "Open Balloon folder",
-  "tray.item.openinbrowser": "Visit Balloon online",
+  "tray.item.gotofolder": "Open balloon folder",
+  "tray.item.openinbrowser": "Visit balloon online",
   "tray.item.installupdate": "Install update",
   "tray.item.menu": "Open tray menu",
   "tray.menu.startSync": "Start synchronization",
@@ -113,11 +113,11 @@
   "error.auth.basic": "Authentication failed",
   "error.auth.oidc": "There was an error authenticating your account with the choosen identity provider.",
 
-  "balloonDirSelector.title": "Chose location for balloonDir",
+  "balloonDirSelector.title": "Choose location for the balloon folder",
   "balloonDirSelector.error.title": "Error",
-  "balloonDirSelector.error.unknown": "Moving your Balloon failed, please try again later.",
-  "balloonDirSelector.error.moveIntoItself": "Can't move your Balloon into itself.",
-  "balloonDirSelector.error.targetExists": "There is already a Balloon at the given path.",
+  "balloonDirSelector.error.unknown": "Moving your balloon folder failed, please try again later.",
+  "balloonDirSelector.error.moveIntoItself": "Can not move your balloon folder into itself.",
+  "balloonDirSelector.error.targetExists": "There is already a balloon folder at the given path.",
 
   "burl.prompt": "Do you want to open the following URL in your browser?",
   "burl.invalid-url": "The URL is not valid:"

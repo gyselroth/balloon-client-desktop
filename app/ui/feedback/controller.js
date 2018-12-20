@@ -151,29 +151,15 @@ module.exports = function(env, clientConfig) {
 
         archive.pipe(req);
 
-        appendLogFilesToArchive(archive, true);
-
-        var dbPath = path.join(clientConfig.get('configDir'), 'db', 'nodes.db');
-        if(fs.existsSync(dbPath)) {
-          archive.append(fs.createReadStream(dbPath), { name: 'report/nodes.db' });
-        }
-
-        var errorDbPath = path.join(clientConfig.get('configDir'), 'db', 'api-error-queue.db');
-        if(fs.existsSync(errorDbPath)) {
-          archive.append(fs.createReadStream(errorDbPath), { name: 'report/api-error-queue.db' });
-        }
-
-        var transferDbPath = path.join(clientConfig.get('configDir'), 'db', 'transfer.db');
-        if(fs.existsSync(transferDbPath)) {
-          archive.append(fs.createReadStream(transferDbPath), { name: 'report/transfer.db' });
-        }
-
-        var remoteDeltaLogDbPath = path.join(clientConfig.get('configDir'), 'db', 'remotedelta-log.db');
-        if(fs.existsSync(remoteDeltaLogDbPath)) {
-          archive.append(fs.createReadStream(remoteDeltaLogDbPath), { name: 'report/remotedelta-log.db' });
-        }
-
         async.parallel([
+          async.reflect(async (cb) => {
+            archive.glob('**/*', {
+              cwd: clientConfig.get('configDir'),
+              ignore: ['**/temp/**'],
+            });
+
+            cb(null);
+          }),
           async.reflect(async (cb) => {
             archive.append(await getMetaData(), {name: 'report/metadata.json'});
             cb(null);
@@ -228,8 +214,6 @@ module.exports = function(env, clientConfig) {
     var offset = now.getTimezoneOffset();
     var absOffset = Math.abs(offset);
 
-    var config = extend({}, clientConfig.getAll());
-
     function pad(value) {
       return value < 10 ? '0' + value : value;
     }
@@ -254,33 +238,17 @@ module.exports = function(env, clientConfig) {
     var metaData = {
       version: app.getVersion(),
       hasToken: clientConfig.get('accessToken') !== undefined,
-      lastCursor: getLastCursor(),
       date: {
         utc: now,
         offset: (offset > 0 ? '-' : '+') + pad(Math.floor(absOffset / 60)) + ':' + pad(absOffset % 60)
       },
       locale: app.getLocale(),
-      config,
       env: envForReport,
       system: system,
       localEnv: process.env
     }
 
-    delete metaData.config.accessToken;
-
     return JSON.stringify(metaData, null, 2);
-  }
-
-  function getLastCursor() {
-    var pathCursorStorage = path.join(clientConfig.get('configDir'), 'last-cursor');
-
-    if(fs.existsSync(pathCursorStorage)) {
-      var cursorFromStorage = fs.readFileSync(pathCursorStorage).toString();
-
-      return cursorFromStorage !== '' ? cursorFromStorage : undefined;
-    }
-
-    return undefined;
   }
 
   function createDirectorySnapshot(callback) {
