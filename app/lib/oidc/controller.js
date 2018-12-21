@@ -4,7 +4,8 @@ const {AuthorizationNotifier, AuthorizationRequestHandler, AuthorizationRequestR
 const {AuthorizationResponse} = require('@openid/appauth/built/authorization_response.js');
 const {AuthorizationServiceConfiguration} = require('@openid/appauth/built/authorization_service_configuration.js');
 const {NodeBasedHandler} = require('@openid/appauth/built/node_support/node_request_handler.js');
-const {NodeRequestor} = require('@openid/appauth/built/node_support/node_requestor.js');
+const {NodeRequestor, NodeCrypto} = require('@openid/appauth/built/node_support/index.js');
+
 const {GRANT_TYPE_AUTHORIZATION_CODE, GRANT_TYPE_REFRESH_TOKEN, TokenRequest} = require('@openid/appauth/built/token_request.js');
 const {RevokeTokenRequest} = require('@openid/appauth/built/revoke_token_request.js');
 const {BaseTokenRequestHandler, TokenRequestHandler} = require('@openid/appauth/built/token_request_handler.js');
@@ -36,28 +37,30 @@ module.exports = function (env, clientConfig) {
             });
 
             makeAccessTokenRequest(configuration, secret).then((response) => {
-              clientConfig.storeSecret('accessToken', response.accessToken).then(() => {
-                clientConfig.set('accessTokenExpires', response.issuedAt + response.expiresIn);
-                resolve();
-              }).catch((error) => {
-                reject(error)
-              });
-            }).catch((error) => {
-              logger.info('failed to retrieve accessToken, request new refreshToken', {
-                category: 'openid-connect',
-                error: error
-              });
-
-              makeAuthorizationRequest(config).then((error) => {
-                resolve(true);
-              }).catch((error) => {
-                logger.error('failed to retrieve refreshToken', {
-                  category: 'openid-connect',
-                  error: error
+              clientConfig.storeSecret('accessToken', response.accessToken)
+                .then(() => {
+                  clientConfig.set('accessTokenExpires', response.issuedAt + response.expiresIn);
+                  resolve();
+                })
+                .catch(err => {
+                  logger.error('Could not store accessToken', {catgory: 'openid-connect', err});
+                  reject(err);
                 });
+            }).catch((error) => {
+              logger.info('failed to retrieve accessToken, request new refreshToken', {category: 'openid-connect', error});
 
-                reject(error);
-              });
+              makeAuthorizationRequest(config)
+                .then(() => {
+                  resolve(true);
+                })
+                .catch((error) => {
+                  logger.error('failed to retrieve refreshToken', {
+                    category: 'openid-connect',
+                    error: error
+                  });
+
+                  reject(error);
+                });
             });
           }).catch((error) => {
             logger.error('failed to read refreshToken from secret store', {
@@ -79,7 +82,7 @@ module.exports = function (env, clientConfig) {
             reject(error);
           });
         }
-      });
+      }).catch(reject); //catch fetchServiceConfiguration
     });
   }
 
@@ -100,9 +103,13 @@ module.exports = function (env, clientConfig) {
 
   function fetchServiceConfiguration() {
     return AuthorizationServiceConfiguration.fetchFromIssuer(idpConfig.providerUrl, requestor)
-        .then(response => {
-          return response;
-        });
+      .then(response => {
+        return response;
+      })
+      .catch(err => {
+        logger.error('Could not fetch service configuration', {category: 'openid-connect', err});
+        throw err;
+      });
    }
 
   function makeAuthorizationRequest(AuthorizationServiceConfiguration) {
@@ -115,77 +122,131 @@ module.exports = function (env, clientConfig) {
           error: error
         });
 
-        if (response) {
-          makeRefreshTokenRequest(configuration, response.code)
+        let codeVerifier;
+        if(request && request.internal && request.internal.code_verifier) {
+          codeVerifier = request.internal.code_verifier;
+        }
+
+        if(response) {
+          makeRefreshTokenRequest(configuration, response.code, codeVerifier)
             .then((result) => {
+
               clientConfig.storeSecret('refreshToken', result.refreshToken).then(() => {
                 clientConfig.set('authMethod', 'oidc');
                 clientConfig.set('oidcProvider', idpConfig.providerUrl);
+
                 makeAccessTokenRequest(configuration, result.refreshToken).then((access) => {
                   clientConfig.storeSecret('accessToken', access.accessToken).then(() => {
                     clientConfig.set('accessTokenExpires', access.issuedAt + access.expiresIn);
                     resolve();
-                  }).catch((error) => {
-                    reject(error)
+                  }).catch(err => {
+                    logger.error('Could not store accessToken', {category: 'openid-connect', err})
+                    reject(err);
                   });
-                });
-              }).catch((error) =>{
-                reject(error)
+                }).catch(reject); //catch makeAccessTokenRequest;
+
+              }).catch((err) =>{
+                logger.error('Could not store refreshToken', {category: 'openid-connect', err})
+                reject(err);
               });
-            });
+
+            }).catch(reject); //catch makeRefreshTokenRequest
         } else {
           reject(error);
         }
-    });
+      });
 
-    // create a request
-    let request = new AuthorizationRequest(
-        idpConfig.clientId, idpConfig.redirectUri, idpConfig.scope, AuthorizationRequest.RESPONSE_TYPE_CODE,
-        undefined, /* state */
-        {'prompt': 'consent', 'access_type': 'offline'});
+      // create a request
+      let request = new AuthorizationRequest({
+        client_id: idpConfig.clientId,
+        redirect_uri: idpConfig.redirectUri,
+        scope: idpConfig.scope,
+        response_type: AuthorizationRequest.RESPONSE_TYPE_CODE,
+        state: undefined,
+        extras: {'prompt': 'consent', 'access_type': 'offline'}
+      }, new NodeCrypto());
 
-    logger.info('oauth2 authorization request', {
-      category: 'openid-connect',
-      config: configuration,
-      request: request
-    });
+      logger.info('oauth2 authorization request', {
+        category: 'openid-connect',
+        config: configuration,
+        request: request
+      });
 
-    authorizationHandler.performAuthorizationRequest(configuration, request);
+      authorizationHandler.performAuthorizationRequest(configuration, request);
    });
   }
 
-  function makeRefreshTokenRequest(configuration, code) {
-    // use the code to make the token request.
-    let request = new TokenRequest(
-        idpConfig.clientId, idpConfig.redirectUri, GRANT_TYPE_AUTHORIZATION_CODE, code, undefined, {'client_secret': idpConfig.clientSecret});
+  function makeRefreshTokenRequest(configuration, code, codeVerifier) {
+    let extras = {'client_secret': idpConfig.clientSecret};
 
-    return tokenHandler.performTokenRequest(configuration, request).then(response => {
-      logger.info('retrieved oauth2 refresh token', {category: 'openid-connect'});
-      return response;
+    if(codeVerifier) {
+      extras['code_verifier'] = codeVerifier;
+    }
+
+    // use the code to make the token request.
+    let request = new TokenRequest({
+      client_id: idpConfig.clientId,
+      redirect_uri: idpConfig.redirectUri,
+      grant_type: GRANT_TYPE_AUTHORIZATION_CODE,
+      code: code,
+      refresh_token: undefined,
+      extras: extras
     });
+
+    return tokenHandler.performTokenRequest(configuration, request)
+      .then(response => {
+        logger.info('retrieved oauth2 refresh token', {category: 'openid-connect'});
+        return response;
+      })
+      .catch(err => {
+        logger.error('refresh token request failed', {category: 'openid-connect', err});
+        throw err;
+      });
   }
 
   function makeAccessTokenRequest(configuration, refreshToken) {
-    let request = new TokenRequest(
-        idpConfig.clientId, idpConfig.redirectUri, GRANT_TYPE_REFRESH_TOKEN, undefined, refreshToken, {'client_secret': idpConfig.clientSecret});
-
-    return tokenHandler.performTokenRequest(configuration, request).then(response => {
-      logger.info('retrieved oauth2 access token', {category: 'openid-connect'});
-      return response;
+    let request = new TokenRequest({
+      client_id: idpConfig.clientId,
+      redirect_uri: idpConfig.redirectUri,
+      grant_type: GRANT_TYPE_REFRESH_TOKEN,
+      code: undefined,
+      refresh_token: refreshToken,
+      extras: {'client_secret': idpConfig.clientSecret}
     });
+
+    return tokenHandler.performTokenRequest(configuration, request)
+      .then(response => {
+        logger.info('retrieved oauth2 access token', {category: 'openid-connect'});
+        return response;
+      })
+      .catch(err => {
+        logger.error('access token request failed', {category: 'openid-connect', err});
+        throw err;
+      });
   }
 
   function makeRevokeTokenRequest(configuration, refreshToken) {
-    if(idpConfig.revokeAuthenticationRequired === false) {
-      var request = new RevokeTokenRequest(refreshToken, 'refresh_token');
-    } else {
-      var request = new RevokeTokenRequest(refreshToken, 'refresh_token', idpConfig.clientId, idpConfig.clientSecret);
+    let options = {
+      token: refreshToken,
+      tokenTypeHint: 'refresh_token',
+    };
+
+    if(idpConfig.revokeAuthenticationRequired !== false) {
+      options.client_id = idpConfig.clientId;
+      options.client_secret = idpConfig.clientSecret;
     }
 
-    return tokenHandler.performRevokeTokenRequest(configuration, request).then(response => {
-      logger.info('revoked refreshToken', {category: 'openid-connect'});
-      return response;
-    });
+    let request = new RevokeTokenRequest(options);
+
+    return tokenHandler.performRevokeTokenRequest(configuration, request)
+      .then(response => {
+        logger.info('revoked refreshToken', {category: 'openid-connect'});
+        return response;
+      })
+      .catch(err => {
+        logger.error('revoke token request failed', {category: 'openid-connect', err});
+        throw err;
+      });
   }
 
   function revokeToken(idp) {
@@ -196,16 +257,7 @@ module.exports = function (env, clientConfig) {
         initIdp();
         clientConfig.retrieveSecret('refreshToken').then((secret) => {
           logger.debug('found refreshToken to revoke', {category: 'openid-connect'})
-          makeRevokeTokenRequest(configuration, secret).then((response) => {
-            resolve();
-          }).catch((error) => {
-            logger.info('failed to revoke refreshToken', {
-              category: 'openid-connect',
-              error: error
-            });
-
-            reject(error);
-          });
+          makeRevokeTokenRequest(configuration, secret).then(resolve).catch(reject);
         }).catch((error) => {
           logger.error('can not revoke token, token can not be fetched from secret storage', {
             category: 'openid-connect',
@@ -214,7 +266,7 @@ module.exports = function (env, clientConfig) {
 
           reject(error);
         });
-      });
+      }).catch(reject); //catch fetchServiceConfiguration
     });
   }
 

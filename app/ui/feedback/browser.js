@@ -11,11 +11,30 @@ const app = electron.remote.app;
 module.exports = function() {
   function init() {
     var $feedback = $('#feedback');
+    var $file = $feedback.find('input[name="file"]');
+    var $text = $feedback.find('textarea');
+    var $loader = $feedback.find('.loader');
+    var $submit = $feedback.find('button#feedback-send');
 
-    $feedback.find('button').click(function(){
-      var file = $feedback.find('input').is(':checked');
-      var text = $feedback.find('textarea').val();
-      var $loader = $feedback.find('.loader');
+    var fileVal = sessionStorage.getItem('feedback.file') !== 'false';
+    var textVal = sessionStorage.getItem('feedback.text') || '';
+
+    $text.val(textVal);
+    $file.prop('checked', fileVal);
+
+    $file.off('change').on('change', function(event) {
+      sessionStorage.setItem('feedback.file', $file.is(':checked'));
+    });
+
+    $text.off('change').on('change', function(event) {
+      sessionStorage.setItem('feedback.text', $text.val());
+    });
+
+    $submit.click(function(){
+      var file = $file.is(':checked');
+      var text = $text.val();
+
+      $submit.prop('disabled', true);
 
       if($loader.is(':visible')) {
         return;
@@ -33,13 +52,17 @@ module.exports = function() {
     })
 
     ipcRenderer.on('feedback-send-result', function(event, result){
+      $submit.prop('disabled', false);
+      $loader.hide();
+
       if(result === false) {
         $('#feedback-success').hide();
         $('#feedback-error-send').show();
       } else {
-        $feedback.find('.loader').hide();
         $('#feedback-success').show();
         $feedback.find('.error-message').hide();
+        sessionStorage.removeItem('feedback.file');
+        sessionStorage.removeItem('feedback.text');
       }
     });
   }

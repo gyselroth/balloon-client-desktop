@@ -10,8 +10,8 @@
   "menu.edit.paste": "Paste",
   "menu.edit.select": "Select all",
 
-  "tray.item.gotofolder": "Open Balloon folder",
-  "tray.item.openinbrowser": "Visit Balloon online",
+  "tray.item.gotofolder": "Open balloon folder",
+  "tray.item.openinbrowser": "Visit balloon online",
   "tray.item.installupdate": "Install update",
   "tray.item.menu": "Open tray menu",
   "tray.menu.startSync": "Start synchronization",
@@ -23,13 +23,21 @@
   "tray.menu.settings": "Settings",
   "tray.menu.feedback": "Give feedback",
   "tray.menu.close": "Quit balloon",
+  "tray.menu.status": "Status",
   "tray.tooltip.state.default": "Your balloon is synchronized",
   "tray.tooltip.state.check": "Your balloon is synchronized",
-  "tray.tooltip.state.offline": "No data can be synced, because there is no internet connection.",
+  "tray.tooltip.state.offline": "No internet connection",
   "tray.tooltip.state.loggedout": "No account linked",
   "tray.tooltip.state.pause": "Synchronization has been paused",
   "tray.tooltip.state.sync": "Synchronization in progress",
   "tray.tooltip.state.update": "Update ready to install",
+
+  "tray.sync.status.offline": "No internet connection.",
+  "tray.sync.status.loggedout": "No account linked.",
+  "tray.sync.status.pause": "Synchronization is paused.",
+  "tray.sync.status.start": "Creating index...",
+  "tray.sync.status.transfer": "Transfer data...",
+  "tray.sync.status.default": "Your balloon is synchronized.",
 
   "about.see_github": "Check out github",
   "about.github_repo": "gyselroth/balloon-client-desktop",
@@ -38,13 +46,14 @@
   "about.updateNotAvailable": "You already have the latest version installed",
   "about.updateError": "There was an error during the update, please try it again later",
 
+  "update.install": "Would you like to install the latest balloon desktop client version?",
+
   "feedback.includeSystemFiles": "Include system information:",
   "feedback.text": "We appreciate any feedback you might given us:",
   "feedback.sent": "Thank you for your feedback!",
   "feedback.error.send": "We encountered an error during sending your feedback, please try it again later!",
   "feedback.error.empty": "Please provide a feedback message before sending!",
 
-  "settings": "Settings",
   "settings.nav.global": "All users",
   "settings.nav.user": "Current user",
   "settings.autolaunch": "Start balloon on startup",
@@ -53,9 +62,10 @@
   "settings.selective.title": "Selective synchronization",
   "settings.selective.setup": "Change settings...",
   "settings.selective.choosePath": "Select all folder and files you want to be in sync with your balloon cloud:",
-  "settings.selective.updateing": "Updateing folders to be synced.",
+  "settings.selective.updateing": "Updating folders to be synced.",
   "settings.selective.noCollections": "No collections exist.",
-
+  "settings.balloonDir.title": "balloon directory",
+  "settings.balloonDir.message": "Change the directory for your balloon:",
 
   "startup.title": "Setup balloon",
   "startup.server.title": "Welcome to balloon",
@@ -70,6 +80,24 @@
   "startup.auth.password": "Password",
   "startup.auth.message": "Authenticate your account with balloon:",
 
+  "status.nav.activities": "Activities",
+  "status.nav.error": "Errors",
+  "status.nav.notes": "Notes",
+  "status.nav.quota": "Storage",
+
+  "status.activities.waiting": "Waiting...",
+  "status.activities.upload": "%s (uploaded)",
+  "status.activities.download": "%s (downloaded)",
+  "status.activities.upload_failed": "%s (upload failed)",
+  "status.activities.download_failed": "%s (download failed)",
+  "status.activities.empty": "There is no activity yet.",
+  "status.errors.empty": "Good job, there are no errors.",
+
+  "status.quota.used": "Used",
+  "status.quota.left": "Available",
+  "status.quota.max": "Total",
+  "status.quota.unlimited": "Unlimited",
+
   "button.cancel": "Cancel",
   "button.send": "Send",
   "button.close": "Close",
@@ -83,5 +111,14 @@
   "error.blnUrl.notreachable": "The Server entered can not be reached. Please make sure to enter the correct server.",
   "error.blnUrl.offline": "It looks like the balloon server can not be reached. Please make sure you have a valid internet connection.",
   "error.auth.basic": "Authentication failed",
-  "error.auth.oidc": "There was an error authenticating your account with the choosen identity provider."
+  "error.auth.oidc": "There was an error authenticating your account with the choosen identity provider.",
+
+  "balloonDirSelector.title": "Choose location for the balloon folder",
+  "balloonDirSelector.error.title": "Error",
+  "balloonDirSelector.error.unknown": "Moving your balloon folder failed, please try again later.",
+  "balloonDirSelector.error.moveIntoItself": "Can not move your balloon folder into itself.",
+  "balloonDirSelector.error.targetExists": "There is already a balloon folder at the given path.",
+
+  "burl.prompt": "Do you want to open the following URL in your browser?",
+  "burl.invalid-url": "The URL is not valid:"
 }

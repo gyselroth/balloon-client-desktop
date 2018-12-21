@@ -55,8 +55,8 @@ module.exports = function(env, clientConfig) {
 
     return new Promise(function(resolve, reject){
       clientConfig.storeSecret('password', password).then(() => {
-        verifyNewLogin().then((username) => {
-          resolve();
+        verifyNewLogin().then((newInstance) => {
+          resolve(newInstance);
         }).catch((error) => {
           logger.error('failed signin via basic auth', {
             category: 'auth',
@@ -94,7 +94,7 @@ module.exports = function(env, clientConfig) {
 
           reject()
         } else {
-          verifyAuthentication().then((username) => {
+          verifyAuthentication().then(() => {
             resolve();
           }).catch((error) => {
             logger.error('failed refresh access_token', {
@@ -113,8 +113,8 @@ module.exports = function(env, clientConfig) {
     return new Promise(function(resolve, reject) {
       oidc.signin(idpConfig).then((authorization) => {
         if(authorization === true)  {
-          verifyNewLogin().then((username) => {
-            resolve();
+          verifyNewLogin().then((newInstance) => {
+            resolve(newInstance);
           }).catch((error) => {
             clientConfig.set('oidcProvider', undefined);
             logger.error('failed signin new authorization via oidc', {
@@ -125,8 +125,8 @@ module.exports = function(env, clientConfig) {
             reject(error)
           });
         } else {
-          verifyAuthentication().then((username) => {
-            resolve();
+          verifyAuthentication().then(() => {
+            resolve(false);
           }).catch((error) => {
             clientConfig.set('oidcProvider', undefined);
             logger.error('failed signin via oidc', {
@@ -256,7 +256,8 @@ module.exports = function(env, clientConfig) {
     });
   }
 
-  function verifyNewLogin(oldUser, newUser) {
+  function verifyNewLogin() {
+    //resolves with booelan true if a new instance was created (aka never seen user)
     return new Promise(function(resolve, reject) {
       var sync = fullSyncFactory(clientConfig.getAll(true), logger);
       sync.blnApi.whoami(function(err, username) {
@@ -281,14 +282,14 @@ module.exports = function(env, clientConfig) {
         if(!instance.getInstances()) {
           instance.setNewInstance(clientConfig).then(() => {
             clientConfig.set('loggedin', true);
-            resolve();
+            resolve(true);
           });
         } else {
           var instanceName = instance.getInstance(clientConfig);
 
           if(instanceName === instance.getLastActiveInstance()) {
             instance.loadInstance(instanceName, clientConfig).then(() => {
-              resolve();
+              resolve(false);
               clientConfig.set('loggedin', true);
             }).catch(error => {
               reject(error);
@@ -298,11 +299,11 @@ module.exports = function(env, clientConfig) {
               if(instanceName === null) {
                 instance.setNewInstance(clientConfig).then(() => {
                   clientConfig.set('loggedin', true);
-                  resolve();
+                  resolve(true);
                 });
               } else {
                 instance.loadInstance(instanceName, clientConfig).then(() => {
-                  resolve();
+                  resolve(false);
                   clientConfig.set('loggedin', true);
                 }).catch((error) => {
                   reject(error);

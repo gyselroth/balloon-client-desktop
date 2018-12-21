@@ -143,11 +143,23 @@ module.exports = function() {
     getActiveInstance: function() {
       return instances.active;
     },
+    getInstanceByName: function(name) {
+      if(!instances.instances || !instances.instances[name]) {
+        throw new Error('requested instance '+name+' does not exists');
+      }
+
+      return instances.instances[name];
+    },
     getInstance: function(clientConfig) {
       if(instances.instances) {
         for(instance in instances.instances) {
-          if(instances.instances[instance].server === clientConfig.get('blnUrl')
-           && instances.instances[instance].username === clientConfig.get('username')) {
+          if(
+            instances.instances[instance].server === clientConfig.get('blnUrl')
+            &&
+            instances.instances[instance].username === clientConfig.get('username')
+            &&
+            instances.instances[instance].context === clientConfig.get('context')
+          ) {
             return instance;
           }
         }
@@ -159,8 +171,8 @@ module.exports = function() {
     loadInstance: function(name, clientConfig) {
       var switchInstance = function() {
         instances.active = name;
-        instances.instances[instance].balloonDir = undefined;
-        instances.instances[instance].balloonDirIno = undefined;
+        instances.instances[name].balloonDir = undefined;
+        instances.instances[name].balloonDirIno = undefined;
         persist();
         clientConfig.initialize();
       };
@@ -194,7 +206,8 @@ module.exports = function() {
       var name = getNewInstanceName();
       instances.instances[name] = {
         server: clientConfig.get('blnUrl'),
-        username: clientConfig.get('username')
+        username: clientConfig.get('username'),
+        context: clientConfig.get('context')
       };
 
       instances.active = name;

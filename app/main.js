@@ -1,5 +1,5 @@
 const electron = require('electron');
-const {app, ipcMain} = require('electron');
+const {app, ipcMain, dialog} = require('electron');
 
 const env = require('./env.js');
 const clientConfig = require('./lib/config.js');
@@ -13,6 +13,10 @@ const AuthCtrl = require('./lib/auth/controller.js');
 const AutoUpdateCtrl = require('./lib/auto-update/controller.js');
 const FeedbackCtrl = require('./ui/feedback/controller.js');
 const setMenu = require('./lib/menu.js');
+const BalloonDirSelectorCtrl = require('./ui/balloon-dir-selector/controller.js');
+const {BalloonBurlHandler} = require('./lib/burl.js');
+const ipc = require ('./lib/ipc.js');
+const i18n = require ('./lib/i18n.js');
 
 const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
@@ -25,8 +29,18 @@ var standardLogger = new loggerFactory(clientConfig.getAll());
 var startup = StartupCtrl(env, clientConfig);
 var auth = AuthCtrl(env, clientConfig);
 var selective = SelectiveCtrl(env, clientConfig);
+var ballonDirSelector = BalloonDirSelectorCtrl(env, clientConfig);
+var burlHandler = new BalloonBurlHandler(clientConfig);
+
+if (process.platform === 'linux') {
+  app.disableHardwareAcceleration();
+}
 
 logger.setLogger(standardLogger);
+
+function extractBurlArgument() {
+  return process.argv.find(argument => {return burlHandler.isBalloonBurlPath(argument)});
+}
 
 process.on('uncaughtException', function(exception) {
   logger.error('uncaught exception', {
@@ -35,11 +49,30 @@ process.on('uncaughtException', function(exception) {
   });
 });
 
-var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
-
-if(shouldQuit === true) {
-  startup.showBalloonDir();
-  app.quit();
+function openBurl(burlPath) {
+  if (burlHandler.isBalloonBurlPath(burlPath)) {
+    burlHandler.extractBurl(burlPath).then((burl) => {
+      dialog.showMessageBox(null, {
+        type: 'question',
+        buttons: [i18n.__('button.continue'), i18n.__('button.cancel')],
+        title: 'Balloon URL',
+        message: i18n.__('burl.prompt'),
+        detail: burl,
+      }, (buttonIndex) => {
+        if (0 === buttonIndex) {
+          burlHandler.handleBurl(burl);
+        }
+      });
+    }).catch((error) => {
+      dialog.showMessageBox(null, {
+        type: 'error',
+        buttons: [i18n.__('button.close')],
+        title: 'Balloon URL',
+        message: i18n.__('burl.' + error.error),
+        detail: error.burl,
+      });
+    });
+  }
 }
 
 function startApp() {
@@ -118,6 +151,21 @@ function startApp() {
 
     tray = TrayCtrl(env, clientConfig);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
+
+    ipc.listen((data) => {
+      switch(data.type) {
+        case 'open-burl':
+          openBurl(data.payload);
+          break;
+        case 'open-balloon':
+        default:
+          if (tray.isWindowVisible() || process.platform !== 'linux') {
+            startup.showBalloonDir();
+          } else {
+            tray.show();
+          }
+      }
+    })
   });
 }
 
@@ -145,30 +193,50 @@ function unlinkAccount() {
   });
 }
 
-app.on('ready', function () {
-  appState.set('updateAvailable', false);
+var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
 
-  feedback = FeedbackCtrl(env, clientConfig);
-  feedback.toggleAutoReport(globalConfig.get('autoReport'));
-
-  logger.info('app ready to operate', {
-      category: 'main',
+if(shouldQuit === true && process.platform !== 'darwin') {
+  let burlArgument = extractBurlArgument();
+  if (burlArgument) {
+    ipc.send({type: 'open-burl', payload: burlArgument}).then(() => {
+      app.quit();
+    });
+  } else {
+    ipc.send({type: 'open-balloon'}).then(() => {
+      app.quit();
+    });
+  }
+} else {
+  app.on('open-file', function(event, path) {
+    if (process.platform === 'darwin') {
+      openBurl(path);
+    }
   });
 
-  setMenu();
+  app.on('ready', function () {
+    appState.set('updateAvailable', false);
 
-  migrate().then(result => {
-    startApp();
-  }).catch(err => {
-    logger.error('error during migration, quitting app', {
-      category: 'main',
-      error: err
+    feedback = FeedbackCtrl(env, clientConfig);
+    feedback.toggleAutoReport(globalConfig.get('autoReport'));
+
+    logger.info('app ready to operate', {
+        category: 'main',
     });
 
-    app.quit();
-  })
-});
+    setMenu();
 
+    migrate().then(result => {
+      startApp();
+    }).catch(err => {
+      logger.error('error during migration, quitting app', {
+        category: 'main',
+        error: err
+      });
+
+      app.quit();
+    })
+  });
+}
 /** Main App **/
 ipcMain.on('quit', function() {
   app.quit();
@@ -217,7 +285,16 @@ ipcMain.on('install-update', function() {
     category: 'main',
   });
 
-  autoUpdate.quitAndInstall();
+  dialog.showMessageBox(null, {
+    type: 'question',
+    buttons: [i18n.__('button.continue'), i18n.__('button.cancel')],
+    title: 'Update',
+    message: i18n.__('update.install'),
+  }, (buttonIndex) => {
+    if (0 === buttonIndex) {
+      autoUpdate.quitAndInstall();
+    }
+  });
 });
 
 ipcMain.on('check-for-update', function() {
@@ -239,7 +316,13 @@ ipcMain.on('sync-toggle-pause', () => {
 });
 
 ipcMain.on('selective-open', function(event) {
-  selective.open();
+  if(sync) {
+    sync.ignoreNewShares(err => {
+      selective.open();
+    });
+  } else {
+    selective.open();
+  }
 });
 
 ipcMain.on('selective-close', function(event) {
@@ -252,7 +335,23 @@ ipcMain.on('selective-apply', function(event, difference) {
   if(sync) sync.updateSelectiveSync(difference, err => {
     selective.close();
   });
-})
+});
+
+ipcMain.on('balloonDirSelector-open', function(event) {
+  (function() {
+    if(!sync) return Promise.resolve();
+
+    return sync.pause(true);
+  }()).then(function() {
+    return ballonDirSelector.open();
+  }).then((result) => {
+    event.sender.send('balloonDirSelector-result', result);
+    startSync((result && result.newPath));
+  }).catch((err) => {
+    if(err) logger.error('Change balloon dir failed', {category: 'main', err});
+    startSync(false);
+  });
+});
 
 ipcMain.on('unlink-account', (event) => {
   logger.info('logout requested', {category: 'main'});
@@ -323,6 +422,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
   switch(error.code) {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
       endSync();
+      if(sync) sync.killWatcher();
 
       if(clientConfig.get('authMethod') === 'basic') {
         logger.info('got 401, end sync and unlink account', {category: 'main'});
@@ -382,13 +482,21 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
       endSync();
       tray.emit('network-offline');
     break;
-    case 'E_BLN_DELTA_FAILED':
-      logger.error('sync generating delta failed', {category: 'main', error});
+    case 'BLN_API_DELTA_RESET':
+      logger.info('Remote delta triggered reset. Resetting cursor and db', {
+        category: 'main',
+        code: error.code
+      });
+
       endSync();
-      startSync(true);
+      configManager.resetCursorAndDb().then(function() {
+        startSync(true);
+      }).catch(function(err) {
+        startSync(true);
+      });
     break;
     default:
-      logger.error('Uncaught sync error. Resetting cursor and db', {
+      logger.error('Uncaught sync error. restarting sync', {
         category: 'main',
         error,
         url,
@@ -396,13 +504,8 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
         errorMsg: message
       });
 
-      configManager.resetCursorAndDb().then(function() {
-        endSync();
-        startSync(true);
-      }).catch(function(err) {
-        endSync();
-        startSync(true);
-      });
+      endSync();
+      startSync(true);
   }
 });
 
@@ -433,5 +536,5 @@ function startSync(forceFullSync) {
 }
 
 function endSync() {
-  sync.endFullSync();
+  if(sync) sync.endFullSync();
 }

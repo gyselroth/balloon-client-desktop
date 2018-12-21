@@ -15,6 +15,7 @@ const modules = {
   settings: require('../settings/browser.js')(),
   feedback: require('../feedback/browser.js')(),
   about: require('../about/browser.js')(),
+  status: require('../status/browser.js')(),
 }
 
 const logger = require('../../lib/logger.js');
@@ -31,7 +32,6 @@ handlebars.registerHelper('i18n', function(key) {
 var sync;
 var syncStatus    = true;
 var showLogin     = true;
-var refreshQuota  = false;
 
 function loadMenu(menu) {
   logger.info('loadMenu', {category: 'tray-browser', menu});
@@ -39,10 +39,8 @@ function loadMenu(menu) {
   $('#tray-main-template').load('../'+menu+'/index.html', function() {
     logger.info('template loaded', {category: 'tray-browser', menu});
 
-    $('#tray-quota').hide();
-    $('#tray-main').removeClass('tray-main-splash');
     compileMenuTemplate(menu);
-    modules[menu].init();
+    modules[menu].init(sync);
   });
 }
 
@@ -94,7 +92,14 @@ function buildMenu() {
       ipcRenderer.send('sync-toggle-pause');
       ipcRenderer.send('tray-hide');
     }}))
+
+    menu.append(new MenuItem({type: 'separator', enabled: false}))
   }
+
+  label = i18n.__('tray.menu.status');
+  menu.append(new MenuItem({label: label, click: function(){
+    loadMenu('status');
+  }}))
 
   label = i18n.__('tray.menu.settings');
   menu.append(new MenuItem({label: label, click: function(){
@@ -110,6 +115,8 @@ function buildMenu() {
   menu.append(new MenuItem({label: label, click: function(){
     loadMenu('about');
   }}))
+
+  menu.append(new MenuItem({type: 'separator', enabled: false}))
 
   label = i18n.__('tray.menu.close');
   menu.append(new MenuItem({label: label, click: function(){
@@ -145,10 +152,6 @@ $('document').ready(function() {
 
 ipcRenderer.on('unlink-account-result', (event, result) => {
   showLogin = result;
-  if(result) {
-    $('#quota').find('.used').width(0);
-    $('#quota').find('.quota-text').html('');
-  }
 });
 
 ipcRenderer.on('link-account-result', (event, result) => {
@@ -157,6 +160,10 @@ ipcRenderer.on('link-account-result', (event, result) => {
 });
 
 ipcRenderer.on('sync-started' , function() {
+  syncStatus = true;
+});
+
+ipcRenderer.on('sync-resumed' , function() {
   syncStatus = true;
 });
 
@@ -173,69 +180,14 @@ ipcRenderer.on('config', function(event, secret, secretType) {
   config[secretType] = secret;
 
   if(!clientConfig.get('loggedin') || !clientConfig.isActiveInstance()) {
-    refreshQuota = false;
     sync = undefined;
   } else {
-    refreshQuota = true;
     showLogin = false;
     sync = fullSyncFactory(config, logger);
   }
 
   updateWindow();
 });
-
-function showQuota() {
-  logger.info('showQuota', {category: 'tray-browser', refreshQuota});
-
-  var $quota = $('#quota');
-
-  if(refreshQuota === false) {
-    $quota.hide();
-    return;
-  }
-
-  sync.blnApi.getQuotaUsage((err, data) => {
-    if(err) {
-      $('#quota').find('.used').width(0);
-      $('#quota').find('.quota-text').html('');
-      $quota.hide();
-
-      return;
-    }
-
-    var percent =  Math.round(data.used / data.hard_quota * 100, 0);
-    var $used = $quota.find('.used');
-    $used.width(percent+'%');
-    $quota.show();
-
-    if(percent >= 90) {
-      $used.addClass('quota-high');
-    } else {
-      $used.removeClass('quota-high');
-    }
-
-    $quota.find('.quota-text').html('('+getReadableFileSizeString(data.available)+' left)');
-  });
-}
-
-function getReadableFileSizeString(bytes) {
-  if(bytes === null) {
-    return '0B';
-  }
-
-  if(bytes < 1024) {
-    return bytes+'B';
-  }
-
-  var i = -1;
-  var units = ['kB', 'MB', 'GB', ' TB', 'PB', 'EB', 'ZB', 'YB'];
-  do {
-    bytes = bytes / 1024;
-    i++;
-  } while (bytes >= 1024);
-
-  return Math.max(bytes, 0.1).toFixed(1) + ' ' + units[i];
-}
 
 function compileTemplate() {
   var templateHtml = $('#template').html();
@@ -257,15 +209,12 @@ function toggleInstallUpdate() {
 function updateWindow() {
   logger.info('updateWindow', {category: 'tray-browser'});
 
-  $('#tray-quota').show();
-  $('#tray-main').addClass('tray-main-splash').html('');
-  showQuota();
+  //TODO pixtron - do we still need this?
+  $('#tray-main').html('');
   toggleInstallUpdate();
+  loadMenu('status');
 }
 
-/*
-Network change detection
-*/
 function getOnLineState(callback) {
   var onLine = navigator.onLine;
   if(onLine === true) {

@@ -1,7 +1,7 @@
 const fs = require('graceful-fs');
 const path = require('path');
 const url = require('url');
-const {BrowserWindow, ipcMain, shell, dialog} = require('electron');
+const {BrowserWindow, ipcMain, shell} = require('electron');
 
 const env = require('../../env.js');
 const appState = require('../../lib/state.js');
@@ -9,6 +9,8 @@ const fsUtility = require('../../lib/fs-utility.js');
 const AuthCtrl = require('../../lib/auth/controller.js');
 const configManagerCtrl = require('../../lib/config-manager/controller.js');
 const autoLaunch = require('../../lib/auto-launch.js');
+const contextMenuFactory = require('../../lib/context-menu-factory.js');
+const instance = require('../../lib/instance.js');
 
 const logger = require('../../lib/logger.js');
 
@@ -47,7 +49,8 @@ module.exports = function(env, clientConfig) {
       fs.exists(balloonDir, (exists) => {
         if(exists === false) {
           logger.info('BalloonDir does not exist. Reseting db, last-cursor and creating BalloonDir', {
-            category: 'startup'
+            category: 'startup',
+            balloonDir
           });
 
           //when balloonDir does not exist, cursor and db have to be reset too
@@ -91,6 +94,8 @@ module.exports = function(env, clientConfig) {
         !clientConfig.hadConfig()
         ||
         !clientConfig.isActiveInstance()
+        ||
+        instance.getInstance(clientConfig) === null
     ) {
       logger.debug('skip startup authentication, first time wizard needs to be executed first', {
           category: 'startup'
@@ -139,16 +144,19 @@ module.exports = function(env, clientConfig) {
           });
 
           startupWindow.removeListener('closed', windowClosedByUserHandler);
-          auth.basicAuth(username, password).then(() => {
-            if(!clientConfig.hadConfig()) {
-              resolve({welcomeWizardPromise: welcomeWizard()});
-            } else {
-              startupWindow.close();
-              resolve({welcomeWizardPromise: Promise.resolve()});
-            }
-          }).catch((error) => {
-            startupWindow.webContents.send('startup-auth-error',  'basic');
-          });
+          auth.basicAuth(username, password)
+            .then((newInstance) => {
+              if(!clientConfig.hadConfig()) {
+                resolve({welcomeWizardPromise: welcomeWizard()});
+              } else {
+                startupWindow.close();
+                resolve({welcomeWizardPromise: Promise.resolve()});
+              }
+            })
+            .catch((error) => {
+              logger.error('Basic auth resulted in an error', {category: 'startup', error});
+              startupWindow.webContents.send('startup-auth-error',  'basic');
+            });
         });
 
         ipcMain.removeAllListeners('auth-oidc-signin');
@@ -167,16 +175,23 @@ module.exports = function(env, clientConfig) {
           });
 
           startupWindow.removeListener('closed', windowClosedByUserHandler);
-          auth.oidcAuth(idpConfig).then(() => {
-            if(!clientConfig.hadConfig()) {
-              resolve({welcomeWizardPromise: welcomeWizard()});
-            } else {
-              startupWindow.close();
-              resolve({welcomeWizardPromise: welcomeWizard()});
-            }
-          }).catch((error) => {
-            startupWindow.webContents.send('startup-auth-error',  'oidc');
-          });
+          auth.oidcAuth(idpConfig)
+            .then((newInstance) => {
+              if(!clientConfig.hadConfig()) {
+                resolve({welcomeWizardPromise: welcomeWizard()});
+              } else {
+                startupWindow.close();
+                resolve({welcomeWizardPromise: welcomeWizard()});
+              }
+            })
+            .catch((error) => {
+              logger.error('failed authenticate via oidc', {
+                category: 'startup',
+                error: error,
+              });
+
+              startupWindow.webContents.send('startup-auth-error',  'oidc');
+            });
         });
       } else {
         logger.error('can not ask for authentication credentials, there is an active instance ongoing', {
@@ -227,23 +242,6 @@ module.exports = function(env, clientConfig) {
         startupWindow.removeListener('closed', windowClosedByUserHandler);
         startupWindow.close();
         showBalloonDir().then(resolve, reject);
-      });
-
-      ipcMain.removeAllListeners('startup-change-dir');
-      ipcMain.on('startup-change-dir', function(event) {
-        logger.info('change balloon data directory', {category: 'startup'});
-
-        dialog.showOpenDialog({
-          title: 'Select balloon directory',
-          defaultPath: clientConfig.balloonDir,
-          properties: ['openDirectory']
-        }, (folder) => {
-          if(folder) {
-            var p = folder[0]+path.sep+'Balloon';
-            startupWindow.webContents.send('startup-change-dir', p);
-            clientConfig.set('balloonDir', p);
-          }
-        });
       });
     });
   }
@@ -322,6 +320,8 @@ module.exports = function(env, clientConfig) {
 
     startupWindow.setMenu(null);
 
+    contextMenuFactory(startupWindow);
+
     startupWindow.on('closed', (event) => {
       startupWindow = null;
 
@@ -337,7 +337,7 @@ module.exports = function(env, clientConfig) {
     });
 
     if(env.name === 'development') {
-      //startupWindow.openDevTools();
+      startupWindow.openDevTools();
     }
 
     return startupWindow;

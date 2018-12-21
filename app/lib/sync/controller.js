@@ -47,6 +47,7 @@ module.exports = function(env, tray) {
     } else {
       //resume
       start(false);
+      tray.syncResumed();
     }
   }
 
@@ -128,7 +129,6 @@ module.exports = function(env, tray) {
     tray.syncStarted();
 
     startPowerSaveBlocker();
-
 
     pauseWatcher().then(() => {
       startup.preSyncCheck().then(result => {
@@ -352,6 +352,20 @@ module.exports = function(env, tray) {
     });
   }
 
+  function ignoreNewShares(callback) {
+    pause(true).then(result => {
+      let config = clientConfig.getAll();
+      config[clientConfig.getSecretType()] = clientConfig.getSecret();
+
+      const sync = fullSyncFactory(config, logger.getLogger());
+
+      sync.ignoreNewShares(callback);
+    }, err => {
+      logger.error('Could not pause sync', {category: 'sync', err});
+      callback(err);
+    });
+  }
+
   function setMayStart(value) {
     mayStart = value;
   }
@@ -363,6 +377,7 @@ module.exports = function(env, tray) {
     togglePause,
     isPaused,
     updateSelectiveSync,
+    ignoreNewShares,
     setMayStart,
     resumeWatcher,
     killWatcher

@@ -86,7 +86,7 @@ function initializeTree() {
       data : function(parentNode, callback) {
         var nodeId = (parentNode.id === '#' ? null : parentNode.id);
 
-        sync.blnApi.getChildren(nodeId, {filter: {directory: true}, attributes: ['id', 'name', 'path', 'size']}, (err, nodes) => {
+        sync.blnApi.getChildren(nodeId, {filter: {directory: true}, attributes: ['id', 'name', 'path', 'size', 'reference', 'shared']}, (err, nodes) => {
           // TODO pixtron - handle errors
           if(err) throw err;
 
@@ -112,12 +112,22 @@ function prepareNodesForRendering(parentNode, nodes) {
   return nodes
     .sort((a, b) => a.name.localeCompare(b.name))
     .map(node => {
+      var icon;
+      if(node.reference === true) {
+        icon = 'gr-icon gr-i-folder-received';
+      } else if(node.shared === true) {
+        icon = 'gr-icon gr-i-folder-shared';
+      } else {
+        icon = 'gr-icon gr-i-folder';
+      }
+
       return {
         id: node.id,
         parent: parentNode.id,
         text: node.name,
         children: (node.size > 0),
         data: node,
+        icon: icon,
         state: {
           opened: false,
           disabled: false,

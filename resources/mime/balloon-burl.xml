@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+ <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+   <mime-type type="application/vnd.balloon.burl">  
+   <comment>Balloon URL Shortcut</comment>
+   <glob pattern="*.burl"/>
+  </mime-type>
+ </mime-info>

@@ -1,6 +1,5 @@
 <script class="template" type="text/x-handlebars-template">
-    <h1>{{i18n 'settings'}}</h1>
-    <ul id="settings-navigation" class="clearfix">
+    <ul id="settings-navigation" class="clearfix tab-navigation">
         <li id="settings-nav-global"><a href="#settings-global">{{i18n 'settings.nav.global'}}</a></li>
         <li id="settings-nav-user"><a href="#settings-user">{{i18n 'settings.nav.user'}}</a></li>
     </ul>
@@ -17,6 +16,14 @@
         </div>
     </div>
     <div class="tab-content" id="settings-user">
+        <div id="settings-balloonDir" class="setting-item clearfix">
+            <h2>{{i18n 'settings.balloonDir.title'}}</h2>
+            <p>{{i18n 'settings.balloonDir.message'}}</p>
+            <label class="select-node" id="settings-balloonDir">
+                <div></div>
+                <div class="arrow-down"></div>
+            </label>
+        </div>
         <div id="settings-selective" class="setting-item clearfix">
             <h2>{{i18n 'settings.selective.title'}}</h2>
             <p>{{i18n 'settings.selective.choosePath'}}</p>

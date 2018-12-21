@@ -11,7 +11,7 @@ module.exports = function(env, clientConfig, tray) {
   autoUpdater.logger = logger;
 
   if(globalConfig.has('allowPrerelease') && globalConfig.get('allowPrerelease') === true) {
-    logger.debug('Allowing to install prereleases', {category: 'autoupdate'});
+    logger.debug('allowing to install prereleases', {category: 'autoupdate'});
     autoUpdater.allowPrerelease = true;
     autoUpdater.allowDowngrade = false;
   }
@@ -31,7 +31,7 @@ module.exports = function(env, clientConfig, tray) {
   });
 
   autoUpdater.on('update-not-available', (event, info) => {
-    logger.info('Update not available', {
+    logger.info('update not available', {
       category: 'autoupdate',
       data: info
     });

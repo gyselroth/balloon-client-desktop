@@ -11,7 +11,7 @@ const paths = require('../lib/paths.js');
 const fsUtility = require('../lib/fs-utility.js');
 
 module.exports = function(previousVersion, currentVersion, done) {
-  const migrationVersion = '0.0.43';
+  const migrationVersion = '1.0.0-beta4';
   logger.info(`Running migraton to ${migrationVersion}`, {category: 'migration'});
 
   const instancesFile = paths.getInstancesFile();
@@ -48,34 +48,39 @@ module.exports = function(previousVersion, currentVersion, done) {
         if(!fs.existsSync(instanceDir)) return cb();
 
         const configFile = path.join(instanceDir, (env.configFileName || 'config-'+env.name+'.json'));
-        const collectionPath = path.join(instanceDir, 'ignored.db');
 
         const settings = new ElectronSettings();
 
         settings.setPath(configFile);
 
-        if(settings.has('ignoreNodes') === false) return cb()
+        const pathBalloonDirInoStorage = path.join(instanceDir, 'balloon-dir-ino');
 
-        const ignoreNodes = settings.get('ignoreNodes');
+        if(fs.existsSync(pathBalloonDirInoStorage) === false) {
+          let balloonDir;
+          var instance = instances[instanceName];
+          if (instance.balloonDirIno) {
+            try {
+              fs.writeFileSync(pathBalloonDirInoStorage, instance.balloonDirIno);
+            } catch(err) {
+              cb(err);
+            }
+          } else {
+            balloonDir = settings.get('balloonDir');
 
-        if(ignoreNodes.length === 0) return;
-
-        const db = new nedb({
-          filename: collectionPath,
-          autoload: true,
-          onload: (err) => {
-            if(err) cb(err);
+            try {
+              const ino = fs.lstatSync(balloonDir).ino;
+              fs.writeFileSync(pathBalloonDirInoStorage, ino);
+            } catch(err) {
+              cb(err);
+            }
           }
-        });
+        }
 
-        db.ensureIndex({fieldName: 'remoteId'});
-        db.ensureIndex({fieldName: 'remotePath'});
-
-        db.insert(ignoreNodes.map(nodeId => {return {remoteId: nodeId}}), cb);
+        cb(null);
       }, err => {
         if(err) return handleError(err);
 
-        done(null, 'migrated ignored nodes');
+        done(null, 'migrated balloonDirIno');
       });
     }
   } catch(err) {
