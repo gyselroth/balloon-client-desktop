@@ -197,7 +197,7 @@ module.exports = function() {
         } else if(task.type == 'download') {
           dom += '<div class="task-finish">'+i18n.__('status.activities.download', [ta.format(task.datetime)])+'</div>';
         }
-      } else if(task.subtype == 'error') {
+      } else if(task.subtype == 'error' || task.subtype == 'aborted') {
         if(task.type == 'upload') {
           dom += '<div class="task-finish">'+i18n.__('status.activities.upload_failed', [ta.format(task.datetime)])+'</div>';
         } else if(task.type == 'download') {

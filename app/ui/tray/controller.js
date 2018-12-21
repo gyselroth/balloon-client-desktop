@@ -243,7 +243,7 @@ module.exports = function(env, clientConfig) {
   function hide() {
     logger.info('hide tray window', {category: 'tray'});
 
-    if(trayWindow) trayWindow.hide();
+    //if(trayWindow) trayWindow.hide();
   }
 
   function show() {

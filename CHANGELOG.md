@@ -1,3 +1,11 @@
+## 1.0.0
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri December 21 16:27:35 CET 2018
+
+* UI: [FIX] Small user interface fixes
+* UI: [FIX] balloon path cut off #170
+
+
 ## 1.0.0-beta4
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri December 21 10:29:35 CET 2018
