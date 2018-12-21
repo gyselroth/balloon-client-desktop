@@ -535,5 +535,5 @@ function startSync(forceFullSync) {
 }
 
 function endSync() {
-  sync.endFullSync();
+  if(sync) sync.endFullSync();
 }
