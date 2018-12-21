@@ -97,7 +97,9 @@ module.exports = function(env, tray) {
         startFullSync();
       });
     } else {
-      resumeWatcher(true);
+      resumeWatcher(true).then(() => {
+        tray.syncStarted();
+      });
     }
   }
 

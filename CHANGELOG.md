@@ -1,3 +1,12 @@
+## 1.0.0-beta4
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri December 21 10:29:35 CET 2018
+
+* UI: [FIX] Small user interface fixes
+* UI: Tray sync continue not updated back to sync pause after click #166
+* SYNC: [CHANGE] Upgrade sync to v0.3.0-beta2
+
+
 ## 1.0.0-beta3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu December 20 14:29:34 CET 2018
