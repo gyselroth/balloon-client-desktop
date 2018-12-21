@@ -111,6 +111,11 @@ module.exports = function() {
       $syncStatus.find('div').show();
     });
 
+    ipcRenderer.on('sync-resumed', function(event) {
+      $syncStatus.find('span').html(i18n.__('tray.sync.status.start'));
+      $syncStatus.find('div').show();
+    });
+
     ipcRenderer.on('sync-ended', function(event) {
       $syncStatus.find('span').html(i18n.__('tray.sync.status.default'));
       $syncStatus.find('div').hide();

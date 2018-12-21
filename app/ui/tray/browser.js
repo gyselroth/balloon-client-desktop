@@ -163,6 +163,10 @@ ipcRenderer.on('sync-started' , function() {
   syncStatus = true;
 });
 
+ipcRenderer.on('sync-resumed' , function() {
+  syncStatus = true;
+});
+
 ipcRenderer.on('sync-paused' , function() {
   syncStatus = false;
 });

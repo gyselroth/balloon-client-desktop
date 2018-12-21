@@ -312,6 +312,10 @@ module.exports = function(env, clientConfig) {
     trayWindow.webContents.send('sync-paused');
   }
 
+  function syncResumed() {
+    trayWindow.webContents.send('sync-resumed');
+  }
+
   function syncStarted() {
     trayWindow.webContents.send('sync-started');
     toggleState('sync', true);
@@ -351,6 +355,7 @@ module.exports = function(env, clientConfig) {
     show,
     syncStarted,
     syncEnded,
+    syncResumed,
     syncPaused,
     isWindowVisible,
     toggleState,

@@ -47,6 +47,7 @@ module.exports = function(env, tray) {
     } else {
       //resume
       start(false);
+      tray.syncResumed();
     }
   }
 
@@ -97,9 +98,7 @@ module.exports = function(env, tray) {
         startFullSync();
       });
     } else {
-      resumeWatcher(true).then(() => {
-        tray.syncStarted();
-      });
+      resumeWatcher(true);
     }
   }
 
