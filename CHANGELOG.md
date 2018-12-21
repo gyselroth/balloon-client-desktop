@@ -4,6 +4,7 @@
 
 * UI: [FIX] Small user interface fixes
 * UI: [FIX] balloon path cut off #170
+* CORE: [FIX] Restart full sync after sync received 401 and refreshed acess token
 
 
 ## 1.0.0-beta4
