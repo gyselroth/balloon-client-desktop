@@ -14,6 +14,7 @@
 * CORE: [FIX] Upgrade from 0.2.4 to 1.0.0-beta1 unlinked active instance #160
 * CORE: [FIX] TypeError: this.app.whenReady is exception #158
 * CORE: [FIX] Instances not in feedbacks metadata #157
+* CORE: [FIX] Ignore shares by default, open selective before sync added new share to ignore db #162
 * UI: [FIX] Used Storage Percentage #159
 * UI: [FIX] Fixed de-CH and en-US translations
 * SYNC: [CHANGE] Upgrade sync to v0.3.0-beta1
