@@ -78,10 +78,10 @@ module.exports = function(env, clientConfig) {
             clientConfig.set('balloonDir', newPath);
             resolve({newPath, oldPath});
           }
+        } else {
+          logger.info('no folder selected', {category: 'balloon-dir-selector'});
+          reject();
         }
-
-        logger.info('no folder selected', {category: 'balloon-dir-selector'});
-        reject();
       });
     });
   }

@@ -30,7 +30,7 @@ $(document).ready(function() {
 
   $html.addClass(process.platform);
   compileTemplates();
-  var $loader = $('.loader').show();
+  var $loader = $('.window-loader').show();
   var $offline = $('#client-offline');
   var $content = $('.view-content');
 
@@ -116,7 +116,7 @@ function verifyServer() {
     blnUrl = 'https://' + blnUrl;
   }
 
-  var $loader = $('#startup-view-server').find('.view-content').find('.loader').show();
+  var $loader = $('.window-loader').show();
 
   pingApiServer(blnUrl, (result) => {
     $loader.hide();
@@ -178,6 +178,7 @@ function auth() {
     $('#startup-auth-basic').hide();
   }
 
+  var $loader = $('.window-loader');
   var $container = $('#startup-auth-oidc');
   $container.find('> img').remove();
 
@@ -195,11 +196,13 @@ function auth() {
   });
 
   ipcRenderer.on('startup-auth-error', function (event, type) {
+    $loader.hide();
     $('#startup-auth-error').find('> div').hide()
     $('#startup-auth-error-'+type).show();
   });
 
   function basicAuth() {
+    $loader.show();
     var username = $('#startup-view-auth').find('input[name=username]').val();
     var password = $('#startup-view-auth').find('input[name=password]').val();
     ipcRenderer.send('startup-basic-auth', username, password);
@@ -220,6 +223,7 @@ function auth() {
 
 function switchView(view) {
   $(document).ready(function(){
+    $('.window-loader').hide();
     $(".view").hide();
     $("#startup-view-"+view).show()
      .find('input,textarea,select,button').filter(':visible:first').focus();

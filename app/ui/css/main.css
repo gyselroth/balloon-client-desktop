@@ -87,6 +87,20 @@ p {
     display: none;
 }
 
+.window-loader {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #FFF;
+    opacity: 0.8;
+    background-image: url(../../img/loading.gif);
+    background-repeat: no-repeat;
+    background-position: center;
+    display: none;
+}
+
 /*-----Header-----*/
 
 #header {
@@ -469,6 +483,7 @@ input[type="radio"], input[type="checkbox"] {
     height: 180px;
     margin: 5px 0;
     border-color: #000;
+    resize: none;
 }
 
 #feedback button {

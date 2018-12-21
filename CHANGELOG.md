@@ -3,7 +3,8 @@
 **Date**: Fri December 21 10:29:35 CET 2018
 
 * UI: [FIX] Small user interface fixes
-* UI: Tray sync continue not updated back to sync pause after click #166
+* UI: [FIX] Tray sync continue not updated back to sync pause after click #166
+* UI: [FIX] balloon folder not changed in ui after selecting a new one during startup wizard #167
 * SYNC: [CHANGE] Upgrade sync to v0.3.0-beta2
 
 

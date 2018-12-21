@@ -10,18 +10,17 @@
 </head>
 <body id="startup">
     <script id="template-content" type="text/x-handlebars-template">
+    <div class="window-loader"></div>
     <div id="startup-logo"></div>
 
     <div id="startup-view">
         <div id="startup-view-server" class="view">
             <h1>{{i18n 'startup.server.title'}}</h1>
-            <div class="loader"></div>
             <div class="view-content">
                 <div>
                     <p>{{i18n 'startup.server.message'}}</p>
                     <div id="blnUrl-config">
                         <input id="blnUrl" type="text" placeholder="https://yourserver.com" required autofocus>
-                        <div class="loader"></div>
                         <div id="blnUrl-error-invalid" class="error-message">{{i18n 'error.blnUrl.invalid'}}</div>
                         <div id="blnUrl-error-notreachable" class="error-message">{{i18n 'error.blnUrl.notreachable'}}</div>
                     </div>
@@ -32,7 +31,6 @@
 
         <div id="startup-view-auth" class="view">
             <p>{{i18n 'startup.auth.message'}}</p>
-            <div class="loader"></div>
             <div class="view-content">
                 <div id="startup-auth-basic">
                   <input type="text" name="username" placeholder="{{i18n 'startup.auth.username'}}"/>
@@ -49,7 +47,6 @@
 
         <div id="startup-view-welcome" class="view">
             <h1>{{i18n 'startup.welcome.title'}}</h1>
-            <div class="loader"></div>
             <div class="view-content">
                 <p>{{i18n 'startup.welcome.message'}}</p>
                 <button class="startup-open-folder">{{i18n 'startup.welcome.openFolder'}}</button>
