@@ -422,6 +422,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
   switch(error.code) {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
       endSync();
+      if(sync) sync.killWatcher();
 
       if(clientConfig.get('authMethod') === 'basic') {
         logger.info('got 401, end sync and unlink account', {category: 'main'});
