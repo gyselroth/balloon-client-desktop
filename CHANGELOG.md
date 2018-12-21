@@ -1,4 +1,4 @@
-## 1.0.0
+## 1.0.0-rc1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri December 21 16:27:35 CET 2018
 
