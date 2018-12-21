@@ -54,6 +54,7 @@ module.exports = function(previousVersion, currentVersion, done) {
         settings.setPath(configFile);
 
         const pathBalloonDirInoStorage = path.join(instanceDir, 'balloon-dir-ino');
+
         if(fs.existsSync(pathBalloonDirInoStorage) === false) {
           let balloonDir;
           var instance = instances[instanceName];
@@ -73,10 +74,9 @@ module.exports = function(previousVersion, currentVersion, done) {
               cb(err);
             }
           }
-
-          cb(null);
         }
 
+        cb(null);
       }, err => {
         if(err) return handleError(err);
 
