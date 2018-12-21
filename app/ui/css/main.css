@@ -411,6 +411,7 @@ input[type="radio"], input[type="checkbox"] {
 #about #startup-logo {
     background-image: url('../../img/teaser/teaser-image-red.svg');
     height: 200px;
+    margin: -30px 0 10px 0;
 }
 
 #about-github span {
@@ -441,6 +442,11 @@ input[type="radio"], input[type="checkbox"] {
     text-align: center;
     margin: 8px 0;
     color: #39A5FF;
+}
+
+#about-update-error {
+    text-align: center;
+    margin: 8px 0;
 }
 
 #about-update-not-available {
