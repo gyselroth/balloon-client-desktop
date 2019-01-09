@@ -359,7 +359,10 @@ module.exports = function(env, tray) {
 
       const sync = fullSyncFactory(config, logger.getLogger());
 
-      sync.ignoreNewShares(callback);
+      sync.ignoreNewShares((err, result) => {
+        start(false);
+        callback(err, result);
+      });
     }, err => {
       logger.error('Could not pause sync', {category: 'sync', err});
       callback(err);
