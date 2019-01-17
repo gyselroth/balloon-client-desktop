@@ -50,7 +50,7 @@ class BalloonAutoLaunch {
     return new Promise((resolve, reject) => {
       this.autoLaunch.isEnabled().then(isEnabled => {
         if(isEnabled === false) {
-          logger.debug('Aatolaunch not currently enabled. Skip disable', {category: 'autolaunch'});
+          logger.debug('Autolaunch not currently enabled. Skip disable', {category: 'autolaunch'});
           return resolve();
         } else {
           this.autoLaunch.disable().then(function() {

@@ -10,7 +10,7 @@ module.exports = function(clientConfig, instanceDir) {
   if(!instanceDir) instanceDir = clientConfig.get('instanceDir');
 
   function resetCursorAndDb() {
-    logger.debug('reseting cursor and sync db initalized',  {category: 'config-manager'});
+    logger.debug('reseting cursor and sync db initalized',  {category: 'config-manager', instanceDir});
 
     return new Promise(function(resolve, reject) {
       async.parallel([
