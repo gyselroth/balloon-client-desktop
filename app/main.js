@@ -221,6 +221,8 @@ if(shouldQuit === true && process.platform !== 'darwin') {
 
     logger.info('app ready to operate', {
         category: 'main',
+        execPath: process.execPath,
+        appPath: app.getAppPath()
     });
 
     setMenu();
