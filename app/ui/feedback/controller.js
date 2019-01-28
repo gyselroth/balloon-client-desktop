@@ -232,8 +232,19 @@ module.exports = function(env, clientConfig) {
       });
     }
 
-    var system = await si.getAllData();
-    delete system.networkConnections;
+    var system = {};
+
+    try {
+      system = await si.getAllData();
+      delete system.networkConnections;
+    } catch(err) {
+      logger.error('got error while sending feedback', {
+        category: 'feedback',
+        error: err
+      });
+
+      system = 'si.getAllData() call had an error (ask user for error.log)';
+    }
 
     var metaData = {
       version: app.getVersion(),
