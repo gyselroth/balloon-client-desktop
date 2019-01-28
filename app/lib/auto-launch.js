@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const electron = require('electron');
 const app = electron.app || electron.remote.app;
 
@@ -14,6 +16,18 @@ class BalloonAutoLaunch {
       //This is a workaround for: https://github.com/Teamwork/node-auto-launch/issues/28
       //Might be removed as soon as the issue has been resolved
       appPath = app.getPath('exe').split('.app/Content')[0] + '.app';
+
+      //if com.apple.quarantine is set appPath will be a temporary path see #177
+      if(appPath.startsWith('/private/')) {
+        //try to set it to the default path
+        appPath = '/Applications/Balloon.app';
+
+        if(!fs.existsSync(appPath)) {
+          //if app does not exist at default location avoid creating a login item
+          logger.error('appPath starts with /private/. Will not try to enable autolaunch for a temporary appPath', {category: 'autolaunch'});
+          return;
+        }
+      }
     }
 
     this.autoLaunch = new AutoLaunch({
@@ -45,6 +59,8 @@ class BalloonAutoLaunch {
   }
 
   disable() {
+    if(!this.autoLaunch) return Promise.resolve();
+
     logger.debug('trying to disable auto launch', {category: 'autolaunch'});
 
     return new Promise((resolve, reject) => {
@@ -69,6 +85,8 @@ class BalloonAutoLaunch {
   }
 
   enable() {
+    if(!this.autoLaunch) return Promise.resolve();
+
     logger.debug('trying to enable autolaunch', {category: 'autolaunch'});
 
     return new Promise((resolve, reject) => {
