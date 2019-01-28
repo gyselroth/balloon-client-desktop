@@ -3,6 +3,7 @@
 **Date**:
 
 * CORE: [FIX] Open selective halts sync #174
+* CORE: [FIX] Avoid concurrent refreshAccessToken requests #176
 
 
 ## 1.0.0-rc1
