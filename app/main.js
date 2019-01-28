@@ -22,6 +22,7 @@ const logger = require('./lib/logger.js');
 const loggerFactory = require('./lib/logger-factory.js');
 const configManager = require('./lib/config-manager/controller.js')(clientConfig);
 const globalConfig = require('./lib/global-config.js');
+const isHandlingUnauthorizedRequest = false;
 
 var tray, selective, sync, feedback, autoUpdate;
 
@@ -423,19 +424,25 @@ ipcMain.on('selective-error', (event, error, url, line, message) => {
 ipcMain.on('sync-error', (event, error, url, line, message) => {
   switch(error.code) {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
+      if(isHandlingUnauthorizedRequest === true) return;
+
+      isHandlingUnauthorizedRequest = true;
       endSync();
       if(sync) sync.killWatcher();
 
       if(clientConfig.get('authMethod') === 'basic') {
         logger.info('got 401, end sync and unlink account', {category: 'main'});
         unlinkAccount();
+        isHandlingUnauthorizedRequest = false;
       } else {
         logger.debug('got 401, refresh accessToken', {category: 'main'});
         auth.refreshAccessToken().then(() => {
           startSync(true);
+          isHandlingUnauthorizedRequest = false;
         }).catch(err => {
           logger.error('could not refresh accessToken, unlink instance', {category: 'main', err});
           unlinkAccount();
+          isHandlingUnauthorizedRequest = false;
         });
       }
     break;
