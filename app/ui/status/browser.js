@@ -12,6 +12,8 @@ const i18n = require('../../lib/i18n.js');
 const fileIconMap = require('../../lib/file-icon-map.js');
 const ta = require('../../lib/time-ago.js');
 
+var listenersBound = false;
+
 function showQuota(sync) {
   sync.blnApi.getQuotaUsage((err, data) => {
     if(err) {
@@ -106,76 +108,80 @@ module.exports = function() {
       }
     });
 
-    ipcRenderer.on('sync-started', function(event) {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.start'));
-      $syncStatus.find('div').show();
-    });
+    if(listenersBound === false) {
+      listenersBound = true;
 
-    ipcRenderer.on('sync-resumed', function(event) {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.start'));
-      $syncStatus.find('div').show();
-    });
+      ipcRenderer.on('sync-started', function(event) {
+        $syncStatus.find('span').html(i18n.__('tray.sync.status.start'));
+        $syncStatus.find('div').show();
+      });
 
-    ipcRenderer.on('sync-ended', function(event) {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.default'));
-      $syncStatus.find('div').hide();
-    });
+      ipcRenderer.on('sync-resumed', function(event) {
+        $syncStatus.find('span').html(i18n.__('tray.sync.status.start'));
+        $syncStatus.find('div').show();
+      });
 
-    ipcRenderer.on('network-offline', function() {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.offline'));
-      $syncStatus.find('div').hide();
-    });
+      ipcRenderer.on('sync-ended', function(event) {
+        $syncStatus.find('span').html(i18n.__('tray.sync.status.default'));
+        $syncStatus.find('div').hide();
+      });
 
-    ipcRenderer.on('unlink-account-result', (event, result) => {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.loggedout'));
-      $syncStatus.find('div').hide();
-      taskHistory = {};
-      $transfer.find('li').not('.status-no-elements').remove();
-      $error.find('li').not('.status-no-elements').remove();
-    });
+      ipcRenderer.on('network-offline', function() {
+        $syncStatus.find('span').html(i18n.__('tray.sync.status.offline'));
+        $syncStatus.find('div').hide();
+      });
 
-    ipcRenderer.on('link-account-result', (event, result) => {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.warmup'));
-      $syncStatus.find('div').hide();
-    });
+      ipcRenderer.on('unlink-account-result', (event, result) => {
+        $syncStatus.find('span').html(i18n.__('tray.sync.status.loggedout'));
+        $syncStatus.find('div').hide();
+        taskHistory = {};
+        $transfer.find('li').not('.status-no-elements').remove();
+        $error.find('li').not('.status-no-elements').remove();
+      });
 
-    ipcRenderer.on('sync-paused' , function() {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.pause'));
-      $syncStatus.find('div').hide();
-    });
+      ipcRenderer.on('link-account-result', (event, result) => {
+        $syncStatus.find('span').html(i18n.__('tray.sync.status.warmup'));
+        $syncStatus.find('div').hide();
+      });
 
-    ipcRenderer.on('transfer-task', function(event, task) {
-      $item = $transfer.find(`#${task.id}`);
-      task.datetime = taskHistory[task.id].datetime || new Date();
+      ipcRenderer.on('sync-paused' , function() {
+        $syncStatus.find('span').html(i18n.__('tray.sync.status.pause'));
+        $syncStatus.find('div').hide();
+      });
 
-      //Displaying all nodes in the queue will result in a freezes since the dom tree can get huge.
-      if(task.subtype === 'queued') {
-        return;
-      }
+      ipcRenderer.on('transfer-task', function(event, task) {
+        $item = $transfer.find(`#${task.id}`);
+        task.datetime = taskHistory[task.id].datetime || new Date();
 
-      if($transfer.find('li').length > MAX_DISPLAY) {
-        $transfer.find('li').not('.task-progress').not('.task-queued').not('.status-no-elements').last().remove();
-      }
-
-      if($item.length > 0) {
-        $item.replaceWith(renderTask(task));
-      } else {
-        $transfer.prepend(renderTask(task));
-      }
-    });
-
-    ipcRenderer.on('transfer-progress', function(event, task) {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.transfer'));
-      $syncStatus.find('div').show();
-
-      if(taskHistory[task.id]) {
-        taskHistory[task.id].percent = task.percent;
-        $item = $transfer.find(`li#${task.id}`);
-        if($item.length > 0) {
-          $item.replaceWith(renderTask(taskHistory[task.id]));
+        //Displaying all nodes in the queue will result in a freezes since the dom tree can get huge.
+        if(task.subtype === 'queued') {
+          return;
         }
-      }
-    });
+
+        if($transfer.find('li').length > MAX_DISPLAY) {
+          $transfer.find('li').not('.task-progress').not('.task-queued').not('.status-no-elements').last().remove();
+        }
+
+        if($item.length > 0) {
+          $item.replaceWith(renderTask(task));
+        } else {
+          $transfer.prepend(renderTask(task));
+        }
+      });
+
+      ipcRenderer.on('transfer-progress', function(event, task) {
+        $syncStatus.find('span').html(i18n.__('tray.sync.status.transfer'));
+        $syncStatus.find('div').show();
+
+        if(taskHistory[task.id]) {
+          taskHistory[task.id].percent = task.percent;
+          $item = $transfer.find(`li#${task.id}`);
+          if($item.length > 0) {
+            $item.replaceWith(renderTask(taskHistory[task.id]));
+          }
+        }
+      });
+    }
   }
 
   function renderTask(task) {
