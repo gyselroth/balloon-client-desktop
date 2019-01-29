@@ -1,10 +1,11 @@
-## 1.0.0
+## 1.0.0-rc2
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**:
 
 * CORE: [FIX] Open selective halts sync #174
 * CORE: [FIX] Avoid concurrent refreshAccessToken requests #176
 * CORE: [FIX] Avoid creating login item for app translocation paths #177
+* CORE: [FIX] Corrupt Feedback #175
 
 
 ## 1.0.0-rc1
