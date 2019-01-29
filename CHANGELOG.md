@@ -6,6 +6,7 @@
 * CORE: [FIX] Avoid concurrent refreshAccessToken requests #176
 * CORE: [FIX] Avoid creating login item for app translocation paths #177
 * CORE: [FIX] Corrupt Feedback #175
+* CORE: [FIX] Unbind lsiteners before binding them again #178
 
 
 ## 1.0.0-rc1

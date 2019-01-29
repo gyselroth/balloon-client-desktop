@@ -106,45 +106,45 @@ module.exports = function() {
       }
     });
 
-    ipcRenderer.on('sync-started', function(event) {
+    var onSyncStarted = function(event) {
       $syncStatus.find('span').html(i18n.__('tray.sync.status.start'));
       $syncStatus.find('div').show();
-    });
+    }
 
-    ipcRenderer.on('sync-resumed', function(event) {
+    var onSyncResumed = function(event) {
       $syncStatus.find('span').html(i18n.__('tray.sync.status.start'));
       $syncStatus.find('div').show();
-    });
+    }
 
-    ipcRenderer.on('sync-ended', function(event) {
+    var onSyncEnded = function(event) {
       $syncStatus.find('span').html(i18n.__('tray.sync.status.default'));
       $syncStatus.find('div').hide();
-    });
+    }
 
-    ipcRenderer.on('network-offline', function() {
+    var onNetworkOffline = function(event) {
       $syncStatus.find('span').html(i18n.__('tray.sync.status.offline'));
       $syncStatus.find('div').hide();
-    });
+    };
 
-    ipcRenderer.on('unlink-account-result', (event, result) => {
+    var onUnlinkAccountResult = function(event, result) {
       $syncStatus.find('span').html(i18n.__('tray.sync.status.loggedout'));
       $syncStatus.find('div').hide();
       taskHistory = {};
       $transfer.find('li').not('.status-no-elements').remove();
       $error.find('li').not('.status-no-elements').remove();
-    });
+    }
 
-    ipcRenderer.on('link-account-result', (event, result) => {
+    var onUnlinkAccountResult = function(event, result) {
       $syncStatus.find('span').html(i18n.__('tray.sync.status.warmup'));
       $syncStatus.find('div').hide();
-    });
+    }
 
-    ipcRenderer.on('sync-paused' , function() {
+    var onSyncPaused = function(event) {
       $syncStatus.find('span').html(i18n.__('tray.sync.status.pause'));
       $syncStatus.find('div').hide();
-    });
+    }
 
-    ipcRenderer.on('transfer-task', function(event, task) {
+    var onTransferTask = function(event, task) {
       $item = $transfer.find(`#${task.id}`);
       task.datetime = taskHistory[task.id].datetime || new Date();
 
@@ -162,9 +162,9 @@ module.exports = function() {
       } else {
         $transfer.prepend(renderTask(task));
       }
-    });
+    }
 
-    ipcRenderer.on('transfer-progress', function(event, task) {
+    var onTransferProgress = function(event, task) {
       $syncStatus.find('span').html(i18n.__('tray.sync.status.transfer'));
       $syncStatus.find('div').show();
 
@@ -175,7 +175,34 @@ module.exports = function() {
           $item.replaceWith(renderTask(taskHistory[task.id]));
         }
       }
-    });
+    }
+
+    ipcRenderer.removeListener('sync-started', onSyncStarted);
+    ipcRenderer.on('sync-started', onSyncStarted);
+
+    ipcRenderer.removeListener('sync-resumed', onSyncResumed);
+    ipcRenderer.on('sync-resumed', onSyncResumed);
+
+    ipcRenderer.removeListener('sync-ended', onSyncEnded);
+    ipcRenderer.on('sync-ended', onSyncEnded);
+
+    ipcRenderer.removeListener('network-offline', onNetworkOffline);
+    ipcRenderer.on('network-offline', onNetworkOffline);
+
+    ipcRenderer.removeListener('unlink-account-result', onUnlinkAccountResult);
+    ipcRenderer.on('unlink-account-result', onUnlinkAccountResult);
+
+    ipcRenderer.removeListener('link-account-result', onUnlinkAccountResult);
+    ipcRenderer.on('link-account-result', onUnlinkAccountResult);
+
+    ipcRenderer.removeListener('sync-paused', onSyncPaused);
+    ipcRenderer.on('sync-paused', onSyncPaused);
+
+    ipcRenderer.removeListener('transfer-task', onTransferTask);
+    ipcRenderer.on('transfer-task', onTransferTask);
+
+    ipcRenderer.removeListener('transfer-progress', onTransferProgress);
+    ipcRenderer.on('transfer-progress', onTransferProgress);
   }
 
   function renderTask(task) {
