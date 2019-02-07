@@ -1,6 +1,6 @@
 ## 1.0.0-rc2
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**:
+**Date**: Thu February 07 09:36:23 CET 2019
 
 * CORE: [FIX] Open selective halts sync #174
 * CORE: [FIX] Avoid concurrent refreshAccessToken requests #176
