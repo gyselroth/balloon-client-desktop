@@ -1,3 +1,14 @@
+## 1.0.0-rc2
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Thu February 07 09:36:23 CET 2019
+
+* CORE: [FIX] Open selective halts sync #174
+* CORE: [FIX] Avoid concurrent refreshAccessToken requests #176
+* CORE: [FIX] Avoid creating login item for app translocation paths #177
+* CORE: [FIX] Corrupt Feedback #175
+* CORE: [FIX] Unbind lsiteners before binding them again #178
+
+
 ## 1.0.0-rc1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri December 21 16:27:35 CET 2018

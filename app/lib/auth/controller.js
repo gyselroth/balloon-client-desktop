@@ -14,7 +14,7 @@ module.exports = function(env, clientConfig) {
   var oidc = OidcCtrl(env, clientConfig);
 
   function logout() {
-    logger.info('logout initialized', {category: 'auth'});
+    logger.info('logout initialized', {category: 'auth', authMethod: clientConfig.get('authMethod')});
 
     return new Promise(function(resolve, reject) {
       if(clientConfig.get('authMethod') === 'oidc' && clientConfig.get('oidcProvider')) {
