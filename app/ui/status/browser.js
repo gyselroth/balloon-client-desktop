@@ -63,6 +63,9 @@ function getIcon(task) {
 module.exports = function() {
   let taskHistory = {};
   let taskElements = {};
+  let $transfer;
+  let $error;
+  let $syncStatus;
 
   ipcRenderer.on('transfer-task', function(event, task) {
     if(taskHistory[task.id]) {
@@ -78,15 +81,14 @@ module.exports = function() {
   function init(sync) {
     if(sync) showQuota(sync);
 
-    let $transfer = $('#status-transfer');
-    let $error = $('#status-error');
-    let $syncStatus = $('#status-sync');
+    $transfer = $('#status-transfer');
+    $error = $('#status-error');
+    $syncStatus = $('#status-sync');
     tabNavigation('#status');
 
     if(clientConfig.get('instanceDir')) {
       logTrayDb.connect(path.join(clientConfig.get('instanceDir'), 'db', 'log-tray.db'), true);
     }
-    let i;
 
     for(task in taskHistory) {
       if(taskHistory[task].subtype !== 'queued') {
@@ -100,82 +102,12 @@ module.exports = function() {
           $error.empty();
         }
 
+        let i;
         for(i=0; i < errors.length && i < MAX_DISPLAY; i++) {
           $error.append(renderError(errors[i]));
         }
       }
     });
-
-    var onSyncStarted = function(event) {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.start'));
-      $syncStatus.find('div').show();
-    }
-
-    var onSyncResumed = function(event) {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.start'));
-      $syncStatus.find('div').show();
-    }
-
-    var onSyncEnded = function(event) {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.default'));
-      $syncStatus.find('div').hide();
-    }
-
-    var onNetworkOffline = function(event) {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.offline'));
-      $syncStatus.find('div').hide();
-    };
-
-    var onUnlinkAccountResult = function(event, result) {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.loggedout'));
-      $syncStatus.find('div').hide();
-      taskHistory = {};
-      $transfer.find('li').not('.status-no-elements').remove();
-      $error.find('li').not('.status-no-elements').remove();
-    }
-
-    var onUnlinkAccountResult = function(event, result) {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.warmup'));
-      $syncStatus.find('div').hide();
-    }
-
-    var onSyncPaused = function(event) {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.pause'));
-      $syncStatus.find('div').hide();
-    }
-
-    var onTransferTask = function(event, task) {
-      $item = $transfer.find(`#${task.id}`);
-      task.datetime = taskHistory[task.id].datetime || new Date();
-
-      //Displaying all nodes in the queue will result in a freezes since the dom tree can get huge.
-      if(task.subtype === 'queued') {
-        return;
-      }
-
-      if($transfer.find('li').length > MAX_DISPLAY) {
-        $transfer.find('li').not('.task-progress').not('.task-queued').not('.status-no-elements').last().remove();
-      }
-
-      if($item.length > 0) {
-        $item.replaceWith(renderTask(task));
-      } else {
-        $transfer.prepend(renderTask(task));
-      }
-    }
-
-    var onTransferProgress = function(event, task) {
-      $syncStatus.find('span').html(i18n.__('tray.sync.status.transfer'));
-      $syncStatus.find('div').show();
-
-      if(taskHistory[task.id]) {
-        taskHistory[task.id].percent = task.percent;
-        $item = $transfer.find(`li#${task.id}`);
-        if($item.length > 0) {
-          $item.replaceWith(renderTask(taskHistory[task.id]));
-        }
-      }
-    }
 
     ipcRenderer.removeListener('sync-started', onSyncStarted);
     ipcRenderer.on('sync-started', onSyncStarted);
@@ -246,6 +178,77 @@ module.exports = function() {
       <div class="status-error-message">${error.message}</div>
       <div class="status-error-date">${ta.format(error.date)}</div>
     </li>`);
+  }
+
+  var onSyncStarted = function(event) {
+    $syncStatus.find('span').html(i18n.__('tray.sync.status.start'));
+    $syncStatus.find('div').show();
+  }
+
+  var onSyncResumed = function(event) {
+    $syncStatus.find('span').html(i18n.__('tray.sync.status.start'));
+    $syncStatus.find('div').show();
+  }
+
+  var onSyncEnded = function(event) {
+    $syncStatus.find('span').html(i18n.__('tray.sync.status.default'));
+    $syncStatus.find('div').hide();
+  }
+
+  var onNetworkOffline = function(event) {
+    $syncStatus.find('span').html(i18n.__('tray.sync.status.offline'));
+    $syncStatus.find('div').hide();
+  };
+
+  var onUnlinkAccountResult = function(event, result) {
+    $syncStatus.find('span').html(i18n.__('tray.sync.status.loggedout'));
+    $syncStatus.find('div').hide();
+    taskHistory = {};
+    $transfer.find('li').not('.status-no-elements').remove();
+    $error.find('li').not('.status-no-elements').remove();
+  }
+
+  var onUnlinkAccountResult = function(event, result) {
+    $syncStatus.find('span').html(i18n.__('tray.sync.status.warmup'));
+    $syncStatus.find('div').hide();
+  }
+
+  var onSyncPaused = function(event) {
+    $syncStatus.find('span').html(i18n.__('tray.sync.status.pause'));
+    $syncStatus.find('div').hide();
+  }
+
+  var onTransferTask = function(event, task) {
+    $item = $transfer.find(`#${task.id}`);
+    task.datetime = taskHistory[task.id].datetime || new Date();
+
+    //Displaying all nodes in the queue will result in a freezes since the dom tree can get huge.
+    if(task.subtype === 'queued') {
+      return;
+    }
+
+    if($transfer.find('li').length > MAX_DISPLAY) {
+      $transfer.find('li').not('.task-progress').not('.task-queued').not('.status-no-elements').last().remove();
+    }
+
+    if($item.length > 0) {
+      $item.replaceWith(renderTask(task));
+    } else {
+      $transfer.prepend(renderTask(task));
+    }
+  }
+
+  var onTransferProgress = function(event, task) {
+    $syncStatus.find('span').html(i18n.__('tray.sync.status.transfer'));
+    $syncStatus.find('div').show();
+
+    if(taskHistory[task.id]) {
+      taskHistory[task.id].percent = task.percent;
+      $item = $transfer.find(`li#${task.id}`);
+      if($item.length > 0) {
+        $item.replaceWith(renderTask(taskHistory[task.id]));
+      }
+    }
   }
 
   return {
