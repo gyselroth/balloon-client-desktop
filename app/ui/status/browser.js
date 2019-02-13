@@ -186,8 +186,8 @@ module.exports = function() {
   }
 
   var onSyncResumed = function(event) {
-    $syncStatus.find('span').html(i18n.__('tray.sync.status.start'));
-    $syncStatus.find('div').show();
+    $syncStatus.find('span').html(i18n.__('tray.sync.status.default'));
+    $syncStatus.find('div').hide();
   }
 
   var onSyncEnded = function(event) {

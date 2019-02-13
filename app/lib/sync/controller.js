@@ -46,8 +46,8 @@ module.exports = function(env, tray) {
       });
     } else {
       //resume
-      start(false);
       tray.syncResumed();
+      start(false);
     }
   }
 
