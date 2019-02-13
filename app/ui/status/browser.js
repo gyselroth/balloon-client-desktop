@@ -135,6 +135,9 @@ module.exports = function() {
 
     ipcRenderer.removeListener('transfer-progress', onTransferProgress);
     ipcRenderer.on('transfer-progress', onTransferProgress);
+
+    ipcRenderer.removeListener('transfer-start', onTransferStart);
+    ipcRenderer.on('transfer-start', onTransferStart);
   }
 
   function renderTask(task) {
@@ -249,6 +252,11 @@ module.exports = function() {
         $item.replaceWith(renderTask(taskHistory[task.id]));
       }
     }
+  }
+
+  var onTransferStart = function(event) {
+    $syncStatus.find('span').html(i18n.__('tray.sync.status.tree'));
+    $syncStatus.find('div').show();
   }
 
   return {

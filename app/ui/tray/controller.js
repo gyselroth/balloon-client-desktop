@@ -211,6 +211,10 @@ module.exports = function(env, clientConfig) {
     trayWindow.webContents.send('transfer-progress', task);
   });
 
+  ipcMain.on('transfer-start', (event) => {
+    trayWindow.webContents.send('transfer-start');
+  });
+
   function create() {
     if(!tray) {
       const iconConfig = getIconConfig('default');

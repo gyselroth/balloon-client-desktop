@@ -41,6 +41,10 @@ try {
       ipcRenderer.send('transfer-progress', task);
     });
 
+    sync.on('transfer-start', () => {
+      ipcRenderer.send('transfer-start');
+    });
+
     sync.start((err, results) => {
       if(err) {
         logger.warning('finished sync with error', {
