@@ -1,3 +1,11 @@
+## 1.0.0
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Thu February 07 09:36:23 CET 2019
+
+* CORE: [FIX] Increased tray performance during initial sync #178
+* CORE: [CHANGE] Display new tray state while directory structure is synchronized
+
+
 ## 1.0.0-rc2
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu February 07 09:36:23 CET 2019
