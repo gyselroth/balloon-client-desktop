@@ -6,6 +6,7 @@ const handlebars = require('handlebars');
 const async = require('async');
 
 const clientConfig = require('../../lib/config.js');
+const globalConfig = require('../../lib/global-config.js');
 
 const logger = require('../../lib/logger.js');
 const loggerFactory = require('../../lib/logger-factory.js');
@@ -44,6 +45,7 @@ $('document').ready(function() {
   ipcRenderer.once('secret', function(event, type, secret) {
     var config = clientConfig.getAll(true);
     config[type] = secret;
+    config.version = globalConfig.get('version');
 
     initialize(config);
   });

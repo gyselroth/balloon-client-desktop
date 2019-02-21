@@ -4,6 +4,7 @@
 
 * CORE: [FIX] Increased tray performance during initial sync #178
 * CORE: [CHANGE] Display new tray state while directory structure is synchronized
+* CORE: [FIX] Missing client version in user-agent #183
 
 
 ## 1.0.0-rc2

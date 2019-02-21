@@ -11,6 +11,7 @@ const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 
 const env = require('../../env.js');
 const clientConfig = require('../config.js');
+const globalConfig = require('../global-config.js');
 const appState = require('../state.js');
 
 var startup = StartupCtrl(env, clientConfig);
@@ -227,7 +228,8 @@ module.exports = function(env, tray) {
 
   function startWatcher() {
     return new Promise(function(resolve, reject) {
-      const config = clientConfig.getAll(true);
+      var config = clientConfig.getAll(true);
+      config.version = globalConfig.get('version');
 
       Promise.all([
         killWatcher(),
@@ -336,6 +338,7 @@ module.exports = function(env, tray) {
     pause(true).then(result => {
       let config = clientConfig.getAll();
       config[clientConfig.getSecretType()] = clientConfig.getSecret();
+      config.version = globalConfig.get('version');
 
       const sync = fullSyncFactory(config, logger.getLogger());
 
@@ -356,6 +359,7 @@ module.exports = function(env, tray) {
     pause(true).then(result => {
       let config = clientConfig.getAll();
       config[clientConfig.getSecretType()] = clientConfig.getSecret();
+      config.version = globalConfig.get('version');
 
       const sync = fullSyncFactory(config, logger.getLogger());
 
