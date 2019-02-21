@@ -318,6 +318,7 @@ p {
   margin-bottom: 20px;
   border-bottom: solid 1px #EEE;
   padding-bottom: 10px;
+  word-break: break-all;
 }
 
 #status #status-error li .status-error-date {

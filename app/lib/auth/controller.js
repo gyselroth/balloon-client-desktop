@@ -9,6 +9,7 @@ const logger = require('../logger.js');
 const instance = require('../instance.js');
 const fsUtility = require('../fs-utility.js');
 const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
+const globalConfig = require('../global-config.js');
 
 module.exports = function(env, clientConfig) {
   var oidc = OidcCtrl(env, clientConfig);
@@ -219,6 +220,7 @@ module.exports = function(env, clientConfig) {
   function verifyAuthentication() {
     return new Promise(function(resolve, reject) {
       var config = clientConfig.getAll(true);
+      config.version = globalConfig.get('version');
 
       if((config.authMethod === 'oidc' && !config.accessToken) || (config.authMethod === 'basic' && !config.password)) {
         logger.error('can not verify credentials, no secret available', {category: 'auth'});
@@ -259,7 +261,10 @@ module.exports = function(env, clientConfig) {
   function verifyNewLogin() {
     //resolves with booelan true if a new instance was created (aka never seen user)
     return new Promise(function(resolve, reject) {
-      var sync = fullSyncFactory(clientConfig.getAll(true), logger);
+      var config = clientConfig.getAll(true);
+      config.version = globalConfig.get('version');
+
+      var sync = fullSyncFactory(config, logger);
       sync.blnApi.whoami(function(err, username) {
         if(err) {
           logger.error('failed verify new user credentials', {

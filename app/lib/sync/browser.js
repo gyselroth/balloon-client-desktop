@@ -4,6 +4,7 @@ const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 
 const env = require('../../env.js');
 const clientConfig = require('../config.js');
+const globalConfig = require('../global-config.js');
 const logger = require('../logger.js');
 const loggerFactory = require('../logger-factory.js');
 
@@ -19,6 +20,7 @@ try {
   ipcRenderer.once('secret', function(event, type, secret) {
     var config = clientConfig.getAll(true);
     config[type] = secret;
+    config.version = globalConfig.get('version');
 
     if(env.sync && env.sync.maxConcurentConnections) {
       config['maxConcurentConnections'] = env.sync.maxConcurentConnections;
@@ -39,6 +41,10 @@ try {
 
     sync.on('transfer-progress', (task) => {
       ipcRenderer.send('transfer-progress', task);
+    });
+
+    sync.on('transfer-start', () => {
+      ipcRenderer.send('transfer-start');
     });
 
     sync.start((err, results) => {
