@@ -9,7 +9,7 @@ const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 const i18n = require('../../lib/i18n.js');
 const instance = require('../../lib/instance.js');
 const clientConfig = require('../../lib/config.js');
-const globalConfig = requre('../../lib/global-config.js');
+const globalConfig = require('../../lib/global-config.js');
 const appState = require('../../lib/state.js');
 
 const modules = {
