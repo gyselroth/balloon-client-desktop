@@ -1,5 +1,7 @@
 //(function () {'use strict';
 
+const os = require('os');
+
 const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
 const handlebars = require('handlebars');
@@ -14,6 +16,8 @@ const app = electron.remote.app;
 
 const logger = require('../../lib/logger.js');
 const loggerFactory = require('../../lib/logger-factory.js');
+const globalConfig = require('../../lib/global-config.js');
+
 var standardLogger = new loggerFactory(clientConfig.getAll());
 logger.setLogger(standardLogger);
 
@@ -132,7 +136,15 @@ function verifyServer() {
 function pingApiServer(blnUrl, callback) {
   var apiPingUrl = blnUrl + '/api/v2';
 
-  request.get(apiPingUrl, {timeout: 2000}, (err, result) => {
+  var reqOptions = {
+    timeout: 2000,
+    headers: {
+      'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
+      'User-Agent': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname(), os.platform(), os.release()].join('|'),
+    }
+  };
+
+  request.get(apiPingUrl, reqOptions, (err, result) => {
     try {
       var body = JSON.parse(result.body);
       callback(!(err || body.name !== 'balloon'));

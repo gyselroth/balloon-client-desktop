@@ -132,12 +132,12 @@ module.exports = function(env, clientConfig) {
       }
 
       logger.info('Do token auth', {category: 'auth', username: body.username, grant_type: body.grant_type});
-
       var reqOptions = {
         uri: apiUrl + 'tokens',
         method: 'POST',
         headers: {
           'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
+          'User-Agent': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname(), os.platform(), os.release()].join('|'),
           'Authorization': 'Basic ' + new Buffer('balloon-client-desktop:').toString('base64')
         },
         form: body,
@@ -267,6 +267,7 @@ module.exports = function(env, clientConfig) {
             method: 'POST',
             headers: {
               'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
+              'User-Agent': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname(), os.platform(), os.release()].join('|'),
               'Authorization': 'Basic ' + new Buffer('balloon-client-desktop:').toString('base64')
             },
             body: {

@@ -9,6 +9,7 @@ const async = require('async');
 const archiver = require('archiver');
 const request = require('request');
 const logger = require('../../lib/logger.js');
+const globalConfig = require('../../lib/global-config.js');
 const url = require('url');
 
 module.exports = function(env, clientConfig) {
@@ -44,7 +45,15 @@ module.exports = function(env, clientConfig) {
     var reportName = [clientConfig.get('username'), Math.floor(new Date().getTime() / 1000)].join('_');
 
     var url = env.autoReportPutUrl || 'https://support.gyselroth.net/balloon-auto-report';
-    var req = request.put(url+'/' + reportName);
+
+    var reqOptions = {
+      headers: {
+        'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
+        'User-Agent': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname(), os.platform(), os.release()].join('|'),
+      }
+    };
+
+    var req = request.put(url+'/' + reportName, reqOptions);
 
     req.on('error', function(err) {
       logger.error('sending auto report failed', {
@@ -100,7 +109,14 @@ module.exports = function(env, clientConfig) {
       var reportName = [clientConfig.get('username'), Math.floor(new Date().getTime() / 1000)].join('_');
 
       var url = env.feedbackPutUrl || 'https://support.gyselroth.net/balloon';
-      var req = request.put(url+'/' + reportName+'?feedback='+encodeURIComponent(text));
+      var reqOptions = {
+        headers: {
+          'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
+          'User-Agent': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname(), os.platform(), os.release()].join('|'),
+        }
+      };
+
+      var req = request.put(url+'/' + reportName+'?feedback='+encodeURIComponent(text), reqOptions);
 
       req.on('error', function(err) {
         logger.error('sending feedback failed', {
