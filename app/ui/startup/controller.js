@@ -157,7 +157,7 @@ module.exports = function(env, clientConfig) {
               }
             })
             .catch((error) => {
-              if(error.code && error.code === 'E_BLN_MFA_REQUIRED') {
+              if(error.code && ['E_BLN_API_REQUEST_MFA_REQUIRED', 'E_BLN_MFA_REQUIRED'].includes(error.code)) {
                 logger.debug('Credentials auth requires mfa authentication', {category: 'startup', 'credentialsType': env.auth.credentails});
 
                 startupWindow.webContents.send('startup-auth-mfa-required');

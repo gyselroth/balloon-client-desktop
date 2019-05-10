@@ -211,9 +211,14 @@ function auth() {
   ipcRenderer.on('startup-auth-mfa-required', function(event) {
     $loader.hide();
 
-    $username.hide();
-    $password.hide();
-    $mfaCode.show();
+    if(env.auth && ['basic', null].includes(env.auth.credentials)) {
+      $('#startup-auth-error').find('> div').hide()
+      $('#startup-auth-error-mfa-not-token').show();
+    } else {
+      $username.hide();
+      $password.hide();
+      $mfaCode.show();
+    }
   });
 
   ipcRenderer.removeAllListeners('startup-auth-error');

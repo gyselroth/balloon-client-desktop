@@ -23,6 +23,7 @@ const loggerFactory = require('./lib/logger-factory.js');
 const configManager = require('./lib/config-manager/controller.js')(clientConfig);
 const globalConfig = require('./lib/global-config.js');
 var isHandlingUnauthorizedRequest = false;
+var isHandlingMfaRequired = false;
 
 var tray, selective, sync, feedback, autoUpdate;
 
@@ -408,6 +409,11 @@ ipcMain.on('selective-error', (event, error, url, line, message) => {
         });
       }
     break;
+    case 'E_BLN_API_REQUEST_MFA_REQUIRED':
+      selective.close();
+      logger.info('got 403 MFA required from selective, unlink account', {category: 'main'});
+      unlinkAccount();
+    break;
     default:
       logger.error('Uncaught selective error.', {
         category: 'main',
@@ -445,6 +451,15 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
           isHandlingUnauthorizedRequest = false;
         });
       }
+    break;
+    case 'E_BLN_API_REQUEST_MFA_REQUIRED':
+      if(isHandlingMfaRequired === true) return;
+
+      isHandlingMfaRequired = true;
+
+      logger.info('got 403 MFA required from selective, unlink account', {category: 'main'});
+      unlinkAccount();
+      isHandlingMfaRequired = false;
     break;
     case 'E_BLN_CONFIG_CREDENTIALS':
       logger.error('credentials not set', {

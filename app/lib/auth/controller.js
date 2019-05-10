@@ -376,7 +376,7 @@ module.exports = function(env, clientConfig) {
           error: err
         });
 
-        if(err.code && err.code !== 'E_BLN_API_REQUEST_UNAUTHORIZED') {
+        if(err.code && ['E_BLN_API_REQUEST_UNAUTHORIZED', 'E_BLN_API_REQUEST_MFA_REQUIRED'].includes(err.code) === false) {
           // assume there is a network problem, should retry later
           return reject(err);
         }

@@ -113,6 +113,7 @@
   "error.blnUrl.notreachable": "Der eingegebene Server kann nicht erreicht werden. Bitte prüfe die Server-Adresse",
   "error.blnUrl.offline": "Der balloon-Server kann nicht erreicht werden. Bitte stelle sicher, dass eine Internetverbindung besteht.",
   "error.auth.credentials": "Authentifizierung fehlgeschlagen",
+  "error.auth.mfaNotToken": "Der gewählte Account hat Multi Faktor Authentifizierung (MFA) aktiviert. MFA wird nur mit dem Login Flow \"token\" unterstüzt.",
   "error.auth.oidc": "Die Authentifizierung mit dem ausgewählten Identity Provider ist fehlgeschlagen.",
 
   "balloonDirSelector.title": "Speicherort für balloonDir wählen",
