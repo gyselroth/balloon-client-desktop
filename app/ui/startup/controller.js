@@ -139,14 +139,15 @@ module.exports = function(env, clientConfig) {
         startupWindow.on('closed', windowClosedByUserHandler);
 
         ipcMain.removeAllListeners('startup-credentials-signin');
-        ipcMain.on('startup-credentials-signin', function(event, username, password) {
+        ipcMain.on('startup-credentials-signin', function(event, username, password, code) {
           logger.info('requested credentials authentication', {
             category: 'startup',
             username: username
           });
 
           startupWindow.removeListener('closed', windowClosedByUserHandler);
-          auth.credentialsAuth(username, password)
+
+          auth.credentialsAuth(username, password, code)
             .then((newInstance) => {
               if(!clientConfig.hadConfig()) {
                 resolve({welcomeWizardPromise: welcomeWizard()});
@@ -156,8 +157,14 @@ module.exports = function(env, clientConfig) {
               }
             })
             .catch((error) => {
-              logger.error('Credentials auth resulted in an error', {category: 'startup', error, 'credentialsType': env.auth.credentails});
-              startupWindow.webContents.send('startup-auth-error',  'credentials');
+              if(error.code && error.code === 'E_BLN_MFA_REQUIRED') {
+                logger.debug('Credentials auth requires mfa authentication', {category: 'startup', 'credentialsType': env.auth.credentails});
+
+                startupWindow.webContents.send('startup-auth-mfa-required');
+              } else {
+                logger.error('Credentials auth resulted in an error', {category: 'startup', error, 'credentialsType': env.auth.credentails});
+                startupWindow.webContents.send('startup-auth-error',  'credentials');
+              }
             });
         });
 

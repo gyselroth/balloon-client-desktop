@@ -1,3 +1,9 @@
+## 1.0.1
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: 
+
+* CORE: [CHANGE] Implement token flow and MFA #186
+
 ## 1.0.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu February 07 09:36:23 CET 2019

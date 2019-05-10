@@ -182,6 +182,18 @@ function auth() {
   var $container = $('#startup-auth-oidc');
   $container.find('> img').remove();
 
+  var $username = $('#startup-view-auth').find('input[name=username]');
+  var $password = $('#startup-view-auth').find('input[name=password]');
+  var $mfaCode = $('#startup-view-auth').find('input[name=mfaCode]');
+
+  $username.show();
+  $password.show();
+  $mfaCode.hide();
+
+  $username.val('');
+  $password.val('');
+  $mfaCode.val('');
+
   if(env.auth && env.auth.oidc) {
     var i=0;
     $(env.auth.oidc).each(function(e, idp){
@@ -195,6 +207,15 @@ function auth() {
     ipcRenderer.send('auth-oidc-signin', $(this).attr('alt'));
   });
 
+  ipcRenderer.removeAllListeners('startup-auth-mfa-required');
+  ipcRenderer.on('startup-auth-mfa-required', function(event) {
+    $loader.hide();
+
+    $username.hide();
+    $password.hide();
+    $mfaCode.show();
+  });
+
   ipcRenderer.removeAllListeners('startup-auth-error');
   ipcRenderer.on('startup-auth-error', function (event, type) {
     $loader.hide();
@@ -206,9 +227,10 @@ function auth() {
     event.preventDefault();
 
     $loader.show();
-    var username = $('#startup-view-auth').find('input[name=username]').val();
-    var password = $('#startup-view-auth').find('input[name=password]').val();
-    ipcRenderer.send('startup-credentials-signin', username, password);
+    var username = $username.val();
+    var password = $password.val();
+    var code = $mfaCode.val();
+    ipcRenderer.send('startup-credentials-signin', username, password, code);
   });
 }
 

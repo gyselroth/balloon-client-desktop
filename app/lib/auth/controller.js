@@ -70,7 +70,7 @@ module.exports = function(env, clientConfig) {
    });
   }
 
-  function credentialsAuth(username, password) {
+  function credentialsAuth(username, password, code) {
     switch(env.auth.credentials) {
       case null:
         return Prmosie.reject(new Error('Credentials authentication has been deactivated.'));
@@ -80,7 +80,7 @@ module.exports = function(env, clientConfig) {
       break;
       case 'token':
       default:
-        return _doTokenAuth(username, password);
+        return _doTokenAuth(username, password, code);
       break;
 
     }
@@ -113,7 +113,7 @@ module.exports = function(env, clientConfig) {
     });
   }
 
-  function _doTokenAuth(username, password) {
+  function _doTokenAuth(username, password, code) {
     clientConfig.set('authMethod', 'token');
     clientConfig.set('username', username);
 
@@ -126,6 +126,13 @@ module.exports = function(env, clientConfig) {
         grant_type: 'password',
       };
 
+      if(code && code !== '') {
+        body.grant_type = 'password_mfa';
+        body.code = code;
+      }
+
+      logger.info('Do token auth', {category: 'auth', username: body.username, grant_type: body.grant_type});
+
       var reqOptions = {
         uri: apiUrl + 'tokens',
         method: 'POST',
@@ -133,7 +140,7 @@ module.exports = function(env, clientConfig) {
           'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
           'Authorization': 'Basic ' + new Buffer('balloon-client-desktop:').toString('base64')
         },
-        body: body,
+        form: body,
         json: true,
         timeout: clientConfig.get('requestTimeout') || 30000
       };
@@ -161,6 +168,15 @@ module.exports = function(env, clientConfig) {
                 });
               })
               .catch(reject);
+          break;
+          case 403:
+            if(body.error === 'Balloon\\App\\Idp\\Exception\\MultiFactorAuthenticationRequired') {
+              var error = new Error('MFA auth required');
+              error.code = 'E_BLN_MFA_REQUIRED';
+              reject(error);
+            } else {
+              reject(error);
+            }
           break;
           case 401:
           default:
