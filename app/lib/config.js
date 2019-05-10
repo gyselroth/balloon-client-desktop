@@ -107,10 +107,14 @@ module.exports = function() {
       method = memorySettings['authMethod'];
     }
 
-    if(method === 'basic') {
-      return 'password';
-    } else if(method === 'oidc') {
-      return 'accessToken';
+    switch(method) {
+      case 'basic':
+        return 'password';
+      break;
+      case 'token':
+      case 'oidc':
+        return 'accessToken';
+      break;
     }
   }
 
@@ -196,7 +200,11 @@ module.exports = function() {
       }
     },
     destroySecret: function(type) {
-      secret = undefined;
+      if(getSecretType() === type) {
+        secret = undefined;
+        traySecretUpdate();
+      }
+
       if(!env.auth || !env.auth.secretStorage || env.auth.secretStorage === 'keytar') {
         if(type === undefined) return Promise.resolve();
         return keytar.delete(type);
@@ -206,8 +214,10 @@ module.exports = function() {
       }
     },
     storeSecret: function(type, key) {
-      secret = key;
-      traySecretUpdate();
+      if(getSecretType() === type) {
+        secret = key;
+        traySecretUpdate();
+      }
 
       if(!env.auth || !env.auth.secretStorage || env.auth.secretStorage === 'keytar') {
         return keytar.set(type, key);
@@ -227,7 +237,7 @@ module.exports = function() {
       traySecretUpdate = callee;
     },
     updateTraySecret: function() {
-      traySecretUpdate();
+      if(traySecretUpdate) traySecretUpdate();
     }
   }
 }();

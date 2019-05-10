@@ -1,4 +1,5 @@
 const fs = require('graceful-fs');
+const os = require('os');
 const path = require('path');
 
 const {session} = require('electron');
@@ -10,6 +11,7 @@ const instance = require('../instance.js');
 const fsUtility = require('../fs-utility.js');
 const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 const globalConfig = require('../global-config.js');
+const request = require('request');
 
 module.exports = function(env, clientConfig) {
   var oidc = OidcCtrl(env, clientConfig);
@@ -18,6 +20,37 @@ module.exports = function(env, clientConfig) {
     logger.info('logout initialized', {category: 'auth', authMethod: clientConfig.get('authMethod')});
 
     return new Promise(function(resolve, reject) {
+      var _finalizeLogout = function() {
+        clientConfig.set('authMethod', undefined);
+        clientConfig.updateTraySecret();
+        instance.unlink(clientConfig);
+
+        resolve();
+      }
+
+      var _logout = function(excludeRefreshToken) {
+        logger.info('Destroying secrets', {category: 'auth', excludeRefreshToken});
+
+        var promises = [];
+
+        promises.push(clientConfig.destroySecret(clientConfig.getSecretType()));
+
+        if(excludeRefreshToken !== true) {
+         promises.push(clientConfig.destroySecret('refreshToken'));
+        }
+
+        Promise.all(promises)
+          .then(_finalizeLogout)
+          .catch(error => {
+            logger.error("failed to destroy secret(s?), but user gets logged out anyways", {
+              category: 'auth',
+              error: error
+            });
+
+            _finalizeLogout();
+          });
+      };
+
       if(clientConfig.get('authMethod') === 'oidc' && clientConfig.get('oidcProvider')) {
         var idpConfig = getIdPByProviderUrl(clientConfig.get('oidcProvider'));
 
@@ -26,31 +59,34 @@ module.exports = function(env, clientConfig) {
             category: 'auth',
             oidcProvider: clientConfig.get('oidcProvider')
           });
+
+          _logout(false);
         } else {
-          oidc.revokeToken(idpConfig);
+          oidc.revokeToken(idpConfig).then(()=>_logout(false)).catch(()=>_logout(false));
         }
+      } else {
+        _logout(clientConfig.get('authMethod') === 'basic');
       }
-
-      var _logout = function() {
-        clientConfig.set('authMethod', undefined);
-        clientConfig.updateTraySecret();
-        instance.unlink(clientConfig);
-        resolve();
-      };
-
-      clientConfig.destroySecret(clientConfig.getSecretType()).then(_logout
-      ).catch(error => {
-        logger.error("failed to destroy secret, but user gets logged out anyways", {
-          category: 'auth',
-          error: error
-        });
-
-        _logout();
-      })
    });
   }
 
-  function basicAuth(username, password) {
+  function credentialsAuth(username, password) {
+    switch(env.auth.credentials) {
+      case null:
+        return Prmosie.reject(new Error('Credentials authentication has been deactivated.'));
+      break;
+      case 'basic':
+        return _doBasicAuth(username, password);
+      break;
+      case 'token':
+      default:
+        return _doTokenAuth(username, password);
+      break;
+
+    }
+  }
+
+  function _doBasicAuth(username, password) {
     clientConfig.set('authMethod', 'basic');
     clientConfig.set('username', username);
 
@@ -64,7 +100,7 @@ module.exports = function(env, clientConfig) {
             error: error
           });
 
-          reject(error)
+          reject(error);
         });
       }).catch((error) => {
         logger.error('failed store secret in keystore', {
@@ -72,12 +108,106 @@ module.exports = function(env, clientConfig) {
           error: error
         });
 
-        reject(error)
+        reject(error);
+      });
+    });
+  }
+
+  function _doTokenAuth(username, password) {
+    clientConfig.set('authMethod', 'token');
+    clientConfig.set('username', username);
+
+    return new Promise(function(resolve, reject){
+      var apiUrl = clientConfig.get('apiUrl').replace('/v1', '/v2');
+
+      var body = {
+        username: username,
+        password: password,
+        grant_type: 'password',
+      };
+
+      var reqOptions = {
+        uri: apiUrl + 'tokens',
+        method: 'POST',
+        headers: {
+          'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
+          'Authorization': 'Basic ' + new Buffer('balloon-client-desktop:').toString('base64')
+        },
+        body: body,
+        json: true,
+        timeout: clientConfig.get('requestTimeout') || 30000
+      };
+
+      var req = request(reqOptions, (err, response, body) => {
+        if(err) {
+          logger.error('do token auth failed', {category: 'auth', error: err});
+
+          return reject(err);
+        }
+
+        switch(response.statusCode) {
+          case 200:
+            _storeAuthTokens(body)
+              .then(() => {
+                verifyNewLogin().then((newInstance) => {
+                  resolve(newInstance);
+                }).catch((error) => {
+                  logger.error('failed signin via token auth', {
+                    category: 'auth',
+                    error: error
+                  });
+
+                  reject(error);
+                });
+              })
+              .catch(reject);
+          break;
+          case 401:
+          default:
+            reject(new Error(body.error_description));
+          break;
+        }
+      });
+    });
+  }
+
+  function _storeAuthTokens(body) {
+    return new Promise(function(resolve, reject) {
+      if(!body.access_token) {
+        logger.error('access token not set in response', {category: 'auth'});
+        return reject(new Error('Response does not contain access_token'));
+      }
+
+      var promises = [];
+
+      promises.push(clientConfig.storeSecret('accessToken', body.access_token));
+
+      if(body.refresh_token) {
+        promises.push(clientConfig.storeSecret('refreshToken', body.refresh_token))
+      }
+
+      Promise.all(promises).then(() => {
+        logger.debug('Stored tokens', {category: 'auth'});
+        resolve();
+      }).catch((err) => {
+        logger.error('Could not store tokens', {category: 'auth', err});
+        reject(err);
       });
     });
   }
 
   function refreshAccessToken() {
+    switch(clientConfig.get('authMethod')) {
+      case 'odic':
+        return _refreshOidcAccessToken();
+      break;
+      case 'token':
+        return _refreshInternalAccessToken();
+      break;
+    }
+  }
+
+  function _refreshOidcAccessToken() {
     return new Promise(function(resolve, reject) {
       var oidcProvider = clientConfig.get('oidcProvider');
       if(oidcProvider === undefined) {
@@ -107,6 +237,63 @@ module.exports = function(env, clientConfig) {
           });
         }
       }).catch(reject);
+    });
+  }
+
+  function _refreshInternalAccessToken() {
+    return new Promise(function(resolve, reject) {
+      clientConfig.retrieveSecret('refreshToken')
+        .then((secret) => {
+          var apiUrl = clientConfig.get('apiUrl').replace('/v1', '/v2');
+
+          var reqOptions = {
+            uri: apiUrl + 'tokens',
+            method: 'POST',
+            headers: {
+              'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
+              'Authorization': 'Basic ' + new Buffer('balloon-client-desktop:').toString('base64')
+            },
+            body: {
+              refresh_token: secret,
+              grant_type: 'refresh_token',
+            },
+            json: true,
+            timeout: clientConfig.get('requestTimeout') || 30000
+          };
+
+          var req = request(reqOptions, (err, response, body) => {
+            if(err) {
+              logger.error('refresh internal access token failed', {category: 'auth', error: err});
+
+              return reject(err);
+            }
+
+            switch(response.statusCode) {
+              case 200:
+                _storeAuthTokens(body)
+                  .then(() => {
+                    verifyAuthentication().then(resolve).catch((error) => {
+                      logger.error('verify auth after refresh access token failed', {
+                        category: 'auth',
+                        error: error
+                      });
+
+                      reject(error);
+                    });
+                  })
+                  .catch(reject);
+              break;
+              case 400:
+              default:
+                reject(new Error(body.error_description));
+              break;
+            }
+          });
+        })
+        .catch((err) => {
+          logger.error('Could not retrieve internal refresh token', {category: 'auth', err});
+          reject(err)
+        });
     });
   }
 
@@ -178,26 +365,38 @@ module.exports = function(env, clientConfig) {
           return reject(err);
         }
 
-        if(clientConfig.get('authMethod') === 'oidc') {
-          var oidcProvider = clientConfig.get('oidcProvider');
+        switch(clientConfig.get('authMethod')) {
+          case 'oidc':
+            var oidcProvider = clientConfig.get('oidcProvider');
 
-          if(oidcProvider === undefined) {
-            logger.info('login no oidc provider, open startup configuration', {category: 'auth'});
-            startup().then(resolve).catch(reject);
-          } else {
-            var idpConfig = getIdPByProviderUrl(oidcProvider);
-            oidcAuth(idpConfig).then(resolve).catch((err) => {
-              logger.info('login oidc login failed, open startup configuration', {
+            if(oidcProvider === undefined) {
+              logger.info('login no oidc provider, open startup configuration', {category: 'auth'});
+              startup().then(resolve).catch(reject);
+            } else {
+              var idpConfig = getIdPByProviderUrl(oidcProvider);
+              oidcAuth(idpConfig).then(resolve).catch((err) => {
+                logger.info('oidc login failed, open startup configuration', {
+                  category: 'auth',
+                  error: err
+                });
+
+                startup().then(resolve).catch(reject);
+              });
+            }
+          break;
+          case 'token':
+            refreshAccessToken().then(resolve).catch((error) => {
+              logger.info('token login failed, open startup configuration', {
                 category: 'auth',
                 error: err
               });
 
               startup().then(resolve).catch(reject);
             });
-          }
-        } else {
-          logger.info('login method not oidc, starting startup configuration', {category: 'auth'});
-          startup().then(resolve).catch(reject);
+          break;
+          default:
+            logger.info('login method neither oidc or token, starting startup configuration', {category: 'auth'});
+            startup().then(resolve).catch(reject);
         }
       });
     });
@@ -222,7 +421,7 @@ module.exports = function(env, clientConfig) {
       var config = clientConfig.getAll(true);
       config.version = globalConfig.get('version');
 
-      if((config.authMethod === 'oidc' && !config.accessToken) || (config.authMethod === 'basic' && !config.password)) {
+      if((['oidc', 'token'].includes(config.authMethod) && !config.accessToken) || (config.authMethod === 'basic' && !config.password)) {
         logger.error('can not verify credentials, no secret available', {category: 'auth'});
         reject(new Error('Secret not set'));
       }
@@ -259,7 +458,7 @@ module.exports = function(env, clientConfig) {
   }
 
   function verifyNewLogin() {
-    //resolves with booelan true if a new instance was created (aka never seen user)
+    //resolves with boolean true if a new instance was created (aka never seen user)
     return new Promise(function(resolve, reject) {
       var config = clientConfig.getAll(true);
       config.version = globalConfig.get('version');
@@ -326,7 +525,7 @@ module.exports = function(env, clientConfig) {
   return {
     logout,
     login,
-    basicAuth,
+    credentialsAuth,
     oidcAuth,
     refreshAccessToken,
     getIdPByProviderUrl,

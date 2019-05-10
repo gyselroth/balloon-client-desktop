@@ -111,7 +111,7 @@
   "error.blnUrl.invalid": "Bitte gib eine gültige Server-URL an (Bsp: https://example.org)",
   "error.blnUrl.notreachable": "Der eingegebene Server kann nicht erreicht werden. Bitte prüfe die Server-Adresse",
   "error.blnUrl.offline": "Der balloon-Server kann nicht erreicht werden. Bitte stelle sicher, dass eine Internetverbindung besteht.",
-  "error.auth.basic": "Authentifizierung fehlgeschlagen",
+  "error.auth.credentials": "Authentifizierung fehlgeschlagen",
   "error.auth.oidc": "Die Authentifizierung mit dem ausgewählten Identity Provider ist fehlgeschlagen.",
 
   "balloonDirSelector.title": "Speicherort für balloonDir wählen",

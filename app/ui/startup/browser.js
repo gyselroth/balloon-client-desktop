@@ -174,8 +174,8 @@ function advanced() {
 }
 
 function auth() {
-  if(env.auth && env.auth.basic === false) {
-    $('#startup-auth-basic').hide();
+  if(env.auth && env.auth.credentials === null) {
+    $('#startup-auth-credentials').hide();
   }
 
   var $loader = $('.window-loader');
@@ -195,30 +195,21 @@ function auth() {
     ipcRenderer.send('auth-oidc-signin', $(this).attr('alt'));
   });
 
+  ipcRenderer.removeAllListeners('startup-auth-error');
   ipcRenderer.on('startup-auth-error', function (event, type) {
     $loader.hide();
     $('#startup-auth-error').find('> div').hide()
     $('#startup-auth-error-'+type).show();
   });
 
-  function basicAuth() {
+  $('#startup-auth-credentials').off('submit').on('submit', function(event) {
+    event.preventDefault();
+
     $loader.show();
     var username = $('#startup-view-auth').find('input[name=username]').val();
     var password = $('#startup-view-auth').find('input[name=password]').val();
-    ipcRenderer.send('startup-basic-auth', username, password);
-  }
-
-  $(document).bind('keypress', function(e){
-    if($(e.target).attr('id') === 'startup-auth-continue') {
-      return;
-    }
-
-    if(e.which === 13 && $('#startup-view-auth').is(':visible')) {
-      basicAuth(e);
-    }
+    ipcRenderer.send('startup-credentials-signin', username, password);
   });
-
-  $('#startup-auth-continue').bind('click', basicAuth);
 }
 
 function switchView(view) {

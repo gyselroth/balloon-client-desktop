@@ -133,7 +133,7 @@ The following configuration options are available:
 * `winClsId` String (optional) - Windows explorer ClsId
 * `auth`: Object (optional) - authentication configuration
   * `secretStorage` String (optional) - credential storage, either config or keytar (OS keychain). Default: `keytar`
-  * `basic` Boolean (optional) - enabled basic authentication (username/password), be sure that your server has basic authentication enabled
+  * `credentials` null|'basic'|'token' - if `null` only oidc auth is active, `token` for internal token flow, `basic` for basic authentication. Be sure your server supports the configured authentication method. Default: `token`
   * `oidc` Array (optional) - configure multiple OpenID-connect provider, be sure that your server also supports those oidc provider
     * `clientId` String (required) client id
     * `clientSecret` String (required) client secret
