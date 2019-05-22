@@ -1,6 +1,6 @@
 ## 1.1.0-beta1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: Wed May 22 14:50:23 CEST 2019
+**Date**: Wed May 22 15:17:23 CEST 2019
 
 * CORE: [FEATURE] Implement token flow and MFA #186
 * CORE: [CHANGE] Add os/version to useragent #187
