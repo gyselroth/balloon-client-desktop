@@ -508,6 +508,10 @@ input[type="radio"], input[type="checkbox"] {
     text-align: center;
 }
 
+#startup-auth-credentials {
+   margin: 0;
+}
+
 #startup-auth-error {
     margin-top: 10px;
 }
@@ -563,7 +567,7 @@ input[type="radio"], input[type="checkbox"] {
     background-size: 100%;
     background-position: center;
     height: 290px;
-    margin: -30px 0 30px 0;
+    margin: -30px 0 20px 0;
 }
 
 #startup-view-advanced {

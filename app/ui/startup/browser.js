@@ -197,6 +197,7 @@ function auth() {
   var $username = $('#startup-view-auth').find('input[name=username]');
   var $password = $('#startup-view-auth').find('input[name=password]');
   var $mfaCode = $('#startup-view-auth').find('input[name=mfaCode]');
+  var $description = $('#startup-view-auth').find('p:first-child');
 
   $username.show();
   $password.show();
@@ -229,7 +230,9 @@ function auth() {
     } else {
       $username.hide();
       $password.hide();
-      $mfaCode.show();
+      $('#startup-auth-error').find('> div').hide();
+      $mfaCode.show().focus();
+      $description.html(i18n.__('startup.auth.mfaDescription'));
     }
   });
 

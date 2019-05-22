@@ -80,6 +80,7 @@
   "startup.auth.username": "Username",
   "startup.auth.password": "Password",
   "startup.auth.mfaCode": "Code",
+  "startup.auth.mfaDescription": "Your account has been protected with multi factor authentication. Please enter the code from your google authenticator:",
   "startup.auth.message": "Authenticate your account with balloon:",
 
   "status.nav.activities": "Activities",
