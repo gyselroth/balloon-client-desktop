@@ -3,6 +3,7 @@
 **Date**: Tue May 28 15:49:23 CEST 2019
 
 * CORE: [FIX] Failed to connect with server #189
+* UI: [FEATURE] Click on a file in tray activities should open parent folder in os file browser #182
 
 
 ## 1.1.0-beta1

@@ -1,6 +1,6 @@
 const path = require('path');
 
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, shell } = require('electron');
 const moment = require('moment');
 
 const clientConfig = require('../../lib/config.js');
@@ -101,6 +101,17 @@ module.exports = function() {
         $transfer.prepend(renderTask(taskHistory[task]));
       }
     }
+
+    $transfer.off('click', 'li').on('click', 'li', function() {
+      var title = $(this).attr('title');
+      if(title == undefined) {
+        return;
+      }
+
+      var nodePath = path.join(clientConfig.get('balloonDir'),path.dirname(title));
+      shell.openItem(nodePath);
+      ipcRenderer.send('tray-hide');
+    });
 
     logTrayDb.getErrors((err, errors) => {
       if(errors) {
