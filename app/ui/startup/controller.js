@@ -157,12 +157,17 @@ module.exports = function(env, clientConfig) {
               }
             })
             .catch((error) => {
+              var type = 'token';
+              if(env.auth) {
+                type = env.auth.credentails;
+              }
+
               if(error.code && ['E_BLN_API_REQUEST_MFA_REQUIRED', 'E_BLN_MFA_REQUIRED'].includes(error.code)) {
-                logger.debug('Credentials auth requires mfa authentication', {category: 'startup', 'credentialsType': env.auth.credentails});
+                logger.debug('Credentials auth requires mfa authentication', {category: 'startup', 'credentialsType': type});
 
                 startupWindow.webContents.send('startup-auth-mfa-required');
               } else {
-                logger.error('Credentials auth resulted in an error', {category: 'startup', error, 'credentialsType': env.auth.credentails});
+                logger.error('Credentials auth resulted in an error', {category: 'startup', error, 'credentialsType': type});
                 startupWindow.webContents.send('startup-auth-error',  'credentials');
               }
             });

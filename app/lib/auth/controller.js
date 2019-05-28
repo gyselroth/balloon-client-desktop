@@ -71,6 +71,10 @@ module.exports = function(env, clientConfig) {
   }
 
   function credentialsAuth(username, password, code) {
+    if(!env.auth) {
+      return _doTokenAuth(username, password, code);
+    }
+
     switch(env.auth.credentials) {
       case null:
         return Prmosie.reject(new Error('Credentials authentication has been deactivated.'));
@@ -175,7 +179,7 @@ module.exports = function(env, clientConfig) {
               error.code = 'E_BLN_MFA_REQUIRED';
               reject(error);
             } else {
-              reject(error);
+              reject(body);
             }
           break;
           case 401:
@@ -261,7 +265,6 @@ module.exports = function(env, clientConfig) {
       clientConfig.retrieveSecret('refreshToken')
         .then((secret) => {
           var apiUrl = clientConfig.get('apiUrl').replace('/v1', '/v2');
-
           var reqOptions = {
             uri: apiUrl + 'tokens',
             method: 'POST',

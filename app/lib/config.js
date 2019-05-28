@@ -175,7 +175,7 @@ module.exports = function() {
     },
     set,
     setBlnUrl: function(url) {
-      var apiUrl = url + (env.apiPath || '/api/v1');
+      var apiUrl = url + (env.apiPath || '/api/v1/');
       if(activeInstance) {
         settings.set('blnUrl', url);
         settings.set('apiUrl', apiUrl);

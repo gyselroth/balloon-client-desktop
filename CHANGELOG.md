@@ -1,3 +1,10 @@
+## 1.1.0-beta2
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Tue May 28 15:49:23 CEST 2019
+
+* CORE: [FIX] Failed to connect with server #189
+
+
 ## 1.1.0-beta1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Wed May 22 15:17:23 CEST 2019
