@@ -1,3 +1,10 @@
+## 1.1.0
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Wed Jun 12 10:32:21 CEST 2019
+
+no changes
+
+
 ## 1.1.0-beta2
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Tue May 28 15:49:23 CEST 2019
