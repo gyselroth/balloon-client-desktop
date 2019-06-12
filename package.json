@@ -2,7 +2,7 @@
   "name": "balloon-desktop",
   "productName": "Balloon",
   "description": "Balloon Desktop Client",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "gyselroth GmbH  <opensource@gyselroth.net>",
   "copyright": "© 2017-2019, gyselroth GmbH",
   "homepage": "https://www.gyselroth.com",
@@ -90,7 +90,7 @@
     "minimist": "~1.2.0"
   },
   "dependencies": {
-    "@gyselroth/balloon-node-sync": "0.4.0",
+    "@gyselroth/balloon-node-sync": "0.5.0",
     "@gyselroth/icon-collection": "^1.0.9",
     "@gyselroth/node-advanced-desktop": "^1.0.5",
     "@openid/appauth": "^1.1.2",

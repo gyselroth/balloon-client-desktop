@@ -1,6 +1,6 @@
 const path = require('path');
 
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, shell } = require('electron');
 const moment = require('moment');
 
 const clientConfig = require('../../lib/config.js');
@@ -12,6 +12,8 @@ const i18n = require('../../lib/i18n.js');
 const fileIconMap = require('../../lib/file-icon-map.js');
 const ta = require('../../lib/time-ago.js');
 
+let showQuotaRetries = 0;
+
 function showQuota(sync) {
   sync.blnApi.getQuotaUsage((err, data) => {
     if(err) {
@@ -19,13 +21,17 @@ function showQuota(sync) {
       $('#status-quota-free').find('td').html(0);
       $('#status-quota-max').find('td').html(0);
 
-      if(err.code === 'E_BLN_API_REQUEST_UNAUTHORIZED') {
-        ipcRenderer.send('sync-error', err);
+      if(showQuotaRetries < 5) {
+        showQuotaRetries ++;
+        setTimeout(function() {
+          showQuota(sync);
+        }, 60000);
       }
 
       return;
     }
 
+    showQuotaRetries = 0;
     var percent;
 
     if(data.hard_quota <=0) {
@@ -95,6 +101,17 @@ module.exports = function() {
         $transfer.prepend(renderTask(taskHistory[task]));
       }
     }
+
+    $transfer.off('click', 'li').on('click', 'li', function() {
+      var title = $(this).attr('title');
+      if(title == undefined) {
+        return;
+      }
+
+      var nodePath = path.join(clientConfig.get('balloonDir'),path.dirname(title));
+      shell.openItem(nodePath);
+      ipcRenderer.send('tray-hide');
+    });
 
     logTrayDb.getErrors((err, errors) => {
       if(errors) {

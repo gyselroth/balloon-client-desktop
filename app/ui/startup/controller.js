@@ -138,15 +138,16 @@ module.exports = function(env, clientConfig) {
 
         startupWindow.on('closed', windowClosedByUserHandler);
 
-        ipcMain.removeAllListeners('startup-basic-auth');
-        ipcMain.on('startup-basic-auth', function(event, username, password) {
-          logger.info('requested basic authentication', {
+        ipcMain.removeAllListeners('startup-credentials-signin');
+        ipcMain.on('startup-credentials-signin', function(event, username, password, code) {
+          logger.info('requested credentials authentication', {
             category: 'startup',
             username: username
           });
 
           startupWindow.removeListener('closed', windowClosedByUserHandler);
-          auth.basicAuth(username, password)
+
+          auth.credentialsAuth(username, password, code)
             .then((newInstance) => {
               if(!clientConfig.hadConfig()) {
                 resolve({welcomeWizardPromise: welcomeWizard()});
@@ -156,8 +157,19 @@ module.exports = function(env, clientConfig) {
               }
             })
             .catch((error) => {
-              logger.error('Basic auth resulted in an error', {category: 'startup', error});
-              startupWindow.webContents.send('startup-auth-error',  'basic');
+              var type = 'token';
+              if(env.auth) {
+                type = env.auth.credentails;
+              }
+
+              if(error.code && ['E_BLN_API_REQUEST_MFA_REQUIRED', 'E_BLN_MFA_REQUIRED'].includes(error.code)) {
+                logger.debug('Credentials auth requires mfa authentication', {category: 'startup', 'credentialsType': type});
+
+                startupWindow.webContents.send('startup-auth-mfa-required');
+              } else {
+                logger.error('Credentials auth resulted in an error', {category: 'startup', error, 'credentialsType': type});
+                startupWindow.webContents.send('startup-auth-error',  'credentials');
+              }
             });
         });
 

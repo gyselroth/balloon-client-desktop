@@ -242,7 +242,7 @@ module.exports = function(env, tray) {
 
           switch(err.code) {
             case 'E_BLN_REMOTE_WATCHER_DELTA':
-              if(err.origErr && err.origErr.code === 'E_BLN_API_REQUEST_UNAUTHORIZED') {
+              if(err.origErr && ['E_BLN_API_REQUEST_UNAUTHORIZED', 'E_BLN_API_REQUEST_MFA_REQUIRED'].includes(err.origErr.code)) {
                 //TODO pixtron - find a cleaner way to emit watcher errors
                 ipcMain.emit('sync-error', {}, err.origErr);
               } else {

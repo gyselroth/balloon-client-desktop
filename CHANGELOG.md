@@ -1,3 +1,26 @@
+## 1.1.0
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Wed Jun 12 10:32:21 CEST 2019
+
+no changes
+
+
+## 1.1.0-beta2
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Tue May 28 15:49:23 CEST 2019
+
+* CORE: [FIX] Failed to connect with server #189
+* UI: [FEATURE] Click on a file in tray activities should open parent folder in os file browser #182
+
+
+## 1.1.0-beta1
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Wed May 22 15:17:23 CEST 2019
+
+* CORE: [FEATURE] Implement token flow and MFA #186
+* CORE: [CHANGE] Add os/version to useragent #187
+
+
 ## 1.0.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu February 07 09:36:23 CET 2019

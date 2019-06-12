@@ -1,4 +1,5 @@
 (function() {'use strict';
+const os = require('os');
 
 const {ipcRenderer, shell, remote} = require('electron');
 const handlebars = require('handlebars');
@@ -222,7 +223,16 @@ function getOnLineState(callback) {
   if(onLine === true) {
     if(clientConfig.get('apiUrl')) {
       var apiPingUrl = clientConfig.get('apiUrl');
-      request.get(apiPingUrl, {timeout: 2000}, (err, result) => {
+
+      var reqOptions = {
+        timeout: 2000,
+        headers: {
+          'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
+          'User-Agent': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname(), os.platform(), os.release()].join('|'),
+        }
+      };
+
+      request.get(apiPingUrl, reqOptions, (err, result) => {
         callback(!err);
         if(err) {
           //if api is not reachable atm, check again in 5s

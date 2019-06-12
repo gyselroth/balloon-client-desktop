@@ -10,12 +10,12 @@ if(process.type === 'browser') {
 }
 
 const app = electron.app || electron.remote.app;
-const keytar = require('keytar');
 
 const env = require('../env.js');
 const instance = require('./instance.js');
 const fsUtility = require('./fs-utility.js');
 const paths = require('./paths.js');
+const keytar = require('./keytar.js');
 
 var configExists   = false;
 var activeInstance = false;
@@ -107,10 +107,14 @@ module.exports = function() {
       method = memorySettings['authMethod'];
     }
 
-    if(method === 'basic') {
-      return 'password';
-    } else if(method === 'oidc') {
-      return 'accessToken';
+    switch(method) {
+      case 'basic':
+        return 'password';
+      break;
+      case 'token':
+      case 'oidc':
+        return 'accessToken';
+      break;
     }
   }
 
@@ -171,7 +175,7 @@ module.exports = function() {
     },
     set,
     setBlnUrl: function(url) {
-      var apiUrl = url + (env.apiPath || '/api/v1');
+      var apiUrl = url + (env.apiPath || '/api/v1/');
       if(activeInstance) {
         settings.set('blnUrl', url);
         settings.set('apiUrl', apiUrl);
@@ -196,21 +200,27 @@ module.exports = function() {
       }
     },
     destroySecret: function(type) {
-      secret = undefined;
+      if(getSecretType() === type) {
+        secret = undefined;
+        traySecretUpdate();
+      }
+
       if(!env.auth || !env.auth.secretStorage || env.auth.secretStorage === 'keytar') {
         if(type === undefined) return Promise.resolve();
-        return keytar.deletePassword('balloon', type);
+        return keytar.delete(type);
       } else if(env.auth.secretStorage === 'config') {
         set(type, undefined);
         return Promise.resolve();
       }
     },
     storeSecret: function(type, key) {
-      secret = key;
-      traySecretUpdate();
+      if(getSecretType() === type) {
+        secret = key;
+        traySecretUpdate();
+      }
 
       if(!env.auth || !env.auth.secretStorage || env.auth.secretStorage === 'keytar') {
-        return keytar.setPassword('balloon', type, key);
+        return keytar.set(type, key);
       } else if(env.auth.secretStorage === 'config') {
         set(type, key);
         return Promise.resolve();
@@ -218,7 +228,7 @@ module.exports = function() {
     },
     retrieveSecret: function(type) {
       if(!env.auth || !env.auth.secretStorage || env.auth.secretStorage === 'keytar') {
-        return keytar.getPassword('balloon', type);
+        return keytar.get(type);
       } else if(env.auth.secretStorage === 'config') {
         return Promise.resolve(get(type));
       }
@@ -227,7 +237,7 @@ module.exports = function() {
       traySecretUpdate = callee;
     },
     updateTraySecret: function() {
-      traySecretUpdate();
+      if(traySecretUpdate) traySecretUpdate();
     }
   }
 }();
