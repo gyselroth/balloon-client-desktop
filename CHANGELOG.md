@@ -1,3 +1,10 @@
+## 1.2.0-beta1
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: 
+
+* CORE: [FIX] Missleading message during check for update while downloading latest update #74
+
+
 ## 1.1.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Wed Jun 12 10:32:21 CEST 2019

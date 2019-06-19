@@ -75,12 +75,14 @@ module.exports = function(env, clientConfig, tray) {
   }
 
   function checkForUpdate() {
-    if(!checkRunning && shouldCheckForUpdates()) {
+    if(checkRunning) {
+      logger.info('skip check for update', {category: 'autoupdate', reason: 'check already running'});
+    } else if(shouldCheckForUpdates() !== true) {
+      logger.info('skip check for update', {category: 'autoupdate', reason: 'should not check for update', defaultApp: process.defaultApp, env: env});
+      tray.update('update-not-available');
+    } else {
       checkRunning = true;
       autoUpdater.checkForUpdates();
-    } else {
-      logger.info('skip check for update', {category: 'autoupdate'});
-      tray.update('update-not-available');
     }
   }
 
