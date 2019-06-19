@@ -39,7 +39,7 @@ function setDefaultConfig() {
   if(!settings.has('enableAutoLaunch')) settings.set('enableAutoLaunch', (env.enableAutoLaunch !== false));
 
   // allowPrerelease defaults to false
-  if(!settings.has('allowPrerelease')) settings.set('allowPrerelease', !(env.enableAutoLaunch !== true));
+  if(!settings.has('allowPrerelease')) settings.set('allowPrerelease', !(env.allowPrerelease !== true));
 
   // autoReport defaults to false
   if(!settings.has('autoReport')) settings.set('autoReport', !(env.autoReport !== true));
