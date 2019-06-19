@@ -3,6 +3,7 @@
 **Date**: 
 
 * CORE: [FIX] Missleading message during check for update while downloading latest update #74
+* CORE: [FIX] Change of allowPrerelease flag should work without app restart #169
 
 
 ## 1.1.0
