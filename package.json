@@ -120,6 +120,7 @@
     "request": "~2.88.0",
     "rimraf": "~2.6.2",
     "sprintf-js": "^1.1.2",
+    "sudo-prompt": "^9.0.0",
     "systeminformation": "^3.54.0",
     "ubuntu-fontface": "~0.1.13",
     "winston": "^2.4.4"
