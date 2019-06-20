@@ -4,6 +4,7 @@
 
 * CORE: [FIX] Missleading message during check for update while downloading latest update #74
 * CORE: [FIX] Change of allowPrerelease flag should work without app restart #169
+* CORE: [FIX] Soft fail if no rights to send events to system events #193
 
 
 ## 1.1.0
