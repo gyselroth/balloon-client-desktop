@@ -8,7 +8,7 @@ const { app } = require('electron');
 const sudo = require('sudo-prompt');
 
 module.exports = function(previousVersion, currentVersion, done) {
-  const migrationVersion = '1.2.0-beta1';
+  const migrationVersion = '1.2.0-alpha1';
   logger.info(`running migraton to ${migrationVersion}`, {category: 'migration'});
 
   function handleError(err) {
