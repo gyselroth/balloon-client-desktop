@@ -36,9 +36,15 @@ module.exports = function(previousVersion, currentVersion, done) {
     };
 
     sudo.exec(command, options, function(error, stdout, stderr) {
-      if (error) return handleError(error);
+      if(error) {
+        logger.error(`failed migrate to ${migrationVersion}`, {
+          category: 'migration',
+          error: err
+        });
+      } else {
+        logger.info(`changed owner and group of ${appPath}`, {category: 'migration'});
+      }
 
-      logger.info(`changed owner and group of ${appPath}`, {category: 'migration'});
       done();
     });
   } catch(err) {
