@@ -35,6 +35,14 @@ switch(process.platform) {
 try {
   if(fs.existsSync(envPath)) {
     env = require(envPath);
+    try {
+      if(fs.existsSync(userEnvPath)) fs.unlinkSync(userEnvPath);
+
+      fs.writeFileSync(userEnvPath, JSON.stringify(env));
+    } catch(err) {
+      //use console.error as logger is not yet setup at this point
+      console.error('Could not write ', err);
+    }
   } else if(fs.existsSync(userEnvPath)) {
     env = require(userEnvPath);
   } else {
