@@ -1,11 +1,14 @@
 #!/bin/sh
-conf="$2/Balloon.App/Contents/Resources/resources/env.json"
+conf="$2/Balloon.app/Contents/Resources/resources/env.json"
 echo $conf
 if [ -f "$conf" ]; then
   mkdir /etc/balloon-desktop
   cp "$conf" /etc/balloon-desktop/env.json
 fi
 
-open -a Balloon
+chown -R $USER "$2/Balloon.app"
+chgrp -R staff "$2/Balloon.app"
 
+open -a "$2/Balloon.app/Contents/MacOS/Balloon"
 
+exit 0
