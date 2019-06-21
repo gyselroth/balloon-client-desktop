@@ -28,7 +28,12 @@ module.exports = function(previousVersion, currentVersion, done) {
   try {
     const appPath = app.getPath('exe').split('.app/Content')[0] + '.app';
     const icnsPath = fs.existsSync(`${appPath}/Contents/Resources/Balloon.icns`) ? `${appPath}/Contents/Resources/Balloon.icns` : undefined;
-    const command = `chown -R ${process.env.USER} ${appPath} && chgrp -R staff ${appPath}`;
+    const shipitDir = `${app.getPath('home')}/Library/Caches/com.gyselroth.balloon-desktop.ShipIt`
+    const command = `
+      chown -R ${process.env.USER} ${appPath} ${shipitDir}
+      chgrp -R staff ${appPath} ${shipitDir}
+      2> /dev/null
+    `;
 
     const options = {
       name: 'Balloon',
@@ -39,7 +44,7 @@ module.exports = function(previousVersion, currentVersion, done) {
       if(error) {
         logger.error(`failed migrate to ${migrationVersion}`, {
           category: 'migration',
-          error: err
+          error: error
         });
       } else {
         logger.info(`changed owner and group of ${appPath}`, {category: 'migration'});
