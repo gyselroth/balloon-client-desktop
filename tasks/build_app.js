@@ -6,7 +6,7 @@ const path = require('path');
 const gulp = require('gulp');
 const utils = require('./utils');
 
-gulp.task('build', function () {
+gulp.task('build', function (done) {
     var envName = utils.getEnvName();
     var srcPath = path.join(__dirname, '../config/', `env_${envName}.json`);
     var destPath = path.join(__dirname, '../resources/', 'env.json');
@@ -16,12 +16,8 @@ gulp.task('build', function () {
         fs.truncateSync(destPath, 0);
       }
 
-      fs.createReadStream(srcPath).pipe(fs.createWriteStream(destPath));
+      return fs.createReadStream(srcPath).pipe(fs.createWriteStream(destPath));
     } else if(envName !== 'production') {
-      fs.writeFile(destPath, '{"name": "'+envName+'"}', function(err) {
-        if(err) {
-          throw err;
-        }
-      });
+      fs.writeFile(destPath, '{"name": "'+envName+'"}', done);
     }
 });
