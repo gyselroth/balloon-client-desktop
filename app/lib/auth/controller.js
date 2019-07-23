@@ -217,12 +217,17 @@ module.exports = function(env, clientConfig) {
   }
 
   function refreshAccessToken() {
-    switch(clientConfig.get('authMethod')) {
-      case 'odic':
+    var authMethod = clientConfig.get('authMethod');
+
+    switch(authMethod) {
+      case 'oidc':
         return _refreshOidcAccessToken();
       break;
       case 'token':
         return _refreshInternalAccessToken();
+      break;
+      default:
+        return Promise.reject(new Error('refresh acess token for method "'+ authMethod + '" not implemented.'));
       break;
     }
   }
