@@ -1,8 +1,9 @@
 ## 1.1.1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**:
+**Date**: Tue Jul 23 13:14:33 CEST 2019
 
 * CORE [FIX] oidc access token can't be refreshed #200
+
 
 ## 1.1.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
