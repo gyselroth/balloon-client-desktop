@@ -130,26 +130,28 @@ module.exports = function (env, clientConfig) {
         if(response) {
           makeRefreshTokenRequest(configuration, response.code, codeVerifier)
             .then((result) => {
+              clientConfig.set('authMethod', 'oidc');
 
-              clientConfig.storeSecret('refreshToken', result.refreshToken).then(() => {
-                clientConfig.set('authMethod', 'oidc');
+              var promises = [];
+
+              promises.push(clientConfig.storeSecret('accessToken', result.accessToken));
+
+              if(result.refreshToken) {
+                promises.push(clientConfig.storeSecret('refreshToken', result.refreshToken))
+              }
+
+              Promise.all(promises).then(() => {
+                logger.debug('Stored tokens', {category: 'openid-connect'});
+
                 clientConfig.set('oidcProvider', idpConfig.providerUrl);
+                clientConfig.set('accessTokenExpires', result.issuedAt + result.expiresIn);
 
-                makeAccessTokenRequest(configuration, result.refreshToken).then((access) => {
-                  clientConfig.storeSecret('accessToken', access.accessToken).then(() => {
-                    clientConfig.set('accessTokenExpires', access.issuedAt + access.expiresIn);
-                    resolve();
-                  }).catch(err => {
-                    logger.error('Could not store accessToken', {category: 'openid-connect', err})
-                    reject(err);
-                  });
-                }).catch(reject); //catch makeAccessTokenRequest;
-
-              }).catch((err) =>{
-                logger.error('Could not store refreshToken', {category: 'openid-connect', err})
+                resolve();
+              }).catch((err) => { //catch Promise.all
+                clientConfig.set('authMethod', undefined);
+                logger.error('Could not store tokens', {category: 'openid-connect', err})
                 reject(err);
               });
-
             }).catch(reject); //catch makeRefreshTokenRequest
         } else {
           reject(error);
