@@ -49,7 +49,7 @@ module.exports = function (env, clientConfig) {
             }).catch((error) => {
               logger.info('failed to retrieve accessToken, request new refreshToken', {category: 'openid-connect', error});
 
-              makeAuthorizationRequest(config)
+              makeAuthorizationRequest()
                 .then(() => {
                   resolve(true);
                 })
@@ -71,7 +71,7 @@ module.exports = function (env, clientConfig) {
             reject(error);
           });
         } else {
-          makeAuthorizationRequest(config).then((respone) => {
+          makeAuthorizationRequest().then((respone) => {
             resolve(true);
           }).catch((error) => {
             logger.error('failed to retrieve refreshToken', {
@@ -112,7 +112,7 @@ module.exports = function (env, clientConfig) {
       });
    }
 
-  function makeAuthorizationRequest(AuthorizationServiceConfiguration) {
+  function makeAuthorizationRequest() {
     return new Promise(function(resolve, reject) {
       notifier.setAuthorizationListener((request, response, error) => {
         logger.info('Authorization request complete ', {
