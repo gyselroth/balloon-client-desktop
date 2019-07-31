@@ -38,6 +38,7 @@
   "tray.sync.status.start": "Erstelle Index...",
   "tray.sync.status.transfer": "Daten werden synchronisiert...",
   "tray.sync.status.tree": "Verzeichniss Struktur wird synchronisiert...",
+  "tray.sync.status.warmup": "Initialisiere Synchronisation...",
   "tray.sync.status.default": "Alle Daten wurden synchronisiert.",
 
   "about.see_github": "Siehe github",
