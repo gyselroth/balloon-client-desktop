@@ -5,7 +5,6 @@ const path = require('path');
 const {session} = require('electron');
 
 const OidcCtrl = require('../oidc/controller.js');
-const StartupCtrl = require('../../ui/startup/controller.js');
 const logger = require('../logger.js');
 const instance = require('../instance.js');
 const fsUtility = require('../fs-utility.js');
