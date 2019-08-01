@@ -552,7 +552,6 @@ module.exports = function(env, clientConfig) {
     credentialsAuth,
     oidcAuth,
     refreshAccessToken,
-    getIdPByProviderUrl,
     retrieveLoginSecret
   }
 }
