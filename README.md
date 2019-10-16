@@ -22,11 +22,11 @@ This is the desktop client for the [balloon](https://github.com/gyselroth/balloo
 * Activity log
 * NodeJS application, which is compatible with all popular operating systems (e.g. OS X, Windows and Linux)
 
-## Download
-See [Releases](https://github.com/gyselroth/balloon-client-desktop/releases) to download your Windows/Mac OS X/Linux balloon desktop client or visit the [wiki](https://github.com/gyselroth/balloon-client-desktop/wiki/Installation) to get further information on how to install the balloon client on your platform.
+# Documentation
+Interested? How to install? Please visit the [documentation](https://gyselroth.github.io/balloon-docs/).
 
 ## Requirements
-You need a running balloon server to operate a balloon web client. Please see [balloon](https://github.com/gyselroth/balloon) for further information.
+You need a running balloon server. Please see [balloon](https://github.com/gyselroth/balloon) for further information.
 
 ## Changelog
 A changelog is available [here](https://github.com/gyselroth/balloon-client-desktop/blob/master/CHANGELOG.md).
