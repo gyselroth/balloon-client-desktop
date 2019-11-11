@@ -7,6 +7,7 @@
 * CORE: [FIX] Soft fail if no rights to send events to system events #193
 * CORE: [FIX] Adding missing localizations #205
 * CORE: [FIX] Wrong status after link account #205
+* CORE: [FIX] Empty Message Prevents Sending Error Report #204
 
 
 ## 1.1.1

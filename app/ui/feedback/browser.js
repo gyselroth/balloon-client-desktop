@@ -15,6 +15,7 @@ module.exports = function() {
     var $text = $feedback.find('textarea');
     var $loader = $feedback.find('.loader');
     var $submit = $feedback.find('button#feedback-send');
+    var $feedbackErrorEmpty = $('#feedback-error-empty');
 
     var fileVal = sessionStorage.getItem('feedback.file') !== 'false';
     var textVal = sessionStorage.getItem('feedback.text') || '';
@@ -26,8 +27,18 @@ module.exports = function() {
       sessionStorage.setItem('feedback.file', $file.is(':checked'));
     });
 
-    $text.off('change').on('change', function(event) {
-      sessionStorage.setItem('feedback.text', $text.val());
+    $text.off('keyup').on('keyup', function(event) {
+      var content = $text.val();
+
+      if(content.length > 0 && $feedbackErrorEmpty.is(':visible')) {
+        $feedbackErrorEmpty.hide();
+        $submit.prop('disabled', false);
+      } else if(content.length === 0) {
+        $feedbackErrorEmpty.show();
+        $submit.prop('disabled', true);
+      }
+
+      sessionStorage.setItem('feedback.text', content);
     });
 
     $submit.click(function(){
