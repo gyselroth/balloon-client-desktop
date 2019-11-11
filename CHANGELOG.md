@@ -1,10 +1,12 @@
 ## 1.2.0-beta1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: 
+**Date**:
 
 * CORE: [FIX] Missleading message during check for update while downloading latest update #74
 * CORE: [FIX] Change of allowPrerelease flag should work without app restart #169
 * CORE: [FIX] Soft fail if no rights to send events to system events #193
+* CORE: [FIX] Adding missing localizations #205
+* CORE: [FIX] Wrong status after link account #205
 
 
 ## 1.1.1
