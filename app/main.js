@@ -195,6 +195,30 @@ function unlinkAccount() {
   });
 }
 
+function handleUnauthorizedRequest() {
+  return new Promise(function(resolve, reject) {
+    if(clientConfig.get('authMethod') === 'basic') {
+      logger.info('got 401, unlink account', {category: 'main', authMethod: 'basic'});
+      unlinkAccount();
+      return reject();
+    } else {
+      logger.debug('got 401, refresh accessToken', {category: 'main'});
+
+      auth.refreshAccessToken().then(resolve).catch(err => {
+        if(err.code && err.code === 'E_BLN_OIDC_NETWORK') {
+          logger.warn('could not refresh accessToken, network offline', {category: 'main', err});
+          tray.emit('network-offline');
+        } else {
+          logger.error('could not refresh accessToken, unlink instance', {category: 'main', err});
+          unlinkAccount();
+        }
+
+        reject();
+      });
+    }
+  });
+}
+
 var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
 
 if(shouldQuit === true && process.platform !== 'darwin') {
@@ -396,18 +420,12 @@ ipcMain.on('selective-error', (event, error, url, line, message) => {
   switch(error.code) {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
       selective.close();
-      if(clientConfig.get('authMethod') === 'basic') {
-        logger.info('got 401 from selective, unlink account', {category: 'main'});
-        unlinkAccount();
-      } else {
-        logger.debug('got 401 from selective, refresh accessToken', {category: 'main'});
-        auth.refreshAccessToken().then(() => {
-          selective.open();
-        }).catch(() => {
-          logger.error('could not refresh accessToken after selective-error, unlink instance', {category: 'main'});
-          unlinkAccount();
-        });
-      }
+
+      handleUnauthorizedRequest().then(() => {
+        selective.open();
+      }).catch(() => {
+        logger.warn('Could not open selective sync, user not authenticated.', {category: 'main'});
+      });
     break;
     case 'E_BLN_API_REQUEST_MFA_REQUIRED':
       selective.close();
@@ -436,21 +454,13 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
       endSync();
       if(sync) sync.killWatcher();
 
-      if(clientConfig.get('authMethod') === 'basic') {
-        logger.info('got 401, end sync and unlink account', {category: 'main'});
-        unlinkAccount();
+
+      handleUnauthorizedRequest().then(() => {
+        startSync(true);
         isHandlingUnauthorizedRequest = false;
-      } else {
-        logger.debug('got 401, refresh accessToken', {category: 'main'});
-        auth.refreshAccessToken().then(() => {
-          startSync(true);
-          isHandlingUnauthorizedRequest = false;
-        }).catch(err => {
-          logger.error('could not refresh accessToken, unlink instance', {category: 'main', err});
-          unlinkAccount();
-          isHandlingUnauthorizedRequest = false;
-        });
-      }
+      }).catch(() => {
+        isHandlingUnauthorizedRequest = false;
+      });
     break;
     case 'E_BLN_API_REQUEST_MFA_REQUIRED':
       if(isHandlingMfaRequired === true) return;

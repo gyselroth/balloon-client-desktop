@@ -12,6 +12,8 @@ const {BaseTokenRequestHandler, TokenRequestHandler} = require('@openid/appauth/
 const {TokenError, TokenResponse} = require('@openid/appauth/built/token_response.js');
 const {URL} = require('url');
 
+const OidcError = require('./oidc-error.js');
+
 /* the Node.js based HTTP client. */
 const requestor = new NodeRequestor();
 
@@ -23,6 +25,26 @@ module.exports = function (env, clientConfig) {
   var configuration;
 
   function signin(idp) {
+    return new Promise(function(resolve, reject) {
+      _signin(idp)
+        .then(result => resolve(result))
+        .catch(err => {
+          if(err.message &&
+            (
+              /ENOTFOUND|ETIMEDOUT|ENETUNREACH|EHOSTUNREACH|ECONNREFUSED|EHOSTDOWN|ESOCKETTIMEDOUT|ECONNRESET/.test(err.message)
+              ||
+              err.message === 'Error: socket hang up'
+            )
+          ) {
+            err = new OidcError(err.message, 'E_BLN_OIDC_NETWORK');
+          }
+
+          reject(err);
+        })
+    });
+  }
+
+  function _signin(idp) {
     idpConfig = idp;
     return new Promise(function(resolve, reject) {
       fetchServiceConfiguration().then(config => {
