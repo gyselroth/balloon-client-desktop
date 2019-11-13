@@ -205,7 +205,7 @@ function handleUnauthorizedRequest() {
       logger.debug('got 401, refresh accessToken', {category: 'main'});
 
       auth.refreshAccessToken().then(resolve).catch(err => {
-        if(err.code && err.code === 'E_BLN_OIDC_NETWORK') {
+        if(err.code && ['E_BLN_AUTH_NETWORK', 'E_BLN_OIDC_NETWORK'].includes(err.code)) {
           logger.warn('could not refresh accessToken, network offline', {category: 'main', err});
           tray.emit('network-offline');
         } else {
