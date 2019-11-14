@@ -8,6 +8,7 @@
 * CORE: [FIX] Adding missing localizations #205
 * CORE: [FIX] Wrong status after link account #205
 * CORE: [FIX] Empty Message Prevents Sending Error Report #204
+* CORE: [FIX] Fix tray window positioning on osx #112
 
 
 ## 1.1.1
