@@ -43,3 +43,16 @@ deploy:
       tags: true
 before_cache:
 - rm -rf $HOME/.cache/electron-builder/wine
+after_deploy:
+- git config --global user.email "travis@travis-ci.org"
+- git config --global user.name "Travis CI"
+- test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && sha256=$(shasum -a 256 dist/balloon-desktop-$version.pkg | cut -d ' ' -f1) && echo $sha256
+- test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && git clone https://github.com/gyselroth/homebrew-cask
+- test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && sed -i '' 's/sha256.*$/sha256 "'$sha256'"/g' homebrew-cask/Casks/balloon-desktop.rb
+- test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && sed -i '' 's/version.*$/version "'$version'"/g' homebrew-cask/Casks/balloon-desktop.rb
+- test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && sed -i '' 's/pkg.*$/pkg "'balloon-desktop-$version.pkg'"/g' homebrew-cask/Casks/balloon-desktop.rb
+- test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && sed -i '' 's/url.*$/url "https:\/\/github.com\/gyselroth\/balloon-client-desktop\/releases\/download\/v'$version'\/balloon-desktop-$version.pkg"/g' homebrew-cask/Casks/balloon-desktop.rb
+- test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && cd homebrew-cask
+- test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && git commit --message "balloon-desktop release $version" Casks/balloon-desktop.rb
+- test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && git remote set-url --push origin https://raffis:${GITHUB_TOKEN}@github.com/gyselroth/homebrew-cask.git > /dev/null 2>&1
+- test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && git push origin master --quiet

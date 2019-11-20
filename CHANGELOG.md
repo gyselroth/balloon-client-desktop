@@ -1,14 +1,22 @@
-## 1.2.0-beta1
+## 1.2.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**:
+**Date**: 
 
-* CORE: [FIX] Missleading message during check for update while downloading latest update #74
-* CORE: [FIX] Change of allowPrerelease flag should work without app restart #169
-* CORE: [FIX] Soft fail if no rights to send events to system events #193
-* CORE: [FIX] Adding missing localizations #205
-* CORE: [FIX] Wrong status after link account #205
-* CORE: [FIX] Empty Message Prevents Sending Error Report #204
-* CORE: [FIX] Fix tray window positioning on osx #112
+### Bugfixes
+* Missleading message during check for update while downloading latest update #74
+* Change of allowPrerelease flag should work without app restart #169
+* Soft fail if no rights to send events to system events #193
+* Adding missing localizations #205
+* Wrong status after link account #205
+* Empty Message Prevents Sending Error Report #204
+* Fix tray window positioning on osx #112
+* Do not unlink account if access token can not get refreshed #188
+
+### Deployment
+* Submit balloon-desktop to brew #195
+
+### Common
+* Starting with v1.2.0 the changelog has a new format, all changes get splitted into sub categeories within the changelog to get a better readability.
 
 
 ## 1.1.1
