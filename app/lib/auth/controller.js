@@ -5,13 +5,13 @@ const path = require('path');
 const {session} = require('electron');
 
 const OidcCtrl = require('../oidc/controller.js');
-const StartupCtrl = require('../../ui/startup/controller.js');
 const logger = require('../logger.js');
 const instance = require('../instance.js');
 const fsUtility = require('../fs-utility.js');
 const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 const globalConfig = require('../global-config.js');
 const request = require('request');
+const AuthError = require('./auth-error.js');
 
 module.exports = function(env, clientConfig) {
   var oidc = OidcCtrl(env, clientConfig);
@@ -290,6 +290,10 @@ module.exports = function(env, clientConfig) {
             if(err) {
               logger.error('refresh internal access token failed', {category: 'auth', error: err});
 
+              if(err.code && ['ENOTFOUND', 'ETIMEDOUT', 'ENETUNREACH', 'EHOSTUNREACH', 'ECONNREFUSED', 'EHOSTDOWN', 'ESOCKETTIMEDOUT', 'ECONNRESET'].includes(err.code)) {
+                err = new AuthError(err.message, 'E_BLN_AUTH_NETWORK');
+              }
+
               return reject(err);
             }
 
@@ -553,7 +557,6 @@ module.exports = function(env, clientConfig) {
     credentialsAuth,
     oidcAuth,
     refreshAccessToken,
-    getIdPByProviderUrl,
     retrieveLoginSecret
   }
 }

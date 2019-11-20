@@ -12,6 +12,8 @@ const {BaseTokenRequestHandler, TokenRequestHandler} = require('@openid/appauth/
 const {TokenError, TokenResponse} = require('@openid/appauth/built/token_response.js');
 const {URL} = require('url');
 
+const OidcError = require('./oidc-error.js');
+
 /* the Node.js based HTTP client. */
 const requestor = new NodeRequestor();
 
@@ -23,6 +25,26 @@ module.exports = function (env, clientConfig) {
   var configuration;
 
   function signin(idp) {
+    return new Promise(function(resolve, reject) {
+      _signin(idp)
+        .then(result => resolve(result))
+        .catch(err => {
+          if(err.message &&
+            (
+              /ENOTFOUND|ETIMEDOUT|ENETUNREACH|EHOSTUNREACH|ECONNREFUSED|EHOSTDOWN|ESOCKETTIMEDOUT|ECONNRESET/.test(err.message)
+              ||
+              err.message === 'Error: socket hang up'
+            )
+          ) {
+            err = new OidcError(err.message, 'E_BLN_OIDC_NETWORK');
+          }
+
+          reject(err);
+        })
+    });
+  }
+
+  function _signin(idp) {
     idpConfig = idp;
     return new Promise(function(resolve, reject) {
       fetchServiceConfiguration().then(config => {
@@ -49,7 +71,7 @@ module.exports = function (env, clientConfig) {
             }).catch((error) => {
               logger.info('failed to retrieve accessToken, request new refreshToken', {category: 'openid-connect', error});
 
-              makeAuthorizationRequest(config)
+              makeAuthorizationRequest()
                 .then(() => {
                   resolve(true);
                 })
@@ -71,7 +93,7 @@ module.exports = function (env, clientConfig) {
             reject(error);
           });
         } else {
-          makeAuthorizationRequest(config).then((respone) => {
+          makeAuthorizationRequest().then((respone) => {
             resolve(true);
           }).catch((error) => {
             logger.error('failed to retrieve refreshToken', {
@@ -112,7 +134,7 @@ module.exports = function (env, clientConfig) {
       });
    }
 
-  function makeAuthorizationRequest(AuthorizationServiceConfiguration) {
+  function makeAuthorizationRequest() {
     return new Promise(function(resolve, reject) {
       notifier.setAuthorizationListener((request, response, error) => {
         logger.info('Authorization request complete ', {
@@ -130,26 +152,28 @@ module.exports = function (env, clientConfig) {
         if(response) {
           makeRefreshTokenRequest(configuration, response.code, codeVerifier)
             .then((result) => {
+              clientConfig.set('authMethod', 'oidc');
 
-              clientConfig.storeSecret('refreshToken', result.refreshToken).then(() => {
-                clientConfig.set('authMethod', 'oidc');
+              var promises = [];
+
+              promises.push(clientConfig.storeSecret('accessToken', result.accessToken));
+
+              if(result.refreshToken) {
+                promises.push(clientConfig.storeSecret('refreshToken', result.refreshToken))
+              }
+
+              Promise.all(promises).then(() => {
+                logger.debug('Stored tokens', {category: 'openid-connect'});
+
                 clientConfig.set('oidcProvider', idpConfig.providerUrl);
+                clientConfig.set('accessTokenExpires', result.issuedAt + result.expiresIn);
 
-                makeAccessTokenRequest(configuration, result.refreshToken).then((access) => {
-                  clientConfig.storeSecret('accessToken', access.accessToken).then(() => {
-                    clientConfig.set('accessTokenExpires', access.issuedAt + access.expiresIn);
-                    resolve();
-                  }).catch(err => {
-                    logger.error('Could not store accessToken', {category: 'openid-connect', err})
-                    reject(err);
-                  });
-                }).catch(reject); //catch makeAccessTokenRequest;
-
-              }).catch((err) =>{
-                logger.error('Could not store refreshToken', {category: 'openid-connect', err})
+                resolve();
+              }).catch((err) => { //catch Promise.all
+                clientConfig.set('authMethod', undefined);
+                logger.error('Could not store tokens', {category: 'openid-connect', err})
                 reject(err);
               });
-
             }).catch(reject); //catch makeRefreshTokenRequest
         } else {
           reject(error);
