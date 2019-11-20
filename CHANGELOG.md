@@ -14,6 +14,7 @@
 
 ### Deployment
 * Submit balloon-desktop to brew #195
+* Use travis for windows builds instead appveyor #198
 
 ### Common
 * Starting with v1.2.0 the changelog has a new format, all changes get splitted into sub categeories within the changelog to get a better readability.
