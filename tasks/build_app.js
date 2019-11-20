@@ -6,7 +6,7 @@ const path = require('path');
 const gulp = require('gulp');
 const utils = require('./utils');
 
-gulp.task('build', function (done) {
+gulp.task('build', async function (done) {
     var envName = utils.getEnvName();
     var srcPath = path.join(__dirname, '../config/', `env_${envName}.json`);
     var destPath = path.join(__dirname, '../resources/', 'env.json');
