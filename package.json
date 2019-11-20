@@ -26,6 +26,9 @@
     "mac": {
       "artifactName": "${os}/${name}-${version}-mac.${ext}"
     },
+    "win": {
+      "certificateSubjectName": "*.gyselroth.net"
+    },
     "linux": {
       "category": "Network"
     },

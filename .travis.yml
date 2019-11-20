@@ -18,11 +18,13 @@ addons:
     - libgnome-keyring-dev
 install:
   - npm install
-before_script: npm update
+before_script:
+- if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then certutil -p $CSC_KEY_PASSWORD_WINDOWS -importpfx ./travis/cert.p12; fi
+- npm update
 install:
   - npm install
 script:
-- if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install -y windows-sdk-10.0 && CSC_LINK=$CSC_LINK_WINDOWS CSC_KEY_PASSWORD=$CSC_KEY_PASSWORD_WINDOWS npm run release-win; fi
+- if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then CSC_LINK=$CSC_LINK_WINDOWS CSC_KEY_PASSWORD=$CSC_KEY_PASSWORD_WINDOWS npm run release-win; fi
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run release-linux; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then npm run release-osx; fi
 before_deploy:
