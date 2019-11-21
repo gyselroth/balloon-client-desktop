@@ -19,7 +19,7 @@ addons:
 install:
   - npm install
 before_script:
-#- if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then certutil -p $CSC_KEY_PASSWORD_WINDOWS -importpfx ./travis/cert.p12; fi
+- if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then curl $CSC_LINK_WINDOWS -o cert.p12; certutil -p $CSC_KEY_PASSWORD_WINDOWS -importpfx cert.p12; fi
 - npm update
 install:
   - npm install
