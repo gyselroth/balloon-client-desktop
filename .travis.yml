@@ -44,7 +44,7 @@ deploy:
     on:
       condition: $TRAVIS_OS_NAME = "linux"
       tags: true
-after_deploy:
+after_script:
 - git config --global user.email "travis@travis-ci.org"
 - git config --global user.name "Travis CI"
 - test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && sha256=$(shasum -a 256 dist/balloon-desktop-$version.pkg | cut -d ' ' -f1) && echo $sha256
