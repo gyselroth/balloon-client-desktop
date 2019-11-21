@@ -27,7 +27,7 @@
       "artifactName": "${os}/${name}-${version}-mac.${ext}"
     },
     "win": {
-      "certificateSubjectName": "*.gyselroth.net"
+      "certificateSubjectName": "CN=gyselroth GmbH, O=gyselroth GmbH, L=Zurich, C=CH"
     },
     "linux": {
       "category": "Network"
