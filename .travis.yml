@@ -16,13 +16,13 @@ addons:
     - libsecret-1-0
     - libsecret-1-dev
     - libgnome-keyring-dev
+cache:
+  directories:
+  - "$HOME/.npm"
 install:
-  - npm install
+  - npm ci
 before_script:
 - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then curl $CSC_LINK_WINDOWS -o cert.p12; certutil -p $CSC_KEY_PASSWORD_WINDOWS -importpfx cert.p12; fi
-- npm update
-install:
-  - npm install
 script:
 - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then CSC_LINK=$CSC_LINK_WINDOWS CSC_KEY_PASSWORD=$CSC_KEY_PASSWORD_WINDOWS npm run release-win; fi
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run release-linux; fi
@@ -44,8 +44,6 @@ deploy:
     on:
       condition: $TRAVIS_OS_NAME = "linux"
       tags: true
-before_cache:
-- rm -rf $HOME/.cache/electron-builder/wine
 after_deploy:
 - git config --global user.email "travis@travis-ci.org"
 - git config --global user.name "Travis CI"
