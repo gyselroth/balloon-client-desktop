@@ -55,5 +55,5 @@ after_script:
 - test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && sed -i '' 's/url.*$/url "https:\/\/github.com\/gyselroth\/balloon-client-desktop\/releases\/download\/v'$version'\/balloon-desktop-$version.pkg"/g' homebrew-cask/Casks/balloon-desktop.rb
 - test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && cd homebrew-cask
 - test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && git commit --message "balloon-desktop release $version" Casks/balloon-desktop.rb
-- test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && git remote set-url --push origin https://raffis:${GITHUB_TOKEN}@github.com/gyselroth/homebrew-cask.git > /dev/null 2>&1
+- test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && git remote set-url --push origin https://raffis:${GH_TOKEN}@github.com/gyselroth/homebrew-cask.git > /dev/null 2>&1
 - test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && git push origin master --quiet
