@@ -45,6 +45,8 @@ deploy:
       condition: $TRAVIS_OS_NAME = "linux"
       tags: true
 after_script:
+- export version=$(cat package.json | grep '"version"' | cut -d '"' -f4);
+- if [[ "$TRAVIS_TAG" == *"-"* ]]; then export distribution=unstable; else export distribution=stable; fi;
 - git config --global user.email "travis@travis-ci.org"
 - git config --global user.name "Travis CI"
 - test "$TRAVIS_TAG" != "" && test "$TRAVIS_OS_NAME" == "osx" && sha256=$(shasum -a 256 dist/balloon-desktop-$version.pkg | cut -d ' ' -f1) && echo $sha256
