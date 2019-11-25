@@ -84,6 +84,7 @@ function startApp() {
     logger.info('login secret recieved', {category: 'main'});
 
     ipcMain.once('tray-online-state-changed', function(event, state) {
+      bindOnlineStateChanged();
       if(clientConfig.hadConfig()) {
         tray.create();
         autoUpdate.checkForUpdate();
@@ -283,46 +284,47 @@ ipcMain.on('tray-show', function() {
   tray.show();
 });
 
-ipcMain.on('tray-online-state-changed', function(event, state) {
-  logger.info('online state changed', {
-    category: 'main',
-    state: state,
-    syncPaused: (sync && sync.isPaused())
-  });
+function bindOnlineStateChanged() {
+  ipcMain.on('tray-online-state-changed', function(event, state) {
+    logger.info('online state changed', {
+      category: 'main',
+      state: state,
+      syncPaused: (sync && sync.isPaused())
+    });
 
-  appState.set('onLineState', state);
-  if(state === false) {
-    //abort a possibly active sync if not already paused
-    if(sync && sync.isPaused() === false) sync.pause(true);
-    tray.toggleState('offline', true);
-  } else {
-    tray.toggleState('offline', false);
-
-    if(clientConfig.get('loggedin') === true) {
-      if(sync && sync.isPaused() === false) startSync(true);
-    } else if(startup.needsStartupWizzard() === false) {
-      logger.debug('Trying to verify user credentials', {category: 'main'});
-
-      // Pass rejected promise, as it should silently fail
-      auth.login(Promise.reject()).then(() => {
-        if(!sync) {
-          sync = SyncCtrl(env, tray);
-          sync.setMayStart(true);
-        }
-
-        clientConfig.updateTraySecret();
-        tray.toggleState('loggedout', false);
-
+    appState.set('onLineState', state);
+    if(state === false) {
+      //abort a possibly active sync if not already paused
+      if(sync && sync.isPaused() === false) sync.pause(true);
+      tray.toggleState('offline', true);
+    } else {
+      tray.toggleState('offline', false);
+      if(clientConfig.get('loggedin') === true) {
         if(sync && sync.isPaused() === false) startSync(true);
-      }).catch((error) => {
-        logger.warning('User is not authenticated', {category: 'main'});
+      } else if(startup.needsStartupWizzard() === false) {
+        logger.debug('Trying to verify user credentials', {category: 'main'});
 
-        tray.emit('unlink-account-result', true);
-        tray.toggleState('loggedout', true);
-      });
+        // Pass rejected promise, as it should silently fail
+        auth.login(Promise.reject()).then(() => {
+          if(!sync) {
+            sync = SyncCtrl(env, tray);
+            sync.setMayStart(true);
+          }
+
+          clientConfig.updateTraySecret();
+          tray.toggleState('loggedout', false);
+
+          if(sync && sync.isPaused() === false) startSync(true);
+        }).catch((error) => {
+          logger.warning('User is not authenticated', {category: 'main'});
+
+          tray.emit('unlink-account-result', true);
+          tray.toggleState('loggedout', true);
+        });
+      }
     }
-  }
-});
+  });
+}
 
 /** Settings **/
 ipcMain.on('settings-autoReport-changed', function(event, state) {
