@@ -11,6 +11,7 @@
 * Empty Message Prevents Sending Error Report #204
 * Fix tray window positioning on osx #112
 * Do not unlink account if access token can not get refreshed #188
+* Open balloon the 2nd time does not open the balloon folder #202
 
 ### Deployment
 * Submit balloon-desktop to brew #195

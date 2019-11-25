@@ -23,10 +23,6 @@ module.exports = function(env, clientConfig) {
     return autoLaunch.ensureCorrectState();
   }
 
-  function isAutoLaunch() {
-    return process.argv.find(argument => {return argument === '--hidden'}) !== undefined;
-  }
-
   function checkConfig() {
     return Promise.all([
       makeSureBalloonDirExists(),
@@ -217,9 +213,6 @@ module.exports = function(env, clientConfig) {
   }
 
   function showBalloonDir() {
-    //if app is Launched through autolaunch do not open BalloonDir
-    if(isAutoLaunch()) return Promise.resolve();
-
     return new Promise(function(resolve, reject) {
       makeSureBalloonDirExists().then(function() {
         shell.openItem(clientConfig.get('balloonDir'));
