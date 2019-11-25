@@ -305,7 +305,7 @@ function bindOnlineStateChanged() {
         logger.debug('Trying to verify user credentials', {category: 'main'});
 
         // Pass rejected promise, as it should silently fail
-        auth.login(Promise.reject()).then(() => {
+        auth.login(() => Promise.reject()).then(() => {
           if(!sync) {
             sync = SyncCtrl(env, tray);
             sync.setMayStart(true);
