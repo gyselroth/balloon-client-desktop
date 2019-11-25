@@ -296,8 +296,31 @@ ipcMain.on('tray-online-state-changed', function(event, state) {
     if(sync && sync.isPaused() === false) sync.pause(true);
     tray.toggleState('offline', true);
   } else {
-    if(sync && sync.isPaused() === false) startSync(true);
     tray.toggleState('offline', false);
+
+    if(clientConfig.get('loggedin') === true) {
+      if(sync && sync.isPaused() === false) startSync(true);
+    } else if(startup.needsStartupWizzard() === false) {
+      logger.debug('Trying to verify user credentials', {category: 'main'});
+
+      // Pass rejected promise, as it should silently fail
+      auth.login(Promise.reject()).then(() => {
+        if(!sync) {
+          sync = SyncCtrl(env, tray);
+          sync.setMayStart(true);
+        }
+
+        clientConfig.updateTraySecret();
+        tray.toggleState('loggedout', false);
+
+        if(sync && sync.isPaused() === false) startSync(true);
+      }).catch((error) => {
+        logger.warning('User is not authenticated', {category: 'main'});
+
+        tray.emit('unlink-account-result', true);
+        tray.toggleState('loggedout', true);
+      });
+    }
   }
 });
 

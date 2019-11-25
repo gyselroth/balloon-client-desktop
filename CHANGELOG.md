@@ -1,6 +1,6 @@
 ## 1.2.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**: 
+**Date**:
 
 ### Bugfixes
 * Missleading message during check for update while downloading latest update #74
@@ -12,6 +12,7 @@
 * Fix tray window positioning on osx #112
 * Do not unlink account if access token can not get refreshed #188
 * Open balloon the 2nd time does not open the balloon folder #202
+* Fix initial login state may differ #163
 
 ### Deployment
 * Submit balloon-desktop to brew #195

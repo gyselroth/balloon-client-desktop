@@ -85,16 +85,7 @@ module.exports = function(env, clientConfig) {
   }
 
   function authenticate() {
-    if(!clientConfig.get('blnUrl')
-        ||
-        !clientConfig.get('apiUrl')
-        ||
-        !clientConfig.hadConfig()
-        ||
-        !clientConfig.isActiveInstance()
-        ||
-        instance.getInstance(clientConfig) === null
-    ) {
+    if(needsStartupWizzard()) {
       logger.debug('skip startup authentication, first time wizard needs to be executed first', {
           category: 'startup'
       });
@@ -112,6 +103,19 @@ module.exports = function(env, clientConfig) {
         reject(error);
       });
     });
+  }
+
+  function needsStartupWizzard() {
+    return (!clientConfig.get('blnUrl')
+        ||
+        !clientConfig.get('apiUrl')
+        ||
+        !clientConfig.hadConfig()
+        ||
+        !clientConfig.isActiveInstance()
+        ||
+        instance.getInstance(clientConfig) === null
+    );
   }
 
   function askCredentials() {
@@ -353,6 +357,7 @@ module.exports = function(env, clientConfig) {
   return {
     checkConfig,
     preSyncCheck,
-    showBalloonDir
+    showBalloonDir,
+    needsStartupWizzard
   }
 }
