@@ -1,6 +1,6 @@
 ## 1.2.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**:
+**Date**: Fri Nov 29 09:56:11 CET 2019
 
 ### Bugfixes
 * Missleading message during check for update while downloading latest update #74
@@ -13,6 +13,9 @@
 * Do not unlink account if access token can not get refreshed #188
 * Open balloon the 2nd time does not open the balloon folder #202
 * Fix initial login state may differ #163
+
+### Sync
+* Various sync fixes, balloon-node-sync version v0.5.2
 
 ### Deployment
 * Submit balloon-desktop to brew #195
