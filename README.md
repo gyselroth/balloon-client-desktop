@@ -23,11 +23,11 @@ Keep your desktop in sync with your data in the cloud.
 * Activity log
 * NodeJS application, which is compatible with all popular operating systems (e.g. OS X, Windows and Linux)
 
-## Download
-Visit the [Documentation](https://gyselroth.github.io/balloon-docs/desktop-client/installation/) to get information on how to install the balloon desktop client on your platform.
+# Documentation
+How to install? Please visit the [documentation](https://gyselroth.github.io/balloon-docs/).
 
 ## Requirements
-You need a running balloon server to operate a balloon web client. Please see [balloon](https://github.com/gyselroth/balloon) for further information.
+You need a running balloon server. Please see [balloon](https://github.com/gyselroth/balloon) for further information.
 
 ## Changelog
 A changelog is available [here](https://github.com/gyselroth/balloon-client-desktop/blob/master/CHANGELOG.md).
