@@ -1,3 +1,30 @@
+## 1.2.0
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri Nov 29 09:56:11 CET 2019
+
+### Bugfixes
+* Missleading message during check for update while downloading latest update #74
+* Change of allowPrerelease flag should work without app restart #169
+* Soft fail if no rights to send events to system events #193
+* Adding missing localizations #205
+* Wrong status after link account #205
+* Empty Message Prevents Sending Error Report #204
+* Fix tray window positioning on osx #112
+* Do not unlink account if access token can not get refreshed #188
+* Open balloon the 2nd time does not open the balloon folder #202
+* Fix initial login state may differ #163
+
+### Sync
+* Various sync fixes, balloon-node-sync version v0.5.2
+
+### Deployment
+* Submit balloon-desktop to brew #195
+* Use travis for windows builds instead appveyor #198
+
+### Common
+* Starting with v1.2.0 the changelog has a new format, all changes get splitted into sub categeories within the changelog to get a better readability.
+
+
 ## 1.1.1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Tue Jul 23 13:14:33 CEST 2019

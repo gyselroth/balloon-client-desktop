@@ -8,7 +8,7 @@
  * https://github.com/vakata/jstree/blob/master/src/jstree.checkbox.js
  *
  * Copyright (c) 2014 Ivan Bozhanov
- * Copyright (c) 2018 Gyselroth GmbH
+ * Copyright (c) 2018 gyselroth GmbH
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation

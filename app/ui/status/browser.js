@@ -141,8 +141,8 @@ module.exports = function() {
     ipcRenderer.removeListener('unlink-account-result', onUnlinkAccountResult);
     ipcRenderer.on('unlink-account-result', onUnlinkAccountResult);
 
-    ipcRenderer.removeListener('link-account-result', onUnlinkAccountResult);
-    ipcRenderer.on('link-account-result', onUnlinkAccountResult);
+    ipcRenderer.removeListener('link-account-result', onLinkAccountResult);
+    ipcRenderer.on('link-account-result', onLinkAccountResult);
 
     ipcRenderer.removeListener('sync-paused', onSyncPaused);
     ipcRenderer.on('sync-paused', onSyncPaused);
@@ -228,7 +228,7 @@ module.exports = function() {
     $error.find('li').not('.status-no-elements').remove();
   }
 
-  var onUnlinkAccountResult = function(event, result) {
+  var onLinkAccountResult = function(event, result) {
     $syncStatus.find('span').html(i18n.__('tray.sync.status.warmup'));
     $syncStatus.find('div').hide();
   }

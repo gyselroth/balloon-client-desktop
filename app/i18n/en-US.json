@@ -38,6 +38,7 @@
   "tray.sync.status.start": "Creating index...",
   "tray.sync.status.transfer": "Transfer data...",
   "tray.sync.status.tree": "Directory tree is being synchronized...",
+  "tray.sync.status.warmup": "Initializing synchronization...",
   "tray.sync.status.default": "Your balloon is synchronized.",
 
   "about.see_github": "Check out github",

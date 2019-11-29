@@ -84,6 +84,7 @@ function startApp() {
     logger.info('login secret recieved', {category: 'main'});
 
     ipcMain.once('tray-online-state-changed', function(event, state) {
+      bindOnlineStateChanged();
       if(clientConfig.hadConfig()) {
         tray.create();
         autoUpdate.checkForUpdate();
@@ -195,6 +196,30 @@ function unlinkAccount() {
   });
 }
 
+function handleUnauthorizedRequest() {
+  return new Promise(function(resolve, reject) {
+    if(clientConfig.get('authMethod') === 'basic') {
+      logger.info('got 401, unlink account', {category: 'main', authMethod: 'basic'});
+      unlinkAccount();
+      return reject();
+    } else {
+      logger.debug('got 401, refresh accessToken', {category: 'main'});
+
+      auth.refreshAccessToken().then(resolve).catch(err => {
+        if(err.code && ['E_BLN_AUTH_NETWORK', 'E_BLN_OIDC_NETWORK'].includes(err.code)) {
+          logger.warn('could not refresh accessToken, network offline', {category: 'main', err});
+          tray.emit('network-offline');
+        } else {
+          logger.error('could not refresh accessToken, unlink instance', {category: 'main', err});
+          unlinkAccount();
+        }
+
+        reject();
+      });
+    }
+  });
+}
+
 var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
 
 if(shouldQuit === true && process.platform !== 'darwin') {
@@ -259,23 +284,47 @@ ipcMain.on('tray-show', function() {
   tray.show();
 });
 
-ipcMain.on('tray-online-state-changed', function(event, state) {
-  logger.info('online state changed', {
-    category: 'main',
-    state: state,
-    syncPaused: (sync && sync.isPaused())
-  });
+function bindOnlineStateChanged() {
+  ipcMain.on('tray-online-state-changed', function(event, state) {
+    logger.info('online state changed', {
+      category: 'main',
+      state: state,
+      syncPaused: (sync && sync.isPaused())
+    });
 
-  appState.set('onLineState', state);
-  if(state === false) {
-    //abort a possibly active sync if not already paused
-    if(sync && sync.isPaused() === false) sync.pause(true);
-    tray.toggleState('offline', true);
-  } else {
-    if(sync && sync.isPaused() === false) startSync(true);
-    tray.toggleState('offline', false);
-  }
-});
+    appState.set('onLineState', state);
+    if(state === false) {
+      //abort a possibly active sync if not already paused
+      if(sync && sync.isPaused() === false) sync.pause(true);
+      tray.toggleState('offline', true);
+    } else {
+      tray.toggleState('offline', false);
+      if(clientConfig.get('loggedin') === true) {
+        if(sync && sync.isPaused() === false) startSync(true);
+      } else if(startup.needsStartupWizzard() === false) {
+        logger.debug('Trying to verify user credentials', {category: 'main'});
+
+        // Pass rejected promise, as it should silently fail
+        auth.login(() => Promise.reject()).then(() => {
+          if(!sync) {
+            sync = SyncCtrl(env, tray);
+            sync.setMayStart(true);
+          }
+
+          clientConfig.updateTraySecret();
+          tray.toggleState('loggedout', false);
+
+          if(sync && sync.isPaused() === false) startSync(true);
+        }).catch((error) => {
+          logger.warning('User is not authenticated', {category: 'main'});
+
+          tray.emit('unlink-account-result', true);
+          tray.toggleState('loggedout', true);
+        });
+      }
+    }
+  });
+}
 
 /** Settings **/
 ipcMain.on('settings-autoReport-changed', function(event, state) {
@@ -396,18 +445,12 @@ ipcMain.on('selective-error', (event, error, url, line, message) => {
   switch(error.code) {
     case 'E_BLN_API_REQUEST_UNAUTHORIZED':
       selective.close();
-      if(clientConfig.get('authMethod') === 'basic') {
-        logger.info('got 401 from selective, unlink account', {category: 'main'});
-        unlinkAccount();
-      } else {
-        logger.debug('got 401 from selective, refresh accessToken', {category: 'main'});
-        auth.refreshAccessToken().then(() => {
-          selective.open();
-        }).catch(() => {
-          logger.error('could not refresh accessToken after selective-error, unlink instance', {category: 'main'});
-          unlinkAccount();
-        });
-      }
+
+      handleUnauthorizedRequest().then(() => {
+        selective.open();
+      }).catch(() => {
+        logger.warn('Could not open selective sync, user not authenticated.', {category: 'main'});
+      });
     break;
     case 'E_BLN_API_REQUEST_MFA_REQUIRED':
       selective.close();
@@ -436,21 +479,13 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
       endSync();
       if(sync) sync.killWatcher();
 
-      if(clientConfig.get('authMethod') === 'basic') {
-        logger.info('got 401, end sync and unlink account', {category: 'main'});
-        unlinkAccount();
+
+      handleUnauthorizedRequest().then(() => {
+        startSync(true);
         isHandlingUnauthorizedRequest = false;
-      } else {
-        logger.debug('got 401, refresh accessToken', {category: 'main'});
-        auth.refreshAccessToken().then(() => {
-          startSync(true);
-          isHandlingUnauthorizedRequest = false;
-        }).catch(err => {
-          logger.error('could not refresh accessToken, unlink instance', {category: 'main', err});
-          unlinkAccount();
-          isHandlingUnauthorizedRequest = false;
-        });
-      }
+      }).catch(() => {
+        isHandlingUnauthorizedRequest = false;
+      });
     break;
     case 'E_BLN_API_REQUEST_MFA_REQUIRED':
       if(isHandlingMfaRequired === true) return;

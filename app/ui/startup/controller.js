@@ -23,10 +23,6 @@ module.exports = function(env, clientConfig) {
     return autoLaunch.ensureCorrectState();
   }
 
-  function isAutoLaunch() {
-    return process.argv.find(argument => {return argument === '--hidden'}) !== undefined;
-  }
-
   function checkConfig() {
     return Promise.all([
       makeSureBalloonDirExists(),
@@ -89,16 +85,7 @@ module.exports = function(env, clientConfig) {
   }
 
   function authenticate() {
-    if(!clientConfig.get('blnUrl')
-        ||
-        !clientConfig.get('apiUrl')
-        ||
-        !clientConfig.hadConfig()
-        ||
-        !clientConfig.isActiveInstance()
-        ||
-        instance.getInstance(clientConfig) === null
-    ) {
+    if(needsStartupWizzard()) {
       logger.debug('skip startup authentication, first time wizard needs to be executed first', {
           category: 'startup'
       });
@@ -116,6 +103,19 @@ module.exports = function(env, clientConfig) {
         reject(error);
       });
     });
+  }
+
+  function needsStartupWizzard() {
+    return (!clientConfig.get('blnUrl')
+        ||
+        !clientConfig.get('apiUrl')
+        ||
+        !clientConfig.hadConfig()
+        ||
+        !clientConfig.isActiveInstance()
+        ||
+        instance.getInstance(clientConfig) === null
+    );
   }
 
   function askCredentials() {
@@ -217,9 +217,6 @@ module.exports = function(env, clientConfig) {
   }
 
   function showBalloonDir() {
-    //if app is Launched through autolaunch do not open BalloonDir
-    if(isAutoLaunch()) return Promise.resolve();
-
     return new Promise(function(resolve, reject) {
       makeSureBalloonDirExists().then(function() {
         shell.openItem(clientConfig.get('balloonDir'));
@@ -360,6 +357,7 @@ module.exports = function(env, clientConfig) {
   return {
     checkConfig,
     preSyncCheck,
-    showBalloonDir
+    showBalloonDir,
+    needsStartupWizzard
   }
 }
