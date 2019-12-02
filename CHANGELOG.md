@@ -1,3 +1,11 @@
+## 1.2.1
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**:
+
+### Bugfixes
+* Use same font-size in textarea as in input field #211
+
+
 ## 1.2.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri Nov 29 09:56:11 CET 2019
