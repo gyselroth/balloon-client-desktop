@@ -79,7 +79,7 @@ class BalloonAutoLaunch {
         }
       }).catch(err => {
         if(err.message && err.message.match(/(-1743)/)) {
-          logger.error('Autolaounch can\'t be controlled by balloon as it is not allowed to send Apple-Events to System Events.', {category: 'autolaunch'});
+          logger.error('Autolaunch can\'t be controlled by balloon as it is not allowed to send Apple-Events to System Events.', {category: 'autolaunch'});
           return resolve();
         }
 
@@ -110,7 +110,7 @@ class BalloonAutoLaunch {
         }
       }).catch(err => {
         if(err.message && err.message.match(/(-1743)/)) {
-          logger.error('Autolaounch can\'t be controlled by balloon as it is not allowed to send Apple-Events to System Events.', {category: 'autolaunch'});
+          logger.error('Autolaunch can\'t be controlled by balloon as it is not allowed to send Apple-Events to System Events.', {category: 'autolaunch'});
           return resolve();
         }
 
