@@ -242,6 +242,7 @@ if(shouldQuit === true && process.platform !== 'darwin') {
 
   app.on('ready', function () {
     appState.set('updateAvailable', false);
+    appState.set('updateDownloading', false);
 
     feedback = FeedbackCtrl(env, clientConfig);
     feedback.toggleAutoReport(globalConfig.get('autoReport'));

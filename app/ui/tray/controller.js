@@ -345,9 +345,9 @@ module.exports = function(env, clientConfig) {
     }
   }
 
-  function update(state) {
+  function update(state, info) {
     if(trayWindow && trayWindow.isDestroyed() === false) {
-      trayWindow.webContents.send(state);
+      trayWindow.webContents.send(state, info);
     }
   }
 

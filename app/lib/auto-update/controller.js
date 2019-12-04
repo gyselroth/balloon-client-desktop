@@ -27,6 +27,7 @@ module.exports = function(env, clientConfig, tray) {
       data: info
     });
 
+    appState.set('updateDownloading', true);
     tray.update('update-available');
   });
 
@@ -47,6 +48,8 @@ module.exports = function(env, clientConfig, tray) {
     });
 
     tray.update('error');
+    appState.set('updateDownloading', false);
+    appState.set('updateAvailable', false);
     checkRunning = false;
   });
 
@@ -59,7 +62,14 @@ module.exports = function(env, clientConfig, tray) {
     tray.update('update-downloaded');
     tray.toggleState('update', true);
     appState.set('updateAvailable', true);
+    appState.set('updateDownloading', false);
     checkRunning = false;
+  });
+
+  autoUpdater.on('download-progress', (progress) => {
+    logger.debug('Download progress', {category: 'autoupdate', progress});
+
+    tray.update('update-download-progress', progress);
   });
 
   function shouldCheckForUpdates() {

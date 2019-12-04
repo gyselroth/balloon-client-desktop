@@ -47,6 +47,7 @@
   "about.checkNewVersion": "Auf eine neue Version prüfen",
   "about.updateNotAvailable": "Du hast bereits die neuste Version installiert",
   "about.updateError": "Ein Fehler ist aufgetreten, bitte versuche es später erneut",
+  "about.updateDownloading": "Update wird heruntergeladen",
 
   "update.install": "Möchtest du die neuste balloon-desktop-client-Version installieren?",
 

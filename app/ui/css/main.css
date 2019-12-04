@@ -466,10 +466,15 @@ input[type="radio"], input[type="checkbox"] {
     margin: 8px 0;
 }
 
-#about-update-not-available {
+#about-update-not-available,
+#about-update-downloading {
     display: none;
     text-align: center;
     margin: 8px 0;
+}
+
+#about-update-downloading span:nth-child(2) {
+  display: none;
 }
 
 #about .loader, .view .loader {
