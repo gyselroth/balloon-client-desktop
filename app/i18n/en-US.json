@@ -66,6 +66,7 @@
   "settings.selective.choosePath": "Select all folder and files you want to be in sync with your balloon cloud:",
   "settings.selective.updateing": "Updating folders to be synced.",
   "settings.selective.noCollections": "No collections exist.",
+  "settings.selective.initialize": "Initializing...",
   "settings.balloonDir.title": "balloon directory",
   "settings.balloonDir.message": "Change the directory for your balloon:",
 

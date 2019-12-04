@@ -85,7 +85,7 @@ module.exports = function(env, clientConfig) {
 
 
     if(env.name === 'development') {
-      selectiveWindow.openDevTools();
+      selectiveWindow.openDevTools({ mode: 'detach' });
     }
 
     return selectiveWindow;

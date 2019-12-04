@@ -66,6 +66,7 @@
   "settings.selective.choosePath": "Wähle alle Ordner und Dateien aus, welche du synchronisiert haben möchtest:",
   "settings.selective.updateing": "Aktualisiere die zu synchronisierenden Ordner",
   "settings.selective.noCollections": "Es sind noch keine Ordner vorhanden",
+  "settings.selective.initialize": "Initialisiere...",
   "settings.balloonDir.title": "balloon-Verzeichnis",
   "settings.balloonDir.message": "Den Speicherort für deinen balloon ändern:",
 

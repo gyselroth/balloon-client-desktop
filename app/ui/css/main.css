@@ -602,8 +602,25 @@ input[type="radio"], input[type="checkbox"] {
     color: #999;
 }
 
-#selective-sync {
+#selective-sync,
+#selective-initialize {
     margin: 10px;
+    height: 428px;
+}
+
+#selective-sync {
+  display: none;
+}
+
+#selective-initialize {
+  text-align: center;
+  position: absolute;
+  height: 25px;
+  width: 100px;
+  left: 50%;
+  margin-left: -50px;
+  top: 50%;
+  margin-top: -12px;
 }
 
 .jstree-themeicon {

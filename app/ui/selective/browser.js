@@ -66,19 +66,41 @@ $('document').ready(function() {
 
 function initialize(config) {
   sync = fullSyncFactory(config, logger);
-  sync.getIgnoredRemoteIds((err, currentlyIgnoredIds) => {
-    if(err) throw err;
 
+  const tasks = [];
+
+  tasks.push((cb) => {
+    ipcRenderer.send('selective-ignore-new-shares');
+
+    ipcRenderer.on('selective-ignore-new-shares-result', (event) => {
+      logger.debug('ignore new shares finished', {category: 'selective'});
+      cb();
+    });
+  });
+
+  tasks.push((cb) => {
+    sync.getIgnoredRemoteIds(cb);
+  });
+
+  tasks.push((currentlyIgnoredIds, cb) => {
     logger.debug('Got ignored remote ids', {category: 'selective', currentlyIgnoredIds});
 
     // initialize ignoredNodes
-    sync.blnApi.getAttributesByIds(currentlyIgnoredIds, ['path', 'id'], (err, nodes) => {
-      if(err) throw err;
+    sync.blnApi.getAttributesByIds(currentlyIgnoredIds, ['path', 'id'], cb);
+  })
 
-      ignoredNodes = new IgnoredNodes(nodes);
+  async.waterfall(tasks, (err, nodes) => {
+    if(err) throw err;
 
-      initializeTree();
-    });
+    logger.debug('Got ignored nodes', {category: 'selective', nodes});
+
+    // initialize ignoredNodes
+    ignoredNodes = new IgnoredNodes(nodes);
+
+    $('#selective-initialize').hide();
+    $('#selective-sync').show();
+
+    initializeTree();
   });
 }
 

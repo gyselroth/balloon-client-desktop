@@ -369,13 +369,7 @@ ipcMain.on('sync-toggle-pause', () => {
 });
 
 ipcMain.on('selective-open', function(event) {
-  if(sync) {
-    sync.ignoreNewShares(err => {
-      selective.open();
-    });
-  } else {
-    selective.open();
-  }
+  selective.open();
 });
 
 ipcMain.on('selective-close', function(event) {
@@ -388,6 +382,16 @@ ipcMain.on('selective-apply', function(event, difference) {
   if(sync) sync.updateSelectiveSync(difference, err => {
     selective.close();
   });
+});
+
+ipcMain.on('selective-ignore-new-shares', function(event) {
+  if(sync) {
+    sync.ignoreNewShares((err, ) => {
+      event.sender.send('selective-ignore-new-shares-result');
+    });
+  } else {
+    event.sender.send('selective-ignore-new-shares-result');
+  }
 });
 
 ipcMain.on('balloonDirSelector-open', function(event) {
