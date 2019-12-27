@@ -107,7 +107,7 @@
     "electron-updater": "^3.2.0",
     "escape-string-regexp": "~1.0.5",
     "graceful-fs": "^4.1.15",
-    "handlebars": "^4.0.12",
+    "handlebars": "^4.3.0",
     "javascript-time-ago": "^1.0.34",
     "jquery": "^3.4.1",
     "jstree": "^3.3.7",
