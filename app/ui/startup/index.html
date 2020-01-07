@@ -47,6 +47,15 @@
             </div>
         </div>
 
+        <div id="startup-view-selective" class="view">
+            <h1>{{i18n 'settings.selective.title'}}</h1>
+            <div class="view-content">
+                <p>{{i18n 'startup.selective.message'}}</p>
+                <button id="startup-selective-edit">{{i18n 'startup.selective.edit'}}</button>
+                <button id="startup-selective-continue">{{i18n 'startup.selective.continue'}}</button>
+            </div>
+        </div>
+
         <div id="startup-view-welcome" class="view">
             <h1>{{i18n 'startup.welcome.title'}}</h1>
             <div class="view-content">
@@ -59,18 +68,15 @@
         <div id="startup-view-advanced" class="view">
             <h1>{{i18n 'startup.welcome.advanced'}}</h1>
             <div id="startup-advanced-saveDir">
-              <h2>{{i18n 'startup.advanced.saveDir.title'}}</h2>
-              <p>{{i18n 'startup.advanced.saveDir.message'}}</p>
-              <label class="select-node" id="startup-savedir">
-                <div></div>
-                <div class="arrow-down"></div>
-              </label>
+                <h2>{{i18n 'startup.advanced.saveDir.title'}}</h2>
+                <p>{{i18n 'startup.advanced.saveDir.message'}}</p>
+                <label class="select-node" id="startup-savedir">
+                    <div></div>
+                    <div class="arrow-down"></div>
+                </label>
             </div>
-            <div id="startup-advanced-selective">
-              <h2>{{i18n 'settings.selective.title'}}</h2>
-              <p>{{i18n 'settings.selective.choosePath'}}</p>
-              <button id="startup-adavanced-selective">{{i18n 'settings.selective.setup'}}</button>
-              <button class="startup-open-folder">{{i18n 'startup.welcome.openFolder'}}</button>
+            <div>
+                <button class="startup-open-folder">{{i18n 'startup.welcome.openFolder'}}</button>
             </div>
         </div>
 

@@ -22,6 +22,8 @@
 ### Deployment
 * Windows build fails Error: 403 status code downloading arm64 iojs.lib #223
 
+### Changes
+* Show selective sync on separate page in startuo wizard #172
 
 ## 1.2.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\

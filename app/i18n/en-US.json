@@ -85,6 +85,9 @@
   "startup.auth.mfaCode": "Code",
   "startup.auth.mfaDescription": "Your account has been protected with multi factor authentication. Please enter the code from your google authenticator:",
   "startup.auth.message": "Authenticate your account with balloon:",
+  "startup.selective.continue": "Continue",
+  "startup.selective.edit": "Change selection",
+  "startup.selective.message": "By default shares are ignored during the synchronisation. You can change the selection here or anytime later in the settings.",
 
   "status.nav.activities": "Activities",
   "status.nav.error": "Errors",

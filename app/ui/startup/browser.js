@@ -164,18 +164,23 @@ function welcome() {
       ipcRenderer.send('balloonDirSelector-open');
     });
 
-    $('#startup-adavanced-selective').bind('click', function() {
-      ipcRenderer.send('selective-open');
-    });
-
     ipcRenderer.on('balloonDirSelector-result', function (event, result) {
       if(result && result.newPath) {
         $savedirLabel.html(result.newPath);
       }
     });
 
-    $('#startup-logo').hide();
     switchView('advanced');
+  });
+}
+
+function selective() {
+  $('#startup-selective-edit').off('click').bind('click', function() {
+    ipcRenderer.send('selective-open');
+  });
+
+  $('#startup-selective-continue').off('click').bind('click', function() {
+    switchView('welcome');
   });
 }
 

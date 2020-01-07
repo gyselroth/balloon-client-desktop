@@ -238,7 +238,7 @@ module.exports = function(env, clientConfig) {
     return new Promise(function(resolve, reject) {
       if(!startupWindow) startupWindow = createStartupWindow();
 
-      startupWindow.webContents.executeJavaScript(`switchView('welcome')`);
+      startupWindow.webContents.executeJavaScript(`switchView('selective')`);
       startupWindow.show();
       startupWindow.focus();
 
