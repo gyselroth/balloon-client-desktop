@@ -6,7 +6,7 @@
 * Use same font-size in textarea as in input field #211
 * Improve selective window open time #179
 * Display message while update is downloading #59
-
+* replace refreshToken if server issues a new refreshToken #197
 
 ## 1.2.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\

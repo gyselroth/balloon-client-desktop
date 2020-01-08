@@ -59,7 +59,7 @@ module.exports = function (env, clientConfig) {
             });
 
             makeAccessTokenRequest(configuration, secret).then((response) => {
-              clientConfig.storeSecret('accessToken', response.accessToken)
+              _storeSecrets(response)
                 .then(() => {
                   clientConfig.set('accessTokenExpires', response.issuedAt + response.expiresIn);
                   resolve();
@@ -154,15 +154,7 @@ module.exports = function (env, clientConfig) {
             .then((result) => {
               clientConfig.set('authMethod', 'oidc');
 
-              var promises = [];
-
-              promises.push(clientConfig.storeSecret('accessToken', result.accessToken));
-
-              if(result.refreshToken) {
-                promises.push(clientConfig.storeSecret('refreshToken', result.refreshToken))
-              }
-
-              Promise.all(promises).then(() => {
+              _storeSecrets(result).then(() => {
                 logger.debug('Stored tokens', {category: 'openid-connect'});
 
                 clientConfig.set('oidcProvider', idpConfig.providerUrl);
@@ -292,6 +284,18 @@ module.exports = function (env, clientConfig) {
         });
       }).catch(reject); //catch fetchServiceConfiguration
     });
+  }
+
+  function _storeSecrets(response) {
+    var promises = [];
+
+    promises.push(clientConfig.storeSecret('accessToken', response.accessToken));
+
+    if(response.refreshToken) {
+      promises.push(clientConfig.storeSecret('refreshToken', response.refreshToken))
+    }
+
+    return Promise.all(promises)
   }
 
   return {
