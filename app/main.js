@@ -15,7 +15,6 @@ const FeedbackCtrl = require('./ui/feedback/controller.js');
 const setMenu = require('./lib/menu.js');
 const BalloonDirSelectorCtrl = require('./ui/balloon-dir-selector/controller.js');
 const {BalloonBurlHandler} = require('./lib/burl.js');
-const ipc = require ('./lib/ipc.js');
 const i18n = require ('./lib/i18n.js');
 
 const logger = require('./lib/logger.js');
@@ -40,8 +39,8 @@ if (process.platform === 'linux') {
 
 logger.setLogger(standardLogger);
 
-function extractBurlArgument() {
-  return process.argv.find(argument => {return burlHandler.isBalloonBurlPath(argument)});
+function extractBurlArgument(argv) {
+  return argv.find(argument => {return burlHandler.isBalloonBurlPath(argument)});
 }
 
 process.on('uncaughtException', function(exception) {
@@ -60,8 +59,9 @@ function openBurl(burlPath) {
         title: 'Balloon URL',
         message: i18n.__('burl.prompt'),
         detail: burl,
-      }, (buttonIndex) => {
-        if (0 === buttonIndex) {
+        cancelId: 1,
+      }).then((result) => {
+        if (0 === result.response) {
           burlHandler.handleBurl(burl);
         }
       });
@@ -74,6 +74,8 @@ function openBurl(burlPath) {
         detail: error.burl,
       });
     });
+  } else {
+    logger.warn('Tried to open an invalid burl path', {burlPath});
   }
 }
 
@@ -154,21 +156,6 @@ function startApp() {
 
     tray = TrayCtrl(env, clientConfig);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
-
-    ipc.listen((data) => {
-      switch(data.type) {
-        case 'open-burl':
-          openBurl(data.payload);
-          break;
-        case 'open-balloon':
-        default:
-          if (tray.isWindowVisible() || process.platform !== 'linux') {
-            startup.showBalloonDir();
-          } else {
-            tray.show();
-          }
-      }
-    })
   });
 }
 
@@ -220,23 +207,35 @@ function handleUnauthorizedRequest() {
   });
 }
 
-var shouldQuit = app.makeSingleInstance((cmd, cwd) => {});
+var gotLock = app.requestSingleInstanceLock();
 
-if(shouldQuit === true && process.platform !== 'darwin') {
-  let burlArgument = extractBurlArgument();
-  if (burlArgument) {
-    ipc.send({type: 'open-burl', payload: burlArgument}).then(() => {
-      app.quit();
-    });
-  } else {
-    ipc.send({type: 'open-balloon'}).then(() => {
-      app.quit();
-    });
-  }
+if(gotLock === false) {
+  app.quit();
 } else {
   app.on('open-file', function(event, path) {
     if (process.platform === 'darwin') {
+      logger.info('OPEN BURL open-file', {
+          category: 'main',
+          path
+      });
       openBurl(path);
+    }
+  });
+
+  app.on('second-instance', function(event, argv, workingDirectory) {
+    let burlArgument = extractBurlArgument(argv);
+    if (burlArgument) {
+      logger.info('OPEN BURL sec instance', {
+          category: 'main',
+          burlArgument
+      });
+      openBurl(burlArgument);
+    } else {
+      if (tray.isWindowVisible() || process.platform !== 'linux') {
+        startup.showBalloonDir();
+      } else {
+        tray.show();
+      }
     }
   });
 

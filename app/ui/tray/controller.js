@@ -276,7 +276,8 @@ module.exports = function(env, clientConfig) {
       fullscreenable: false,
       resizable: false,
       transparent: true,
-      skipTaskbar: true
+      skipTaskbar: true,
+      webPreferences: {nodeIntegration: true}
     });
 
     trayWindow.loadURL(url.format({

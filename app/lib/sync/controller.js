@@ -143,7 +143,8 @@ module.exports = function(env, tray) {
             fullscreenable: true,
             resizable: true,
             transparent: false,
-            skipTaskbar: true
+            skipTaskbar: true,
+            webPreferences: {nodeIntegration: true}
         });
 
         fullSyncStartup = false;

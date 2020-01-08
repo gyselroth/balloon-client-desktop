@@ -58,7 +58,8 @@ module.exports = function(env, clientConfig) {
       resizable: false,
       transparent: false,
       skipTaskbar: false,
-      icon: __dirname+'/../../img/logo-512x512.png'
+      icon: __dirname+'/../../img/logo-512x512.png',
+      webPreferences: {nodeIntegration: true}
     });
 
     selectiveWindow.loadURL(url.format({
