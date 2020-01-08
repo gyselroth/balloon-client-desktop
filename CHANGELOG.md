@@ -7,6 +7,8 @@
 * Improve selective window open time #179
 * Display message while update is downloading #59
 * replace refreshToken if server issues a new refreshToken #197
+* Handle code 20 when moving a share #165
+
 
 ## 1.2.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
