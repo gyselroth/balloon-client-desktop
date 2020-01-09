@@ -1,6 +1,6 @@
 ## 1.2.1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**:
+**Date**: Thu Jan 09 10:44:43 CET 2020
 
 ### Bugfixes
 * Use same font-size in textarea as in input field #211
@@ -8,6 +8,9 @@
 * Display message while update is downloading #59
 * replace refreshToken if server issues a new refreshToken #197
 * Handle code 20 when moving a share #165
+
+### Deployment
+* Windows build fails Error: 403 status code downloading arm64 iojs.lib #223
 
 
 ## 1.2.0
