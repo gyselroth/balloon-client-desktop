@@ -9,6 +9,9 @@
 * replace refreshToken if server issues a new refreshToken #197
 * Handle code 20 when moving a share #165
 
+### Deployment
+* Windows build fails Error: 403 status code downloading arm64 iojs.lib #223
+
 
 ## 1.2.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
