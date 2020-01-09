@@ -11,6 +11,7 @@ const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 
 const env = require('../../env.js');
 const clientConfig = require('../config.js');
+const globalConfig = require('../global-config.js');
 const appState = require('../state.js');
 
 var startup = StartupCtrl(env, clientConfig);
@@ -46,6 +47,7 @@ module.exports = function(env, tray) {
       });
     } else {
       //resume
+      tray.syncResumed();
       start(false);
     }
   }
@@ -129,7 +131,6 @@ module.exports = function(env, tray) {
 
     startPowerSaveBlocker();
 
-
     pauseWatcher().then(() => {
       startup.preSyncCheck().then(result => {
         logger.info('pre sync check successfull', {category: 'sync'});
@@ -164,10 +165,16 @@ module.exports = function(env, tray) {
           fullSyncWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
         });
 
-        ipcMain.once('sync-complete', (event, err) => {
+        var syncCompleteListener = function(event, err) {
           logger.debug('Sync complete', {category: 'sync'});
           endFullSync();
           if(!err) resumeWatcher(false);
+        };
+
+        ipcMain.once('sync-complete', syncCompleteListener);
+
+        ipcMain.once('sync-error', () => {
+          ipcMain.removeListener('sync-complete', syncCompleteListener);
         });
 
         fullSyncWindow.once('closed', (event) => {
@@ -227,7 +234,8 @@ module.exports = function(env, tray) {
 
   function startWatcher() {
     return new Promise(function(resolve, reject) {
-      const config = clientConfig.getAll(true);
+      var config = clientConfig.getAll(true);
+      config.version = globalConfig.get('version');
 
       Promise.all([
         killWatcher(),
@@ -240,7 +248,7 @@ module.exports = function(env, tray) {
 
           switch(err.code) {
             case 'E_BLN_REMOTE_WATCHER_DELTA':
-              if(err.origErr && err.origErr.code === 'E_BLN_API_REQUEST_UNAUTHORIZED') {
+              if(err.origErr && ['E_BLN_API_REQUEST_UNAUTHORIZED', 'E_BLN_API_REQUEST_MFA_REQUIRED'].includes(err.origErr.code)) {
                 //TODO pixtron - find a cleaner way to emit watcher errors
                 ipcMain.emit('sync-error', {}, err.origErr);
               } else {
@@ -336,6 +344,7 @@ module.exports = function(env, tray) {
     pause(true).then(result => {
       let config = clientConfig.getAll();
       config[clientConfig.getSecretType()] = clientConfig.getSecret();
+      config.version = globalConfig.get('version');
 
       const sync = fullSyncFactory(config, logger.getLogger());
 
@@ -345,6 +354,24 @@ module.exports = function(env, tray) {
       }, err => {
         logger.error('Could not apply selective sync changes', {category: 'sync', err});
         callback(err);
+      });
+    }, err => {
+      logger.error('Could not pause sync', {category: 'sync', err});
+      callback(err);
+    });
+  }
+
+  function ignoreNewShares(callback) {
+    pause(true).then(result => {
+      let config = clientConfig.getAll();
+      config[clientConfig.getSecretType()] = clientConfig.getSecret();
+      config.version = globalConfig.get('version');
+
+      const sync = fullSyncFactory(config, logger.getLogger());
+
+      sync.ignoreNewShares((err, result) => {
+        start(false);
+        callback(err, result);
       });
     }, err => {
       logger.error('Could not pause sync', {category: 'sync', err});
@@ -363,6 +390,7 @@ module.exports = function(env, tray) {
     togglePause,
     isPaused,
     updateSelectiveSync,
+    ignoreNewShares,
     setMayStart,
     resumeWatcher,
     killWatcher

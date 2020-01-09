@@ -6,13 +6,13 @@ const paths = require('../lib/paths.js');
 const fsUtility = require('../lib/fs-utility.js');
 
 module.exports = function(previousVersion, currentVersion, done) {
-  logger.info('Running migraton to 0.0.40', {category: 'migration'});
+  logger.info('running migraton to 0.0.40', {category: 'migration'});
 
   const instancesFile = paths.getInstancesFile();
 
   if(!fs.existsSync(instancesFile)) {
-    logger.info('Migration to 0.0.40: no instances, no migration necessary', {category: 'migration'});
-    return done(null, 'No instances, nothing to do.');
+    logger.info('migration to 0.0.40: no instances, no migration necessary', {category: 'migration'});
+    return done(null, 'no instances, nothing to do.');
   }
 
   try {
@@ -34,7 +34,7 @@ module.exports = function(previousVersion, currentVersion, done) {
       });
     }
 
-    done(null, 'Removed remote delta log db');
+    done(null, 'removed remote delta log db');
   } catch(err) {
     logger.error('failed migrate to 0.0.40', {
       category: 'migration',

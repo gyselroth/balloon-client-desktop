@@ -15,6 +15,7 @@ const animationSpeed = 1000/24; //24 fps
 const feedback = require('../feedback/controller.js');
 
 const logger = require('../../lib/logger.js');
+const contextMenuFactory = require('../../lib/context-menu-factory.js');
 
 const stateIconNameMap = {
   default: 'default',
@@ -73,23 +74,22 @@ const Icons = {
   },
   default: {
     default: {
-      path: 'icon-tray-blue-16x16.png',
+      path: 'icon-tray-blue-32x32.png',
       animate: false,
       template: false
     },
     sync: {
-      path: 'icon-tray-blue-16x16-frame%d.png',
-      animate: true,
-      frames: 10,
+      path: 'icon-tray-blue-32x32-sync.png',
+      animate: false,
       template: false
     },
     error: {
-      path: 'icon-tray-red-16x16.png',
+      path: 'icon-tray-red-32x32.png',
       animate: false,
       template: false
     },
     warning: {
-      path: 'icon-tray-orange-16x16.png',
+      path: 'icon-tray-orange-32x32.png',
       animate: false,
       template: false
     }
@@ -203,6 +203,18 @@ function animateIcon(curFrame=1, maxFrames=1) {
 module.exports = function(env, clientConfig) {
   var trayWindow = createWindow();
 
+  ipcMain.on('transfer-task', (event, task) => {
+    trayWindow.webContents.send('transfer-task', task);
+  });
+
+  ipcMain.on('transfer-progress', (event, task) => {
+    trayWindow.webContents.send('transfer-progress', task);
+  });
+
+  ipcMain.on('transfer-start', (event) => {
+    trayWindow.webContents.send('transfer-start');
+  });
+
   function create() {
     if(!tray) {
       const iconConfig = getIconConfig('default');
@@ -223,7 +235,7 @@ module.exports = function(env, clientConfig) {
   function toggle() {
     if(!trayWindow) trayWindow = createWindow();
 
-    logger.info('Toggl tray window', {category: 'tray', isVisble: trayWindow.isVisible()});
+    logger.info('toggle tray window', {category: 'tray', isVisble: trayWindow.isVisible()});
 
     if(trayWindow.isVisible()) {
       hide();
@@ -233,13 +245,13 @@ module.exports = function(env, clientConfig) {
   }
 
   function hide() {
-    logger.info('Hide tray window', {category: 'tray'});
+    logger.info('hide tray window', {category: 'tray'});
 
     if(trayWindow) trayWindow.hide();
   }
 
   function show() {
-    logger.info('Show tray window', {category: 'tray'});
+    logger.info('show tray window', {category: 'tray'});
 
     if(!trayWindow) trayWindow = createWindow();
 
@@ -280,8 +292,10 @@ module.exports = function(env, clientConfig) {
     });
 
     if(env.name === 'development') {
-      trayWindow.openDevTools();
+      trayWindow.openDevTools({ mode: 'detach' });
     }
+
+    contextMenuFactory(trayWindow);
 
     return trayWindow;
   }
@@ -302,6 +316,10 @@ module.exports = function(env, clientConfig) {
     trayWindow.webContents.send('sync-paused');
   }
 
+  function syncResumed() {
+    trayWindow.webContents.send('sync-resumed');
+  }
+
   function syncStarted() {
     trayWindow.webContents.send('sync-started');
     toggleState('sync', true);
@@ -315,6 +333,10 @@ module.exports = function(env, clientConfig) {
     toggleState('sync', false);
   }
 
+  function isWindowVisible() {
+    return trayWindow ? trayWindow.isVisible() : false;
+  }
+
   function isRunning() {
     if(tray) {
       return true;
@@ -323,9 +345,9 @@ module.exports = function(env, clientConfig) {
     }
   }
 
-  function update(state) {
+  function update(state, info) {
     if(trayWindow && trayWindow.isDestroyed() === false) {
-      trayWindow.webContents.send(state);
+      trayWindow.webContents.send(state, info);
     }
   }
 
@@ -337,7 +359,9 @@ module.exports = function(env, clientConfig) {
     show,
     syncStarted,
     syncEnded,
+    syncResumed,
     syncPaused,
+    isWindowVisible,
     toggleState,
     updateSecret,
     emit,

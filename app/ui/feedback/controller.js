@@ -2,15 +2,14 @@ const os = require('os');
 const fs = require('graceful-fs');
 const path = require('path');
 const extend = require('util')._extend;
+const si = require('systeminformation');
 
 const {app, ipcMain, BrowserWindow} = require('electron');
 const async = require('async');
 const archiver = require('archiver');
 const request = require('request');
-
 const logger = require('../../lib/logger.js');
-const fsInfo = require('../../lib/fs-info.js');
-
+const globalConfig = require('../../lib/global-config.js');
 const url = require('url');
 
 module.exports = function(env, clientConfig) {
@@ -46,7 +45,15 @@ module.exports = function(env, clientConfig) {
     var reportName = [clientConfig.get('username'), Math.floor(new Date().getTime() / 1000)].join('_');
 
     var url = env.autoReportPutUrl || 'https://support.gyselroth.net/balloon-auto-report';
-    var req = request.put(url+'/' + reportName);
+
+    var reqOptions = {
+      headers: {
+        'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
+        'User-Agent': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname(), os.platform(), os.release()].join('|'),
+      }
+    };
+
+    var req = request.put(url+'/' + reportName, reqOptions);
 
     req.on('error', function(err) {
       logger.error('sending auto report failed', {
@@ -102,7 +109,14 @@ module.exports = function(env, clientConfig) {
       var reportName = [clientConfig.get('username'), Math.floor(new Date().getTime() / 1000)].join('_');
 
       var url = env.feedbackPutUrl || 'https://support.gyselroth.net/balloon';
-      var req = request.put(url+'/' + reportName+'?feedback='+encodeURIComponent(text));
+      var reqOptions = {
+        headers: {
+          'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
+          'User-Agent': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname(), os.platform(), os.release()].join('|'),
+        }
+      };
+
+      var req = request.put(url+'/' + reportName+'?feedback='+encodeURIComponent(text), reqOptions);
 
       req.on('error', function(err) {
         logger.error('sending feedback failed', {
@@ -153,31 +167,19 @@ module.exports = function(env, clientConfig) {
 
         archive.pipe(req);
 
-        appendLogFilesToArchive(archive, true);
-
-        var dbPath = path.join(clientConfig.get('configDir'), 'db', 'nodes.db');
-        if(fs.existsSync(dbPath)) {
-          archive.append(fs.createReadStream(dbPath), { name: 'report/nodes.db' });
-        }
-
-        var errorDbPath = path.join(clientConfig.get('configDir'), 'db', 'api-error-queue.db');
-        if(fs.existsSync(errorDbPath)) {
-          archive.append(fs.createReadStream(errorDbPath), { name: 'report/api-error-queue.db' });
-        }
-
-        var transferDbPath = path.join(clientConfig.get('configDir'), 'db', 'transfer.db');
-        if(fs.existsSync(transferDbPath)) {
-          archive.append(fs.createReadStream(transferDbPath), { name: 'report/transfer.db' });
-        }
-
-        var remoteDeltaLogDbPath = path.join(clientConfig.get('configDir'), 'db', 'remotedelta-log.db');
-        if(fs.existsSync(remoteDeltaLogDbPath)) {
-          archive.append(fs.createReadStream(remoteDeltaLogDbPath), { name: 'report/remotedelta-log.db' });
-        }
-
-        archive.append(getMetaData(), {name: 'report/metadata.json'});
-
         async.parallel([
+          async.reflect(async (cb) => {
+            archive.glob('**/*', {
+              cwd: clientConfig.get('configDir'),
+              ignore: ['**/temp/**'],
+            });
+
+            cb(null);
+          }),
+          async.reflect(async (cb) => {
+            archive.append(await getMetaData(), {name: 'report/metadata.json'});
+            cb(null);
+          }),
           async.reflect((cb) => {
             createDirectorySnapshot((err, snapshot) => {
               if(err) {
@@ -190,15 +192,6 @@ module.exports = function(env, clientConfig) {
               cb(null);
             });
           }),
-          async.reflect((cb) => {
-            fsInfo(clientConfig.get('balloonDir'), (err, result) => {
-              if(err) return cb(err);
-
-              archive.append(result, { name: 'report/fs.txt' });
-
-              return cb(null);
-            });
-          })
         ], (err, results) => {
           //err will be always `null` as async.reflect is used
           archive.finalize();
@@ -232,12 +225,10 @@ module.exports = function(env, clientConfig) {
     }
   }
 
-  function getMetaData() {
+  async function getMetaData() {
     var now = new Date();
     var offset = now.getTimezoneOffset();
     var absOffset = Math.abs(offset);
-
-    var config = extend({}, clientConfig.getAll());
 
     function pad(value) {
       return value < 10 ? '0' + value : value;
@@ -257,50 +248,34 @@ module.exports = function(env, clientConfig) {
       });
     }
 
+    var system = {};
+
+    try {
+      system = await si.getAllData();
+      delete system.networkConnections;
+    } catch(err) {
+      logger.error('got error while sending feedback', {
+        category: 'feedback',
+        error: err
+      });
+
+      system = 'si.getAllData() call had an error (ask user for error.log)';
+    }
+
     var metaData = {
       version: app.getVersion(),
       hasToken: clientConfig.get('accessToken') !== undefined,
-      lastCursor: getLastCursor(),
       date: {
         utc: now,
         offset: (offset > 0 ? '-' : '+') + pad(Math.floor(absOffset / 60)) + ':' + pad(absOffset % 60)
       },
       locale: app.getLocale(),
-      config,
       env: envForReport,
-      os: {
-        arch: os.arch(),
-        platform: os.platform(),
-        release: os.release(),
-        type: os.type(),
-        freemem: os.freemem(),
-        loadavg: os.loadavg(),
-        endianness: os.endianness(),
-        homedir: os.homedir(),
-        hostname: os.hostname(),
-        tmpdir: os.tmpdir(),
-        uptime: os.uptime(),
-        cpus: os.cpus(),
-        networkInterfaces: os.networkInterfaces(),
-        userInfo: os.userInfo()
-      }
+      system: system,
+      localEnv: process.env
     }
-
-    delete metaData.config.accessToken;
 
     return JSON.stringify(metaData, null, 2);
-  }
-
-  function getLastCursor() {
-    var pathCursorStorage = path.join(clientConfig.get('configDir'), 'last-cursor');
-
-    if(fs.existsSync(pathCursorStorage)) {
-      var cursorFromStorage = fs.readFileSync(pathCursorStorage).toString();
-
-      return cursorFromStorage !== '' ? cursorFromStorage : undefined;
-    }
-
-    return undefined;
   }
 
   function createDirectorySnapshot(callback) {

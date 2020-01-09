@@ -6,6 +6,7 @@ const handlebars = require('handlebars');
 const async = require('async');
 
 const clientConfig = require('../../lib/config.js');
+const globalConfig = require('../../lib/global-config.js');
 
 const logger = require('../../lib/logger.js');
 const loggerFactory = require('../../lib/logger-factory.js');
@@ -44,6 +45,7 @@ $('document').ready(function() {
   ipcRenderer.once('secret', function(event, type, secret) {
     var config = clientConfig.getAll(true);
     config[type] = secret;
+    config.version = globalConfig.get('version');
 
     initialize(config);
   });
@@ -64,19 +66,41 @@ $('document').ready(function() {
 
 function initialize(config) {
   sync = fullSyncFactory(config, logger);
-  sync.getIgnoredRemoteIds((err, currentlyIgnoredIds) => {
-    if(err) throw err;
 
+  const tasks = [];
+
+  tasks.push((cb) => {
+    ipcRenderer.send('selective-ignore-new-shares');
+
+    ipcRenderer.on('selective-ignore-new-shares-result', (event) => {
+      logger.debug('ignore new shares finished', {category: 'selective'});
+      cb();
+    });
+  });
+
+  tasks.push((cb) => {
+    sync.getIgnoredRemoteIds(cb);
+  });
+
+  tasks.push((currentlyIgnoredIds, cb) => {
     logger.debug('Got ignored remote ids', {category: 'selective', currentlyIgnoredIds});
 
     // initialize ignoredNodes
-    sync.blnApi.getAttributesByIds(currentlyIgnoredIds, ['path', 'id'], (err, nodes) => {
-      if(err) throw err;
+    sync.blnApi.getAttributesByIds(currentlyIgnoredIds, ['path', 'id'], cb);
+  })
 
-      ignoredNodes = new IgnoredNodes(nodes);
+  async.waterfall(tasks, (err, nodes) => {
+    if(err) throw err;
 
-      initializeTree();
-    });
+    logger.debug('Got ignored nodes', {category: 'selective', nodes});
+
+    // initialize ignoredNodes
+    ignoredNodes = new IgnoredNodes(nodes);
+
+    $('#selective-initialize').hide();
+    $('#selective-sync').show();
+
+    initializeTree();
   });
 }
 
@@ -86,7 +110,7 @@ function initializeTree() {
       data : function(parentNode, callback) {
         var nodeId = (parentNode.id === '#' ? null : parentNode.id);
 
-        sync.blnApi.getChildren(nodeId, {filter: {directory: true}, attributes: ['id', 'name', 'path', 'size']}, (err, nodes) => {
+        sync.blnApi.getChildren(nodeId, {filter: {directory: true}, attributes: ['id', 'name', 'path', 'size', 'reference', 'shared']}, (err, nodes) => {
           // TODO pixtron - handle errors
           if(err) throw err;
 
@@ -112,12 +136,22 @@ function prepareNodesForRendering(parentNode, nodes) {
   return nodes
     .sort((a, b) => a.name.localeCompare(b.name))
     .map(node => {
+      var icon;
+      if(node.reference === true) {
+        icon = 'gr-icon gr-i-folder-received';
+      } else if(node.shared === true) {
+        icon = 'gr-icon gr-i-folder-shared';
+      } else {
+        icon = 'gr-icon gr-i-folder';
+      }
+
       return {
         id: node.id,
         parent: parentNode.id,
         text: node.name,
         children: (node.size > 0),
         data: node,
+        icon: icon,
         state: {
           opened: false,
           disabled: false,

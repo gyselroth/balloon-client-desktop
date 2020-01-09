@@ -33,9 +33,14 @@ module.exports = function() {
         ipcRenderer.send('install-update');
       });
 
+      var $downloading = $('#about-update-downloading');
+
       if(env.update && env.update.enable === true || !env.update || env.update.enable === undefined) {
         if(appState.get('updateAvailable')) {
           $install.show();
+          $check.hide();
+        } else if(appState.get('updateDownloading')) {
+          $downloading.show();
           $check.hide();
         } else {
           $install.hide();
@@ -53,21 +58,33 @@ module.exports = function() {
     });
 
     ipcRenderer.on('error', () => {
-      $('#about').find('#content > div').hide();
+      $('#about .about-update-message').hide();
       $('#about-update-error').show();
       $('#about').find('.loader').hide();
     });
 
     ipcRenderer.on('update-downloaded', () => {
-      $('#about').find('#content > div').hide();
+      $('#about .about-update-message').hide();
       $('#about-version-install').show();
       $('#about').find('.loader').hide();
     });
 
     ipcRenderer.on('update-not-available', () => {
-      $('#about').find('#content > div').hide();
+      $('#about .about-update-message').hide();
       $('#about-update-not-available').show();
       $('#about').find('.loader').hide();
+    });
+
+    ipcRenderer.on('update-available', () => {
+      $('#about .about-update-message').hide();
+      $('#about-update-downloading').show();
+      $('#about').find('.loader').hide();
+    });
+
+    ipcRenderer.on('update-download-progress', (event, progress) => {
+      console.log(progress, event);
+      const percent = `${parseInt(progress.percent)}%`;
+      $('#about-update-downloading span:nth-child(2)').html(percent).show();
     });
   }
 

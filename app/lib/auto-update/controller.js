@@ -9,12 +9,12 @@ var checkRunning = false;
 
 module.exports = function(env, clientConfig, tray) {
   autoUpdater.logger = logger;
+  autoUpdater.allowDowngrade = false;
 
-  if(globalConfig.has('allowPrerelease') && globalConfig.get('allowPrerelease') === true) {
-    logger.debug('Allowing to install prereleases', {category: 'autoupdate'});
-    autoUpdater.allowPrerelease = true;
-    autoUpdater.allowDowngrade = false;
-  }
+  var allow = globalConfig.has('allowPrerelease') && globalConfig.get('allowPrerelease') === true;
+  allowPrerelease(allow);
+
+  globalConfig.watch('allowPrerelease', allowPrerelease);
 
   autoUpdater.on('checking-for-update', () => {
     logger.info('Checking for update', {category: 'autoupdate'});
@@ -27,11 +27,12 @@ module.exports = function(env, clientConfig, tray) {
       data: info
     });
 
+    appState.set('updateDownloading', true);
     tray.update('update-available');
   });
 
   autoUpdater.on('update-not-available', (event, info) => {
-    logger.info('Update not available', {
+    logger.info('update not available', {
       category: 'autoupdate',
       data: info
     });
@@ -47,6 +48,8 @@ module.exports = function(env, clientConfig, tray) {
     });
 
     tray.update('error');
+    appState.set('updateDownloading', false);
+    appState.set('updateAvailable', false);
     checkRunning = false;
   });
 
@@ -59,7 +62,14 @@ module.exports = function(env, clientConfig, tray) {
     tray.update('update-downloaded');
     tray.toggleState('update', true);
     appState.set('updateAvailable', true);
+    appState.set('updateDownloading', false);
     checkRunning = false;
+  });
+
+  autoUpdater.on('download-progress', (progress) => {
+    logger.debug('Download progress', {category: 'autoupdate', progress});
+
+    tray.update('update-download-progress', progress);
   });
 
   function shouldCheckForUpdates() {
@@ -75,12 +85,14 @@ module.exports = function(env, clientConfig, tray) {
   }
 
   function checkForUpdate() {
-    if(!checkRunning && shouldCheckForUpdates()) {
+    if(checkRunning) {
+      logger.info('skip check for update', {category: 'autoupdate', reason: 'check already running'});
+    } else if(shouldCheckForUpdates() !== true) {
+      logger.info('skip check for update', {category: 'autoupdate', reason: 'should not check for update', defaultApp: process.defaultApp, env: env});
+      tray.update('update-not-available');
+    } else {
       checkRunning = true;
       autoUpdater.checkForUpdates();
-    } else {
-      logger.info('skip check for update', {category: 'autoupdate'});
-      tray.update('update-not-available');
     }
   }
 
@@ -105,6 +117,16 @@ module.exports = function(env, clientConfig, tray) {
     });
 
     setInterval(checkForUpdate, intervalMs);
+  }
+
+  function allowPrerelease(allow) {
+    if(allow === true) {
+      logger.debug('enabling prereleases', {category: 'autoupdate'});
+      autoUpdater.allowPrerelease = true;
+    } else {
+      logger.debug('disabling prereleases', {category: 'autoupdate'});
+      autoUpdater.allowPrerelease = false;
+    }
   }
 
   setUpdateCheckInterval();

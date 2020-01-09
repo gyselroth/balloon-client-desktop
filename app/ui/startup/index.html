@@ -10,18 +10,17 @@
 </head>
 <body id="startup">
     <script id="template-content" type="text/x-handlebars-template">
+    <div class="window-loader"></div>
     <div id="startup-logo"></div>
 
     <div id="startup-view">
         <div id="startup-view-server" class="view">
             <h1>{{i18n 'startup.server.title'}}</h1>
-            <div class="loader"></div>
             <div class="view-content">
                 <div>
                     <p>{{i18n 'startup.server.message'}}</p>
                     <div id="blnUrl-config">
                         <input id="blnUrl" type="text" placeholder="https://yourserver.com" required autofocus>
-                        <div class="loader"></div>
                         <div id="blnUrl-error-invalid" class="error-message">{{i18n 'error.blnUrl.invalid'}}</div>
                         <div id="blnUrl-error-notreachable" class="error-message">{{i18n 'error.blnUrl.notreachable'}}</div>
                     </div>
@@ -32,15 +31,16 @@
 
         <div id="startup-view-auth" class="view">
             <p>{{i18n 'startup.auth.message'}}</p>
-            <div class="loader"></div>
             <div class="view-content">
-                <div id="startup-auth-basic">
+                <form id="startup-auth-credentials" target="#">
                   <input type="text" name="username" placeholder="{{i18n 'startup.auth.username'}}"/>
                   <input type="password" name="password" placeholder="{{i18n 'startup.auth.password'}}"/>
-                  <button id="startup-auth-continue">{{i18n 'button.continue'}}</button>
-                </div>
+                  <input type="text" name="mfaCode" placeholder="{{i18n 'startup.auth.mfaCode'}}"/>
+                  <button>{{i18n 'button.continue'}}</button>
+                </form>
                 <div id="startup-auth-error">
-                    <div id="startup-auth-error-basic" class="error-message">{{i18n 'error.auth.basic'}}</div>
+                    <div id="startup-auth-error-credentials" class="error-message">{{i18n 'error.auth.credentials'}}</div>
+                    <div id="startup-auth-error-mfa-not-token" class="error-message">{{i18n 'error.auth.mfaNotToken'}}</div>
                     <div id="startup-auth-error-oidc" class="error-message">{{i18n 'error.auth.oidc'}}</div>
                 </div>
                 <div id="startup-auth-oidc"></div>
@@ -49,7 +49,6 @@
 
         <div id="startup-view-welcome" class="view">
             <h1>{{i18n 'startup.welcome.title'}}</h1>
-            <div class="loader"></div>
             <div class="view-content">
                 <p>{{i18n 'startup.welcome.message'}}</p>
                 <button class="startup-open-folder">{{i18n 'startup.welcome.openFolder'}}</button>

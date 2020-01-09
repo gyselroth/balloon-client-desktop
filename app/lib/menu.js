@@ -25,6 +25,6 @@ module.exports = function() {
         ]}
     ];
 
-    //Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   }
 }

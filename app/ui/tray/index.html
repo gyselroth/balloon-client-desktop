@@ -11,7 +11,7 @@
 <body id="tray">
     <script id="template" type="text/x-handlebars-template">
     <div id="content">
-	    <div id="tray-top">
+        <div id="tray-top">
             <div class="tray-action">
                 <div id="item-menu" class="task">
                   <div class="taskicon gr-icon gr-i-menu" title="{{i18n 'tray.item.menu'}}"></div>
@@ -26,19 +26,12 @@
                   <div class="taskicon gr-icon gr-i-language"></div>
                 </div>
             </div>
-	    </div>
+        </div>
 
-	    <div id="tray-center">
-          <div id="tray-quota">
-            <div id="quota">
-                <div class="bar">
-                    <div class="used"></div>
-                </div>
-                <div class="quota-text"></div>
-            </div>
-          </div>
+        <div id="tray-center">
           <div id="tray-main-template"></div>
-          <div id="tray-main" class="tray-main-splash"></div>
+          <div id="tray-main"></div>
+          <div id="status-sync"><div class="loader"></div><span></span></div>
       </div>
     </div>
     </script>

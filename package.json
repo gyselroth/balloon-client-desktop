@@ -2,9 +2,9 @@
   "name": "balloon-desktop",
   "productName": "Balloon",
   "description": "Balloon Desktop Client",
-  "version": "0.2.4",
+  "version": "1.2.1",
   "author": "gyselroth GmbH  <opensource@gyselroth.net>",
-  "copyright": "© 2017-2018, gyselroth GmbH",
+  "copyright": "© 2017-2020, gyselroth GmbH",
   "homepage": "https://www.gyselroth.com",
   "license": "GPL-3.0",
   "main": "app/main.js",
@@ -19,9 +19,15 @@
       "node_modules/**/*",
       "package.json"
     ],
-    "extraResources": "resources/**/*",
+    "extraResources": [
+      "resources/**/*",
+      "node_modules/fileicon/bin/fileicon"
+    ],
     "mac": {
       "artifactName": "${os}/${name}-${version}-mac.${ext}"
+    },
+    "win": {
+      "certificateSubjectName": "CN=gyselroth GmbH, O=gyselroth GmbH, L=Zurich, C=CH"
     },
     "linux": {
       "category": "Network"
@@ -36,13 +42,22 @@
       "artifactName": "${name}-setup-${version}.${ext}",
       "allowToChangeInstallationDirectory": true,
       "oneClick": false,
-      "license": "LICENSE"
+      "license": "LICENSE",
+      "installerSidebar": "build/installerSidebar.bmp",
+      "uninstallerSidebar": "build/installerSidebar.bmp"
     },
     "publish": [
       {
         "provider": "github",
         "owner": "gyselroth",
         "repo": "balloon-client-desktop"
+      }
+    ],
+    "fileAssociations": [
+      {
+        "ext": "burl",
+        "description": "Balloon URL Shortcut",
+        "mimeType": "application/vnd.balloon.burl"
       }
     ]
   },
@@ -54,72 +69,63 @@
     "prepack": "gulp build --env=production",
     "pack": "build --dir",
     "prebuild": "gulp build --env=production",
-    "build-osx": "npm run prebuild && BLN_ARTIFACT_APPENDIX='' build --mac pkg zip -p never",
-    "build-win": "npm run prebuild && set BLN_ARTIFACT_APPENDIX='' && build --win --ia32 --x64 -p never",
-    "build-linux": "npm run prebuild && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm zip -p never",
-    "build-linux-deb": "npm run prebuild && BLN_ARTIFACT_APPENDIX='' build --linux deb -p never",
+    "build-osx": "npm run prebuild && build --mac pkg zip -p never",
+    "build-win": "npm run prebuild && build --win --ia32 --x64 -p never",
+    "build-linux": "npm run prebuild && build --linux deb rpm zip -p never",
+    "build-linux-deb": "npm run prebuild && build --linux deb -p never",
     "prerelease": "gulp build --env=production",
-    "release-osx": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --mac pkg zip -p always",
-    "release-win": "npm run prerelease && set BLN_ARTIFACT_APPENDIX='' && build --win --ia32 --x64 -p always",
-    "release-linux": "npm run prerelease && BLN_ARTIFACT_APPENDIX='' build --linux deb rpm zip -p always",
+    "release-osx": "npm run prerelease && build --mac pkg zip -p always",
+    "release-win": "npm run prerelease && build --win --ia32 --x64 -p always",
+    "release-linux": "npm run prerelease && build --linux deb rpm zip -p always",
     "prepackdev": "gulp build --env=development",
     "packdev": "build --dir",
     "prebuilddev": "gulp build --env=development",
-    "builddev-osx": "npm run prereleasedev && BLN_ARTIFACT_APPENDIX='-dev' build --mac pkg zip -p never",
-    "builddev-win": "npm run prereleasedev && set BLN_ARTIFACT_APPENDIX='-dev' && build --win --ia32 --x64 -p never",
-    "builddev-linux": "npm run prereleasedev && BLN_ARTIFACT_APPENDIX='-dev' build --linux deb -p never",
+    "builddev-osx": "npm run prebuilddev && build --mac pkg zip -p never",
+    "builddev-win": "npm run prebuilddev && build --win --ia32 --x64 -p never",
+    "builddev-linux": "npm run prebuilddev && build --linux deb -p never",
     "start": "gulp start",
     "startprod": "gulp start --env=production"
   },
   "devDependencies": {
-    "chai": "~3.5.0",
-    "electron": "^2.0.13",
-    "electron-builder": "20.13.3",
-    "electron-mocha": "~3.5.0",
-    "electron-rebuild": "1.6.0",
-    "gulp": "~3.9.1",
-    "gulp-batch": "~1.0.5",
-    "gulp-less": "~3.3.0",
-    "gulp-plumber": "~1.1.0",
-    "gulp-util": "~3.0.7",
-    "gulp-watch": "~4.3.11",
-    "istanbul": "~0.4.5",
-    "minimist": "~1.2.0",
-    "mocha": "~3.2.0",
-    "rollup": "~0.36.4",
-    "rollup-plugin-istanbul": "~1.1.0",
-    "source-map-support": "~0.4.6",
-    "spectron": "~3.4.0"
+    "electron": "^2.0.0",
+    "electron-builder": "20.34.0",
+    "gulp": "^4.0.2",
+    "minimist": "~1.2.0"
   },
   "dependencies": {
-    "@gyselroth/balloon-node-sync": "^0.2.5",
+    "@gyselroth/balloon-node-sync": "0.5.3",
     "@gyselroth/icon-collection": "^1.0.9",
-    "@openid/appauth": "~0.2.4",
+    "@gyselroth/node-advanced-desktop": "^1.0.5",
+    "@openid/appauth": "^1.1.2",
     "app-migrations": "~0.1.2",
-    "archiver": "~1.3.0",
-    "async": "~2.4.1",
+    "archiver": "~3.0.0",
+    "async": "~2.6.1",
     "auto-launch": "^5.0.5",
-    "electron-is-dev": "~0.3.0",
-    "electron-settings": "~3.1.4",
-    "electron-traywindow-positioner": "~0.0.2",
-    "electron-updater": "^2.23.3",
+    "electron-is-dev": "~1.0.1",
+    "electron-settings": "~3.2.0",
+    "electron-traywindow-positioner": "0.0.3",
+    "electron-updater": "^3.2.0",
     "escape-string-regexp": "~1.0.5",
-    "graceful-fs": "~4.1.11",
+    "graceful-fs": "^4.1.15",
     "handlebars": "^4.0.12",
-    "jquery": "~3.0.0",
-    "jstree": "^3.3.6",
-    "keytar": "~4.2.1",
-    "lodash": "^4.17.11",
+    "javascript-time-ago": "^1.0.34",
+    "jquery": "^3.4.1",
+    "jstree": "^3.3.7",
+    "keytar": "~4.3.0",
+    "lodash": "^4.17.13",
     "mkdirp": "~0.5.1",
-    "moment": "~2.20.1",
+    "moment": "~2.22.2",
     "nedb": "~1.8.0",
+    "node-ipc": "^9.1.1",
+    "object-hash": "^1.3.1",
     "prepend-file": "~1.3.1",
-    "querystring": "~0.2.0",
-    "request": "~2.83.0",
+    "pretty-bytes": "^5.1.0",
+    "request": "~2.88.0",
     "rimraf": "~2.6.2",
+    "sprintf-js": "^1.1.2",
+    "sudo-prompt": "^9.0.0",
+    "systeminformation": "^3.54.0",
     "ubuntu-fontface": "~0.1.13",
-    "underscore": "~1.8.3",
-    "uuid4": "~1.0.0",
     "winston": "^2.4.4"
   }
 }

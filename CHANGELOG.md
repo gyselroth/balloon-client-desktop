@@ -1,3 +1,166 @@
+## 1.2.1
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Thu Jan 09 10:44:43 CET 2020
+
+### Bugfixes
+* Use same font-size in textarea as in input field #211
+* Improve selective window open time #179
+* Display message while update is downloading #59
+* replace refreshToken if server issues a new refreshToken #197
+* Handle code 20 when moving a share #165
+
+### Deployment
+* Windows build fails Error: 403 status code downloading arm64 iojs.lib #223
+
+
+## 1.2.0
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri Nov 29 09:56:11 CET 2019
+
+### Bugfixes
+* Missleading message during check for update while downloading latest update #74
+* Change of allowPrerelease flag should work without app restart #169
+* Soft fail if no rights to send events to system events #193
+* Adding missing localizations #205
+* Wrong status after link account #205
+* Empty Message Prevents Sending Error Report #204
+* Fix tray window positioning on osx #112
+* Do not unlink account if access token can not get refreshed #188
+* Open balloon the 2nd time does not open the balloon folder #202
+* Fix initial login state may differ #163
+
+### Sync
+* Various sync fixes, balloon-node-sync version v0.5.2
+
+### Deployment
+* Submit balloon-desktop to brew #195
+* Use travis for windows builds instead appveyor #198
+
+### Common
+* Starting with v1.2.0 the changelog has a new format, all changes get splitted into sub categeories within the changelog to get a better readability.
+
+
+## 1.1.1
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Tue Jul 23 13:14:33 CEST 2019
+
+* CORE [FIX] oidc access token can't be refreshed #200
+
+
+## 1.1.0
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Wed Jun 12 10:32:21 CEST 2019
+
+no changes
+
+
+## 1.1.0-beta2
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Tue May 28 15:49:23 CEST 2019
+
+* CORE: [FIX] Failed to connect with server #189
+* UI: [FEATURE] Click on a file in tray activities should open parent folder in os file browser #182
+
+
+## 1.1.0-beta1
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Wed May 22 15:17:23 CEST 2019
+
+* CORE: [FEATURE] Implement token flow and MFA #186
+* CORE: [CHANGE] Add os/version to useragent #187
+
+
+## 1.0.0
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Thu February 07 09:36:23 CET 2019
+
+* CORE: [FIX] Increased tray performance during initial sync #178
+* CORE: [CHANGE] Display new tray state while directory structure is synchronized
+* CORE: [FIX] Missing client version in user-agent #183
+* UI: [FIX] Disable horinzontal scrollbar in tray error page #181
+
+
+## 1.0.0-rc2
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Thu February 07 09:36:23 CET 2019
+
+* CORE: [FIX] Open selective halts sync #174
+* CORE: [FIX] Avoid concurrent refreshAccessToken requests #176
+* CORE: [FIX] Avoid creating login item for app translocation paths #177
+* CORE: [FIX] Corrupt Feedback #175
+* CORE: [FIX] Unbind lsiteners before binding them again #178
+
+
+## 1.0.0-rc1
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri December 21 16:27:35 CET 2018
+
+* UI: [FIX] Small user interface fixes
+* UI: [FIX] balloon path cut off #170
+* CORE: [FIX] Restart full sync after sync received 401 and refreshed acess token
+
+
+## 1.0.0-beta4
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri December 21 10:29:35 CET 2018
+
+* UI: [FIX] Small user interface fixes
+* UI: [FIX] Tray sync continue not updated back to sync pause after click #166
+* UI: [FIX] balloon folder not changed in ui after selecting a new one during startup wizard #167
+* SYNC: [CHANGE] Upgrade sync to v0.3.0-beta2
+
+
+## 1.0.0-beta3
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Thu December 20 14:29:34 CET 2018
+
+* CORE: [FIX] Upgrade from 0.2.4 to 1.0.0-beta1 unlinked active instance #160
+* CORE: [FIX] TypeError: this.app.whenReady is exception #158
+* CORE: [FIX] Instances not in feedbacks metadata #157
+* CORE: [FIX] Ignore shares by default, open selective before sync added new share to ignore db #162
+* UI: [FIX] Used Storage Percentage #159
+* UI: [FIX] Fixed de-CH and en-US translations
+* SYNC: [CHANGE] Upgrade sync to v0.3.0-beta1
+
+
+## 1.0.0-beta2
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri December 14 14:35:32 CET 2018
+
+* UI: [FIX] fixed crash tray with de locale
+
+
+## 1.0.0-beta1
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Fri December 14 13:49:32 CET 2018
+
+* CORE: [CHANGE] Upgrade various dependencies, remove obsolete dependencies
+* CORE: [CHANGE] Upgrade @openid/appauth to v1.1.1 #143
+* CORE: [FIX] Catch errors on oidc sing in and revoke #137
+* CORE: [FIX] Enable copy&paste in feedback and login fields #113
+* CORE: [CHANGE] Add context menu for feedback and basic auth login #101
+* CORE: [CHANGE] Store temporary feedback in sessionStorage #111
+* CORE: [FIX] Hide loader after feedback send error #77
+* CORE: [CHANGE] Add env to instance #24
+* CORE: [CHANGE] Support unlimited quota #109
+* CORE: [FIX] reset instance after server changed #145
+* CORE: [FEATURE] display transfer status in tray #103
+* CORE: [FEATURE] Allow to change location of BalloonDir #46
+* CORE: [CHANGE] Handle 401 on getQuotaUsage requests #125
+* CORE: [CHANGE] If a last known server is available put it into the server field for auth (if instance was unlinked before) #149
+* CORE: [CHANGE] Replace fsinfo with output from systeminformation package #146
+* CORE: [FIX] Ask admin privileges for fsutil calls on windows #135
+* CORE: [FEATURE] Add balloon folder bookmark (favourites) on Mac OS X #31
+* CORE: [FIX] Use fileicon for osx diricon instead shipping by ourselfs #147
+* CORE: [FIX] Improve condition for api ping #1
+* CORE: [CHANGE] Only reset cursor and db when triggered by remote delta #152
+* SYNC: [CHANGE] Using @gyselroth/balloon-node-sync v0.3.0 including various sync fixes
+* UI: [FIX] Desktop ui freezes during initial sync on Ubuntu 18.04 #133
+* UI: [CHANGE] Display share/reference icon in selected sync tree #153
+* UI: [FIX] Two tray icon on linux mint 19 Tara #115
+* UI: [FEATURE] Implement prompt to confirm update #25
+
+
 ## 0.2.4
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Fri November 02 12:25:33 CET 2018
@@ -14,7 +177,6 @@
 * CORE: [FIX] Handle 401 thrown by watcher start #130
 * CORE: [Change] Start sync after access token is refreshed #131
 * CORE: [FIX] Catch oidc.signin errors
-
 
 ## 0.2.3
 **Maintainer**: balloon-team <opensource@gyselroth.net>\

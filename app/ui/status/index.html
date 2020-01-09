@@ -1,0 +1,35 @@
+<script class="template" type="text/x-handlebars-template">
+    <ul id="status-navigation" class="clearfix tab-navigation">
+        <li id="status-nav-transfer"><a href="#status-transfer">{{i18n 'status.nav.activities'}}</a></li>
+        <li id="status-nav-error"><a href="#status-error">{{i18n 'status.nav.error'}}</a></li>
+        <li id="status-nav-quota"><a href="#status-quota">{{i18n 'status.nav.quota'}}</a></li>
+    </ul>
+
+    <ul class="tab-content tab-disable" id="status-transfer"><li class="status-no-elements">{{i18n 'status.activities.empty'}}</li></ul>
+    <ul class="tab-content tab-disable" id="status-error"><li class="status-no-elements">{{i18n 'status.errors.empty'}}</li></ul>
+    <div class="tab-content tab-disable" id="status-quota">
+        <div class="percent-circle">
+            <figure class="chart chart-0 animate">
+                <svg viewbox="0, 0, 230, 230" role="img" xmlns="http://www.w3.org/2000/svg">
+                    <circle r="96" cx="50%" cy="50%" class="circle-background"/>
+                    <circle r="96" cx="50%" cy="50%" class="circle-foreground"/>
+                </svg>
+                <figcaption></figcaption>
+            </figure>
+        </div>
+        <table>
+            <tr id="status-quota-max">
+                <th>{{i18n 'status.quota.max'}}</th>
+                <td></td>
+            </tr>
+            <tr id="status-quota-used">
+                <th>{{i18n 'status.quota.used'}}</th>
+                <td></td>
+            </tr>
+            <tr id="status-quota-left">
+                <th>{{i18n 'status.quota.left'}}</th>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</script>

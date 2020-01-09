@@ -18,7 +18,7 @@ module.exports = function(previousVersion, currentVersion, done) {
 
   if(!fs.existsSync(instancesFile)) {
     logger.info(`Migration to ${migrationVersion}: no instances file, no migration necessary`, {category: 'migration'});
-    return done(null, 'No instances, nothing to do.');
+    return done(null, 'no instances, nothing to do.');
   }
 
   function handleError(err) {
@@ -39,7 +39,7 @@ module.exports = function(previousVersion, currentVersion, done) {
 
       if(!instanceNames || instanceNames.length === 0) {
         logger.info(`Migration to ${migrationVersion}: no instances, no migration necessary`, {category: 'migration'});
-        return done(null, 'No instances, nothing to do.');
+        return done(null, 'no instances, nothing to do.');
       }
 
       async.map(instanceNames, (instanceName, cb) => {
@@ -75,7 +75,7 @@ module.exports = function(previousVersion, currentVersion, done) {
       }, err => {
         if(err) return handleError(err);
 
-        done(null, 'Migrated ignored nodes');
+        done(null, 'migrated ignored nodes');
       });
     }
   } catch(err) {

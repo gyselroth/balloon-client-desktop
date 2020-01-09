@@ -5,16 +5,20 @@
     <title>Selective Sync</title>
 
     <link href="../../../node_modules/ubuntu-fontface/ubuntu.css" rel="stylesheet" type="text/css">
+    <link href="../../../node_modules/@gyselroth/icon-collection/src/icons.css" rel="stylesheet" type="text/css">
     <link href="../../../node_modules/jstree/dist/themes/default/style.min.css" rel="stylesheet" type="text/css">
     <link href="../css/main.css" rel="stylesheet" type="text/css">
 
-    <script> $ = require("jquery");</script>
+    <script>$ = jQuery = require("jquery");</script>
     <script src="../../../node_modules/jstree/dist/jstree.min.js"></script>
     <script src="jstree.ignored.js"></script>
     <script src="browser.js"></script>
 </head>
 <body>
     <script id="template-content" type="text/x-handlebars-template">
+    <div id="selective-initialize">
+        <p>{{i18n 'settings.selective.initialize'}}</p>
+    </div>
     <div id="selective-sync">
         <div id="selective-sync-choose">
             <p>{{i18n 'settings.selective.choosePath'}}</p>

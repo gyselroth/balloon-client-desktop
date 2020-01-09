@@ -3,12 +3,10 @@ const { ipcRenderer } = require('electron');
 const globalConfig = require('../../lib/global-config.js');
 const clientConfig = require('../../lib/config.js');
 const autoLaunch = require('../../lib/auto-launch.js');
+const tabNavigation = require('../tray/tab-navigation.js');
 
 module.exports = function() {
   function init() {
-    var $navigationItems = $('#settings-navigation li a');
-    var $tabContents = $('.tab-content');
-
     var isLoggedIn = clientConfig.isActiveInstance() !== undefined;
 
     if(process.platform === 'linux') {
@@ -21,21 +19,9 @@ module.exports = function() {
       $('#settings-nav-user').hide();
     }
 
-    navigateTo('settings-global');
+    tabNavigation('#settings');
 
-    $navigationItems.bind('click', function(event) {
-      event.preventDefault();
-      navigateTo($(this).attr('href').substr(1));
-    });
-
-    function navigateTo(tab) {
-      $navigationItems.parent('li').removeClass('tab-navigation-active');
-      $tabContents.removeClass('tab-active');
-
-      $navigationItems.addBack().find('[href="#' + tab + '"]').parent('li').addClass('tab-navigation-active');
-      $tabContents.addBack().find('#' + tab).addClass('tab-active');
-    }
-
+    /** Auto launch **/
     const $autoLaunchCheck = $('#settings-autolaunch-check');
     $autoLaunchCheck.attr('checked', autoLaunch.getState());
 
@@ -46,6 +32,7 @@ module.exports = function() {
       });
     });
 
+    /** Allow prerelease **/
     const $allowPrereleaseCheck = $('#settings-allowPrerelease-check');
     $allowPrereleaseCheck.attr('checked', globalConfig.get('allowPrerelease'));
 
@@ -53,6 +40,7 @@ module.exports = function() {
       globalConfig.set('allowPrerelease', this.checked);
     });
 
+    /** Auto report **/
     const $autoReportCheck = $('#settings-autoReport-check');
 
     $autoReportCheck.attr('checked', globalConfig.get('autoReport'));
@@ -62,6 +50,22 @@ module.exports = function() {
       ipcRenderer.send('settings-autoReport-changed', this.checked);
     });
 
+    /** BalloonDir **/
+    const $balloonDirBtn = $('#settings-balloonDir');
+    const $balloonDirBtnLabel = $balloonDirBtn.find('> div:first-child');
+
+    $balloonDirBtnLabel.html(clientConfig.get('balloonDir'));
+    $balloonDirBtn.bind('click', function(event) {
+      ipcRenderer.send('balloonDirSelector-open');
+    });
+
+    ipcRenderer.on('balloonDirSelector-result', function (event, result) {
+      if(result && result.newPath) {
+        $balloonDirBtnLabel.html(result.newPath);
+      }
+    });
+
+    /** Selective **/
     const $selectiveBtn = $('#settings-selective-btn');
 
     $selectiveBtn.bind('click', function(event) {
