@@ -1,3 +1,13 @@
+## 1.3.0-alpha1
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**:
+
+### Changes
+* Upgrade to electron v7 #132
+* Use requestSingleInstanceLock instead of makeSingleInstance #141
+* Remove @gyselroth/windows-fsstat dependency #132
+
+
 ## 1.2.1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu Jan 09 10:44:43 CET 2020
