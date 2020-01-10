@@ -6,6 +6,7 @@
 * Upgrade to electron v7 #132
 * Use requestSingleInstanceLock instead of makeSingleInstance #141
 * Remove @gyselroth/windows-fsstat dependency #132
+* Show selective sync on separate page in startup wizard #172
 
 
 ## 1.2.1
@@ -22,8 +23,6 @@
 ### Deployment
 * Windows build fails Error: 403 status code downloading arm64 iojs.lib #223
 
-### Changes
-* Show selective sync on separate page in startuo wizard #172
 
 ## 1.2.0
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
