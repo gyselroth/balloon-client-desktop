@@ -1,21 +1,24 @@
 const path = require('path');
 
-const winston = require('winston');
+const {createLogger, transports} = require('winston');
+
 
 let _logger;
 
 module.exports = function() {
   var errorLevels = {error: 3, err: 3, warning: 4, warn: 4, notice: 5, info: 6, debug: 7};
-  var defaultLogger = new (winston.Logger)({
-    levels: errorLevels
+
+  var defaultLogger = createLogger({
+    levels: errorLevels,
+    transports: [],
   });
 
-  defaultLogger.add(winston.transports.Console, {
+  defaultLogger.add(new transports.Console({
     level: 'debug',
     prettyPrint: true,
     depth: 6,
     humanReadableUnhandledException: true
-  });
+  }));
 
   var logger = {
     setLogger: function(logger) {
@@ -27,8 +30,8 @@ module.exports = function() {
   }
 
   Object.keys(errorLevels).forEach((level) => {
-    logger[level] = function() {
-      _logger[level].apply(this, arguments);
+    logger[level] = function(...args) {
+      _logger[level](...args);
     }
   });
 

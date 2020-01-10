@@ -203,7 +203,7 @@ module.exports = function(env, clientConfig) {
   function appendLogFilesToArchive(archive, includeRotatedLogFiles) {
     if(includeRotatedLogFiles) {
       var rotatedLogfiles = fs.readdirSync(clientConfig.get('configDir')).filter((node) => {
-        return node.match(/^(sync|error)\d+\.log\.gz$/) !== null;
+        return node.match(/^(sync|error)\d+\.log$/) !== null;
       });
 
       rotatedLogfiles.forEach((filename) => {
