@@ -581,8 +581,11 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 #startup-view-advanced .startup-open-folder {
-    margin: 50px auto 0 auto;
+    margin: 0 auto;
     display: table-cell;
+    background-color: #39A5FF;
+    border-color: #39A5FF;
+    color: #FFF;
 }
 
 #startup p {
@@ -596,15 +599,11 @@ input[type="radio"], input[type="checkbox"] {
 #startup-advanced {
     position: absolute;
     bottom: 10px;
-}
-
-#startup-advanced {
-    position: absolute;
-    bottom: 10px;
     left: 0;
     right: 0;
     font-size: 13px;
     color: #999;
+    cursor: pointer;
 }
 
 #selective-sync,

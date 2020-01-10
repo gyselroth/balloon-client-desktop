@@ -85,6 +85,8 @@
   "startup.auth.mfaCode": "Code",
   "startup.auth.mfaDescription": "Dieses Konto ist mit multi factor authentication geschützt. Bitte gib den Code vom google authenticator ein:",
   "startup.auth.message": "Melde dich bei deinem balloon an:",
+  "startup.selective.edit": "Selektion anpassen",
+  "startup.selective.message": "Hinweis: Freigaben werden standardmässig nicht synchronisiert und müssen separat in der Selektiven Synchronisation aktiviert werden.",
 
   "status.nav.activities": "Aktivitäten",
   "status.nav.error": "Fehler",

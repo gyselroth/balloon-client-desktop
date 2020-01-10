@@ -6,6 +6,7 @@
 * Upgrade to electron v7 #132
 * Use requestSingleInstanceLock instead of makeSingleInstance #141
 * Remove @gyselroth/windows-fsstat dependency #132
+* Show selective sync on separate page in startup wizard #172
 
 
 ## 1.2.1
