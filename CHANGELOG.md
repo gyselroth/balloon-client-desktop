@@ -7,6 +7,7 @@
 * Use requestSingleInstanceLock instead of makeSingleInstance #141
 * Remove @gyselroth/windows-fsstat dependency #132
 * Show selective sync on separate page in startup wizard #172
+* Remove windows registry entries on uninstall #32
 
 
 ## 1.2.1
