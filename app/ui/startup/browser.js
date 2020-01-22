@@ -242,10 +242,20 @@ function auth() {
   });
 
   ipcRenderer.removeAllListeners('startup-auth-error');
-  ipcRenderer.on('startup-auth-error', function (event, type) {
+  ipcRenderer.on('startup-auth-error', function (event, type, error) {
     $loader.hide();
+
     $('#startup-auth-error').find('> div').hide()
-    $('#startup-auth-error-'+type).show();
+    switch(error.code) {
+      case 'E_BLN_AUTH_NETWORK':
+      case 'E_BLN_AUTH_SERVER':
+      case 'E_BLN_OIDC_NETWORK':
+        $('#startup-auth-error-network-server').show();
+      break;
+      default:
+        $('#startup-auth-error-'+type).show();
+      break;
+    }
   });
 
   $('#startup-auth-credentials').off('submit').on('submit', function(event) {

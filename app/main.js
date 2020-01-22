@@ -111,45 +111,19 @@ function startApp() {
 
         const welcomeWizard = result[2] === undefined || !result[2].welcomeWizardPromise ? Promise.resolve() : result[2].welcomeWizardPromise;
 
-        welcomeWizard.then(() => {
-          sync.setMayStart(true);
-
-          startSync(true);
-
-          electron.powerMonitor.on('suspend', () => {
-            logger.info('the system is going to sleep', {
-              category: 'main',
-            });
-
-            //abort a possibly active sync if not already paused
-            if(sync && sync.isPaused() === false) {
-              sync.pause(true);
-            } else if(sync) {
-              //if sync is paused kill a possible active watcher
-              sync.killWatcher();
-            }
-          });
-
-          electron.powerMonitor.on('resume', () => {
-            logger.info('the system is resuming', {
-              category: 'main',
-            });
-
-            startSync(true);
-          });
-        });
+        welcomeWizard.then(initializeSync);
       }).catch((error) => {
-        logger.error('startup checkconfig', {
-            category: 'main',
-            error: error
-        });
-
         switch(error.code) {
           case 'E_BLN_CONFIG_CREDENTIALS':
+            logger.warning('startup checkconfig no credentials, unlinking account', {category: 'main', error: error});
             unlinkAccount();
           break;
           default:
-            app.quit();
+            if(!handleAuthError('start-app', error)) {
+              logger.error('startup checkconfig error, quitting app', {category: 'main', error: error});
+              app.quit();
+            }
+          break;
         }
       });
     });
@@ -157,6 +131,39 @@ function startApp() {
     tray = TrayCtrl(env, clientConfig);
     autoUpdate = AutoUpdateCtrl(env, clientConfig, tray);
   });
+}
+
+function initializeSync() {
+  if(sync && sync.getMayStart() === false || !sync) {
+    electron.powerMonitor.on('suspend', () => {
+      logger.info('the system is going to sleep', {
+        category: 'main',
+      });
+
+      //abort a possibly active sync if not already paused
+      if(sync && sync.isPaused() === false) {
+        sync.pause(true);
+      } else if(sync) {
+        //if sync is paused kill a possible active watcher
+        sync.killWatcher();
+      }
+    });
+
+    electron.powerMonitor.on('resume', () => {
+      logger.info('the system is resuming', {
+        category: 'main',
+      });
+
+      startSync(true);
+    });
+  }
+
+  if(!sync) {
+    sync = SyncCtrl(env, tray);
+  }
+
+  sync.setMayStart(true);
+  if(sync.isPaused() === false) startSync(true);
 }
 
 function unlinkAccount() {
@@ -193,10 +200,7 @@ function handleUnauthorizedRequest() {
       logger.debug('got 401, refresh accessToken', {category: 'main'});
 
       auth.refreshAccessToken().then(resolve).catch(err => {
-        if(err.code && ['E_BLN_AUTH_NETWORK', 'E_BLN_OIDC_NETWORK'].includes(err.code)) {
-          logger.warn('could not refresh accessToken, network offline', {category: 'main', err});
-          tray.emit('network-offline');
-        } else {
+        if(!handleAuthError('hanlde-unauthorized-request', err)) {
           logger.error('could not refresh accessToken, unlink instance', {category: 'main', err});
           unlinkAccount();
         }
@@ -205,6 +209,27 @@ function handleUnauthorizedRequest() {
       });
     }
   });
+}
+
+function handleAuthError(subcategory, error) {
+  let authErrorHandled = true;
+  switch(error.code) {
+    case 'E_BLN_AUTH_NETWORK':
+    case 'E_BLN_OIDC_NETWORK':
+      logger.info('network seems to be offline could not authenticate user', {category: 'main', subcategory});
+      tray.emit('network-offline');
+    break;
+    case 'E_BLN_AUTH_SERVER':
+      logger.info('Auth server responded with a invalid status', {category: 'main', subcategory});
+      tray.emit('unlink-account-result', true);
+      tray.toggleState('loggedout', true);
+    break;
+    default:
+      authErrorHandled = false;
+    break;
+  }
+
+  return authErrorHandled;
 }
 
 var gotLock = app.requestSingleInstanceLock();
@@ -306,20 +331,16 @@ function bindOnlineStateChanged() {
 
         // Pass rejected promise, as it should silently fail
         auth.login(() => Promise.reject()).then(() => {
-          if(!sync) {
-            sync = SyncCtrl(env, tray);
-            sync.setMayStart(true);
-          }
+          initializeSync();
 
           clientConfig.updateTraySecret();
           tray.toggleState('loggedout', false);
-
-          if(sync && sync.isPaused() === false) startSync(true);
         }).catch((error) => {
-          logger.warning('User is not authenticated', {category: 'main'});
-
-          tray.emit('unlink-account-result', true);
-          tray.toggleState('loggedout', true);
+          if(!handleAuthError('online-state-changed-event', error)) {
+            logger.warning('User is not authenticated', {category: 'main', error});
+            tray.emit('unlink-account-result', true);
+            tray.toggleState('loggedout', true);
+          }
         });
       }
     }
@@ -427,21 +448,29 @@ ipcMain.on('link-account', (event, id) => {
     clientConfig.updateTraySecret();
 
     tray.toggleState('loggedout', false);
-    startSync(true);
+    initializeSync();
     event.sender.send('link-account-result', true);
-  }).catch((err) => {
-    if(err.code !== 'E_BLN_OAUTH_WINDOW_OPEN') {
-      logger.error('login not successfull', {
-        category: 'main',
-        error: err
-      });
-    } else {
-      logger.info('login aborted as there is already a login window open', {
-        category: 'main',
-      });
+  }).catch((error) => {
+    switch(error.code) {
+      case 'E_BLN_OAUTH_WINDOW_OPEN':
+        logger.info('login aborted as there is already a login window open', {
+          category: 'main',
+        });
+      break;
+      default:
+        if(!handleAuthError('link-account-event', error)) {
+          logger.error('login not successfull', {category: 'main', error});
+          event.sender.send('link-account-result', false);
+        } else {
+          dialog.showMessageBox(null, {
+            type: 'warning',
+            buttons: [i18n.__('button.ok')],
+            title: i18n.__('error.auth'),
+            message: i18n.__('error.auth.network_server_error'),
+          });
+        }
+      break;
     }
-
-    event.sender.send('link-account-result', false);
   });
 });
 

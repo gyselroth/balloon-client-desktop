@@ -384,6 +384,10 @@ module.exports = function(env, tray) {
     mayStart = value;
   }
 
+  function getMayStart() {
+    return mayStart;
+  }
+
   return {
     start,
     pause,
@@ -393,6 +397,7 @@ module.exports = function(env, tray) {
     updateSelectiveSync,
     ignoreNewShares,
     setMayStart,
+    getMayStart,
     resumeWatcher,
     killWatcher
   }

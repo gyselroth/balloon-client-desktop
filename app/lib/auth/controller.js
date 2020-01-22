@@ -96,9 +96,7 @@ module.exports = function(env, clientConfig) {
 
     return new Promise(function(resolve, reject){
       clientConfig.storeSecret('password', password).then(() => {
-        verifyNewLogin().then((newInstance) => {
-          resolve(newInstance);
-        }).catch((error) => {
+        verifyNewLogin().then(resolve).catch((error) => {
           logger.error('failed signin via basic auth', {
             category: 'auth',
             error: error
@@ -160,9 +158,7 @@ module.exports = function(env, clientConfig) {
           case 200:
             _storeAuthTokens(body)
               .then(() => {
-                verifyNewLogin().then((newInstance) => {
-                  resolve(newInstance);
-                }).catch((error) => {
+                verifyNewLogin().then(resolve).catch((error) => {
                   logger.error('failed signin via token auth', {
                     category: 'auth',
                     error: error
@@ -290,7 +286,7 @@ module.exports = function(env, clientConfig) {
             if(err) {
               logger.error('refresh internal access token failed', {category: 'auth', error: err});
 
-              if(err.code && ['ENOTFOUND', 'ETIMEDOUT', 'ENETUNREACH', 'EHOSTUNREACH', 'ECONNREFUSED', 'EHOSTDOWN', 'ESOCKETTIMEDOUT', 'ECONNRESET'].includes(err.code)) {
+              if(err.code && isNetworkError(err.code)) {
                 err = new AuthError(err.message, 'E_BLN_AUTH_NETWORK');
               }
 
@@ -330,14 +326,9 @@ module.exports = function(env, clientConfig) {
     return new Promise(function(resolve, reject) {
       oidc.signin(idpConfig).then((authorization) => {
         if(authorization === true)  {
-          verifyNewLogin().then((newInstance) => {
-            resolve(newInstance);
-          }).catch((error) => {
+          verifyNewLogin().then(resolve).catch((error) => {
             clientConfig.set('oidcProvider', undefined);
-            logger.error('failed signin new authorization via oidc', {
-              category: 'auth',
-              error: error
-            });
+            logger.error('failed to authorize via oidc', {category: 'auth', error});
 
             reject(error)
           });
@@ -346,10 +337,7 @@ module.exports = function(env, clientConfig) {
             resolve(false);
           }).catch((error) => {
             clientConfig.set('oidcProvider', undefined);
-            logger.error('failed signin via oidc', {
-              category: 'auth',
-              error: error
-            });
+            logger.error('failed signin via oidc', {category: 'auth', error});
 
             reject(error)
           });
@@ -448,14 +436,11 @@ module.exports = function(env, clientConfig) {
   function verifyAuthentication() {
     return new Promise(function(resolve, reject) {
       var config = clientConfig.getAll(true);
-      config.version = globalConfig.get('version');
 
       if((['oidc', 'token'].includes(config.authMethod) && !config.accessToken) || (config.authMethod === 'basic' && !config.password)) {
         logger.error('can not verify credentials, no secret available', {category: 'auth'});
         reject(new Error('Secret not set'));
       }
-
-      var sync = fullSyncFactory(config, logger);
 
       logger.info('verify authentication via whoami api call', {
         category: 'auth',
@@ -463,53 +448,15 @@ module.exports = function(env, clientConfig) {
         username: config.username
       });
 
-      sync.blnApi.whoami(function(err, username) {
-        if(err) {
-          logger.info('verify authentication failed', {
-            category: 'auth',
-            error: err,
-            username: username
-          });
-
-          clientConfig.set('loggedin', false);
-          reject(err);
-        } else {
-          logger.info('successfully verifed user credentials', {
-            category: 'auth',
-            username: username
-          });
-
-          clientConfig.set('loggedin', true);
-          resolve();
-        }
-      });
+      whoami().then(resolve).catch(reject);
     });
   }
 
   function verifyNewLogin() {
     //resolves with boolean true if a new instance was created (aka never seen user)
     return new Promise(function(resolve, reject) {
-      var config = clientConfig.getAll(true);
-      config.version = globalConfig.get('version');
-
-      var sync = fullSyncFactory(config, logger);
-      sync.blnApi.whoami(function(err, username) {
-        if(err) {
-          logger.error('failed verify new user credentials', {
-            category: 'auth',
-            error: err
-          });
-
-          clientConfig.set('oidcProvider', undefined);
-          return reject(err);
-        }
-
-        logger.info('successfully verified authentication', {
-          category: 'auth',
-          username: username
-        });
-
-        clientConfig.set('loggedin', true);
+      logger.info('verifying new user credentials with whoami call');
+      whoami().then(username => {
         clientConfig.set('username', username);
 
         if(!instance.getInstances()) {
@@ -547,8 +494,54 @@ module.exports = function(env, clientConfig) {
             });
           }
         }
+      }).catch(error => {
+        clientConfig.set('oidcProvider', undefined);
+        return reject(error);
       });
     });
+  }
+
+  function whoami() {
+    return new Promise((resolve, reject) => {
+      var config = clientConfig.getAll(true);
+      config.version = globalConfig.get('version');
+
+      var sync = fullSyncFactory(config, logger);
+
+      sync.blnApi.whoami(function(error, username) {
+        if(error) {
+          logger.info('whoami failed', {category: 'auth', error, username});
+
+          clientConfig.set('loggedin', false);
+
+          if(error.code && isNetworkError(error)) {
+            error = new AuthError(error.message, 'E_BLN_AUTH_NETWORK');
+          } else if(error.code && error.code !== 'E_BLN_API_REQUEST_UNAUTHORIZED') {
+            error = new AuthError(error.message, 'E_BLN_AUTH_SERVER');
+          }
+
+          reject(error);
+        } else {
+          logger.info('whoami successfull', {category: 'auth', username});
+
+          clientConfig.set('loggedin', true);
+          resolve(username);
+        }
+      });
+    });
+  }
+
+  function isNetworkError(error) {
+    return [
+      'ENOTFOUND',
+      'ETIMEDOUT',
+      'ENETUNREACH',
+      'EHOSTUNREACH',
+      'ECONNREFUSED',
+      'EHOSTDOWN',
+      'ESOCKETTIMEDOUT',
+      'ECONNRESET'
+    ].includes(error.code);
   }
 
   return {

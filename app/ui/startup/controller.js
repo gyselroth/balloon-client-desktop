@@ -148,7 +148,7 @@ module.exports = function(env, clientConfig) {
           startupWindow.removeListener('closed', windowClosedByUserHandler);
 
           auth.credentialsAuth(username, password, code)
-            .then((newInstance) => {
+            .then(() => {
               if(!clientConfig.hadConfig()) {
                 resolve({welcomeWizardPromise: welcomeWizard()});
               } else {
@@ -168,7 +168,7 @@ module.exports = function(env, clientConfig) {
                 startupWindow.webContents.send('startup-auth-mfa-required');
               } else {
                 logger.error('Credentials auth resulted in an error', {category: 'startup', error, 'credentialsType': type});
-                startupWindow.webContents.send('startup-auth-error',  'credentials');
+                startupWindow.webContents.send('startup-auth-error',  'credentials', error);
               }
             });
         });
@@ -190,7 +190,7 @@ module.exports = function(env, clientConfig) {
 
           startupWindow.removeListener('closed', windowClosedByUserHandler);
           auth.oidcAuth(idpConfig)
-            .then((newInstance) => {
+            .then(() => {
               if(!clientConfig.hadConfig()) {
                 resolve({welcomeWizardPromise: welcomeWizard()});
               } else {
@@ -204,7 +204,7 @@ module.exports = function(env, clientConfig) {
                 error: error,
               });
 
-              startupWindow.webContents.send('startup-auth-error',  'oidc');
+              startupWindow.webContents.send('startup-auth-error',  'oidc', error);
             });
         });
       } else {
