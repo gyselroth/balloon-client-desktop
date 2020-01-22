@@ -2,6 +2,9 @@
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**:
 
+### Bugfixes
+* Logger should be able to serialize BigInt #229
+
 ### Changes
 * Upgrade to electron v7 #132
 * Use requestSingleInstanceLock instead of makeSingleInstance #141

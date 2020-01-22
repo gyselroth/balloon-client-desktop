@@ -18,7 +18,13 @@ const enrichLogInfo = format(function(info, options) {
   const metadata = info.metadata;
   delete metadata.category;
 
-  info.meta = metadata && Object.keys(metadata).length > 0 ? `(${JSON.stringify(metadata)})` : '';
+  info.meta = '';
+  if(metadata && Object.keys(metadata).length > 0) {
+    const str = JSON.stringify(metadata, (key, value) =>
+      typeof value === 'bigint' ? value.toString() : value
+    );
+    info.meta = `(${str})`;
+  }
 
   return info;
 });
