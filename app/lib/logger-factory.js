@@ -11,11 +11,11 @@ const logLevels = {error: 3, err: 3, warning: 4, warn: 4, notice: 5, info: 6, de
 let logger;
 
 const enrichLogInfo = format(function(info, options) {
-  info.level = info.level.toUpperCase();
+  const metadata = {...info.metadata};
 
+  info.level = info.level.toUpperCase();
   info.thread = electron.remote ? electron.remote.getCurrentWindow().id : 'main';
-  if(!info.category) info.category = 'category';
-  const metadata = info.metadata;
+  info.category = metadata.category || 'N/A';
   delete metadata.category;
 
   info.meta = '';
@@ -39,9 +39,9 @@ const cloneErrors = format(function(info, options) {
           var value = srcValue[prop];
 
           clone[prop] = value && typeof value === 'object' ?
-             // Recurse for objects, to handle inner exceptions
-              mergeWith({}, value, errorCloner) :
-              value;
+            // Recurse for objects, to handle inner exceptions
+            mergeWith({}, value, errorCloner) :
+            value;
       });
 
       return clone;
@@ -61,6 +61,11 @@ module.exports = function(config, logfile) {
     logger = createLogger({
       levels: logLevels,
       transports: [],
+      format: format.combine(
+        format.metadata(),
+        cloneErrors(),
+        enrichLogInfo()
+      )
     });
 
     if(env.context !== 'test') {
@@ -72,10 +77,7 @@ module.exports = function(config, logfile) {
         tailable: true,
         zippedArchive: false,
         format: format.combine(
-          format.metadata(),
-          cloneErrors(),
           format.timestamp({format: 'YYYY-MM-DD HH:mm:ss'}),
-          enrichLogInfo(),
           format.printf(info => `${info.timestamp} ${info.level} <${info.thread}> [${info.category}]: ${info.message} ${info.meta}`)
         ),
       }));
@@ -83,11 +85,6 @@ module.exports = function(config, logfile) {
       if(logfile === 'sync.log') {
         logger.add(new TrayTransport({
           level: 'error',
-          config,
-          format: format.combine(
-            format.metadata(),
-            cloneErrors(),
-          )
         }));
       }
     }
@@ -96,9 +93,6 @@ module.exports = function(config, logfile) {
       logger.add(new transports.Console({
         level: 'debug',
         format: format.combine(
-          format.metadata(),
-          cloneErrors(),
-          enrichLogInfo(),
           format.colorize(),
           format.printf(info => `${info.level} <${info.thread}> [${info.category}]: ${info.message} ${info.meta}`)
         ),
