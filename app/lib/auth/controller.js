@@ -457,43 +457,18 @@ module.exports = function(env, clientConfig) {
     return new Promise(function(resolve, reject) {
       logger.info('verifying new user credentials with whoami call');
       whoami().then(username => {
-        clientConfig.set('username', username);
+        var url = clientConfig.get('blnUrl');
+        var context = clientConfig.get('context');
 
-        if(!instance.getInstances()) {
-          instance.setNewInstance(clientConfig).then(() => {
-            clientConfig.set('loggedin', true);
-            resolve(true);
-          });
-        } else {
-          var instanceName = instance.getInstance(clientConfig);
-
-          if(instanceName === instance.getLastActiveInstance()) {
-            instance.loadInstance(instanceName, clientConfig).then(() => {
-              resolve(false);
-              clientConfig.set('loggedin', true);
-            }).catch(error => {
-              reject(error);
-            });
-          } else {
-            instance.archiveDataDir(clientConfig).then(() => {
-              if(instanceName === null) {
-                instance.setNewInstance(clientConfig).then(() => {
-                  clientConfig.set('loggedin', true);
-                  resolve(true);
-                });
-              } else {
-                instance.loadInstance(instanceName, clientConfig).then(() => {
-                  resolve(false);
-                  clientConfig.set('loggedin', true);
-                }).catch((error) => {
-                  reject(error);
-                });
-              }
-            }).catch((error) => {
-              reject(error);
-            });
-          }
-        }
+        instance.link(username, url, context, clientConfig).then(newInstance => {
+          //only change username after instance has been loaded, otherwise we might change the username in an old instance
+          clientConfig.set('username', username);
+          clientConfig.set('loggedin', true);
+          resolve(newInstance);
+        }).catch(err => {
+          clientConfig.set('loggedin', false);
+          reject(err);
+        });
       }).catch(error => {
         clientConfig.set('oidcProvider', undefined);
         return reject(error);
