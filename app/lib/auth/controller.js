@@ -91,13 +91,18 @@ module.exports = function(env, clientConfig) {
   }
 
   function _doBasicAuth(username, password) {
-    clientConfig.set('authMethod', 'basic');
-    clientConfig.set('username', username);
-
     return new Promise(function(resolve, reject){
-      clientConfig.storeSecret('password', password).then(() => {
-        verifyAuthentication().then(resolve).catch((error) => {
-          logger.error('failed signin via basic auth', {
+      var config = {
+        authMethod: 'basic',
+        username,
+        password
+      };
+
+      verifyAuthentication(config).then(() => {
+        clientConfig.set('authMethod', 'basic');
+
+        clientConfig.storeSecret('password', password).then(resolve).catch((error) => {
+          logger.error('failed store secret in keystore', {
             category: 'auth',
             error: error
           });
@@ -105,7 +110,7 @@ module.exports = function(env, clientConfig) {
           reject(error);
         });
       }).catch((error) => {
-        logger.error('failed store secret in keystore', {
+        logger.error('failed signin via basic auth', {
           category: 'auth',
           error: error
         });
@@ -116,9 +121,6 @@ module.exports = function(env, clientConfig) {
   }
 
   function _doTokenAuth(username, password, code) {
-    clientConfig.set('authMethod', 'token');
-    clientConfig.set('username', username);
-
     return new Promise(function(resolve, reject){
       var apiUrl = clientConfig.get('apiUrl').replace('/v1', '/v2');
 
@@ -156,18 +158,23 @@ module.exports = function(env, clientConfig) {
 
         switch(response.statusCode) {
           case 200:
-            _storeAuthTokens(body)
-              .then(() => {
-                verifyAuthentication().then(resolve).catch((error) => {
-                  logger.error('failed signin via token auth', {
-                    category: 'auth',
-                    error: error
-                  });
+            var config = {
+              authMethod: 'token',
+              accessToken: body.access_token
+            };
 
-                  reject(error);
-                });
-              })
-              .catch(reject);
+            verifyAuthentication(config).then(() => {
+              clientConfig.set('authMethod', 'token');
+
+              _storeAuthTokens(body).then(resolve).catch(reject);
+            }).catch((error) => {
+              logger.error('failed signin via token auth', {
+                category: 'auth',
+                error: error
+              });
+
+              reject(error);
+            });
           break;
           case 403:
             if(body.error === 'Balloon\\App\\Idp\\Exception\\MultiFactorAuthenticationRequired') {
@@ -183,6 +190,31 @@ module.exports = function(env, clientConfig) {
             reject(new Error(body.error_description));
           break;
         }
+      });
+    });
+  }
+
+  function _storeOidcAuthTokens(response) {
+    return new Promise((resolve, reject) => {
+      if(!response.accessToken) {
+        logger.error('access token not set in oidc response', {category: 'auth'});
+        return reject(new Error('Response does not contain accessToken'));
+      }
+
+      var promises = [];
+
+      promises.push(clientConfig.storeSecret('accessToken', response.accessToken));
+
+      if(response.refreshToken) {
+        promises.push(clientConfig.storeSecret('refreshToken', response.refreshToken))
+      }
+
+      Promise.all(promises).then(() => {
+        logger.debug('Stored oidc tokens', {category: 'auth'});
+        resolve();
+      }).catch((err) => {
+        logger.error('Could not store oidc tokens', {category: 'auth', err});
+        reject(err);
       });
     });
   }
@@ -238,12 +270,20 @@ module.exports = function(env, clientConfig) {
         var idpConfig = getIdPByProviderUrl(oidcProvider);
       }
 
-      oidc.refreshAccessToken(idpConfig).then(() => {
-        verifyAuthentication().then(resolve).catch((error) => {
-          logger.error('failed refresh access_token', {
-            category: 'auth',
-            error: error
-          });
+      oidc.refreshAccessToken(idpConfig).then(response => {
+        var config = {
+          authMethod: 'oidc',
+          accessToken: response.accessToken
+        };
+
+        verifyAuthentication(config).then(() => {
+          clientConfig.set('authMethod', 'oidc');
+          clientConfig.set('oidcProvider', idpConfig.providerUrl);
+          clientConfig.set('accessTokenExpires', response.issuedAt + response.expiresIn);
+
+          _storeOidcAuthTokens(response).then(resolve).catch(reject);
+        }).catch((error) => {
+          logger.error('failed refresh access_token', { category: 'auth', error: error});
 
           reject(error);
         });
@@ -285,21 +325,26 @@ module.exports = function(env, clientConfig) {
 
             switch(response.statusCode) {
               case 200:
-                _storeAuthTokens(body)
-                  .then(() => {
-                    verifyAuthentication().then(resolve).catch((error) => {
-                      logger.error('verify auth after refresh access token failed', {
-                        category: 'auth',
-                        error: error
-                      });
+                var config = {
+                  authMethod: 'token',
+                  accessToken: body.access_token
+                };
 
-                      reject(error);
-                    });
-                  })
-                  .catch(reject);
+                verifyAuthentication(config).then(() => {
+                  clientConfig.set('authMethod', 'token');
+                  _storeAuthTokens(body).then(resolve).catch(reject);
+                }).catch((error) => {
+                  logger.error('verify auth after refresh access token failed', {
+                    category: 'auth',
+                    error: error
+                  });
+
+                  reject(error);
+                });
               break;
               case 400:
               default:
+                logger.info('refresh token failed', {category: 'auth', body});
                 reject(new Error(body.error_description));
               break;
             }
@@ -315,9 +360,19 @@ module.exports = function(env, clientConfig) {
 //TODO pixtron - we can remove these? clientConfig.set('oidcProvider', undefined);
   function oidcAuth(idpConfig) {
     return new Promise(function(resolve, reject) {
-      oidc.signin(idpConfig).then(() => {
-        verifyAuthentication().then(resolve).catch((error) => {
-          clientConfig.set('oidcProvider', undefined);
+      oidc.signin(idpConfig).then((result) => {
+        var config = {
+          authMethod: 'oidc',
+          accessToken: result.accessToken
+        };
+
+        verifyAuthentication(config).then(() => {
+          clientConfig.set('authMethod', 'oidc');
+          clientConfig.set('oidcProvider', idpConfig.providerUrl);
+          clientConfig.set('accessTokenExpires', result.issuedAt + result.expiresIn);
+
+          _storeOidcAuthTokens(result).then(resolve).catch(reject);
+        }).catch((error) => {
           logger.error('failed to authorize via oidc', {category: 'auth', error});
 
           reject(error)
@@ -351,18 +406,24 @@ module.exports = function(env, clientConfig) {
     logger.info('login initialized', {category: 'auth'});
 
     return new Promise(function (resolve, reject) {
-      verifyAuthentication().then(resolve).catch((err) => {
-        logger.info('login failed', {
-          category: 'auth',
-          error: err
-        });
+      var authMethod = clientConfig.get('authMethod');
+      var config = { authMethod };
+
+      if(authMethod === 'basic') {
+        config.username = clientConfig.get('username');
+        config.password = clientConfig.getSecret();
+      } else {
+        config.accessToken = clientConfig.getSecret();
+      }
+
+      verifyAuthentication(config).then(resolve).catch((err) => {
+        logger.info('login failed', { category: 'auth', error: err, authMethod});
 
         if(err.code && ['E_BLN_API_REQUEST_UNAUTHORIZED', 'E_BLN_API_REQUEST_MFA_REQUIRED'].includes(err.code) === false) {
           // assume there is a network problem, should retry later
           return reject(err);
         }
 
-        var authMethod = clientConfig.get('authMethod');
         switch(authMethod) {
           case 'oidc':
           case 'token':
@@ -398,19 +459,17 @@ module.exports = function(env, clientConfig) {
     return undefined;
   }
 
-  function verifyAuthentication() {
+  function verifyAuthentication(config) {
     //resolves with boolean true if a new instance was created (aka never seen user)
     return new Promise(function(resolve, reject) {
-      var config = clientConfig.getAll(true);
-
-      if((['oidc', 'token'].includes(config.authMethod) && !config.accessToken) || (config.authMethod === 'basic' && !config.password)) {
+      if((['oidc', 'token'].includes(config.authMethod) && !config.accessToken) || (config.authMethod === 'basic' && (!config.password || !config.username))) {
         logger.error('can not verify credentials, no secret available', {category: 'auth'});
         reject(new Error('Secret not set'));
       }
 
       logger.info('verifying new user credentials with whoami call', {category: 'auth', authMethod: config.authMethod, username: config.username});
 
-      whoami().then(username => {
+      whoami(config).then(username => {
         var url = clientConfig.get('blnUrl');
         var context = clientConfig.get('context');
 
@@ -427,18 +486,16 @@ module.exports = function(env, clientConfig) {
     });
   }
 
-  function whoami() {
+  function whoami(config) {
     return new Promise((resolve, reject) => {
-      var config = clientConfig.getAll(true);
       config.version = globalConfig.get('version');
+      config.apiUrl = clientConfig.get('apiUrl');
 
       var sync = fullSyncFactory(config, logger);
 
       sync.blnApi.whoami(function(error, username) {
         if(error) {
           logger.info('whoami failed', {category: 'auth', error, username});
-
-          clientConfig.set('loggedin', false);
 
           if(error.code && isNetworkError(error)) {
             error = new AuthError(error.message, 'E_BLN_AUTH_NETWORK');
@@ -450,7 +507,6 @@ module.exports = function(env, clientConfig) {
         } else {
           logger.info('whoami successfull', {category: 'auth', username});
 
-          clientConfig.set('loggedin', true);
           resolve(username);
         }
       });

@@ -96,22 +96,8 @@ module.exports = function (env, clientConfig) {
 
         if(response) {
           makeRefreshTokenRequest(configuration, response.code, codeVerifier)
-            .then((result) => {
-              clientConfig.set('authMethod', 'oidc');
-
-              _storeSecrets(result).then(() => {
-                logger.debug('Stored tokens', {category: 'openid-connect'});
-
-                clientConfig.set('oidcProvider', idpConfig.providerUrl);
-                clientConfig.set('accessTokenExpires', result.issuedAt + result.expiresIn);
-
-                resolve();
-              }).catch((err) => { //catch Promise.all
-                clientConfig.set('authMethod', undefined);
-                logger.error('Could not store tokens', {category: 'openid-connect', err})
-                reject(err);
-              });
-            }).catch(reject); //catch makeRefreshTokenRequest
+            .then(resolve)
+            .catch(reject);
         } else {
           reject(error);
         }
@@ -208,17 +194,7 @@ module.exports = function (env, clientConfig) {
             category: 'openid-connect'
           });
 
-          makeAccessTokenRequest(configuration, secret).then((response) => {
-            _storeSecrets(response)
-              .then(() => {
-                clientConfig.set('accessTokenExpires', response.issuedAt + response.expiresIn);
-                resolve();
-              })
-              .catch(err => {
-                logger.error('Could not store accessToken', {catgory: 'openid-connect', err});
-                reject(err);
-              });
-          }).catch((error) => {
+          makeAccessTokenRequest(configuration, secret).then(resolve).catch((error) => {
             logger.info('failed to refresh accessToken', {category: 'openid-connect', error});
 
             reject(error);
