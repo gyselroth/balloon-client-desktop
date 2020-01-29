@@ -238,25 +238,15 @@ module.exports = function(env, clientConfig) {
         var idpConfig = getIdPByProviderUrl(oidcProvider);
       }
 
-      oidc.signin(idpConfig).then((authorization) => {
-        if(authorization === true)  {
-          logger.error('can not accept new authorization after refresh access_token', {
+      oidc.refreshAccessToken(idpConfig).then(() => {
+        verifyAuthentication().then(resolve).catch((error) => {
+          logger.error('failed refresh access_token', {
             category: 'auth',
+            error: error
           });
 
-          reject()
-        } else {
-          verifyAuthentication().then(() => {
-            resolve();
-          }).catch((error) => {
-            logger.error('failed refresh access_token', {
-              category: 'auth',
-              error: error
-            });
-
-            reject(error)
-          });
-        }
+          reject(error);
+        });
       }).catch(reject);
     });
   }
@@ -322,26 +312,17 @@ module.exports = function(env, clientConfig) {
     });
   }
 
+//TODO pixtron - iss-168 unify verifyNewLogin and verifyAuthentication
+//TODO pixtron - we can remove these? clientConfig.set('oidcProvider', undefined);
   function oidcAuth(idpConfig) {
     return new Promise(function(resolve, reject) {
-      oidc.signin(idpConfig).then((authorization) => {
-        if(authorization === true)  {
-          verifyNewLogin().then(resolve).catch((error) => {
-            clientConfig.set('oidcProvider', undefined);
-            logger.error('failed to authorize via oidc', {category: 'auth', error});
+      oidc.signin(idpConfig).then(() => {
+        verifyNewLogin().then(resolve).catch((error) => {
+          clientConfig.set('oidcProvider', undefined);
+          logger.error('failed to authorize via oidc', {category: 'auth', error});
 
-            reject(error)
-          });
-        } else {
-          verifyAuthentication().then(() => {
-            resolve(false);
-          }).catch((error) => {
-            clientConfig.set('oidcProvider', undefined);
-            logger.error('failed signin via oidc', {category: 'auth', error});
-
-            reject(error)
-          });
-        }
+          reject(error)
+        });
       }).catch(reject);
     });
   }
@@ -382,29 +363,14 @@ module.exports = function(env, clientConfig) {
           return reject(err);
         }
 
-        switch(clientConfig.get('authMethod')) {
+        var authMethod = clientConfig.get('authMethod');
+        switch(authMethod) {
           case 'oidc':
-            var oidcProvider = clientConfig.get('oidcProvider');
-
-            if(oidcProvider === undefined) {
-              logger.info('login no oidc provider, open startup configuration', {category: 'auth'});
-              startup().then(resolve).catch(reject);
-            } else {
-              var idpConfig = getIdPByProviderUrl(oidcProvider);
-              oidcAuth(idpConfig).then(resolve).catch((err) => {
-                logger.info('oidc login failed, open startup configuration', {
-                  category: 'auth',
-                  error: err
-                });
-
-                startup().then(resolve).catch(reject);
-              });
-            }
-          break;
           case 'token':
             refreshAccessToken().then(resolve).catch((error) => {
-              logger.info('token login failed, open startup configuration', {
+              logger.info('login failed, open startup configuration', {
                 category: 'auth',
+                authMethod: authMethod,
                 error: err
               });
 

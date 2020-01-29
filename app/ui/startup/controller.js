@@ -114,7 +114,7 @@ module.exports = function(env, clientConfig) {
         ||
         !clientConfig.isActiveInstance()
         ||
-        instance.getInstance(clientConfig) === null
+        instance.getInstance(clientConfig.get('username'), clientConfig.get('blnUrl'), clientConfig.get('context')) === null
     );
   }
 
