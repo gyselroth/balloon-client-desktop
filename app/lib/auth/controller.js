@@ -152,7 +152,7 @@ module.exports = function(env, clientConfig) {
       var req = request(reqOptions, (err, response, body) => {
         if(err) {
           logger.error('do token auth failed', {category: 'auth', error: err});
-
+          err = _checkForNetworkAndServerErrors(err);
           return reject(err);
         }
 
@@ -186,8 +186,10 @@ module.exports = function(env, clientConfig) {
             }
           break;
           case 401:
-          default:
             reject(new Error(body.error_description));
+          break;
+          default:
+            reject(new AuthError(`Unexpected status ${response.statusCode}`, 'E_BLN_AUTH_SERVER'));
           break;
         }
       });
@@ -316,9 +318,7 @@ module.exports = function(env, clientConfig) {
             if(err) {
               logger.error('refresh internal access token failed', {category: 'auth', error: err});
 
-              if(err.code && isNetworkError(err.code)) {
-                err = new AuthError(err.message, 'E_BLN_AUTH_NETWORK');
-              }
+              err = _checkForNetworkAndServerErrors(err);
 
               return reject(err);
             }
@@ -343,9 +343,12 @@ module.exports = function(env, clientConfig) {
                 });
               break;
               case 400:
-              default:
                 logger.info('refresh token failed', {category: 'auth', body});
                 reject(new Error(body.error_description));
+              break;
+              default:
+                logger.info('refresh token failed with unexpected status', {category: 'auth', status: response.statusCode});
+                reject(new AuthError(`Unexpected status ${response.statusCode}`, 'E_BLN_AUTH_SERVER'));
               break;
             }
           });
@@ -357,7 +360,6 @@ module.exports = function(env, clientConfig) {
     });
   }
 
-//TODO pixtron - we can remove these? clientConfig.set('oidcProvider', undefined);
   function oidcAuth(idpConfig) {
     return new Promise(function(resolve, reject) {
       oidc.signin(idpConfig).then((result) => {
@@ -428,13 +430,15 @@ module.exports = function(env, clientConfig) {
           case 'oidc':
           case 'token':
             refreshAccessToken().then(resolve).catch((error) => {
-              logger.info('login failed, open startup configuration', {
-                category: 'auth',
-                authMethod: authMethod,
-                error: err
-              });
+              if(['E_BLN_AUTH_NETWORK', 'E_BLN_OIDC_NETWORK', 'E_BLN_AUTH_SERVER'].includes(error.code)) {
+                //network or temporary server error, should retry later
+                logger.info('login failed with temporary error', {category: 'auth', authMethod, error});
+                reject(error);
+              } else {
+                logger.info('login failed, open startup configuration', { category: 'auth', authMethod, error});
 
-              startup().then(resolve).catch(reject);
+                startup().then(resolve).catch(reject);
+              }
             });
           break;
           default:
@@ -497,11 +501,7 @@ module.exports = function(env, clientConfig) {
         if(error) {
           logger.info('whoami failed', {category: 'auth', error, username});
 
-          if(error.code && isNetworkError(error)) {
-            error = new AuthError(error.message, 'E_BLN_AUTH_NETWORK');
-          } else if(error.code && error.code !== 'E_BLN_API_REQUEST_UNAUTHORIZED') {
-            error = new AuthError(error.message, 'E_BLN_AUTH_SERVER');
-          }
+          error = _checkForNetworkAndServerErrors(error);
 
           reject(error);
         } else {
@@ -513,7 +513,7 @@ module.exports = function(env, clientConfig) {
     });
   }
 
-  function isNetworkError(error) {
+  function _isNetworkError(error) {
     return [
       'ENOTFOUND',
       'ETIMEDOUT',
@@ -524,6 +524,22 @@ module.exports = function(env, clientConfig) {
       'ESOCKETTIMEDOUT',
       'ECONNRESET'
     ].includes(error.code);
+  }
+
+  function _checkForNetworkAndServerErrors(error) {
+    if(error.code && _isNetworkError(error)) {
+      error = new AuthError(error.message, 'E_BLN_AUTH_NETWORK');
+    }
+
+    if(error.code && _isNetworkError(error)) {
+      return new AuthError(error.message, 'E_BLN_AUTH_NETWORK');
+    }
+
+    if(error.code && error.code !== 'E_BLN_API_REQUEST_UNAUTHORIZED') {
+      return new AuthError(error.message, 'E_BLN_AUTH_SERVER');
+    }
+
+    return error;
   }
 
   return {
