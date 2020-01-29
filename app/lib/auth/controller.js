@@ -96,7 +96,7 @@ module.exports = function(env, clientConfig) {
 
     return new Promise(function(resolve, reject){
       clientConfig.storeSecret('password', password).then(() => {
-        verifyNewLogin().then(resolve).catch((error) => {
+        verifyAuthentication().then(resolve).catch((error) => {
           logger.error('failed signin via basic auth', {
             category: 'auth',
             error: error
@@ -158,7 +158,7 @@ module.exports = function(env, clientConfig) {
           case 200:
             _storeAuthTokens(body)
               .then(() => {
-                verifyNewLogin().then(resolve).catch((error) => {
+                verifyAuthentication().then(resolve).catch((error) => {
                   logger.error('failed signin via token auth', {
                     category: 'auth',
                     error: error
@@ -312,12 +312,11 @@ module.exports = function(env, clientConfig) {
     });
   }
 
-//TODO pixtron - iss-168 unify verifyNewLogin and verifyAuthentication
 //TODO pixtron - we can remove these? clientConfig.set('oidcProvider', undefined);
   function oidcAuth(idpConfig) {
     return new Promise(function(resolve, reject) {
       oidc.signin(idpConfig).then(() => {
-        verifyNewLogin().then(resolve).catch((error) => {
+        verifyAuthentication().then(resolve).catch((error) => {
           clientConfig.set('oidcProvider', undefined);
           logger.error('failed to authorize via oidc', {category: 'auth', error});
 
@@ -400,6 +399,7 @@ module.exports = function(env, clientConfig) {
   }
 
   function verifyAuthentication() {
+    //resolves with boolean true if a new instance was created (aka never seen user)
     return new Promise(function(resolve, reject) {
       var config = clientConfig.getAll(true);
 
@@ -408,20 +408,8 @@ module.exports = function(env, clientConfig) {
         reject(new Error('Secret not set'));
       }
 
-      logger.info('verify authentication via whoami api call', {
-        category: 'auth',
-        authMethod: config.authMethod,
-        username: config.username
-      });
+      logger.info('verifying new user credentials with whoami call', {category: 'auth', authMethod: config.authMethod, username: config.username});
 
-      whoami().then(resolve).catch(reject);
-    });
-  }
-
-  function verifyNewLogin() {
-    //resolves with boolean true if a new instance was created (aka never seen user)
-    return new Promise(function(resolve, reject) {
-      logger.info('verifying new user credentials with whoami call');
       whoami().then(username => {
         var url = clientConfig.get('blnUrl');
         var context = clientConfig.get('context');
@@ -435,10 +423,7 @@ module.exports = function(env, clientConfig) {
           clientConfig.set('loggedin', false);
           reject(err);
         });
-      }).catch(error => {
-        clientConfig.set('oidcProvider', undefined);
-        return reject(error);
-      });
+      }).catch(reject);
     });
   }
 
