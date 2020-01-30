@@ -138,6 +138,9 @@ module.exports = function() {
     ipcRenderer.removeListener('network-offline', onNetworkOffline);
     ipcRenderer.on('network-offline', onNetworkOffline);
 
+    ipcRenderer.removeListener('network-offline', onDisconnected);
+    ipcRenderer.on('disconnected', onDisconnected);
+
     ipcRenderer.removeListener('unlink-account-result', onUnlinkAccountResult);
     ipcRenderer.on('unlink-account-result', onUnlinkAccountResult);
 
@@ -217,6 +220,11 @@ module.exports = function() {
 
   var onNetworkOffline = function(event) {
     $syncStatus.find('span').html(i18n.__('tray.sync.status.offline'));
+    $syncStatus.find('div').hide();
+  };
+
+  var onDisconnected = function(event) {
+    $syncStatus.find('span').html(i18n.__('tray.sync.status.disconnected'));
     $syncStatus.find('div').hide();
   };
 

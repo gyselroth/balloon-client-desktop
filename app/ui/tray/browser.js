@@ -35,6 +35,8 @@ var sync;
 var syncStatus    = true;
 var showLogin     = true;
 
+var reconnectTimeout = null;
+
 function loadMenu(menu) {
   logger.info('loadMenu', {category: 'tray-browser', menu});
 
@@ -263,6 +265,18 @@ getOnLineState(function(onLine) {
 
 ipcRenderer.on('network-offline', function() {
   updateOnLineState();
+});
+
+ipcRenderer.on('connected', function() {
+  if(reconnectTimeout) clearTimeout(reconnectTimeout);
+});
+
+ipcRenderer.on('disconnected', function() {
+  if(reconnectTimeout) clearTimeout(reconnectTimeout);
+
+  reconnectTimeout = setTimeout(function() {
+    ipcRenderer.send('try-to-reconnect');
+  }, 15000);
 });
 
 }());

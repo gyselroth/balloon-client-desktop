@@ -167,6 +167,8 @@ function initializeSync() {
 }
 
 function unlinkAccount() {
+  setDisconnectedState(false);
+
   (function() {
     if(!sync) return Promise.resolve();
 
@@ -221,8 +223,7 @@ function handleAuthError(subcategory, error) {
     break;
     case 'E_BLN_AUTH_SERVER':
       logger.info('Auth server responded with a invalid status', {category: 'main', subcategory});
-      tray.emit('unlink-account-result', true);
-      tray.toggleState('loggedout', true);
+      setDisconnectedState(true);
     break;
     default:
       authErrorHandled = false;
@@ -230,6 +231,60 @@ function handleAuthError(subcategory, error) {
   }
 
   return authErrorHandled;
+}
+
+function bindOnlineStateChanged() {
+  ipcMain.on('tray-online-state-changed', function(event, state) {
+    logger.info('online state changed', {
+      category: 'main',
+      state: state,
+      syncPaused: (sync && sync.isPaused())
+    });
+
+    appState.set('onLineState', state);
+    if(state === false) {
+      //abort a possibly active sync if not already paused
+      if(sync && sync.isPaused() === false) sync.pause(true);
+      tray.toggleState('offline', true);
+    } else {
+      tray.toggleState('offline', false);
+      if(clientConfig.get('loggedin') === true) {
+        if(sync && sync.isPaused() === false) startSync(true);
+      } else if(startup.needsStartupWizzard() === false) {
+        tryToReconnect();
+      }
+    }
+  });
+}
+
+function tryToReconnect() {
+  logger.debug('Trying to verify user credentials', {category: 'main'});
+
+  // Pass rejected promise, as it should silently fail
+  auth.login(() => Promise.reject()).then(() => {
+    initializeSync();
+
+    clientConfig.updateTraySecret();
+    tray.toggleState('loggedout', false);
+    setDisconnectedState(false);
+  }).catch((error) => {
+    if(!handleAuthError('online-state-changed-event', error)) {
+      logger.warning('User is not authenticated', {category: 'main', error});
+      tray.emit('unlink-account-result', true);
+      tray.toggleState('loggedout', true);
+    }
+  });
+}
+
+function setDisconnectedState(state) {
+  tray.toggleState('disconnected', state);
+  appState.set('disconnected', state);
+
+  if(state === true) {
+    tray.emit('disconnected');
+  } else {
+    tray.emit('connected');
+  }
 }
 
 var gotLock = app.requestSingleInstanceLock();
@@ -267,6 +322,7 @@ if(gotLock === false) {
   app.on('ready', function () {
     appState.set('updateAvailable', false);
     appState.set('updateDownloading', false);
+    appState.set('disconnected', false);
 
     feedback = FeedbackCtrl(env, clientConfig);
     feedback.toggleAutoReport(globalConfig.get('autoReport'));
@@ -309,49 +365,17 @@ ipcMain.on('tray-show', function() {
   tray.show();
 });
 
-function bindOnlineStateChanged() {
-  ipcMain.on('tray-online-state-changed', function(event, state) {
-    logger.info('online state changed', {
-      category: 'main',
-      state: state,
-      syncPaused: (sync && sync.isPaused())
-    });
+/** **/
+ipcMain.on('try-to-reconnect', () => {
+  logger.info('trying to reconnect', {category: 'main'});
 
-    appState.set('onLineState', state);
-    if(state === false) {
-      //abort a possibly active sync if not already paused
-      if(sync && sync.isPaused() === false) sync.pause(true);
-      tray.toggleState('offline', true);
-    } else {
-      tray.toggleState('offline', false);
-      if(clientConfig.get('loggedin') === true) {
-        if(sync && sync.isPaused() === false) startSync(true);
-      } else if(startup.needsStartupWizzard() === false) {
-        logger.debug('Trying to verify user credentials', {category: 'main'});
-
-        // Pass rejected promise, as it should silently fail
-        auth.login(() => Promise.reject()).then(() => {
-          initializeSync();
-
-          clientConfig.updateTraySecret();
-          tray.toggleState('loggedout', false);
-        }).catch((error) => {
-          if(!handleAuthError('online-state-changed-event', error)) {
-            logger.warning('User is not authenticated', {category: 'main', error});
-            tray.emit('unlink-account-result', true);
-            tray.toggleState('loggedout', true);
-          }
-        });
-      }
-    }
-  });
-}
+  tryToReconnect();
+});
 
 /** Settings **/
 ipcMain.on('settings-autoReport-changed', function(event, state) {
   feedback.toggleAutoReport(state);
 });
-
 
 /** Auto update **/
 ipcMain.on('install-update', function() {

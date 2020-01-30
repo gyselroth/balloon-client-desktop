@@ -87,6 +87,11 @@ module.exports = function(env, tray) {
       return logger.info('not starting sync because no network available', {category: 'sync'});
     }
 
+    //return if disconnected
+    if(appState.get('disconnected') === true) {
+      return logger.info('not starting sync because client is disconnected', {category: 'sync'});
+    }
+
     //return if sync has been paused
     if(syncPaused) {
       return logger.info('not starting sync because sync has been paused', {category: 'sync'});
@@ -117,6 +122,11 @@ module.exports = function(env, tray) {
     //return if no network available
     if(appState.get('onLineState') === false) {
       return logger.info('not starting full sync because no network available', {category: 'sync'});
+    }
+
+    //return if disconnected
+    if(appState.get('disconnected') === true) {
+      return logger.info('not starting full sync because client is disconnected', {category: 'sync'});
     }
 
     //return if sync has been paused
