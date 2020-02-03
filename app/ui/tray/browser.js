@@ -276,7 +276,7 @@ ipcRenderer.on('disconnected', function() {
 
   reconnectTimeout = setTimeout(function() {
     ipcRenderer.send('try-to-reconnect');
-  }, 15000);
+  }, 5000);
 });
 
 }());

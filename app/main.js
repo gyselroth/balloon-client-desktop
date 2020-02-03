@@ -86,6 +86,7 @@ function startApp() {
     logger.info('login secret recieved', {category: 'main'});
 
     ipcMain.once('tray-online-state-changed', function(event, state) {
+      tray.toggleState('offline', !state);
       bindOnlineStateChanged();
       if(clientConfig.hadConfig()) {
         tray.create();
@@ -214,13 +215,12 @@ function handleUnauthorizedRequest() {
 }
 
 function handleAuthError(subcategory, error) {
+  if(!error || !error.code) return false;
+
   let authErrorHandled = true;
   switch(error.code) {
     case 'E_BLN_AUTH_NETWORK':
     case 'E_BLN_OIDC_NETWORK':
-      logger.info('network seems to be offline could not authenticate user', {category: 'main', subcategory});
-      tray.emit('network-offline');
-    break;
     case 'E_BLN_AUTH_SERVER':
       logger.info('Auth server responded with a invalid status', {category: 'main', subcategory});
       setDisconnectedState(true);
@@ -238,7 +238,9 @@ function bindOnlineStateChanged() {
     logger.info('online state changed', {
       category: 'main',
       state: state,
-      syncPaused: (sync && sync.isPaused())
+      syncPaused: (sync && sync.isPaused()),
+      needsStartup: startup.needsStartupWizzard(),
+      loggedIn: clientConfig.get('loggedin')
     });
 
     appState.set('onLineState', state);
@@ -262,11 +264,10 @@ function tryToReconnect() {
 
   // Pass rejected promise, as it should silently fail
   auth.login(() => Promise.reject()).then(() => {
-    initializeSync();
-
     clientConfig.updateTraySecret();
     tray.toggleState('loggedout', false);
     setDisconnectedState(false);
+    initializeSync();
   }).catch((error) => {
     if(!handleAuthError('online-state-changed-event', error)) {
       logger.warning('User is not authenticated', {category: 'main', error});
@@ -472,6 +473,7 @@ ipcMain.on('link-account', (event, id) => {
     clientConfig.updateTraySecret();
 
     tray.toggleState('loggedout', false);
+    setDisconnectedState(false);
     initializeSync();
     event.sender.send('link-account-result', true);
   }).catch((error) => {

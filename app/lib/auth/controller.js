@@ -186,7 +186,7 @@ module.exports = function(env, clientConfig) {
             }
           break;
           case 401:
-            reject(new Error(body.error_description));
+            reject(new Error((body && body.error_description) || 'Got 401 Unauthorized'));
           break;
           default:
             reject(new AuthError(`Unexpected status ${response.statusCode}`, 'E_BLN_AUTH_SERVER'));
@@ -248,6 +248,8 @@ module.exports = function(env, clientConfig) {
 
   function refreshAccessToken() {
     var authMethod = clientConfig.get('authMethod');
+
+    logger.info('Refreshing access token', {category: 'auth', authMethod});
 
     switch(authMethod) {
       case 'oidc':
@@ -344,7 +346,7 @@ module.exports = function(env, clientConfig) {
               break;
               case 400:
                 logger.info('refresh token failed', {category: 'auth', body});
-                reject(new Error(body.error_description));
+                reject(new Error((body && body.error_description) || 'Got status code 400'));
               break;
               default:
                 logger.info('refresh token failed with unexpected status', {category: 'auth', status: response.statusCode});
@@ -486,7 +488,10 @@ module.exports = function(env, clientConfig) {
           clientConfig.set('loggedin', false);
           reject(err);
         });
-      }).catch(reject);
+      }).catch(err => {
+        clientConfig.set('loggedin', false);
+        reject(err);
+      });
     });
   }
 
@@ -527,10 +532,6 @@ module.exports = function(env, clientConfig) {
   }
 
   function _checkForNetworkAndServerErrors(error) {
-    if(error.code && _isNetworkError(error)) {
-      error = new AuthError(error.message, 'E_BLN_AUTH_NETWORK');
-    }
-
     if(error.code && _isNetworkError(error)) {
       return new AuthError(error.message, 'E_BLN_AUTH_NETWORK');
     }
