@@ -21,7 +21,6 @@ module.exports = function(env, clientConfig) {
 
     return new Promise(function(resolve, reject) {
       var _finalizeLogout = function() {
-        clientConfig.set('authMethod', undefined);
         clientConfig.updateTraySecret();
         instance.unlink(clientConfig);
 
