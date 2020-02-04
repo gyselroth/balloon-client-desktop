@@ -89,6 +89,9 @@
   "startup.auth.message": "Authenticate your account with balloon:",
   "startup.selective.edit": "Change selection",
   "startup.selective.message": "Note: shares are not synced by default and need to be activated in the selective synchronisation",
+  "startup.clientInitiatedLogoutWarning.title": "Account unlinked",
+  "startup.clientInitiatedLogoutWarning.warning": "Your account has been unlinked, please log in again. No data has been lost.",
+
   "status.nav.activities": "Activities",
   "status.nav.error": "Errors",
   "status.nav.notes": "Notes",

@@ -117,7 +117,7 @@ function startApp() {
         switch(error.code) {
           case 'E_BLN_CONFIG_CREDENTIALS':
             logger.warning('startup checkconfig no credentials, unlinking account', {category: 'main', error: error});
-            unlinkAccount();
+            unlinkAccount(true);
           break;
           default:
             if(!handleAuthError('start-app', error)) {
@@ -167,7 +167,7 @@ function initializeSync() {
   if(sync.isPaused() === false) startSync(true);
 }
 
-function unlinkAccount() {
+function unlinkAccount(clientInitiated) {
   setDisconnectedState(false);
 
   (function() {
@@ -175,7 +175,7 @@ function unlinkAccount() {
 
     return sync.pause(true);
   }()).then(function() {
-    return auth.logout();
+    return auth.logout(clientInitiated);
   }).then(() => {
     logger.info('logout successfull', {
       category: 'main',
@@ -197,7 +197,7 @@ function handleUnauthorizedRequest() {
   return new Promise(function(resolve, reject) {
     if(clientConfig.get('authMethod') === 'basic') {
       logger.info('got 401, unlink account', {category: 'main', authMethod: 'basic'});
-      unlinkAccount();
+      unlinkAccount(true);
       return reject();
     } else {
       logger.debug('got 401, refresh accessToken', {category: 'main'});
@@ -205,7 +205,7 @@ function handleUnauthorizedRequest() {
       auth.refreshAccessToken().then(resolve).catch(err => {
         if(!handleAuthError('hanlde-unauthorized-request', err)) {
           logger.error('could not refresh accessToken, unlink instance', {category: 'main', err});
-          unlinkAccount();
+          unlinkAccount(true);
         }
 
         reject();
@@ -458,7 +458,7 @@ ipcMain.on('balloonDirSelector-open', function(event) {
 
 ipcMain.on('unlink-account', (event) => {
   logger.info('logout requested', {category: 'main'});
-  unlinkAccount();
+  unlinkAccount(false);
 });
 
 ipcMain.on('link-account', (event, id) => {
@@ -514,7 +514,7 @@ ipcMain.on('selective-error', (event, error, url, line, message) => {
     case 'E_BLN_API_REQUEST_MFA_REQUIRED':
       selective.close();
       logger.info('got 403 MFA required from selective, unlink account', {category: 'main'});
-      unlinkAccount();
+      unlinkAccount(true);
     break;
     default:
       logger.error('Uncaught selective error.', {
@@ -552,7 +552,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
       isHandlingMfaRequired = true;
 
       logger.info('got 403 MFA required from selective, unlink account', {category: 'main'});
-      unlinkAccount();
+      unlinkAccount(true);
       isHandlingMfaRequired = false;
     break;
     case 'E_BLN_CONFIG_CREDENTIALS':
@@ -562,7 +562,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
       });
 
       endSync();
-      unlinkAccount();
+      unlinkAccount(true);
     break;
     case 'E_BLN_CONFIG_BALLOONDIR':
     case 'E_BLN_CONFIG_CONFIGDIR':

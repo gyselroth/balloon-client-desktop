@@ -14,6 +14,16 @@
     <div id="startup-logo"></div>
 
     <div id="startup-view">
+        <div id="startup-view-clientInitiatedLogoutWarning" class="view">
+            <h1>{{i18n 'startup.clientInitiatedLogoutWarning.title'}}</h1>
+            <div class="view-content">
+                <div>
+                    <p>{{i18n 'startup.clientInitiatedLogoutWarning.warning'}}</p>
+                </div>
+                <button id="startup-clientInitiatedLogoutWarning-continue">{{i18n 'button.continue'}}</button>
+            </div>
+        </div>
+
         <div id="startup-view-server" class="view">
             <h1>{{i18n 'startup.server.title'}}</h1>
             <div class="view-content">

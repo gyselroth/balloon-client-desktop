@@ -11,17 +11,20 @@ const fsUtility = require('../fs-utility.js');
 const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 const globalConfig = require('../global-config.js');
 const request = require('request');
+const appState = require('../state.js');
 const AuthError = require('./auth-error.js');
+
 
 module.exports = function(env, clientConfig) {
   var oidc = OidcCtrl(env, clientConfig);
 
-  function logout() {
+  function logout(clientInitiated) {
     logger.info('logout initialized', {category: 'auth', authMethod: clientConfig.get('authMethod')});
 
     return new Promise(function(resolve, reject) {
       var _finalizeLogout = function() {
         clientConfig.updateTraySecret();
+        appState.set('clientInitiatedLogout', clientInitiated);
         instance.unlink(clientConfig);
 
         resolve();

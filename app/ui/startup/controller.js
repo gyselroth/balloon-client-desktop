@@ -118,6 +118,41 @@ module.exports = function(env, clientConfig) {
     );
   }
 
+  function askServer() {
+    return new Promise((resolve, reject) => {
+      ipcMain.removeAllListeners('startup-server-continue');
+      ipcMain.on('startup-server-continue', function(event, blnUrl) {
+        //TODO pixtron - this should not be set here. This should only be changed by the event listeners.
+        appState.set('onLineState', true);
+
+        if(!env.blnUrl) {
+          logger.info('change url to server', {
+            category: 'startup',
+            url: blnUrl
+          });
+
+          clientConfig.setBlnUrl(blnUrl);
+        }
+
+        resolve();
+      });
+
+      startupWindow.webContents.executeJavaScript(`switchView('server')`);
+    });
+  }
+
+  function clientInitiatedLogoutWarning() {
+    return new Promise((resolve, reject) => {
+      ipcMain.removeAllListeners('startup-clientInitiatedLogoutWarning-continue');
+      ipcMain.on('startup-clientInitiatedLogoutWarning-continue', function(event, blnUrl) {
+        appState.set('clientInitiatedLogout', false);
+        resolve();
+      });
+
+      startupWindow.webContents.executeJavaScript(`switchView('clientInitiatedLogoutWarning')`);
+    });
+  }
+
   function askCredentials() {
     return new Promise(function(resolve, reject) {
       logger.debug('ask user for authentication credentials', {category: 'startup'});
@@ -263,15 +298,12 @@ module.exports = function(env, clientConfig) {
     logger.info('start first time wizard', {category: 'startup'});
 
     return new Promise(function(resolve, reject) {
-
       if(clientConfig.isActiveInstance()) {
         logger.info('first time wizard unlinked active instance', {category: 'startup'});
-        auth.logout();
+        auth.logout(true);
       }
 
       if(!startupWindow) startupWindow = createStartupWindow();
-
-      startupWindow.webContents.executeJavaScript(`switchView('server')`);
       startupWindow.show();
       startupWindow.focus();
 
@@ -281,20 +313,15 @@ module.exports = function(env, clientConfig) {
 
       startupWindow.on('closed', windowClosedByUserHandler);
 
-      ipcMain.removeAllListeners('startup-server-continue');
-      ipcMain.on('startup-server-continue', function(event, blnUrl) {
-        //TODO pixtron - this should not be set here. This should only be changed by the event listeners.
-        appState.set('onLineState', true);
+      const screens = [];
 
-        if(!env.blnUrl) {
-          logger.info('change url to server', {
-            category: 'startup',
-            url: blnUrl
-          });
+      if(appState.get('clientInitiatedLogout') === true) {
+        screens.push(clientInitiatedLogoutWarning);
+      }
 
-          clientConfig.setBlnUrl(blnUrl);
-        }
+      screens.push(askServer);
 
+      promiseSerial(screens).then(() => {
         askCredentials().then(resolve).catch((error) => {
           logger.error('failed ask for credentials', {
             category: 'startup',
@@ -305,7 +332,7 @@ module.exports = function(env, clientConfig) {
         });
 
         startupWindow.removeListener('closed', windowClosedByUserHandler);
-      });
+      }).catch(reject);
     });
   }
 
@@ -355,6 +382,13 @@ module.exports = function(env, clientConfig) {
     }
 
     return startupWindow;
+  }
+
+  function promiseSerial(funcs) {
+    return funcs.reduce((promise, func) =>
+      promise.then(result =>
+        func().then(Array.prototype.concat.bind(result))),
+        Promise.resolve([]))
   }
 
   return {
