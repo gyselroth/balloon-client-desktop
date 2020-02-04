@@ -245,7 +245,7 @@ module.exports = function(env, clientConfig) {
             });
         });
       } else {
-        logger.error('can not ask for authentication credentials, there is an active instance ongoing', {
+        logger.error('can not ask for authentication credentials, the client is offline', {
             category: 'startup'
         });
         resolve({welcomeWizardPromise: welcomeWizard()});
