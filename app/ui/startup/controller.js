@@ -232,7 +232,7 @@ module.exports = function(env, clientConfig) {
                 resolve({welcomeWizardPromise: welcomeWizard()});
               } else {
                 startupWindow.close();
-                resolve({welcomeWizardPromise: welcomeWizard()});
+                resolve({welcomeWizardPromise: Promise.resolve()});
               }
             })
             .catch((error) => {
