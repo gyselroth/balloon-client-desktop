@@ -145,10 +145,11 @@ module.exports = function(env, clientConfig) {
             username: username
           });
 
-          startupWindow.removeListener('closed', windowClosedByUserHandler);
 
           auth.credentialsAuth(username, password, code)
             .then(() => {
+              startupWindow.removeListener('closed', windowClosedByUserHandler);
+
               if(!clientConfig.hadConfig()) {
                 resolve({welcomeWizardPromise: welcomeWizard()});
               } else {
@@ -188,9 +189,10 @@ module.exports = function(env, clientConfig) {
             idp: idpConfigToLog
           });
 
-          startupWindow.removeListener('closed', windowClosedByUserHandler);
           auth.oidcAuth(idpConfig)
             .then(() => {
+              startupWindow.removeListener('closed', windowClosedByUserHandler);
+
               if(!clientConfig.hadConfig()) {
                 resolve({welcomeWizardPromise: welcomeWizard()});
               } else {
