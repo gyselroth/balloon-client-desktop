@@ -8,6 +8,13 @@
 * Remove @gyselroth/windows-fsstat dependency #132
 * Show selective sync on separate page in startup wizard #172
 * Remove windows registry entries on uninstall #32
+* Do not unlink instance on network or server errors #168, #188
+* Unlink active instance when a user logs in with a different username #231
+* If refreshAccessToken fails, don't automaticaly issue auth request #231
+* Always load correct instance when login is vreified #232, #231
+* Only set client config after correct instance has been loaded #231
+* Do not unbind closed event before successful login #211
+* Add hint when account has been unlinked by client #171
 
 
 ## 1.2.1
