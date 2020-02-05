@@ -256,6 +256,7 @@ function authView() {
       case 'E_BLN_AUTH_NETWORK':
       case 'E_BLN_AUTH_SERVER':
       case 'E_BLN_OIDC_NETWORK':
+      case 'E_OIDC_AUTH_SERVER':
         $('#startup-auth-error-network-server').show();
       break;
       default:

@@ -222,6 +222,7 @@ function handleAuthError(subcategory, error) {
     case 'E_BLN_AUTH_NETWORK':
     case 'E_BLN_OIDC_NETWORK':
     case 'E_BLN_AUTH_SERVER':
+    case 'E_OIDC_AUTH_SERVER':
       logger.info('Auth server responded with a invalid status', {category: 'main', subcategory});
       setDisconnectedState(true);
     break;

@@ -434,7 +434,7 @@ module.exports = function(env, clientConfig) {
           case 'oidc':
           case 'token':
             refreshAccessToken().then(resolve).catch((error) => {
-              if(['E_BLN_AUTH_NETWORK', 'E_BLN_OIDC_NETWORK', 'E_BLN_AUTH_SERVER'].includes(error.code)) {
+              if(['E_BLN_AUTH_NETWORK', 'E_BLN_OIDC_NETWORK', 'E_BLN_AUTH_SERVER', 'E_OIDC_AUTH_SERVER'].includes(error.code)) {
                 //network or temporary server error, should retry later
                 logger.info('login failed with temporary error', {category: 'auth', authMethod, error});
                 reject(error);

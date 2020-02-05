@@ -29,7 +29,7 @@ module.exports = function (env, clientConfig) {
       _signin(idp)
         .then(result => resolve(result))
         .catch(err => {
-          reject(_checkForNetworkErrors(err));
+          reject(_checkForNetworkAndServerErrors(err));
         })
     });
   }
@@ -177,7 +177,7 @@ module.exports = function (env, clientConfig) {
       _refreshAccessToken(idp)
         .then(resolve)
         .catch(err => {
-          reject(_checkForNetworkErrors(err));
+          reject(_checkForNetworkAndServerErrors(err));
         })
     });
   }
@@ -268,15 +268,25 @@ module.exports = function (env, clientConfig) {
     return Promise.all(promises)
   }
 
-  function _checkForNetworkErrors(err) {
-    if(err.message &&
+  function _isNetworkError(err) {
+    return (err.message &&
       (
         /ENOTFOUND|ETIMEDOUT|ENETUNREACH|EHOSTUNREACH|ECONNREFUSED|EHOSTDOWN|ESOCKETTIMEDOUT|ECONNRESET/.test(err.message)
         ||
         err.message === 'Error: socket hang up'
       )
-    ) {
-      err = new OidcError(err.message, 'E_BLN_OIDC_NETWORK');
+    );
+  }
+
+  function _checkForNetworkAndServerErrors(err) {
+    if(_isNetworkError(err)) {
+      return new OidcError(err.message, 'E_BLN_OIDC_NETWORK');
+    }
+
+    //ugly hack for: https://github.com/openid/AppAuth-JS/issues/120
+    //check should be for http status 400
+    if(err.message && err.message !== 'Bad Request') {
+      return new OidcError(err.message, 'E_OIDC_AUTH_SERVER');
     }
 
     return err;
