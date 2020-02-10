@@ -136,6 +136,14 @@ module.exports = function() {
     }
   }
 
+  function has(key) {
+    if(activeInstance) {
+      return settings.has(key);
+    } else {
+      return !!memorySettings[key];
+    }
+  }
+
   return {
     isActiveInstance: function() {
       return instance.getActiveInstance();
@@ -143,6 +151,7 @@ module.exports = function() {
     hadConfig: function() {
       return configExists;
     },
+    has,
     getAll: function(include_secret) {
       if(activeInstance) {
         var conf = settings.getAll();
