@@ -11,6 +11,7 @@ const archiver = require('archiver');
 const request = require('request');
 const logger = require('../../lib/logger.js');
 const globalConfig = require('../../lib/global-config.js');
+const instance = require('../../lib/instance.js');
 const url = require('url');
 
 module.exports = function(env, clientConfig) {
@@ -40,21 +41,43 @@ module.exports = function(env, clientConfig) {
     }
   }
 
-  function sendRequest(feedbackUrl, text, archive) {
-    return new Promise((resolve, reject) => {
-      if(!feedbackUrl) {
-        var blnUrl = clientConfig.has('blnUrl') ? clientConfig.get('blnUrl') : env.blnUrl;
+  function getFeedbackUrl() {
+    var endpoint = '/api/v2/feedbacks'
+    var blnUrl = clientConfig.has('blnUrl') ? clientConfig.get('blnUrl') : env.blnUrl;
 
-        if(!blnUrl) {
-          logger.error('blnUrl is neither set in clientConfig nor in env, can\'t send feedback', {
-            category: 'feedback',
-          });
+    if(blnUrl) return `${blnUrl}${endpoint}`;
 
-          return reject();
-        }
+    logger.debug('blnUrl is not set, trying to get url from lastActiveInstance', {
+      category: 'feedback',
+      lastActiveInstance: instance.getLastActiveInstance()
+    });
 
-        feedbackUrl = `${blnUrl}/api/v2/feedbacks`;
+    try {
+      var last = instance.getInstanceByName(instance.getLastActiveInstance());
+
+      if(last && last.server) {
+        return `${last.server}${endpoint}`;
       }
+    } catch(err) {
+      logger.error('could not get lastActiveinstance', {category: 'feedback', err});
+    }
+
+    return
+  }
+
+  function sendRequest(text, archive) {
+    return new Promise((resolve, reject) => {
+      var feedbackUrl = getFeedbackUrl();
+
+      if(!feedbackUrl) {
+        logger.error('blnUrl is not set, can\'t send feedback', {
+          category: 'feedback',
+        });
+
+        return reject();
+      }
+
+      logger.info('Sending feedback', {category: 'feedback', feedbackUrl});
 
       var formData = {feedback: text};
 
@@ -125,8 +148,7 @@ module.exports = function(env, clientConfig) {
 
     archive.finalize();
 
-    // TODO pixtron - iss-217 - document configuration change env.autoReportPutUrl -> env.autoReportUrl
-    sendRequest(env.autoReportUrl, text, archive)
+    sendRequest(text, archive)
   }
 
 
@@ -179,8 +201,7 @@ module.exports = function(env, clientConfig) {
         });
       }
 
-      // TODO pixtron - iss-217 - document configuration change env.feedbackPutUrl -> env.feedbackUrl
-      sendRequest(env.feedbackUrl, text, archive).then(resolve).catch(reject)
+      sendRequest(text, archive).then(resolve).catch(reject)
     });
   }
 
