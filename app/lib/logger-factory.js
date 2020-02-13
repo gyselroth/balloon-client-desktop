@@ -85,6 +85,7 @@ module.exports = function(config, logfile) {
       if(logfile === 'sync.log') {
         logger.add(new TrayTransport({
           level: 'error',
+          config
         }));
       }
     }
