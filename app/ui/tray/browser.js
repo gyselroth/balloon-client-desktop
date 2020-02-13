@@ -9,6 +9,7 @@ const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 
 const i18n = require('../../lib/i18n.js');
 const instance = require('../../lib/instance.js');
+const menuFactory = require('./menu-factory.js');
 const clientConfig = require('../../lib/config.js');
 const globalConfig = require('../../lib/global-config.js');
 const appState = require('../../lib/state.js');
@@ -60,70 +61,7 @@ $(window).blur(function(){
 });
 
 function buildMenu() {
-  var label;
-  const {Menu, MenuItem} = remote
-  const menu = new Menu()
-
-  if(showLogin === false && clientConfig.get('username')) {
-    menu.append(new MenuItem({label: clientConfig.get('username'), enabled: false}))
-  }
-
-  if(showLogin === true) {
-    label = i18n.__('tray.menu.link');
-    menu.append(new MenuItem({label: label, click: function(){
-      ipcRenderer.send('link-account');
-      ipcRenderer.send('tray-hide');
-    }}))
-  } else {
-    label = i18n.__('tray.menu.unlink');
-    menu.append(new MenuItem({label: label, click: function(){
-      ipcRenderer.send('unlink-account');
-      ipcRenderer.send('tray-hide');
-    }}))
-  }
-
-  menu.append(new MenuItem({type: 'separator', enabled: false}))
-
-  if(clientConfig.get('loggedin') === true) {
-    if(syncStatus === true) {
-      label = i18n.__('tray.menu.pauseSync');
-    } else {
-      label = i18n.__('tray.menu.continueSync');
-    }
-    menu.append(new MenuItem({label: label, click:function(){
-      ipcRenderer.send('sync-toggle-pause');
-      ipcRenderer.send('tray-hide');
-    }}))
-
-    menu.append(new MenuItem({type: 'separator', enabled: false}))
-  }
-
-  label = i18n.__('tray.menu.status');
-  menu.append(new MenuItem({label: label, click: function(){
-    loadMenu('status');
-  }}))
-
-  label = i18n.__('tray.menu.settings');
-  menu.append(new MenuItem({label: label, click: function(){
-    loadMenu('settings');
-  }}))
-
-  label = i18n.__('tray.menu.feedback');
-  menu.append(new MenuItem({label: label, click: function(){
-    loadMenu('feedback');
-  }}))
-
-  label = i18n.__('tray.menu.about');
-  menu.append(new MenuItem({label: label, click: function(){
-    loadMenu('about');
-  }}))
-
-  menu.append(new MenuItem({type: 'separator', enabled: false}))
-
-  label = i18n.__('tray.menu.close');
-  menu.append(new MenuItem({label: label, click: function(){
-    ipcRenderer.send('quit');
-  }}))
+  const menu = menuFactory(loadMenu, clientConfig, showLogin, syncStatus);
 
   menu.popup(remote.getCurrentWindow());
 }
@@ -132,7 +70,9 @@ $('document').ready(function() {
   $('body').addClass(process.platform);
   compileTemplate();
 
-  ipcRenderer.on('update-window', updateWindow);
+  ipcRenderer.on('update-window', (event, menu) => {
+    updateWindow(menu)
+  });
 
   $('#item-installupdate').bind('click', function() {
     ipcRenderer.send('tray-hide');
@@ -173,6 +113,10 @@ ipcRenderer.on('sync-paused' , function() {
   syncStatus = false;
 });
 
+ipcRenderer.on('tray-load-menu' , function(event, menu) {
+  loadMenu(menu);
+});
+
 ipcRenderer.send('tray-window-loaded');
 ipcRenderer.on('config', function(event, secret, secretType) {
   logger.info('got config', {category: 'tray-browser', secretType});
@@ -209,13 +153,13 @@ function toggleInstallUpdate() {
   }
 }
 
-function updateWindow() {
+function updateWindow(menu='status') {
   logger.info('updateWindow', {category: 'tray-browser'});
 
   //TODO pixtron - do we still need this?
   $('#tray-main').html('');
   toggleInstallUpdate();
-  loadMenu('status');
+  loadMenu(menu);
 }
 
 function getOnLineState(callback) {

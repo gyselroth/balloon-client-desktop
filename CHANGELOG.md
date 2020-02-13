@@ -13,6 +13,7 @@
 * Remove @gyselroth/windows-fsstat dependency #132
 * Show selective sync on separate page in startup wizard #172
 * Remove windows registry entries on uninstall #32
+* New tray behaviour for linux #207
 
 
 ## 1.2.1

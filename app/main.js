@@ -428,7 +428,7 @@ ipcMain.on('link-account', (event, id) => {
 
     tray.toggleState('loggedout', false);
     startSync(true);
-    event.sender.send('link-account-result', true);
+    tray.emit('link-account-result', true);
   }).catch((err) => {
     if(err.code !== 'E_BLN_OAUTH_WINDOW_OPEN') {
       logger.error('login not successfull', {
@@ -441,7 +441,7 @@ ipcMain.on('link-account', (event, id) => {
       });
     }
 
-    event.sender.send('link-account-result', false);
+    tray.emit('link-account-result', false);
   });
 });
 
