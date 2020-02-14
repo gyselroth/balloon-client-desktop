@@ -76,6 +76,7 @@ module.exports = function() {
   ipcRenderer.on('transfer-task', function(event, task) {
     if(taskHistory[task.id]) {
       taskHistory[task.id].subtype = task.subtype;
+      taskHistory[task.id].info = task.info;
     } else {
       taskHistory[task.id] = task;
       taskHistory[task.id].percent = 0;
@@ -177,11 +178,7 @@ module.exports = function() {
           dom += '<div class="task-finish">'+i18n.__('status.activities.download', [ta.format(task.datetime)])+'</div>';
         }
       } else if(task.subtype == 'error' || task.subtype == 'aborted') {
-        if(task.type == 'upload') {
-          dom += '<div class="task-finish">'+i18n.__('status.activities.upload_failed', [ta.format(task.datetime)])+'</div>';
-        } else if(task.type == 'download') {
-          dom += '<div class="task-finish">'+i18n.__('status.activities.download_failed', [ta.format(task.datetime)])+'</div>';
-        }
+        dom += '<div class="task-finish">'+getTaskErrorMessage(task)+'</div>';
       } else if(percent == 0) {
           dom += '<div class="task-queued">'+i18n.__('status.activities.waiting')+'</div>';
       } else {
@@ -191,6 +188,31 @@ module.exports = function() {
     dom += '</li>';
 
     return $(dom);
+  }
+
+  function getTaskErrorMessage(task) {
+    const type = task.type;
+    const code = task.info ? task.info.code : undefined;
+    const formatedTime =  ta.format(task.datetime);
+    let msg;
+
+    if(code) {
+      const key = `status.activities.${type}_failed.errors.code.${code.toUpperCase()}`
+
+      msg = i18n.__(key, [formatedTime]);
+
+      if(msg === key) msg = undefined;
+    }
+
+    if(!msg) {
+       msg = task.info && task.info.message ? `${formatedTime}: ${task.info.message}` : undefined;
+    }
+
+    if(!msg) {
+      msg = i18n.__(`status.activities.${type}_failed`, [formatedTime])
+    }
+
+    return msg;
   }
 
   function renderError(error) {

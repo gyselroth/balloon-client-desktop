@@ -94,12 +94,18 @@
   "status.nav.quota": "Speicher",
 
   "status.activities.waiting": "Ausstehend...",
-  "status.activities.upload": "%s (Upload)",
-  "status.activities.download": "%s (Download)",
-  "status.activities.upload_failed": "%s (Upload fehlgeschlagen)",
-  "status.activities.download_failed": "%s (Download fehlgeschagen)",
+  "status.activities.upload": "%s: Hochgeladen",
+  "status.activities.download": "%s: Heruntergeladen",
+  "status.activities.upload_failed": "%s: Upload fehlgeschlagen",
+  "status.activities.download_failed": "%s: Download fehlgeschagen",
   "status.activities.empty": "Keine Aktivitäten vorhanden.",
   "status.errors.empty": "Gute Arbeit, keine Fehler vorhanden.",
+
+  "status.activities.upload_failed.errors.code.E_BLN_API_REQUEST_QUOTA_FULL": "%s: Upload fehlgeschlagen, kein freier Speicherplatz",
+  "status.activities.upload_failed.errors.code.E_BLN_API_UPLOAD_SRC_NOTEXISTS": "%s: Upload fehlgeschlagen, die Datei existiert nicht mehr",
+  "status.activities.upload_failed.errors.code.E_BLN_API_OUT_OF_RANGE": "%s: Upload fehlgeschlagen, die Datei ist zu gross",
+  "status.activities.upload_failed.errors.code.E_BLN_API_REQUEST_NETWORK": "%s: Upload fehlgeschlagen, der Server ist nicht erreichbar",
+  "status.activities.download_failed.errors.code.E_BLN_API_REQUEST_NETWORK": "%s: Download fehlgeschlagen, der Server ist nicht erreichbar",
 
   "status.quota.used": "Benutzt",
   "status.quota.left": "Frei",
