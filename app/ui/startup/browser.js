@@ -259,6 +259,11 @@ function authView() {
       case 'E_OIDC_AUTH_SERVER':
         $('#startup-auth-error-network-server').show();
       break;
+      case 'EPERM':
+        var pathMsg = i18n.__('error.auth.filesystem.path', [clientConfig.get('balloonDir')]);
+        $('#startup-auth-error-filesystem-path').html(pathMsg);
+        $('#startup-auth-error-filesystem').show();
+      break;
       default:
         $('#startup-auth-error-'+type).show();
       break;

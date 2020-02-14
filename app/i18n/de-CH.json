@@ -128,6 +128,8 @@
   "error.auth.credentials": "Authentifizierung fehlgeschlagen",
   "error.auth.mfaNotToken": "Der gewählte Account hat Multi Faktor Authentifizierung (MFA) aktiviert. MFA wird nur mit dem Login Flow \"token\" unterstüzt.",
   "error.auth.oidc": "Die Authentifizierung mit dem ausgewählten Identity Provider ist fehlgeschlagen.",
+  "error.auth.filesystem": "Das Balloon Verzeichniss konnte nicht erstellt werden. Bitte stelle sicher, das nicht bereits ein Verzeichnis besteht, und Balloon Schreibrechte hat.",
+  "error.auth.filesystem.path": "Pfad zum Balloon Verzeichnis: %s",
 
   "balloonDirSelector.title": "Speicherort für balloonDir wählen",
   "balloonDirSelector.error.title": "Fehler",

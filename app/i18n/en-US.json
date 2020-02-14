@@ -128,6 +128,8 @@
   "error.auth.credentials": "Authentication failed",
   "error.auth.mfaNotToken": "The choosen account multi factor authentication (MFA) activated. MFA is only supported with the login flow \"token\".",
   "error.auth.oidc": "There was an error authenticating your account with the choosen identity provider.",
+  "error.auth.filesystem": "The balloon directory could not be created. Please make sure, there is no existing directory and that balloon has write access.",
+  "error.auth.filesystem.path": "Path to the balloon directory: %s",
 
   "balloonDirSelector.title": "Choose location for the balloon folder",
   "balloonDirSelector.error.title": "Error",

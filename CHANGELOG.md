@@ -15,6 +15,7 @@
 * Only set client config after correct instance has been loaded #231
 * Do not unbind closed event before successful login #211
 * Add hint when account has been unlinked by client #171
+* Display a meaningful error message if login fails with EPERM #161
 
 
 ## 1.2.1
