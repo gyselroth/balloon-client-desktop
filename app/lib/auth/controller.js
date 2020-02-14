@@ -529,7 +529,8 @@ module.exports = function(env, clientConfig) {
       'ECONNREFUSED',
       'EHOSTDOWN',
       'ESOCKETTIMEDOUT',
-      'ECONNRESET'
+      'ECONNRESET',
+      'E_BLN_API_REQUEST_NETWORK'
     ].includes(error.code);
   }
 
