@@ -112,7 +112,7 @@ function verifyServer() {
   var $blnUrlField = $('#blnUrl');
   var $blnUrlInvalidMessage = $('#blnUrl-error-invalid');
   var $blnUrlNotreachableMessage = $('#blnUrl-error-notreachable');
-  var blnUrl = $blnUrlField.val();
+  var blnUrl = $blnUrlField.val().replace(/\/+$/, '').trim();
   $blnUrlInvalidMessage.hide();
   $blnUrlNotreachableMessage.hide();
 

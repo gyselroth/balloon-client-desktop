@@ -6,6 +6,7 @@
 * Logger should be able to serialize BigInt #229
 * Do not use format.json() in logger #228
 * Send feedback to new api endpoint #217
+* Trailing slash in server url leads to error #235
 
 ### Changes
 * Upgrade to electron v7 #132
