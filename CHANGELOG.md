@@ -2,6 +2,12 @@
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**:
 
+### Bugfixes
+* Logger should be able to serialize BigInt #229
+* Do not use format.json() in logger #228
+* Send feedback to new api endpoint #217
+* Trailing slash in server url leads to error #235
+
 ### Changes
 * Upgrade to electron v7 #132
 * Use requestSingleInstanceLock instead of makeSingleInstance #141
@@ -16,6 +22,8 @@
 * Do not unbind closed event before successful login #211
 * Add hint when account has been unlinked by client #171
 * Display a meaningful error message if login fails with EPERM #161
+* New tray behaviour for linux #207
+* Improve sync error messages displayed to users #216
 
 
 ## 1.2.1

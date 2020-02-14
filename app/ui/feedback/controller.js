@@ -2,6 +2,7 @@ const os = require('os');
 const fs = require('graceful-fs');
 const path = require('path');
 const extend = require('util')._extend;
+const PassThrough = require('stream').PassThrough;
 const si = require('systeminformation');
 
 const {app, ipcMain, BrowserWindow} = require('electron');
@@ -10,6 +11,7 @@ const archiver = require('archiver');
 const request = require('request');
 const logger = require('../../lib/logger.js');
 const globalConfig = require('../../lib/global-config.js');
+const instance = require('../../lib/instance.js');
 const url = require('url');
 
 module.exports = function(env, clientConfig) {
@@ -39,49 +41,99 @@ module.exports = function(env, clientConfig) {
     }
   }
 
+  function getFeedbackUrl() {
+    var endpoint = '/api/v2/feedbacks'
+    var blnUrl = clientConfig.has('blnUrl') ? clientConfig.get('blnUrl') : env.blnUrl;
+
+    if(blnUrl) return `${blnUrl}${endpoint}`;
+
+    logger.debug('blnUrl is not set, trying to get url from lastActiveInstance', {
+      category: 'feedback',
+      lastActiveInstance: instance.getLastActiveInstance()
+    });
+
+    try {
+      var last = instance.getInstanceByName(instance.getLastActiveInstance());
+
+      if(last && last.server) {
+        return `${last.server}${endpoint}`;
+      }
+    } catch(err) {
+      logger.error('could not get lastActiveinstance', {category: 'feedback', err});
+    }
+
+    return
+  }
+
+  function sendRequest(text, archive) {
+    return new Promise((resolve, reject) => {
+      var feedbackUrl = getFeedbackUrl();
+
+      if(!feedbackUrl) {
+        logger.error('blnUrl is not set, can\'t send feedback', {
+          category: 'feedback',
+        });
+
+        return reject();
+      }
+
+      logger.info('Sending feedback', {category: 'feedback', feedbackUrl});
+
+      var formData = {feedback: text};
+
+      if(archive) {
+        var report = new PassThrough();
+
+        formData.report = {
+          value:  report,
+          options: {
+            filename: [clientConfig.get('username'), Math.floor(new Date().getTime() / 1000)].join('_'),
+            contentType: 'application/zip',
+            // set length to NaN to avoid request setting content-length header: https://github.com/form-data/form-data/pull/397#issuecomment-471976669
+            knownLength: NaN
+          }
+        }
+
+        archive.pipe(report);
+      }
+
+      var reqOptions = {
+        url: feedbackUrl,
+        formData: formData,
+        headers: {
+          'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
+          'User-Agent': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname(), os.platform(), os.release()].join('|'),
+        }
+      }
+
+      var req = request.post(reqOptions);
+
+      req.on('error', function(err) {
+        logger.error('sending feedback failed', {category: 'feedback', error: err});
+        reject(err);
+      });
+
+      req.on('response', function(response) {
+        if(response.statusCode === 200) {
+          logger.info('got response ', {category: 'feedback', response});
+          resolve();
+        } else {
+          logger.error('got response ', {category: 'feedback', response});
+          reject();
+        }
+      });
+
+      req.on('aborted', function(err) {
+        logger.error('request has been aborted by the server', {category: 'feedback', error: err});
+        reject(err);
+      });
+    })
+  }
+
   function sendAutoReport() {
     logger.debug('sending auto report', {category: 'feedback'});
 
-    var reportName = [clientConfig.get('username'), Math.floor(new Date().getTime() / 1000)].join('_');
-
-    var url = env.autoReportPutUrl || 'https://support.gyselroth.net/balloon-auto-report';
-
-    var reqOptions = {
-      headers: {
-        'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
-        'User-Agent': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname(), os.platform(), os.release()].join('|'),
-      }
-    };
-
-    var req = request.put(url+'/' + reportName, reqOptions);
-
-    req.on('error', function(err) {
-      logger.error('sending auto report failed', {
-        category: 'feedback',
-        error: err
-      });
-    });
-
-    req.on('response', function(response) {
-      if(response.statusCode === 200) {
-        logger.info('auto report got response ', {
-          category: 'feedback',
-          response
-        });
-      } else {
-        logger.error('auto report got response ', {
-          category: 'feedback',
-          response
-        });
-      }
-    });
-
-    req.on('aborted', function(err) {
-      logger.error('auto report request has been aborted by the server', {
-        category: 'feedback',
-        error: err
-      });
-    });
+    var text = `Autoreport ${clientConfig.get('username')}`;
 
     var archive = archiver('zip', {zlib: { level: 9 }});
 
@@ -92,11 +144,11 @@ module.exports = function(env, clientConfig) {
       });
     });
 
-    archive.pipe(req);
-
     appendLogFilesToArchive(archive, false);
 
     archive.finalize();
+
+    sendRequest(text, archive)
   }
 
 
@@ -106,53 +158,6 @@ module.exports = function(env, clientConfig) {
     });
 
     return new Promise(function(resolve, reject) {
-      var reportName = [clientConfig.get('username'), Math.floor(new Date().getTime() / 1000)].join('_');
-
-      var url = env.feedbackPutUrl || 'https://support.gyselroth.net/balloon';
-      var reqOptions = {
-        headers: {
-          'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
-          'User-Agent': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname(), os.platform(), os.release()].join('|'),
-        }
-      };
-
-      var req = request.put(url+'/' + reportName+'?feedback='+encodeURIComponent(text), reqOptions);
-
-      req.on('error', function(err) {
-        logger.error('sending feedback failed', {
-          category: 'feedback',
-          error: err
-        });
-
-        reject(err);
-      });
-
-      req.on('response', function(response) {
-        if(response.statusCode === 200) {
-          logger.info('got response ', {
-            category: 'feedback',
-            response
-          });
-          resolve(reportName);
-        } else {
-          logger.error('got response ', {
-            category: 'feedback',
-            response
-          });
-
-          reject();
-        }
-      });
-
-      req.on('aborted', function(err) {
-        logger.error('request has been aborted by the server', {
-          category: 'feedback',
-          error: err
-        });
-
-        reject(err);
-      });
-
       if(file === true) {
         var archive = archiver('zip', {zlib: { level: 9 }});
 
@@ -164,8 +169,6 @@ module.exports = function(env, clientConfig) {
 
           reject(err);
         });
-
-        archive.pipe(req);
 
         async.parallel([
           async.reflect(async (cb) => {
@@ -197,6 +200,8 @@ module.exports = function(env, clientConfig) {
           archive.finalize();
         });
       }
+
+      sendRequest(text, archive).then(resolve).catch(reject)
     });
   }
 

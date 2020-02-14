@@ -88,7 +88,7 @@
   "startup.auth.mfaDescription": "Your account has been protected with multi factor authentication. Please enter the code from your google authenticator:",
   "startup.auth.message": "Authenticate your account with balloon:",
   "startup.selective.edit": "Change selection",
-  "startup.selective.message": "Note: shares are not synced by default and need to be activated in the selective synchronisation",
+  "startup.selective.message": "Shares are not synced by default and need to be activated separately in the selective synchronisation.",
   "startup.clientInitiatedLogoutWarning.title": "Account unlinked",
   "startup.clientInitiatedLogoutWarning.warning": "Your account has been unlinked, please log in again. No data has been lost.",
 
@@ -98,12 +98,18 @@
   "status.nav.quota": "Storage",
 
   "status.activities.waiting": "Waiting...",
-  "status.activities.upload": "%s (uploaded)",
-  "status.activities.download": "%s (downloaded)",
-  "status.activities.upload_failed": "%s (upload failed)",
-  "status.activities.download_failed": "%s (download failed)",
+  "status.activities.upload": "%s: uploaded",
+  "status.activities.download": "%s: downloaded",
+  "status.activities.upload_failed": "%s: upload failed",
+  "status.activities.download_failed": "%s: download failed",
   "status.activities.empty": "There is no activity yet.",
   "status.errors.empty": "Good job, there are no errors.",
+
+  "status.activities.upload_failed.errors.code.E_BLN_API_REQUEST_QUOTA_FULL": "%s: upload failed, no free space on the server",
+  "status.activities.upload_failed.errors.code.E_BLN_API_UPLOAD_SRC_NOTEXISTS": "%s: upload failed, the file does not exist anymore",
+  "status.activities.upload_failed.errors.code.E_BLN_API_OUT_OF_RANGE": "%s: upload failed, the file is too big",
+  "status.activities.upload_failed.errors.code.E_BLN_API_REQUEST_NETWORK": "%s: upload failed, the server is not reachable",
+  "status.activities.download_failed.errors.code.E_BLN_API_REQUEST_NETWORK": "%s: download failed, the server is not reachable",
 
   "status.quota.used": "Used",
   "status.quota.left": "Available",

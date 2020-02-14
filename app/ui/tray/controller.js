@@ -2,13 +2,14 @@ const path = require('path');
 const os = require('os');
 
 const electron = require('electron');
-const {app, BrowserWindow, ipcMain, nativeImage, Tray} = require('electron');
+const {app, BrowserWindow, ipcMain, Menu, nativeImage, Tray} = require('electron');
 const positioner = require('electron-traywindow-positioner');
 
 const url = require('url');
 const clientConfig = require('../../lib/config.js');
 
 const i18n = require('../../lib/i18n.js');
+const menuFactory = require('./menu-factory.js');
 
 const animationSpeed = 1000/24; //24 fps
 
@@ -16,6 +17,8 @@ const feedback = require('../feedback/controller.js');
 
 const logger = require('../../lib/logger.js');
 const contextMenuFactory = require('../../lib/context-menu-factory.js');
+
+const TRAY_CLICK_SHOW_WINDOW = process.platform !== 'linux';
 
 const stateIconNameMap = {
   default: 'default',
@@ -112,6 +115,9 @@ const currentStates = {
 
 const trayWindowHeight = 410;
 const trayWindowWidth = 500;
+
+let showLogin = true;
+let syncStatus = true;
 
 var tray;
 var animationTimeout = null;
@@ -226,9 +232,13 @@ module.exports = function(env, clientConfig) {
       tray = new Tray(icon);
       changeTrayIcon();
 
-      tray.on('click', function (event) {
-        toggle();
-      });
+      if (TRAY_CLICK_SHOW_WINDOW) {
+        tray.on('click', function (event) {
+          toggle();
+        });
+      }
+
+      updateTrayMenu();
 
       clientConfig.updateTraySecret();
     }
@@ -252,7 +262,7 @@ module.exports = function(env, clientConfig) {
     if(trayWindow) trayWindow.hide();
   }
 
-  function show() {
+  function show(menu='status') {
     logger.info('show tray window', {category: 'tray'});
 
     if(!trayWindow) trayWindow = createWindow();
@@ -260,7 +270,7 @@ module.exports = function(env, clientConfig) {
 
     //UPDATE ACCESS_TOKEN
 
-    trayWindow.webContents.send('update-window');
+    trayWindow.webContents.send('update-window', menu);
     positioner.position(trayWindow, tray.getBounds());
     trayWindow.setAlwaysOnTop(true);
     trayWindow.show();
@@ -303,8 +313,35 @@ module.exports = function(env, clientConfig) {
     return trayWindow;
   }
 
+  function loadMenu(menu) {
+    if(trayWindow.isVisible()) {
+      trayWindow.webContents.send('tray-load-menu', menu);
+    } else {
+      show(menu);
+    }
+  }
+
+  function updateTrayMenu() {
+    if (TRAY_CLICK_SHOW_WINDOW) return;
+
+    const menu = menuFactory(loadMenu, clientConfig, showLogin, syncStatus)
+
+    tray.setContextMenu(menu);
+  }
+
   function emit(key, message) {
     if(trayWindow) trayWindow.webContents.send(key, message);
+
+    switch(key) {
+      case 'unlink-account-result':
+        showLogin = message;
+        updateTrayMenu();
+      break;
+      case 'link-account-result':
+        showLogin = !message;
+        updateTrayMenu();
+      break;
+    }
   }
 
   ipcMain.on('tray-window-loaded', function(){
@@ -312,20 +349,28 @@ module.exports = function(env, clientConfig) {
   });
 
   function updateSecret() {
+    showLogin = (!clientConfig.get('loggedin') || !clientConfig.isActiveInstance())
     trayWindow.webContents.send('config', clientConfig.getSecret(), clientConfig.getSecretType());
+    updateTrayMenu()
   }
 
   function syncPaused() {
     trayWindow.webContents.send('sync-paused');
+    syncStatus = false;
+    updateTrayMenu();
   }
 
   function syncResumed() {
     trayWindow.webContents.send('sync-resumed');
+    syncStatus = true;
+    updateTrayMenu();
   }
 
   function syncStarted() {
     trayWindow.webContents.send('sync-started');
     toggleState('sync', true);
+    syncStatus = true;
+    updateTrayMenu();
   }
 
   function syncEnded() {

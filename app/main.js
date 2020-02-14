@@ -476,7 +476,7 @@ ipcMain.on('link-account', (event, id) => {
     tray.toggleState('loggedout', false);
     setDisconnectedState(false);
     initializeSync();
-    event.sender.send('link-account-result', true);
+    tray.emit('link-account-result', true);
   }).catch((error) => {
     switch(error.code) {
       case 'E_BLN_OAUTH_WINDOW_OPEN':
@@ -487,7 +487,7 @@ ipcMain.on('link-account', (event, id) => {
       default:
         if(!handleAuthError('link-account-event', error)) {
           logger.error('login not successfull', {category: 'main', error});
-          event.sender.send('link-account-result', false);
+          tray.emit('link-account-result', false);
         } else {
           dialog.showMessageBox(null, {
             type: 'warning',
