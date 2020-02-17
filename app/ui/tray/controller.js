@@ -151,7 +151,7 @@ function changeTrayIcon(frame = 1) {
   const icon = nativeImage.createFromPath(iconPath);
 
   if(iconConfig.template === true && process.platform === 'darwin') {
-    icon.setTemplateImage(true);
+    icon.isMacTemplateImage = true;
   }
 
   if(iconConfig.animate) {
