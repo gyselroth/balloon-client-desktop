@@ -17,6 +17,7 @@
 * New tray behaviour for linux #207
 * Improve sync error messages displayed to users #216
 
+
 ## 1.2.1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu Jan 09 10:44:43 CET 2020

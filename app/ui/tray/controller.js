@@ -320,7 +320,7 @@ module.exports = function(env, clientConfig) {
   }
 
   function updateTrayMenu() {
-    if (TRAY_CLICK_SHOW_WINDOW) return;
+    if (TRAY_CLICK_SHOW_WINDOW || !tray) return;
 
     const menu = menuFactory(loadMenu, clientConfig, showLogin, syncStatus)
 
