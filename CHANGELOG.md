@@ -24,6 +24,7 @@
 * Display a meaningful error message if login fails with EPERM #161
 * New tray behaviour for linux #207
 * Improve sync error messages displayed to users #216
+* Use Buffer.from() instead of deprecated new Buffer() #238
 
 
 ## 1.2.1

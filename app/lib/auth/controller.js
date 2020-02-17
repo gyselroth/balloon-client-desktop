@@ -144,7 +144,7 @@ module.exports = function(env, clientConfig) {
         headers: {
           'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
           'User-Agent': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname(), os.platform(), os.release()].join('|'),
-          'Authorization': 'Basic ' + new Buffer('balloon-client-desktop:').toString('base64')
+          'Authorization': 'Basic ' + Buffer.from('balloon-client-desktop:').toString('base64')
         },
         form: body,
         json: true,
@@ -308,7 +308,7 @@ module.exports = function(env, clientConfig) {
             headers: {
               'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
               'User-Agent': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname(), os.platform(), os.release()].join('|'),
-              'Authorization': 'Basic ' + new Buffer('balloon-client-desktop:').toString('base64')
+              'Authorization': 'Basic ' + Buffer.from('balloon-client-desktop:').toString('base64')
             },
             body: {
               refresh_token: secret,
