@@ -16,7 +16,7 @@
 * Remove windows registry entries on uninstall #32
 * New tray behaviour for linux #207
 * Improve sync error messages displayed to users #216
-
+* Replace call to deprecated function setTemplateImage #236
 
 ## 1.2.1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
