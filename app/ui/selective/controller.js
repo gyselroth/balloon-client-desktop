@@ -36,7 +36,7 @@ module.exports = function(env, clientConfig) {
 
     //TODO pixtron - is it possible to have a generic "request secret method?"
     ipcMain.on('selective-window-loaded',function(){
-      selectiveWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
+      selectiveWindow.webContents.send('secret', clientConfig.getSecret());
 
       if(applyActive === true) selectiveWindow.webContents.executeJavaScript(`isUpdateing()`);
     });

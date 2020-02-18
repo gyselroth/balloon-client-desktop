@@ -42,9 +42,9 @@ $('document').ready(function() {
 
   ipcRenderer.send('selective-window-loaded');
 
-  ipcRenderer.once('secret', function(event, type, secret) {
+  ipcRenderer.once('secret', function(event, secret) {
     var config = clientConfig.getAll(true);
-    config[type] = secret;
+    config.accessToken = secret;
     config.version = globalConfig.get('version');
 
     initialize(config);

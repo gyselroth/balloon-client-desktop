@@ -41,7 +41,7 @@ module.exports = function(env, clientConfig) {
 
         var promises = [];
 
-        promises.push(clientConfig.destroySecret(clientConfig.getSecretType()));
+        promises.push(clientConfig.destroySecret('accessToken'));
 
         if(excludeRefreshToken !== true) {
          promises.push(clientConfig.destroySecret('refreshToken'));
@@ -133,7 +133,7 @@ module.exports = function(env, clientConfig) {
 
   function retrieveLoginSecret() {
     return new Promise(function(resolve) {
-      clientConfig.retrieveSecret(clientConfig.getSecretType()).then((secret) => {
+      clientConfig.retrieveSecret('accessToken').then((secret) => {
         clientConfig.setSecret(secret)
         resolve();
       }).catch((error) => {

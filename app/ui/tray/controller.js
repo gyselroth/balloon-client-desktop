@@ -326,7 +326,9 @@ module.exports = function(env, clientConfig) {
 
     const menu = menuFactory(loadMenu, clientConfig, showLogin, syncStatus)
 
-    tray.setContextMenu(menu);
+    if(tray) {
+      tray.setContextMenu(menu);
+    }
   }
 
   function emit(key, message) {
@@ -350,7 +352,7 @@ module.exports = function(env, clientConfig) {
 
   function updateSecret() {
     showLogin = (!clientConfig.get('loggedin') || !clientConfig.isActiveInstance())
-    trayWindow.webContents.send('config', clientConfig.getSecret(), clientConfig.getSecretType());
+    trayWindow.webContents.send('config', clientConfig.getSecret());
     updateTrayMenu()
   }
 

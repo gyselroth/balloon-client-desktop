@@ -173,7 +173,7 @@ module.exports = function(env, tray) {
         });
 
         ipcMain.once('sync-window-loaded', function(){
-          fullSyncWindow.webContents.send('secret', clientConfig.getSecretType(), clientConfig.getSecret());
+          fullSyncWindow.webContents.send('secret', clientConfig.getSecret());
         });
 
         var syncCompleteListener = function(event, err) {
@@ -354,7 +354,7 @@ module.exports = function(env, tray) {
   function updateSelectiveSync(difference, callback) {
     pause(true).then(result => {
       let config = clientConfig.getAll();
-      config[clientConfig.getSecretType()] = clientConfig.getSecret();
+      config.accessToken = clientConfig.getSecret();
       config.version = globalConfig.get('version');
 
       const sync = fullSyncFactory(config, logger.getLogger());
@@ -375,7 +375,7 @@ module.exports = function(env, tray) {
   function ignoreNewShares(callback) {
     pause(true).then(result => {
       let config = clientConfig.getAll();
-      config[clientConfig.getSecretType()] = clientConfig.getSecret();
+      config.accessToken = clientConfig.getSecret();
       config.version = globalConfig.get('version');
 
       const sync = fullSyncFactory(config, logger.getLogger());
