@@ -104,6 +104,7 @@
   "status.activities.upload_failed.errors.code.E_BLN_API_UPLOAD_SRC_NOTEXISTS": "%s: upload failed, the file does not exist anymore",
   "status.activities.upload_failed.errors.code.E_BLN_API_OUT_OF_RANGE": "%s: upload failed, the file is too big",
   "status.activities.upload_failed.errors.code.E_BLN_API_REQUEST_NETWORK": "%s: upload failed, the server is not reachable",
+  "status.activities.upload_failed.errors.code.E_BLN_API_UPLOAD_FILE_CHANGED": "%s: upload failed, the file has changed or does not exist anymore",
   "status.activities.download_failed.errors.code.E_BLN_API_REQUEST_NETWORK": "%s: download failed, the server is not reachable",
 
   "status.quota.used": "Used",
