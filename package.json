@@ -93,7 +93,7 @@
     "minimist": "~1.2.0"
   },
   "dependencies": {
-    "@gyselroth/balloon-node-sync": "0.6.4",
+    "@gyselroth/balloon-node-sync": "0.6.5",
     "@gyselroth/icon-collection": "^1.0.13",
     "@gyselroth/node-advanced-desktop": "^1.0.5",
     "@openid/appauth": "^1.2.6",
