@@ -7,6 +7,7 @@
 * Do not use format.json() in logger #228
 * Send feedback to new api endpoint #217
 * Trailing slash in server url leads to error #235
+* Server can be changed without restarting the client #237
 
 ### Changes
 * Upgrade to electron v7 #132
@@ -17,6 +18,8 @@
 * New tray behaviour for linux #207
 * Improve sync error messages displayed to users #216
 * Replace call to deprecated function setTemplateImage #236
+* Cancel upload if file has been changed or deleted #140
+
 
 ## 1.2.1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
