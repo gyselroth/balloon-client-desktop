@@ -130,10 +130,8 @@ function pingApiServer(blnUrl, callback) {
   request.get(apiPingUrl, reqOptions, (err, result) => {
     try {
       var body = JSON.parse(result.body);
-      console.log(body);
       callback(!(err || body.name !== 'balloon'));
     } catch(error) {
-      console.log(error);
       callback(false);
     }
   });
