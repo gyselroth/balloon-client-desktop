@@ -514,35 +514,6 @@ input[type="radio"], input[type="checkbox"] {
     text-align: center;
 }
 
-#startup-auth-credentials {
-   margin: 0;
-}
-
-#startup-auth-error {
-    margin-top: 10px;
-}
-
-#startup-auth-oidc {
-    margin-top: 10px;
-}
-
-#startup-auth-oidc > img {
-    margin: 5px auto;
-    display: block;
-    max-width: 300px;
-}
-
-#startup-view-auth input {
-    display: block;
-    margin: 6px auto;
-}
-
-#startup-view-server input {
-    height: 40px;
-    width: 75%;
-    padding-right: 45px;
-}
-
 #startup-view-server .view-content .loader {
     position: relative;
     top: -35px;
