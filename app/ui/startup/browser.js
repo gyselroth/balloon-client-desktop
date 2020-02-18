@@ -117,7 +117,7 @@ function verifyServer() {
 }
 
 function pingApiServer(blnUrl, callback) {
-  var apiPingUrl = blnUrl + '/api/v2';
+  var apiPingUrl = blnUrl + '/api/v3';
 
   var reqOptions = {
     timeout: 2000,
@@ -194,91 +194,6 @@ function advancedView() {
   if(env.balloonDir) {
     $('#startup-advanced-saveDir').hide();
   }
-}
-
-function authView() {
-  if(env.auth && env.auth.credentials === null) {
-    $('#startup-auth-credentials').hide();
-  }
-
-  var $loader = $('.window-loader');
-  var $container = $('#startup-auth-oidc');
-  $container.find('> img').remove();
-
-  var $username = $('#startup-view-auth').find('input[name=username]');
-  var $password = $('#startup-view-auth').find('input[name=password]');
-  var $mfaCode = $('#startup-view-auth').find('input[name=mfaCode]');
-  var $description = $('#startup-view-auth').find('p:first-child');
-
-  $username.show();
-  $password.show();
-  $mfaCode.hide();
-
-  $username.val('');
-  $password.val('');
-  $mfaCode.val('');
-
-  if(env.auth && env.auth.oidc) {
-    var i=0;
-    $(env.auth.oidc).each(function(e, idp){
-      var img = '<img alt="'+i+'" src="data:image/png;base64,'+idp.imgBase64+'"/>';
-      $container.append(img);
-      ++i;
-    });
-  }
-
-  $container.on('click', 'img', function(){
-    ipcRenderer.send('auth-oidc-signin', $(this).attr('alt'));
-  });
-
-  ipcRenderer.removeAllListeners('startup-auth-mfa-required');
-  ipcRenderer.on('startup-auth-mfa-required', function(event) {
-    $loader.hide();
-
-    if(env.auth && ['basic', null].includes(env.auth.credentials)) {
-      $('#startup-auth-error').find('> div').hide()
-      $('#startup-auth-error-mfa-not-token').show();
-    } else {
-      $username.hide();
-      $password.hide();
-      $('#startup-auth-error').find('> div').hide();
-      $mfaCode.show().focus();
-      $description.html(i18n.__('startup.auth.mfaDescription'));
-    }
-  });
-
-  ipcRenderer.removeAllListeners('startup-auth-error');
-  ipcRenderer.on('startup-auth-error', function (event, type, error) {
-    $loader.hide();
-
-    $('#startup-auth-error').find('> div').hide()
-    switch(error.code) {
-      case 'E_BLN_AUTH_NETWORK':
-      case 'E_BLN_AUTH_SERVER':
-      case 'E_BLN_OIDC_NETWORK':
-      case 'E_OIDC_AUTH_SERVER':
-        $('#startup-auth-error-network-server').show();
-      break;
-      case 'EPERM':
-        var pathMsg = i18n.__('error.auth.filesystem.path', [clientConfig.get('balloonDir')]);
-        $('#startup-auth-error-filesystem-path').html(pathMsg);
-        $('#startup-auth-error-filesystem').show();
-      break;
-      default:
-        $('#startup-auth-error-'+type).show();
-      break;
-    }
-  });
-
-  $('#startup-auth-credentials').off('submit').on('submit', function(event) {
-    event.preventDefault();
-
-    $loader.show();
-    var username = $username.val();
-    var password = $password.val();
-    var code = $mfaCode.val();
-    ipcRenderer.send('startup-credentials-signin', username, password, code);
-  });
 }
 
 function clientInitiatedLogoutWarningView() {

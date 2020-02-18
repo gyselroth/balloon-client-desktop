@@ -85,7 +85,7 @@ function initialize(syncMemory, mainSync) {
       settings.setAll(newSettings);
       if(syncMemory) {
         for(key in memorySettings) {
-          if(env.auth && env.auth.secretStorage === 'config' || (key !== 'password' && key !== 'accessToken') ) {
+          if(env.auth && env.auth.secretStorage === 'config' || (key !== 'accessToken') ) {
             settings.set(key, memorySettings[key]);
           }
         }
@@ -98,26 +98,6 @@ function initialize(syncMemory, mainSync) {
 
 module.exports = function() {
   initialize();
-
-  function getSecretType() {
-    var method;
-    if(activeInstance) {
-      method = settings.get('authMethod');
-    } else {
-      method = memorySettings['authMethod'];
-    }
-
-    switch(method) {
-      case 'basic':
-        return 'password';
-      break;
-      case 'token':
-      case 'oidc':
-        return 'accessToken';
-      break;
-    }
-  }
-
   var secret, traySecretUpdate;
 
   function set(key, value) {
@@ -159,8 +139,8 @@ module.exports = function() {
         var conf = memorySettings;
       }
 
-      if(include_secret === true && getSecretType()) {
-        conf[getSecretType()] = secret;
+      if(include_secret === true) {
+        conf.accessToken = secret;
       }
 
       return conf;
@@ -200,7 +180,6 @@ module.exports = function() {
     getSecret: function() {
       return secret;
     },
-    getSecretType,
     hasSecret: function() {
       if(secret === undefined) {
         return false;
@@ -209,7 +188,7 @@ module.exports = function() {
       }
     },
     destroySecret: function(type) {
-      if(getSecretType() === type) {
+      if('accessToken' === type) {
         secret = undefined;
         traySecretUpdate();
       }
@@ -223,7 +202,7 @@ module.exports = function() {
       }
     },
     storeSecret: function(type, key) {
-      if(getSecretType() === type) {
+      if('accessToken' === type) {
         secret = key;
         traySecretUpdate();
       }

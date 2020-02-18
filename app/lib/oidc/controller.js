@@ -124,7 +124,7 @@ module.exports = function (env, clientConfig) {
   }
 
   function makeRefreshTokenRequest(configuration, code, codeVerifier) {
-    let extras = {'client_secret': idpConfig.clientSecret};
+    var extras = {};
 
     if(codeVerifier) {
       extras['code_verifier'] = codeVerifier;
@@ -158,7 +158,6 @@ module.exports = function (env, clientConfig) {
       grant_type: GRANT_TYPE_REFRESH_TOKEN,
       code: undefined,
       refresh_token: refreshToken,
-      extras: {'client_secret': idpConfig.clientSecret}
     });
 
     return tokenHandler.performTokenRequest(configuration, request)

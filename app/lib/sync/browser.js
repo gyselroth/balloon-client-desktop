@@ -17,9 +17,11 @@ try {
   var syncCompleted = false;
 
   ipcRenderer.send('sync-window-loaded');
-  ipcRenderer.once('secret', function(event, type, secret) {
+  ipcRenderer.once('secret', function(event, secret) {
     var config = clientConfig.getAll(true);
-    config[type] = secret;
+    config.accessToken = secret;
+    //TODO backwards compatibility
+    config.authMethod = 'oidc';
     config.version = globalConfig.get('version');
 
     if(env.sync && env.sync.maxConcurentConnections) {

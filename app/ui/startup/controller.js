@@ -161,10 +161,6 @@ module.exports = function(env, clientConfig) {
         logger.debug('waiting for user action', {category: 'startup'});
         if(!startupWindow) startupWindow = createStartupWindow();
 
-        startupWindow.webContents.executeJavaScript(`switchView('auth')`);
-        startupWindow.show();
-        startupWindow.focus();
-
         let windowClosedByUserHandler = function(event) {
           if(!clientConfig.hadConfig()) {
             reject(new Error('auth window closed by user'));
@@ -172,78 +168,23 @@ module.exports = function(env, clientConfig) {
         }
 
         startupWindow.on('closed', windowClosedByUserHandler);
-
-        ipcMain.removeAllListeners('startup-credentials-signin');
-        ipcMain.on('startup-credentials-signin', function(event, username, password, code) {
-          logger.info('requested credentials authentication', {
-            category: 'startup',
-            username: username
-          });
-
-
-          auth.credentialsAuth(username, password, code)
-            .then(() => {
-              startupWindow.removeListener('closed', windowClosedByUserHandler);
-
-              if(!clientConfig.hadConfig()) {
-                resolve({welcomeWizardPromise: welcomeWizard()});
-              } else {
-                startupWindow.close();
-                resolve({welcomeWizardPromise: Promise.resolve()});
-              }
-            })
-            .catch((error) => {
-              var type = 'token';
-              if(env.auth) {
-                type = env.auth.credentails;
-              }
-
-              if(error.code && ['E_BLN_API_REQUEST_MFA_REQUIRED', 'E_BLN_MFA_REQUIRED'].includes(error.code)) {
-                logger.debug('Credentials auth requires mfa authentication', {category: 'startup', 'credentialsType': type});
-
-                startupWindow.webContents.send('startup-auth-mfa-required');
-              } else {
-                logger.error('Credentials auth resulted in an error', {category: 'startup', error, 'credentialsType': type});
-                startupWindow.webContents.send('startup-auth-error',  'credentials', error);
-              }
+        auth.oidcAuth()
+          .then((newInstance) => {
+            if(!clientConfig.hadConfig()) {
+              resolve({welcomeWizardPromise: welcomeWizard()});
+            } else {
+              startupWindow.close();
+              resolve({welcomeWizardPromise: welcomeWizard()});
+            }
+          })
+          .catch((error) => {
+            logger.error('failed authenticate via oidc', {
+              category: 'startup',
+              error: error,
             });
-        });
 
-        ipcMain.removeAllListeners('auth-oidc-signin');
-        ipcMain.on('auth-oidc-signin', function(event, idp) {
-          var idpConfig = env.auth.oidc[idp];
-
-          var idpConfigToLog = Object.assign({hasClientSecret: false}, idpConfig);
-          if(idpConfigToLog.clientSecret) {
-            idpConfigToLog.hasClientSecret = true;
-            delete idpConfigToLog.clientSecret;
-          }
-
-          logger.info('requested oidc signin', {
-            category: 'startup',
-            idp: idpConfigToLog
+            startupWindow.webContents.send('startup-auth-error',  'oidc');
           });
-
-          auth.oidcAuth(idpConfig)
-            .then(() => {
-              startupWindow.removeListener('closed', windowClosedByUserHandler);
-
-              if(!clientConfig.hadConfig()) {
-                resolve({welcomeWizardPromise: welcomeWizard()});
-              } else {
-                startupWindow.close();
-                resolve({welcomeWizardPromise: Promise.resolve()});
-              }
-            })
-            .catch((error) => {
-              logger.error('failed authenticate via oidc', {
-                category: 'startup',
-                error: error,
-              });
-
-              startupWindow.webContents.send('startup-auth-error',  'oidc', error);
-            });
-        });
       } else {
         logger.error('can not ask for authentication credentials, the client is offline', {
             category: 'startup'
@@ -351,7 +292,6 @@ module.exports = function(env, clientConfig) {
       icon: __dirname+'/../../img/logo-512x512.png',
       webPreferences: {nodeIntegration: true}
     });
-
 
     startupWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'index.html'),

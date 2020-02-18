@@ -120,12 +120,12 @@ ipcRenderer.on('tray-load-menu' , function(event, menu) {
 });
 
 ipcRenderer.send('tray-window-loaded');
-ipcRenderer.on('config', function(event, secret, secretType) {
-  logger.info('got config', {category: 'tray-browser', secretType});
+ipcRenderer.on('config', function(event, secret) {
+  logger.info('got config', {category: 'tray-browser'});
 
   clientConfig.initialize(false);
   var config = clientConfig.getAll();
-  config[secretType] = secret;
+  config.accessToken = secret;
   config.version = globalConfig.get('version');
 
   if(!clientConfig.get('loggedin') || !clientConfig.isActiveInstance()) {

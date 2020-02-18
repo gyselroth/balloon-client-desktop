@@ -33,29 +33,12 @@
                         <input id="blnUrl" type="text" placeholder="https://yourserver.com" required autofocus>
                         <div id="blnUrl-error-invalid" class="error-message">{{i18n 'error.blnUrl.invalid'}}</div>
                         <div id="blnUrl-error-notreachable" class="error-message">{{i18n 'error.blnUrl.notreachable'}}</div>
+                        <div id="startup-auth-error-network-server" class="error-message">{{i18n 'error.auth.network_server_error'}}</div>
+                        <div id="startup-auth-error-filesystem" class="error-message">{{i18n 'error.auth.filesystem'}} <span id="startup-auth-error-filesystem-path"></span></div>
+                        <div id="startup-auth-error-oidc" class="error-message">{{i18n 'error.auth.oidc'}}</div>
                     </div>
                 </div>
                 <button id="startup-server-continue">{{i18n 'button.continue'}}</button>
-            </div>
-        </div>
-
-        <div id="startup-view-auth" class="view">
-            <p>{{i18n 'startup.auth.message'}}</p>
-            <div class="view-content">
-                <form id="startup-auth-credentials" target="#">
-                  <input type="text" name="username" placeholder="{{i18n 'startup.auth.username'}}"/>
-                  <input type="password" name="password" placeholder="{{i18n 'startup.auth.password'}}"/>
-                  <input type="text" name="mfaCode" placeholder="{{i18n 'startup.auth.mfaCode'}}"/>
-                  <button>{{i18n 'button.continue'}}</button>
-                </form>
-                <div id="startup-auth-error">
-                    <div id="startup-auth-error-network-server" class="error-message">{{i18n 'error.auth.network_server_error'}}</div>
-                    <div id="startup-auth-error-filesystem" class="error-message">{{i18n 'error.auth.filesystem'}} <span id="startup-auth-error-filesystem-path"></span></div>
-                    <div id="startup-auth-error-credentials" class="error-message">{{i18n 'error.auth.credentials'}}</div>
-                    <div id="startup-auth-error-mfa-not-token" class="error-message">{{i18n 'error.auth.mfaNotToken'}}</div>
-                    <div id="startup-auth-error-oidc" class="error-message">{{i18n 'error.auth.oidc'}}</div>
-                </div>
-                <div id="startup-auth-oidc"></div>
             </div>
         </div>
 
