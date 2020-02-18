@@ -195,22 +195,16 @@ function unlinkAccount(clientInitiated) {
 
 function handleUnauthorizedRequest() {
   return new Promise(function(resolve, reject) {
-    if(clientConfig.get('authMethod') === 'basic') {
-      logger.info('got 401, unlink account', {category: 'main', authMethod: 'basic'});
-      unlinkAccount(true);
-      return reject();
-    } else {
-      logger.debug('got 401, refresh accessToken', {category: 'main'});
+    logger.debug('got 401, refresh accessToken', {category: 'main'});
 
-      auth.refreshAccessToken().then(resolve).catch(err => {
-        if(!handleAuthError('hanlde-unauthorized-request', err)) {
-          logger.error('could not refresh accessToken, unlink instance', {category: 'main', err});
-          unlinkAccount(true);
-        }
+    auth.refreshAccessToken().then(resolve).catch(err => {
+      if(!handleAuthError('hanlde-unauthorized-request', err)) {
+        logger.error('could not refresh accessToken, unlink instance', {category: 'main', err});
+        unlinkAccount(true);
+      }
 
-        reject();
-      });
-    }
+      reject();
+    });
   });
 }
 
