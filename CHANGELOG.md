@@ -1,3 +1,11 @@
+## 1.2.2
+**Maintainer**: balloon-team <opensource@gyselroth.net>\
+**Date**: Thu Feb 20 10:03:42 CET 2020
+
+### Bugfixes
+* Corrent chunk size from sync, fixed by balloon-node-sync v0.5.4
+
+
 ## 1.2.1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
 **Date**: Thu Jan 09 10:44:43 CET 2020
