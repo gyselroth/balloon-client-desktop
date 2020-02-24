@@ -153,7 +153,7 @@ function changeTrayIcon(frame = 1) {
   const icon = nativeImage.createFromPath(iconPath);
 
   if(iconConfig.template === true && process.platform === 'darwin') {
-    icon.setTemplateImage(true);
+    icon.isMacTemplateImage = true;
   }
 
   if(iconConfig.animate) {
@@ -322,7 +322,7 @@ module.exports = function(env, clientConfig) {
   }
 
   function updateTrayMenu() {
-    if (TRAY_CLICK_SHOW_WINDOW) return;
+    if (TRAY_CLICK_SHOW_WINDOW || !tray) return;
 
     const menu = menuFactory(loadMenu, clientConfig, showLogin, syncStatus)
 
