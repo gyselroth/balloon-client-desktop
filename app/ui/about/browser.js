@@ -82,7 +82,6 @@ module.exports = function() {
     });
 
     ipcRenderer.on('update-download-progress', (event, progress) => {
-      console.log(progress, event);
       const percent = `${parseInt(progress.percent)}%`;
       $('#about-update-downloading span:nth-child(2)').html(percent).show();
     });

@@ -86,6 +86,7 @@ function startApp() {
     logger.info('login secret recieved', {category: 'main'});
 
     ipcMain.once('tray-online-state-changed', function(event, state) {
+      tray.toggleState('offline', !state);
       bindOnlineStateChanged();
       if(clientConfig.hadConfig()) {
         tray.create();
@@ -111,45 +112,19 @@ function startApp() {
 
         const welcomeWizard = result[2] === undefined || !result[2].welcomeWizardPromise ? Promise.resolve() : result[2].welcomeWizardPromise;
 
-        welcomeWizard.then(() => {
-          sync.setMayStart(true);
-
-          startSync(true);
-
-          electron.powerMonitor.on('suspend', () => {
-            logger.info('the system is going to sleep', {
-              category: 'main',
-            });
-
-            //abort a possibly active sync if not already paused
-            if(sync && sync.isPaused() === false) {
-              sync.pause(true);
-            } else if(sync) {
-              //if sync is paused kill a possible active watcher
-              sync.killWatcher();
-            }
-          });
-
-          electron.powerMonitor.on('resume', () => {
-            logger.info('the system is resuming', {
-              category: 'main',
-            });
-
-            startSync(true);
-          });
-        });
+        welcomeWizard.then(initializeSync);
       }).catch((error) => {
-        logger.error('startup checkconfig', {
-            category: 'main',
-            error: error
-        });
-
         switch(error.code) {
           case 'E_BLN_CONFIG_CREDENTIALS':
-            unlinkAccount();
+            logger.warning('startup checkconfig no credentials, unlinking account', {category: 'main', error: error});
+            unlinkAccount(true);
           break;
           default:
-            app.quit();
+            if(!handleAuthError('start-app', error)) {
+              logger.error('startup checkconfig error, quitting app', {category: 'main', error: error});
+              app.quit();
+            }
+          break;
         }
       });
     });
@@ -159,13 +134,48 @@ function startApp() {
   });
 }
 
-function unlinkAccount() {
+function initializeSync() {
+  if(sync && sync.getMayStart() === false || !sync) {
+    electron.powerMonitor.on('suspend', () => {
+      logger.info('the system is going to sleep', {
+        category: 'main',
+      });
+
+      //abort a possibly active sync if not already paused
+      if(sync && sync.isPaused() === false) {
+        sync.pause(true);
+      } else if(sync) {
+        //if sync is paused kill a possible active watcher
+        sync.killWatcher();
+      }
+    });
+
+    electron.powerMonitor.on('resume', () => {
+      logger.info('the system is resuming', {
+        category: 'main',
+      });
+
+      startSync(true);
+    });
+  }
+
+  if(!sync) {
+    sync = SyncCtrl(env, tray);
+  }
+
+  sync.setMayStart(true);
+  if(sync.isPaused() === false) startSync(true);
+}
+
+function unlinkAccount(clientInitiated) {
+  setDisconnectedState(false);
+
   (function() {
     if(!sync) return Promise.resolve();
 
     return sync.pause(true);
   }()).then(function() {
-    return auth.logout();
+    return auth.logout(clientInitiated);
   }).then(() => {
     logger.info('logout successfull', {
       category: 'main',
@@ -187,24 +197,96 @@ function handleUnauthorizedRequest() {
   return new Promise(function(resolve, reject) {
     if(clientConfig.get('authMethod') === 'basic') {
       logger.info('got 401, unlink account', {category: 'main', authMethod: 'basic'});
-      unlinkAccount();
+      unlinkAccount(true);
       return reject();
     } else {
       logger.debug('got 401, refresh accessToken', {category: 'main'});
 
       auth.refreshAccessToken().then(resolve).catch(err => {
-        if(err.code && ['E_BLN_AUTH_NETWORK', 'E_BLN_OIDC_NETWORK'].includes(err.code)) {
-          logger.warn('could not refresh accessToken, network offline', {category: 'main', err});
-          tray.emit('network-offline');
-        } else {
+        if(!handleAuthError('hanlde-unauthorized-request', err)) {
           logger.error('could not refresh accessToken, unlink instance', {category: 'main', err});
-          unlinkAccount();
+          unlinkAccount(true);
         }
 
         reject();
       });
     }
   });
+}
+
+function handleAuthError(subcategory, error) {
+  if(!error || !error.code) return false;
+
+  let authErrorHandled = true;
+  switch(error.code) {
+    case 'E_BLN_AUTH_NETWORK':
+    case 'E_BLN_OIDC_NETWORK':
+    case 'E_BLN_AUTH_SERVER':
+    case 'E_OIDC_AUTH_SERVER':
+      logger.info('Auth server responded with a invalid status', {category: 'main', subcategory});
+      setDisconnectedState(true);
+    break;
+    default:
+      authErrorHandled = false;
+    break;
+  }
+
+  return authErrorHandled;
+}
+
+function bindOnlineStateChanged() {
+  ipcMain.on('tray-online-state-changed', function(event, state) {
+    logger.info('online state changed', {
+      category: 'main',
+      state: state,
+      syncPaused: (sync && sync.isPaused()),
+      needsStartup: startup.needsStartupWizzard(),
+      loggedIn: clientConfig.get('loggedin')
+    });
+
+    appState.set('onLineState', state);
+    if(state === false) {
+      //abort a possibly active sync if not already paused
+      if(sync && sync.isPaused() === false) sync.pause(true);
+      tray.toggleState('offline', true);
+    } else {
+      tray.toggleState('offline', false);
+      if(clientConfig.get('loggedin') === true) {
+        if(sync && sync.isPaused() === false) startSync(true);
+      } else if(startup.needsStartupWizzard() === false) {
+        tryToReconnect();
+      }
+    }
+  });
+}
+
+function tryToReconnect() {
+  logger.debug('Trying to verify user credentials', {category: 'main'});
+
+  // Pass rejected promise, as it should silently fail
+  auth.login(() => Promise.reject()).then(() => {
+    clientConfig.updateTraySecret();
+    tray.toggleState('loggedout', false);
+    setDisconnectedState(false);
+    initializeSync();
+  }).catch((error) => {
+    if(!handleAuthError('online-state-changed-event', error)) {
+      logger.warning('User is not authenticated', {category: 'main', error});
+      tray.emit('unlink-account-result', true);
+      tray.toggleState('loggedout', true);
+    }
+  });
+}
+
+function setDisconnectedState(state) {
+  tray.toggleState('disconnected', state);
+  appState.set('disconnected', state);
+
+  if(state === true) {
+    tray.emit('disconnected');
+  } else {
+    tray.emit('connected');
+  }
 }
 
 var gotLock = app.requestSingleInstanceLock();
@@ -242,6 +324,7 @@ if(gotLock === false) {
   app.on('ready', function () {
     appState.set('updateAvailable', false);
     appState.set('updateDownloading', false);
+    appState.set('disconnected', false);
 
     feedback = FeedbackCtrl(env, clientConfig);
     feedback.toggleAutoReport(globalConfig.get('autoReport'));
@@ -284,53 +367,17 @@ ipcMain.on('tray-show', function() {
   tray.show();
 });
 
-function bindOnlineStateChanged() {
-  ipcMain.on('tray-online-state-changed', function(event, state) {
-    logger.info('online state changed', {
-      category: 'main',
-      state: state,
-      syncPaused: (sync && sync.isPaused())
-    });
+/** **/
+ipcMain.on('try-to-reconnect', () => {
+  logger.info('trying to reconnect', {category: 'main'});
 
-    appState.set('onLineState', state);
-    if(state === false) {
-      //abort a possibly active sync if not already paused
-      if(sync && sync.isPaused() === false) sync.pause(true);
-      tray.toggleState('offline', true);
-    } else {
-      tray.toggleState('offline', false);
-      if(clientConfig.get('loggedin') === true) {
-        if(sync && sync.isPaused() === false) startSync(true);
-      } else if(startup.needsStartupWizzard() === false) {
-        logger.debug('Trying to verify user credentials', {category: 'main'});
-
-        // Pass rejected promise, as it should silently fail
-        auth.login(() => Promise.reject()).then(() => {
-          if(!sync) {
-            sync = SyncCtrl(env, tray);
-            sync.setMayStart(true);
-          }
-
-          clientConfig.updateTraySecret();
-          tray.toggleState('loggedout', false);
-
-          if(sync && sync.isPaused() === false) startSync(true);
-        }).catch((error) => {
-          logger.warning('User is not authenticated', {category: 'main'});
-
-          tray.emit('unlink-account-result', true);
-          tray.toggleState('loggedout', true);
-        });
-      }
-    }
-  });
-}
+  tryToReconnect();
+});
 
 /** Settings **/
 ipcMain.on('settings-autoReport-changed', function(event, state) {
   feedback.toggleAutoReport(state);
 });
-
 
 /** Auto update **/
 ipcMain.on('install-update', function() {
@@ -412,7 +459,7 @@ ipcMain.on('balloonDirSelector-open', function(event) {
 
 ipcMain.on('unlink-account', (event) => {
   logger.info('logout requested', {category: 'main'});
-  unlinkAccount();
+  unlinkAccount(false);
 });
 
 ipcMain.on('link-account', (event, id) => {
@@ -427,21 +474,30 @@ ipcMain.on('link-account', (event, id) => {
     clientConfig.updateTraySecret();
 
     tray.toggleState('loggedout', false);
-    startSync(true);
+    setDisconnectedState(false);
+    initializeSync();
     tray.emit('link-account-result', true);
-  }).catch((err) => {
-    if(err.code !== 'E_BLN_OAUTH_WINDOW_OPEN') {
-      logger.error('login not successfull', {
-        category: 'main',
-        error: err
-      });
-    } else {
-      logger.info('login aborted as there is already a login window open', {
-        category: 'main',
-      });
+  }).catch((error) => {
+    switch(error.code) {
+      case 'E_BLN_OAUTH_WINDOW_OPEN':
+        logger.info('login aborted as there is already a login window open', {
+          category: 'main',
+        });
+      break;
+      default:
+        if(!handleAuthError('link-account-event', error)) {
+          logger.error('login not successfull', {category: 'main', error});
+          tray.emit('link-account-result', false);
+        } else {
+          dialog.showMessageBox(null, {
+            type: 'warning',
+            buttons: [i18n.__('button.ok')],
+            title: i18n.__('error.auth'),
+            message: i18n.__('error.auth.network_server_error'),
+          });
+        }
+      break;
     }
-
-    tray.emit('link-account-result', false);
   });
 });
 
@@ -459,7 +515,7 @@ ipcMain.on('selective-error', (event, error, url, line, message) => {
     case 'E_BLN_API_REQUEST_MFA_REQUIRED':
       selective.close();
       logger.info('got 403 MFA required from selective, unlink account', {category: 'main'});
-      unlinkAccount();
+      unlinkAccount(true);
     break;
     default:
       logger.error('Uncaught selective error.', {
@@ -497,7 +553,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
       isHandlingMfaRequired = true;
 
       logger.info('got 403 MFA required from selective, unlink account', {category: 'main'});
-      unlinkAccount();
+      unlinkAccount(true);
       isHandlingMfaRequired = false;
     break;
     case 'E_BLN_CONFIG_CREDENTIALS':
@@ -507,7 +563,7 @@ ipcMain.on('sync-error', (event, error, url, line, message) => {
       });
 
       endSync();
-      unlinkAccount();
+      unlinkAccount(true);
     break;
     case 'E_BLN_CONFIG_BALLOONDIR':
     case 'E_BLN_CONFIG_CONFIGDIR':

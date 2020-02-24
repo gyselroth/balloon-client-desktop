@@ -114,8 +114,43 @@ module.exports = function(env, clientConfig) {
         ||
         !clientConfig.isActiveInstance()
         ||
-        instance.getInstance(clientConfig) === null
+        instance.getInstance(clientConfig.get('username'), clientConfig.get('blnUrl'), clientConfig.get('context')) === null
     );
+  }
+
+  function askServer() {
+    return new Promise((resolve, reject) => {
+      ipcMain.removeAllListeners('startup-server-continue');
+      ipcMain.on('startup-server-continue', function(event, blnUrl) {
+        //TODO pixtron - this should not be set here. This should only be changed by the event listeners.
+        appState.set('onLineState', true);
+
+        if(!env.blnUrl) {
+          logger.info('change url to server', {
+            category: 'startup',
+            url: blnUrl
+          });
+
+          clientConfig.setBlnUrl(blnUrl);
+        }
+
+        resolve();
+      });
+
+      startupWindow.webContents.executeJavaScript(`switchView('server')`);
+    });
+  }
+
+  function clientInitiatedLogoutWarning() {
+    return new Promise((resolve, reject) => {
+      ipcMain.removeAllListeners('startup-clientInitiatedLogoutWarning-continue');
+      ipcMain.on('startup-clientInitiatedLogoutWarning-continue', function(event, blnUrl) {
+        appState.set('clientInitiatedLogout', false);
+        resolve();
+      });
+
+      startupWindow.webContents.executeJavaScript(`switchView('clientInitiatedLogoutWarning')`);
+    });
   }
 
   function askCredentials() {
@@ -145,10 +180,11 @@ module.exports = function(env, clientConfig) {
             username: username
           });
 
-          startupWindow.removeListener('closed', windowClosedByUserHandler);
 
           auth.credentialsAuth(username, password, code)
-            .then((newInstance) => {
+            .then(() => {
+              startupWindow.removeListener('closed', windowClosedByUserHandler);
+
               if(!clientConfig.hadConfig()) {
                 resolve({welcomeWizardPromise: welcomeWizard()});
               } else {
@@ -168,7 +204,7 @@ module.exports = function(env, clientConfig) {
                 startupWindow.webContents.send('startup-auth-mfa-required');
               } else {
                 logger.error('Credentials auth resulted in an error', {category: 'startup', error, 'credentialsType': type});
-                startupWindow.webContents.send('startup-auth-error',  'credentials');
+                startupWindow.webContents.send('startup-auth-error',  'credentials', error);
               }
             });
         });
@@ -188,14 +224,15 @@ module.exports = function(env, clientConfig) {
             idp: idpConfigToLog
           });
 
-          startupWindow.removeListener('closed', windowClosedByUserHandler);
           auth.oidcAuth(idpConfig)
-            .then((newInstance) => {
+            .then(() => {
+              startupWindow.removeListener('closed', windowClosedByUserHandler);
+
               if(!clientConfig.hadConfig()) {
                 resolve({welcomeWizardPromise: welcomeWizard()});
               } else {
                 startupWindow.close();
-                resolve({welcomeWizardPromise: welcomeWizard()});
+                resolve({welcomeWizardPromise: Promise.resolve()});
               }
             })
             .catch((error) => {
@@ -204,11 +241,11 @@ module.exports = function(env, clientConfig) {
                 error: error,
               });
 
-              startupWindow.webContents.send('startup-auth-error',  'oidc');
+              startupWindow.webContents.send('startup-auth-error',  'oidc', error);
             });
         });
       } else {
-        logger.error('can not ask for authentication credentials, there is an active instance ongoing', {
+        logger.error('can not ask for authentication credentials, the client is offline', {
             category: 'startup'
         });
         resolve({welcomeWizardPromise: welcomeWizard()});
@@ -261,15 +298,12 @@ module.exports = function(env, clientConfig) {
     logger.info('start first time wizard', {category: 'startup'});
 
     return new Promise(function(resolve, reject) {
-
       if(clientConfig.isActiveInstance()) {
         logger.info('first time wizard unlinked active instance', {category: 'startup'});
-        auth.logout();
+        auth.logout(true);
       }
 
       if(!startupWindow) startupWindow = createStartupWindow();
-
-      startupWindow.webContents.executeJavaScript(`switchView('server')`);
       startupWindow.show();
       startupWindow.focus();
 
@@ -279,20 +313,15 @@ module.exports = function(env, clientConfig) {
 
       startupWindow.on('closed', windowClosedByUserHandler);
 
-      ipcMain.removeAllListeners('startup-server-continue');
-      ipcMain.on('startup-server-continue', function(event, blnUrl) {
-        //TODO pixtron - this should not be set here. This should only be changed by the event listeners.
-        appState.set('onLineState', true);
+      const screens = [];
 
-        if(!env.blnUrl) {
-          logger.info('change url to server', {
-            category: 'startup',
-            url: blnUrl
-          });
+      if(appState.get('clientInitiatedLogout') === true) {
+        screens.push(clientInitiatedLogoutWarning);
+      }
 
-          clientConfig.setBlnUrl(blnUrl);
-        }
+      screens.push(askServer);
 
+      promiseSerial(screens).then(() => {
         askCredentials().then(resolve).catch((error) => {
           logger.error('failed ask for credentials', {
             category: 'startup',
@@ -303,7 +332,7 @@ module.exports = function(env, clientConfig) {
         });
 
         startupWindow.removeListener('closed', windowClosedByUserHandler);
-      });
+      }).catch(reject);
     });
   }
 
@@ -353,6 +382,13 @@ module.exports = function(env, clientConfig) {
     }
 
     return startupWindow;
+  }
+
+  function promiseSerial(funcs) {
+    return funcs.reduce((promise, func) =>
+      promise.then(result =>
+        func().then(Array.prototype.concat.bind(result))),
+        Promise.resolve([]))
   }
 
   return {

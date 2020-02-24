@@ -11,18 +11,20 @@ const fsUtility = require('../fs-utility.js');
 const {fullSyncFactory} = require('@gyselroth/balloon-node-sync');
 const globalConfig = require('../global-config.js');
 const request = require('request');
+const appState = require('../state.js');
 const AuthError = require('./auth-error.js');
+
 
 module.exports = function(env, clientConfig) {
   var oidc = OidcCtrl(env, clientConfig);
 
-  function logout() {
+  function logout(clientInitiated) {
     logger.info('logout initialized', {category: 'auth', authMethod: clientConfig.get('authMethod')});
 
     return new Promise(function(resolve, reject) {
       var _finalizeLogout = function() {
-        clientConfig.set('authMethod', undefined);
         clientConfig.updateTraySecret();
+        appState.set('clientInitiatedLogout', clientInitiated);
         instance.unlink(clientConfig);
 
         resolve();
@@ -91,15 +93,18 @@ module.exports = function(env, clientConfig) {
   }
 
   function _doBasicAuth(username, password) {
-    clientConfig.set('authMethod', 'basic');
-    clientConfig.set('username', username);
-
     return new Promise(function(resolve, reject){
-      clientConfig.storeSecret('password', password).then(() => {
-        verifyNewLogin().then((newInstance) => {
-          resolve(newInstance);
-        }).catch((error) => {
-          logger.error('failed signin via basic auth', {
+      var config = {
+        authMethod: 'basic',
+        username,
+        password
+      };
+
+      verifyAuthentication(config).then(() => {
+        clientConfig.set('authMethod', 'basic');
+
+        clientConfig.storeSecret('password', password).then(resolve).catch((error) => {
+          logger.error('failed store secret in keystore', {
             category: 'auth',
             error: error
           });
@@ -107,7 +112,7 @@ module.exports = function(env, clientConfig) {
           reject(error);
         });
       }).catch((error) => {
-        logger.error('failed store secret in keystore', {
+        logger.error('failed signin via basic auth', {
           category: 'auth',
           error: error
         });
@@ -118,9 +123,6 @@ module.exports = function(env, clientConfig) {
   }
 
   function _doTokenAuth(username, password, code) {
-    clientConfig.set('authMethod', 'token');
-    clientConfig.set('username', username);
-
     return new Promise(function(resolve, reject){
       var apiUrl = clientConfig.get('apiUrl').replace('/v1', '/v2');
 
@@ -142,7 +144,7 @@ module.exports = function(env, clientConfig) {
         headers: {
           'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
           'User-Agent': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname(), os.platform(), os.release()].join('|'),
-          'Authorization': 'Basic ' + new Buffer('balloon-client-desktop:').toString('base64')
+          'Authorization': 'Basic ' + Buffer.from('balloon-client-desktop:').toString('base64')
         },
         form: body,
         json: true,
@@ -152,26 +154,29 @@ module.exports = function(env, clientConfig) {
       var req = request(reqOptions, (err, response, body) => {
         if(err) {
           logger.error('do token auth failed', {category: 'auth', error: err});
-
+          err = _checkForNetworkAndServerErrors(err);
           return reject(err);
         }
 
         switch(response.statusCode) {
           case 200:
-            _storeAuthTokens(body)
-              .then(() => {
-                verifyNewLogin().then((newInstance) => {
-                  resolve(newInstance);
-                }).catch((error) => {
-                  logger.error('failed signin via token auth', {
-                    category: 'auth',
-                    error: error
-                  });
+            var config = {
+              authMethod: 'token',
+              accessToken: body.access_token
+            };
 
-                  reject(error);
-                });
-              })
-              .catch(reject);
+            verifyAuthentication(config).then(() => {
+              clientConfig.set('authMethod', 'token');
+
+              _storeAuthTokens(body).then(resolve).catch(reject);
+            }).catch((error) => {
+              logger.error('failed signin via token auth', {
+                category: 'auth',
+                error: error
+              });
+
+              reject(error);
+            });
           break;
           case 403:
             if(body.error === 'Balloon\\App\\Idp\\Exception\\MultiFactorAuthenticationRequired') {
@@ -183,10 +188,37 @@ module.exports = function(env, clientConfig) {
             }
           break;
           case 401:
+            reject(new Error((body && body.error_description) || 'Got 401 Unauthorized'));
+          break;
           default:
-            reject(new Error(body.error_description));
+            reject(new AuthError(`Unexpected status ${response.statusCode}`, 'E_BLN_AUTH_SERVER'));
           break;
         }
+      });
+    });
+  }
+
+  function _storeOidcAuthTokens(response) {
+    return new Promise((resolve, reject) => {
+      if(!response.accessToken) {
+        logger.error('access token not set in oidc response', {category: 'auth'});
+        return reject(new Error('Response does not contain accessToken'));
+      }
+
+      var promises = [];
+
+      promises.push(clientConfig.storeSecret('accessToken', response.accessToken));
+
+      if(response.refreshToken) {
+        promises.push(clientConfig.storeSecret('refreshToken', response.refreshToken))
+      }
+
+      Promise.all(promises).then(() => {
+        logger.debug('Stored oidc tokens', {category: 'auth'});
+        resolve();
+      }).catch((err) => {
+        logger.error('Could not store oidc tokens', {category: 'auth', err});
+        reject(err);
       });
     });
   }
@@ -219,6 +251,8 @@ module.exports = function(env, clientConfig) {
   function refreshAccessToken() {
     var authMethod = clientConfig.get('authMethod');
 
+    logger.info('Refreshing access token', {category: 'auth', authMethod});
+
     switch(authMethod) {
       case 'oidc':
         return _refreshOidcAccessToken();
@@ -242,25 +276,23 @@ module.exports = function(env, clientConfig) {
         var idpConfig = getIdPByProviderUrl(oidcProvider);
       }
 
-      oidc.signin(idpConfig).then((authorization) => {
-        if(authorization === true)  {
-          logger.error('can not accept new authorization after refresh access_token', {
-            category: 'auth',
-          });
+      oidc.refreshAccessToken(idpConfig).then(response => {
+        var config = {
+          authMethod: 'oidc',
+          accessToken: response.accessToken
+        };
 
-          reject()
-        } else {
-          verifyAuthentication().then(() => {
-            resolve();
-          }).catch((error) => {
-            logger.error('failed refresh access_token', {
-              category: 'auth',
-              error: error
-            });
+        verifyAuthentication(config).then(() => {
+          clientConfig.set('authMethod', 'oidc');
+          clientConfig.set('oidcProvider', idpConfig.providerUrl);
+          clientConfig.set('accessTokenExpires', response.issuedAt + response.expiresIn);
 
-            reject(error)
-          });
-        }
+          _storeOidcAuthTokens(response).then(resolve).catch(reject);
+        }).catch((error) => {
+          logger.error('failed refresh access_token', { category: 'auth', error: error});
+
+          reject(error);
+        });
       }).catch(reject);
     });
   }
@@ -276,7 +308,7 @@ module.exports = function(env, clientConfig) {
             headers: {
               'X-Client': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname()].join('|'),
               'User-Agent': ['Balloon-Desktop-App', globalConfig.get('version'), os.hostname(), os.platform(), os.release()].join('|'),
-              'Authorization': 'Basic ' + new Buffer('balloon-client-desktop:').toString('base64')
+              'Authorization': 'Basic ' + Buffer.from('balloon-client-desktop:').toString('base64')
             },
             body: {
               refresh_token: secret,
@@ -290,31 +322,37 @@ module.exports = function(env, clientConfig) {
             if(err) {
               logger.error('refresh internal access token failed', {category: 'auth', error: err});
 
-              if(err.code && ['ENOTFOUND', 'ETIMEDOUT', 'ENETUNREACH', 'EHOSTUNREACH', 'ECONNREFUSED', 'EHOSTDOWN', 'ESOCKETTIMEDOUT', 'ECONNRESET'].includes(err.code)) {
-                err = new AuthError(err.message, 'E_BLN_AUTH_NETWORK');
-              }
+              err = _checkForNetworkAndServerErrors(err);
 
               return reject(err);
             }
 
             switch(response.statusCode) {
               case 200:
-                _storeAuthTokens(body)
-                  .then(() => {
-                    verifyAuthentication().then(resolve).catch((error) => {
-                      logger.error('verify auth after refresh access token failed', {
-                        category: 'auth',
-                        error: error
-                      });
+                var config = {
+                  authMethod: 'token',
+                  accessToken: body.access_token
+                };
 
-                      reject(error);
-                    });
-                  })
-                  .catch(reject);
+                verifyAuthentication(config).then(() => {
+                  clientConfig.set('authMethod', 'token');
+                  _storeAuthTokens(body).then(resolve).catch(reject);
+                }).catch((error) => {
+                  logger.error('verify auth after refresh access token failed', {
+                    category: 'auth',
+                    error: error
+                  });
+
+                  reject(error);
+                });
               break;
               case 400:
+                logger.info('refresh token failed', {category: 'auth', body});
+                reject(new Error((body && body.error_description) || 'Got status code 400'));
+              break;
               default:
-                reject(new Error(body.error_description));
+                logger.info('refresh token failed with unexpected status', {category: 'auth', status: response.statusCode});
+                reject(new AuthError(`Unexpected status ${response.statusCode}`, 'E_BLN_AUTH_SERVER'));
               break;
             }
           });
@@ -328,32 +366,23 @@ module.exports = function(env, clientConfig) {
 
   function oidcAuth(idpConfig) {
     return new Promise(function(resolve, reject) {
-      oidc.signin(idpConfig).then((authorization) => {
-        if(authorization === true)  {
-          verifyNewLogin().then((newInstance) => {
-            resolve(newInstance);
-          }).catch((error) => {
-            clientConfig.set('oidcProvider', undefined);
-            logger.error('failed signin new authorization via oidc', {
-              category: 'auth',
-              error: error
-            });
+      oidc.signin(idpConfig).then((result) => {
+        var config = {
+          authMethod: 'oidc',
+          accessToken: result.accessToken
+        };
 
-            reject(error)
-          });
-        } else {
-          verifyAuthentication().then(() => {
-            resolve(false);
-          }).catch((error) => {
-            clientConfig.set('oidcProvider', undefined);
-            logger.error('failed signin via oidc', {
-              category: 'auth',
-              error: error
-            });
+        verifyAuthentication(config).then(() => {
+          clientConfig.set('authMethod', 'oidc');
+          clientConfig.set('oidcProvider', idpConfig.providerUrl);
+          clientConfig.set('accessTokenExpires', result.issuedAt + result.expiresIn);
 
-            reject(error)
-          });
-        }
+          _storeOidcAuthTokens(result).then(resolve).catch(reject);
+        }).catch((error) => {
+          logger.error('failed to authorize via oidc', {category: 'auth', error});
+
+          reject(error)
+        });
       }).catch(reject);
     });
   }
@@ -383,44 +412,37 @@ module.exports = function(env, clientConfig) {
     logger.info('login initialized', {category: 'auth'});
 
     return new Promise(function (resolve, reject) {
-      verifyAuthentication().then(resolve).catch((err) => {
-        logger.info('login failed', {
-          category: 'auth',
-          error: err
-        });
+      var authMethod = clientConfig.get('authMethod');
+      var config = { authMethod };
+
+      if(authMethod === 'basic') {
+        config.username = clientConfig.get('username');
+        config.password = clientConfig.getSecret();
+      } else {
+        config.accessToken = clientConfig.getSecret();
+      }
+
+      verifyAuthentication(config).then(resolve).catch((err) => {
+        logger.info('login failed', { category: 'auth', error: err, authMethod});
 
         if(err.code && ['E_BLN_API_REQUEST_UNAUTHORIZED', 'E_BLN_API_REQUEST_MFA_REQUIRED'].includes(err.code) === false) {
           // assume there is a network problem, should retry later
           return reject(err);
         }
 
-        switch(clientConfig.get('authMethod')) {
+        switch(authMethod) {
           case 'oidc':
-            var oidcProvider = clientConfig.get('oidcProvider');
-
-            if(oidcProvider === undefined) {
-              logger.info('login no oidc provider, open startup configuration', {category: 'auth'});
-              startup().then(resolve).catch(reject);
-            } else {
-              var idpConfig = getIdPByProviderUrl(oidcProvider);
-              oidcAuth(idpConfig).then(resolve).catch((err) => {
-                logger.info('oidc login failed, open startup configuration', {
-                  category: 'auth',
-                  error: err
-                });
-
-                startup().then(resolve).catch(reject);
-              });
-            }
-          break;
           case 'token':
             refreshAccessToken().then(resolve).catch((error) => {
-              logger.info('token login failed, open startup configuration', {
-                category: 'auth',
-                error: err
-              });
+              if(['E_BLN_AUTH_NETWORK', 'E_BLN_OIDC_NETWORK', 'E_BLN_AUTH_SERVER', 'E_OIDC_AUTH_SERVER'].includes(error.code)) {
+                //network or temporary server error, should retry later
+                logger.info('login failed with temporary error', {category: 'auth', authMethod, error});
+                reject(error);
+              } else {
+                logger.info('login failed, open startup configuration', { category: 'auth', authMethod, error});
 
-              startup().then(resolve).catch(reject);
+                startup().then(resolve).catch(reject);
+              }
             });
           break;
           default:
@@ -445,110 +467,83 @@ module.exports = function(env, clientConfig) {
     return undefined;
   }
 
-  function verifyAuthentication() {
+  function verifyAuthentication(config) {
+    //resolves with boolean true if a new instance was created (aka never seen user)
     return new Promise(function(resolve, reject) {
-      var config = clientConfig.getAll(true);
-      config.version = globalConfig.get('version');
-
-      if((['oidc', 'token'].includes(config.authMethod) && !config.accessToken) || (config.authMethod === 'basic' && !config.password)) {
+      if((['oidc', 'token'].includes(config.authMethod) && !config.accessToken) || (config.authMethod === 'basic' && (!config.password || !config.username))) {
         logger.error('can not verify credentials, no secret available', {category: 'auth'});
         reject(new Error('Secret not set'));
       }
 
-      var sync = fullSyncFactory(config, logger);
+      logger.info('verifying new user credentials with whoami call', {category: 'auth', authMethod: config.authMethod, username: config.username});
 
-      logger.info('verify authentication via whoami api call', {
-        category: 'auth',
-        authMethod: config.authMethod,
-        username: config.username
-      });
+      whoami(config).then(username => {
+        var url = clientConfig.get('blnUrl');
+        var context = clientConfig.get('context');
 
-      sync.blnApi.whoami(function(err, username) {
-        if(err) {
-          logger.info('verify authentication failed', {
-            category: 'auth',
-            error: err,
-            username: username
-          });
-
+        instance.link(username, url, context, clientConfig).then(newInstance => {
+          //only change username after instance has been loaded, otherwise we might change the username in an old instance
+          clientConfig.set('username', username);
+          clientConfig.set('loggedin', true);
+          resolve(newInstance);
+        }).catch(err => {
           clientConfig.set('loggedin', false);
           reject(err);
-        } else {
-          logger.info('successfully verifed user credentials', {
-            category: 'auth',
-            username: username
-          });
+        });
+      }).catch(err => {
+        clientConfig.set('loggedin', false);
+        reject(err);
+      });
+    });
+  }
 
-          clientConfig.set('loggedin', true);
-          resolve();
+  function whoami(config) {
+    return new Promise((resolve, reject) => {
+      config.version = globalConfig.get('version');
+      config.apiUrl = clientConfig.get('apiUrl');
+
+      var sync = fullSyncFactory(config, logger);
+
+      sync.blnApi.whoami(function(error, username) {
+        if(error) {
+          logger.info('whoami failed', {category: 'auth', error, username});
+
+          error = _checkForNetworkAndServerErrors(error);
+
+          reject(error);
+        } else {
+          logger.info('whoami successfull', {category: 'auth', username});
+
+          resolve(username);
         }
       });
     });
   }
 
-  function verifyNewLogin() {
-    //resolves with boolean true if a new instance was created (aka never seen user)
-    return new Promise(function(resolve, reject) {
-      var config = clientConfig.getAll(true);
-      config.version = globalConfig.get('version');
+  function _isNetworkError(error) {
+    return [
+      'ENOTFOUND',
+      'ETIMEDOUT',
+      'ENETUNREACH',
+      'EHOSTUNREACH',
+      'ECONNREFUSED',
+      'EHOSTDOWN',
+      'ESOCKETTIMEDOUT',
+      'ECONNRESET',
+      'E_BLN_API_REQUEST_NETWORK'
+    ].includes(error.code);
+  }
 
-      var sync = fullSyncFactory(config, logger);
-      sync.blnApi.whoami(function(err, username) {
-        if(err) {
-          logger.error('failed verify new user credentials', {
-            category: 'auth',
-            error: err
-          });
+  function _checkForNetworkAndServerErrors(error) {
+    if(error.code && _isNetworkError(error)) {
+      return new AuthError(error.message, 'E_BLN_AUTH_NETWORK');
+    }
 
-          clientConfig.set('oidcProvider', undefined);
-          return reject(err);
-        }
+    if(error.code && error.code !== 'E_BLN_API_REQUEST_UNAUTHORIZED') {
+      return new AuthError(error.message, 'E_BLN_AUTH_SERVER');
+    }
 
-        logger.info('successfully verified authentication', {
-          category: 'auth',
-          username: username
-        });
-
-        clientConfig.set('loggedin', true);
-        clientConfig.set('username', username);
-
-        if(!instance.getInstances()) {
-          instance.setNewInstance(clientConfig).then(() => {
-            clientConfig.set('loggedin', true);
-            resolve(true);
-          });
-        } else {
-          var instanceName = instance.getInstance(clientConfig);
-
-          if(instanceName === instance.getLastActiveInstance()) {
-            instance.loadInstance(instanceName, clientConfig).then(() => {
-              resolve(false);
-              clientConfig.set('loggedin', true);
-            }).catch(error => {
-              reject(error);
-            });
-          } else {
-            instance.archiveDataDir(clientConfig).then(() => {
-              if(instanceName === null) {
-                instance.setNewInstance(clientConfig).then(() => {
-                  clientConfig.set('loggedin', true);
-                  resolve(true);
-                });
-              } else {
-                instance.loadInstance(instanceName, clientConfig).then(() => {
-                  resolve(false);
-                  clientConfig.set('loggedin', true);
-                }).catch((error) => {
-                  reject(error);
-                });
-              }
-            }).catch((error) => {
-              reject(error);
-            });
-          }
-        }
-      });
-    });
+    return error;
   }
 
   return {

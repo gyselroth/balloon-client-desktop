@@ -132,11 +132,54 @@ module.exports = function() {
     }
   }
 
+  function loadInstance(name, clientConfig) {
+    var switchInstance = function() {
+      instances.active = name;
+      instances.instances[name].balloonDir = undefined;
+      instances.instances[name].balloonDirIno = undefined;
+      persist();
+      clientConfig.initialize();
+    };
+
+    return new Promise(function(resolve, reject) {
+      var instance = instances.instances[name];
+
+      if(fs.existsSync(instance.balloonDir)) {
+        unarchiveDataDir(instance.balloonDir, clientConfig, name).then(() => {
+          switchInstance();
+          resolve();
+        }).catch(reject);
+      } else {
+        if(fs.existsSync(clientConfig.get('balloonDir')) === false) {
+            createDataDir(clientConfig, name).then(() => {
+              switchInstance();
+              resolve();
+            }).catch(reject);
+        } else {
+          switchInstance();
+          resolve();
+        }
+      }
+    });
+  }
+
+  function setNewInstance(username, server, context, clientConfig) {
+    if(!instances.instances) {
+      instances.instances = {};
+    }
+
+    var name = getNewInstanceName();
+
+    instances.instances[name] = { username, server, context };
+    instances.active = name;
+    persist();
+    clientConfig.initialize();
+
+    return createDataDir(clientConfig, name);
+  }
+
   return {
     initialize,
-    getInstances: function() {
-      return instances.instances;
-    },
     getLastActiveInstance: function() {
       return instances.lastActive;
     },
@@ -150,15 +193,15 @@ module.exports = function() {
 
       return instances.instances[name];
     },
-    getInstance: function(clientConfig) {
+    getInstance: function(username, url, context) {
       if(instances.instances) {
         for(instance in instances.instances) {
           if(
-            instances.instances[instance].server === clientConfig.get('blnUrl')
+            instances.instances[instance].server === url
             &&
-            instances.instances[instance].username === clientConfig.get('username')
+            instances.instances[instance].username === username
             &&
-            instances.instances[instance].context === clientConfig.get('context')
+            instances.instances[instance].context === context
           ) {
             return instance;
           }
@@ -167,54 +210,40 @@ module.exports = function() {
 
       return null;
     },
-    archiveDataDir,
-    loadInstance: function(name, clientConfig) {
-      var switchInstance = function() {
-        instances.active = name;
-        instances.instances[name].balloonDir = undefined;
-        instances.instances[name].balloonDirIno = undefined;
-        persist();
-        clientConfig.initialize();
-      };
+    link: function(username, url, context, clientConfig) {
+      return new Promise((resolve, reject) => {
+        var activeInstance = this.getActiveInstance();
 
-      return new Promise(function(resolve, reject) {
-        var instance = instances.instances[name];
-
-        if(fs.existsSync(instance.balloonDir)) {
-          unarchiveDataDir(instance.balloonDir, clientConfig, name).then(() => {
-            switchInstance();
-            resolve();
-          }).catch(reject);
-        } else {
-          if(fs.existsSync(clientConfig.get('balloonDir')) === false) {
-              createDataDir(clientConfig, name).then(() => {
-                switchInstance();
-                resolve();
-              }).catch(reject);
+        if(activeInstance) {
+          var activeInstanceCfg = instances[activeInstance];
+          if(activeInstanceCfg && activeInstanceCfg.username === username) {
+            return resolve(false);
           } else {
-            switchInstance();
-            resolve();
+            // if username changed, we need to unlink the active instance
+            this.unlink(clientConfig);
           }
         }
+
+        var instanceName = this.getInstance(username, url, context);
+
+        if(instanceName === this.getLastActiveInstance()) {
+          loadInstance(instanceName, clientConfig).then(() => {
+            resolve(false);
+          }).catch(reject);
+        } else {
+          archiveDataDir(clientConfig).then(() => {
+            if(instanceName === null) {
+              setNewInstance(username, url, context, clientConfig).then(() => {
+                resolve(true);
+              }).catch(reject);
+            } else {
+              loadInstance(instanceName, clientConfig).then(() => {
+                resolve(false);
+              }).catch(reject);
+            }
+          }).catch(reject);
+        }
       });
-    },
-    setNewInstance: function(clientConfig) {
-      if(!instances.instances) {
-        instances.instances = {};
-      }
-
-      var name = getNewInstanceName();
-      instances.instances[name] = {
-        server: clientConfig.get('blnUrl'),
-        username: clientConfig.get('username'),
-        context: clientConfig.get('context')
-      };
-
-      instances.active = name;
-      persist();
-      clientConfig.initialize();
-
-      return createDataDir(clientConfig, name);
     },
     unlink: function(clientConfig){
       instances.lastActive = instances.active;

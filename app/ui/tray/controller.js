@@ -24,6 +24,7 @@ const stateIconNameMap = {
   default: 'default',
   sync: 'sync',
   offline: 'error',
+  disconnected: 'error',
   loggedout: 'error',
   pause: 'warning'
 };
@@ -99,13 +100,14 @@ const Icons = {
   },
 };
 
-const StatePriorities = ['offline', 'loggedout', 'pause', 'sync', 'update', 'default'];
+const StatePriorities = ['offline', 'disconnected', 'loggedout', 'pause', 'sync', 'update', 'default'];
 
 const currentStates = {
   default: true,
   check: false,
   offline: false,
   loggedout: false,
+  disconnected: false,
   pause: false,
   sync: false,
   update: false
