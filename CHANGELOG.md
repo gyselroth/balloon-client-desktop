@@ -28,6 +28,7 @@
 * Use Buffer.from() instead of deprecated new Buffer() #238
 * Replace call to deprecated function setTemplateImage #236
 * Cancel upload if file has been changed or deleted #140
+* Identify instance with user id instead of username #230
 
 
 ## 1.2.1

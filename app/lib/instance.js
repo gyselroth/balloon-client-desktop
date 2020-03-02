@@ -17,8 +17,6 @@ function initialize() {
     instances = {};
   } else {
     instances = JSON.parse(fs.readFileSync(instancesFile, 'utf8'));
-    //require() does caching?
-    //instances = require(instancesFile);
   }
 }
 
@@ -32,6 +30,19 @@ function persist() {
 
 module.exports = function() {
   initialize();
+
+  /**
+   * Checks if the user in the given instance is the same as the user who logged in
+   **/
+  function isInstanceUser(instance, userid, username) {
+    // TODO pixtron - deprecated check for username can be removed in version 2.0.0 (see #230)
+    if(instance.userid) {
+      return instance.userid === userid;
+    } else {
+      logger.warning('Identifying instance with username', {category: 'instance', instance});
+      return instance.username === username;
+    }
+  }
 
   function archiveDataDir(clientConfig) {
     return new Promise(function(resolve, reject) {
@@ -132,9 +143,12 @@ module.exports = function() {
     }
   }
 
-  function loadInstance(name, clientConfig) {
+  function loadInstance(name, userid, clientConfig) {
+    // TODO pixtron - deprecated userid can be removed again in version 2.0.0 (see #230)
+    // Currently it is only here to migrate the instances
     var switchInstance = function() {
       instances.active = name;
+      instances.instances[name].userid = userid;
       instances.instances[name].balloonDir = undefined;
       instances.instances[name].balloonDirIno = undefined;
       persist();
@@ -163,14 +177,13 @@ module.exports = function() {
     });
   }
 
-  function setNewInstance(username, server, context, clientConfig) {
+  function setNewInstance(username, userid, server, context, clientConfig) {
     if(!instances.instances) {
       instances.instances = {};
     }
 
     var name = getNewInstanceName();
-
-    instances.instances[name] = { username, server, context };
+    instances.instances[name] = { username, userid, server, context };
     instances.active = name;
     persist();
     clientConfig.initialize();
@@ -193,13 +206,14 @@ module.exports = function() {
 
       return instances.instances[name];
     },
-    getInstance: function(username, url, context) {
+    // TODO pixtron - deprecated username can be removed in version 2.0.0 (see #230)
+    getInstance: function(username, url, context, userid) {
       if(instances.instances) {
         for(instance in instances.instances) {
           if(
             instances.instances[instance].server === url
             &&
-            instances.instances[instance].username === username
+            isInstanceUser(instances.instances[instance], userid, username)
             &&
             instances.instances[instance].context === context
           ) {
@@ -210,34 +224,34 @@ module.exports = function() {
 
       return null;
     },
-    link: function(username, url, context, clientConfig) {
+    link: function(username, userid, url, context, clientConfig) {
       return new Promise((resolve, reject) => {
         var activeInstance = this.getActiveInstance();
 
         if(activeInstance) {
           var activeInstanceCfg = instances[activeInstance];
-          if(activeInstanceCfg && activeInstanceCfg.username === username) {
+          if(activeInstanceCfg && isInstanceUser(activeInstanceCfg, userid, username)) {
             return resolve(false);
           } else {
-            // if username changed, we need to unlink the active instance
+            // if user changed, we need to unlink the active instance
             this.unlink(clientConfig);
           }
         }
 
-        var instanceName = this.getInstance(username, url, context);
+        var instanceName = this.getInstance(username, url, context, userid);
 
         if(instanceName === this.getLastActiveInstance()) {
-          loadInstance(instanceName, clientConfig).then(() => {
+          loadInstance(instanceName, userid, clientConfig).then(() => {
             resolve(false);
           }).catch(reject);
         } else {
           archiveDataDir(clientConfig).then(() => {
             if(instanceName === null) {
-              setNewInstance(username, url, context, clientConfig).then(() => {
+              setNewInstance(username, userid, url, context, clientConfig).then(() => {
                 resolve(true);
               }).catch(reject);
             } else {
-              loadInstance(instanceName, clientConfig).then(() => {
+              loadInstance(instanceName, userid, clientConfig).then(() => {
                 resolve(false);
               }).catch(reject);
             }

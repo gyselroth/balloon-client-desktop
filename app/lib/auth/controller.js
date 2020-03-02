@@ -477,13 +477,14 @@ module.exports = function(env, clientConfig) {
 
       logger.info('verifying new user credentials with whoami call', {category: 'auth', authMethod: config.authMethod, username: config.username});
 
-      whoami(config).then(username => {
+      whoami(config).then(user => {
         var url = clientConfig.get('blnUrl');
         var context = clientConfig.get('context');
 
-        instance.link(username, url, context, clientConfig).then(newInstance => {
-          //only change username after instance has been loaded, otherwise we might change the username in an old instance
-          clientConfig.set('username', username);
+        instance.link(user.username, user.id, url, context, clientConfig).then(newInstance => {
+          // only change user after instance has been loaded, otherwise we might change the user in an old instance
+          clientConfig.set('username', user.username);
+          clientConfig.set('userid', user.id);
           clientConfig.set('loggedin', true);
           resolve(newInstance);
         }).catch(err => {
@@ -504,17 +505,17 @@ module.exports = function(env, clientConfig) {
 
       var sync = fullSyncFactory(config, logger);
 
-      sync.blnApi.whoami(function(error, username) {
+      sync.blnApi.whoami(function(error, user) {
         if(error) {
-          logger.info('whoami failed', {category: 'auth', error, username});
+          logger.info('whoami failed', {category: 'auth', error});
 
           error = _checkForNetworkAndServerErrors(error);
 
           reject(error);
         } else {
-          logger.info('whoami successfull', {category: 'auth', username});
+          logger.info('whoami successfull', {category: 'auth', username: user.usernmae, userid: user.id});
 
-          resolve(username);
+          resolve(user);
         }
       });
     });
