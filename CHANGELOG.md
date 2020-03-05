@@ -29,6 +29,7 @@
 * Replace call to deprecated function setTemplateImage #236
 * Cancel upload if file has been changed or deleted #140
 * Identify instance with user id instead of username #230
+* Change wizard finish page message #246
 
 
 ## 1.2.1
