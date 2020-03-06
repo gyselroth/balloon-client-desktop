@@ -22,7 +22,7 @@ module.exports = function() {
   }
 
   function init() {
-    if(process.platform !== 'linux') {
+    if(process.platform !== 'linux' || process.env.APPIMAGE && process.env.APPDIR) {
       var $check = $('#about-version-check').click(function(){
         $('#about').find('.loader').show();
         $(this).hide();

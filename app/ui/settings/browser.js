@@ -9,7 +9,7 @@ module.exports = function() {
   function init() {
     var isLoggedIn = clientConfig.isActiveInstance() !== undefined;
 
-    if(process.platform === 'linux') {
+    if(process.platform === 'linux' && !process.env.APPIMAGE || !process.env.APPDIR) {
       $('#settings-allowPrerelease').hide();
     }
 

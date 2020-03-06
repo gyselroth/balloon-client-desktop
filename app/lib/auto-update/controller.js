@@ -73,6 +73,7 @@ module.exports = function(env, clientConfig, tray) {
   });
 
   function shouldCheckForUpdates() {
+    return true;
     if(!process.defaultApp && env.name === 'production') {
       if(env.update && env.update.enable !== undefined) {
         return env.update.enable;
