@@ -1,6 +1,6 @@
-## 1.3.0-alpha1
+## 1.3.0-beta1
 **Maintainer**: balloon-team <opensource@gyselroth.net>\
-**Date**:
+**Date**: Fri Mar 06 15:39:43 CET 2020
 
 ### Bugfixes
 * Logger should be able to serialize BigInt #229
@@ -30,6 +30,9 @@
 * Cancel upload if file has been changed or deleted #140
 * Identify instance with user id instead of username #230
 * Change wizard finish page message #246
+
+### Packaging
+* Add AppImage package and enable autoupdate for linux (If installed using appimage) #248
 
 
 ## 1.2.1
