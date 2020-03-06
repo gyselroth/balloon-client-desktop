@@ -50,7 +50,7 @@
       {
         "provider": "github",
         "owner": "gyselroth",
-        "repo": "balloon-client-desktop-update-testing"
+        "repo": "balloon-client-desktop"
       }
     ],
     "fileAssociations": [
