@@ -8,6 +8,7 @@
 * Send feedback to new api endpoint #217
 * Trailing slash in server url leads to error #235
 * Server can be changed without restarting the client #237
+* Unhandled promise rejection if build without releaser #247
 
 ### Changes
 * Upgrade to electron v7 #132

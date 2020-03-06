@@ -73,7 +73,6 @@ module.exports = function(env, clientConfig, tray) {
   });
 
   function shouldCheckForUpdates() {
-    return true;
     if(!process.defaultApp && env.name === 'production') {
       if(env.update && env.update.enable !== undefined) {
         return env.update.enable;
@@ -93,7 +92,9 @@ module.exports = function(env, clientConfig, tray) {
       tray.update('update-not-available');
     } else {
       checkRunning = true;
-      autoUpdater.checkForUpdates();
+      autoUpdater.checkForUpdates().catch(err => {
+        logger.error('update check failed', {category: 'autoupdate', err: err});
+      });
     }
   }
 
