@@ -90,7 +90,7 @@
     "electron": "^2.0.0",
     "electron-builder": "20.34.0",
     "gulp": "^4.0.2",
-    "minimist": "~1.2.0"
+    "minimist": "~1.2.3"
   },
   "dependencies": {
     "@gyselroth/balloon-node-sync": "0.5.4",
