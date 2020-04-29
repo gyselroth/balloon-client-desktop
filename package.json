@@ -109,7 +109,7 @@
     "graceful-fs": "^4.1.15",
     "handlebars": "^4.0.12",
     "javascript-time-ago": "^1.0.34",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "jstree": "^3.3.7",
     "keytar": "~4.3.0",
     "lodash": "^4.17.13",
